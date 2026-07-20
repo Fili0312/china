@@ -299,7 +299,7 @@ più le opzionali di comportamento (timeout, TTL cache, soglie, concorrenza,
 | M2 | Upload xls/xlsx/csv, anteprima, mapping, normalizzazione, fingerprint, DB, riuso | **completato** |
 | M3 | PiloterrClient, Alibaba/AliExpress, cache e crediti, salvataggio candidati | **parzialmente completato** (manca la prova con chiave reale) |
 | M4 | ImportJob, ScoutingRequest, esecuzione, avanzamento, controlli, UI | **completato** |
-| M5 | Sessioni 1688/Taobao cifrate, scadenza, riconnessione | da implementare |
+| M5 | Sessioni 1688/Taobao cifrate, scadenza, riconnessione | **completato** salvo il collegamento con credenziali reali |
 | M6 | Aggiornamento prodotti, storico prezzi, rilevamento modifiche | **completato**; varianti/scaglioni dipendono dall'adapter della fonte |
 | M7 | Hard constraints, dedup, punteggi, finalisti | **completato** (motivazioni AI: da implementare) |
 | M8 | Export Excel **completato**; UI base c'è (M4). Resta: rifinitura UI, test end-to-end automatici |
@@ -712,3 +712,81 @@ Per Alibaba e AliExpress l'aggiornamento passerà da Piloterr
 (`/v2/alibaba/product`, 2 crediti): il client c'è, il percorso è quello della
 ricerca, ma non è verificabile senza chiave — e Piloterr dichiara quell'
 endpoint temporaneamente sospeso.
+
+
+---
+
+## 14. M5 — esito (infrastruttura completata; resta il collegamento reale)
+
+### Perché il login è manuale
+
+`s.1688.com` risponde con una punish page e `s.taobao.com` richiede il login.
+Automatizzare l'accesso significherebbe custodire password, codici SMS e
+captcha di un account reale: fragile e fuori da ciò che questo servizio deve
+tenere. L'utente fa il login nel proprio browser ed esporta i cookie; qui si
+incollano una volta.
+
+```
+GET    /api/scouting/sessions              stato di tutte le sessioni
+GET    /api/scouting/sessions/:marketplace stato di una sessione
+POST   /api/scouting/sessions/:marketplace collega (corpo: cookie JSON)
+DELETE /api/scouting/sessions/:marketplace scollega
+```
+
+### Come sono protetti i cookie
+
+I cookie di sessione **sono credenziali**: chi li legge entra nell'account.
+
+- **AES-256-GCM**, che cifra e autentica insieme: un blob manomesso non si
+  decifra affatto, invece di produrre dati plausibili ma sbagliati;
+- vettore di inizializzazione casuale a ogni salvataggio, così due sessioni
+  uguali non si riconoscono come tali nemmeno leggendo il database;
+- chiave da `SCOUTING_SESSION_SECRET` (aggiunta vuota a `.env.example`), mai
+  nel codice. **Senza segreto il salvataggio fallisce** con un messaggio che
+  spiega come generarlo: cifrare con una chiave di ripiego darebbe una falsa
+  sensazione di sicurezza;
+- **nessun endpoint restituisce mai i cookie.** Si espone solo lo stato: quali
+  cookie ci sono *per nome*, quando scadono, quando sono stati usati l'ultima
+  volta. I valori si leggono solo internamente, per passarli a Playwright;
+- il messaggio d'errore è **identico** per chiave sbagliata e dato manomesso:
+  distinguerli aiuterebbe solo chi ci sta provando.
+
+### Scadenza e riconnessione
+
+La scadenza si ricava dai cookie stessi (il primo che scade decide). Una
+sessione scaduta non viene restituita all'uso: usarla produrrebbe una pagina
+di login scambiata per «nessun risultato». Lo stato segnala `expired` e
+`expiringSoon` (entro due giorni), e ogni fallimento d'uso viene registrato
+con il motivo, così si capisce che va ricollegata.
+
+### Verifica
+
+13 test sulla crittografia: round-trip, testo cifrato che non contiene i
+valori, due cifrature diverse dello stesso dato, manomissione del testo e del
+tag rifiutate, chiave sbagliata rifiutata, messaggi d'errore indistinguibili,
+riepilogo dei cookie senza valori.
+
+Provato sull'API reale con cookie finti:
+
+- la risposta di stato contiene **0 occorrenze** del valore segreto;
+- il journal del servizio ne contiene **0**;
+- a database c'è solo il testo cifrato (`SELECT` di controllo: 0 righe con il
+  segreto in chiaro);
+- una sessione con scadenza passata risulta `connected: false, expired: true`;
+- un marketplace non previsto e un header `Cookie` incollato al posto del JSON
+  vengono rifiutati con messaggi che dicono cosa fare;
+- senza `SCOUTING_SESSION_SECRET` il salvataggio fallisce spiegando come
+  generarlo.
+
+Controlli: `pnpm typecheck` ✅ · `pnpm test` 145/145 ✅ · `pnpm build` ✅
+
+### ⚠️ Cosa resta, e richiede te
+
+1. generare il segreto (`openssl rand -hex 32`) e metterlo in `.env`;
+2. fare login su 1688 e Taobao nel tuo browser ed esportare i cookie in JSON;
+3. collegarli con `POST /api/scouting/sessions/1688`;
+4. **collegare la sessione agli adapter**: `loadCookies()` è pronto per essere
+   passato a un contesto Playwright, ma gli adapter di ricerca non lo usano
+   ancora. Va fatto quando ci sarà una sessione vera con cui provarlo —
+   scriverlo alla cieca significherebbe consegnare codice mai eseguito contro
+   il sito che deve superare.

@@ -397,7 +397,8 @@ export const ModelName = {
   ImportJobRowEngine: 'ImportJobRowEngine',
   ProductCandidateRecord: 'ProductCandidateRecord',
   ProductSnapshot: 'ProductSnapshot',
-  ScoutingResult: 'ScoutingResult'
+  ScoutingResult: 'ScoutingResult',
+  MarketplaceSession: 'MarketplaceSession'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -413,7 +414,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "quoteRequest" | "requestItem" | "productCandidate" | "quote" | "quoteLine" | "scoutingDataset" | "scoutingDatasetRow" | "scoutingRequest" | "importJob" | "importJobRow" | "importJobRowEngine" | "productCandidateRecord" | "productSnapshot" | "scoutingResult"
+    modelProps: "quoteRequest" | "requestItem" | "productCandidate" | "quote" | "quoteLine" | "scoutingDataset" | "scoutingDatasetRow" | "scoutingRequest" | "importJob" | "importJobRow" | "importJobRowEngine" | "productCandidateRecord" | "productSnapshot" | "scoutingResult" | "marketplaceSession"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -1453,6 +1454,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    MarketplaceSession: {
+      payload: Prisma.$MarketplaceSessionPayload<ExtArgs>
+      fields: Prisma.MarketplaceSessionFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.MarketplaceSessionFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MarketplaceSessionPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.MarketplaceSessionFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MarketplaceSessionPayload>
+        }
+        findFirst: {
+          args: Prisma.MarketplaceSessionFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MarketplaceSessionPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.MarketplaceSessionFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MarketplaceSessionPayload>
+        }
+        findMany: {
+          args: Prisma.MarketplaceSessionFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MarketplaceSessionPayload>[]
+        }
+        create: {
+          args: Prisma.MarketplaceSessionCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MarketplaceSessionPayload>
+        }
+        createMany: {
+          args: Prisma.MarketplaceSessionCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.MarketplaceSessionCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MarketplaceSessionPayload>[]
+        }
+        delete: {
+          args: Prisma.MarketplaceSessionDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MarketplaceSessionPayload>
+        }
+        update: {
+          args: Prisma.MarketplaceSessionUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MarketplaceSessionPayload>
+        }
+        deleteMany: {
+          args: Prisma.MarketplaceSessionDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.MarketplaceSessionUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.MarketplaceSessionUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MarketplaceSessionPayload>[]
+        }
+        upsert: {
+          args: Prisma.MarketplaceSessionUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MarketplaceSessionPayload>
+        }
+        aggregate: {
+          args: Prisma.MarketplaceSessionAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateMarketplaceSession>
+        }
+        groupBy: {
+          args: Prisma.MarketplaceSessionGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.MarketplaceSessionGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.MarketplaceSessionCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.MarketplaceSessionCountAggregateOutputType> | number
+        }
+      }
+    }
   }
 } & {
   other: {
@@ -1775,6 +1850,26 @@ export const ScoutingResultScalarFieldEnum = {
 } as const
 
 export type ScoutingResultScalarFieldEnum = (typeof ScoutingResultScalarFieldEnum)[keyof typeof ScoutingResultScalarFieldEnum]
+
+
+export const MarketplaceSessionScalarFieldEnum = {
+  id: 'id',
+  marketplace: 'marketplace',
+  label: 'label',
+  ciphertext: 'ciphertext',
+  iv: 'iv',
+  authTag: 'authTag',
+  digest: 'digest',
+  cookieNames: 'cookieNames',
+  expiresAt: 'expiresAt',
+  lastUsedAt: 'lastUsedAt',
+  lastFailedAt: 'lastFailedAt',
+  lastError: 'lastError',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type MarketplaceSessionScalarFieldEnum = (typeof MarketplaceSessionScalarFieldEnum)[keyof typeof MarketplaceSessionScalarFieldEnum]
 
 
 export const SortOrder = {
@@ -2129,6 +2224,7 @@ export type GlobalOmitConfig = {
   productCandidateRecord?: Prisma.ProductCandidateRecordOmit
   productSnapshot?: Prisma.ProductSnapshotOmit
   scoutingResult?: Prisma.ScoutingResultOmit
+  marketplaceSession?: Prisma.MarketplaceSessionOmit
 }
 
 /* Types for Logging */

@@ -90,3 +90,12 @@ export type ProductSnapshot = Prisma.ProductSnapshotModel
  * Esito di un prodotto per una riga: finalista o scartato, con motivazione.
  */
 export type ScoutingResult = Prisma.ScoutingResultModel
+/**
+ * Model MarketplaceSession
+ * Sessione di un marketplace che richiede login (1688, Taobao).
+ * 
+ * I cookie sono credenziali: stanno qui **solo cifrati** (AES-256-GCM) e non
+ * vengono mai restituiti da un'API né scritti nei log. Di ogni sessione si
+ * espone soltanto lo stato: quale account, quando scade, quando è stata usata.
+ */
+export type MarketplaceSession = Prisma.MarketplaceSessionModel

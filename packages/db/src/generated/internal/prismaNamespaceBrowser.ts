@@ -64,7 +64,8 @@ export const ModelName = {
   ImportJobRowEngine: 'ImportJobRowEngine',
   ProductCandidateRecord: 'ProductCandidateRecord',
   ProductSnapshot: 'ProductSnapshot',
-  ScoutingResult: 'ScoutingResult'
+  ScoutingResult: 'ScoutingResult',
+  MarketplaceSession: 'MarketplaceSession'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -366,6 +367,26 @@ export const ScoutingResultScalarFieldEnum = {
 } as const
 
 export type ScoutingResultScalarFieldEnum = (typeof ScoutingResultScalarFieldEnum)[keyof typeof ScoutingResultScalarFieldEnum]
+
+
+export const MarketplaceSessionScalarFieldEnum = {
+  id: 'id',
+  marketplace: 'marketplace',
+  label: 'label',
+  ciphertext: 'ciphertext',
+  iv: 'iv',
+  authTag: 'authTag',
+  digest: 'digest',
+  cookieNames: 'cookieNames',
+  expiresAt: 'expiresAt',
+  lastUsedAt: 'lastUsedAt',
+  lastFailedAt: 'lastFailedAt',
+  lastError: 'lastError',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type MarketplaceSessionScalarFieldEnum = (typeof MarketplaceSessionScalarFieldEnum)[keyof typeof MarketplaceSessionScalarFieldEnum]
 
 
 export const SortOrder = {

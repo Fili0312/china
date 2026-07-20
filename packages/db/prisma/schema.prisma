@@ -465,3 +465,36 @@ model ScoutingResult {
   @@unique([jobRowId, candidateId])
   @@index([jobRowId])
 }
+
+/// Sessione di un marketplace che richiede login (1688, Taobao).
+///
+/// I cookie sono credenziali: stanno qui **solo cifrati** (AES-256-GCM) e non
+/// vengono mai restituiti da un'API né scritti nei log. Di ogni sessione si
+/// espone soltanto lo stato: quale account, quando scade, quando è stata usata.
+model MarketplaceSession {
+  id          String @id @default(cuid())
+  marketplace String @unique
+
+  /// Etichetta scelta dall'utente per riconoscere l'account.
+  label String?
+
+  /// Blob cifrato dei cookie, con il proprio vettore e tag di autenticazione.
+  ciphertext String
+  iv         String
+  authTag    String
+  /// Impronta del contenuto: dice se la sessione è cambiata senza esporla.
+  digest     String
+
+  /// Nomi dei cookie presenti, senza valori: utile per diagnosticare.
+  cookieNames String[]
+  /// Scadenza dichiarata dai cookie stessi, quando presente.
+  expiresAt   DateTime?
+
+  lastUsedAt   DateTime?
+  lastFailedAt DateTime?
+  /// Motivo dell'ultimo fallimento: serve a capire se va ricollegata.
+  lastError    String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}

@@ -401,7 +401,7 @@ facoltativi.
 | Meccanismo | Comportamento |
 | --- | --- |
 | Cache per chiamata identica | TTL 1 h (`PILOTERR_CACHE_TTL_MS`); una ripetizione costa 0 |
-| Conteggio | costo reale per endpoint (Alibaba 1, AliExpress 2), esposto in `health` |
+| Conteggio | costo reale per endpoint, esposto in `health`: **ricerca Alibaba 1 credito, tutti gli altri 2** (compresa `/v2/alibaba/product`, corretta il 2026-07-20 dopo verifica sul pannello) |
 | Tetto di spesa | `PILOTERR_MAX_CALLS_PER_RUN` (0 = illimitato) |
 | Errori 4xx | non conteggiati: Piloterr non li fattura |
 | Paginazione | una pagina per ricerca (20 risultati): ogni pagina in più è un credito in più |

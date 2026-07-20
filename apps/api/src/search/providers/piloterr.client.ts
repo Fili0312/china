@@ -24,10 +24,17 @@ import {
 
 const DEFAULT_BASE_URL = "https://api.piloterr.com";
 
-/** Costo in crediti dichiarato da Piloterr, per endpoint. */
+/**
+ * Costo in crediti per endpoint, come riportato dal pannello Piloterr.
+ *
+ * La ricerca Alibaba costa 1 credito, tutto il resto 2. In particolare
+ * `/v2/alibaba/product` costa **2** crediti, non 1: contarlo per difetto
+ * farebbe sottostimare la spesa proprio sull'endpoint che M6 chiamerà una
+ * volta per candidato da aggiornare.
+ */
 export const PILOTERR_CREDIT_COST: Record<string, number> = {
   "/v2/alibaba/search": 1,
-  "/v2/alibaba/product": 1,
+  "/v2/alibaba/product": 2,
   "/v2/aliexpress/search": 2,
   "/v2/aliexpress/product": 2,
 };

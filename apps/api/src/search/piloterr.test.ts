@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import {
+  PILOTERR_CREDIT_COST,
   PiloterrClient,
   type PiloterrFetch,
 } from "./providers/piloterr.client";
@@ -125,6 +126,22 @@ test("il costo in crediti segue l'endpoint chiamato", async () => {
 
   await client.get("/v2/aliexpress/search", { query: "power bank" });
   assert.equal(client.getUsage().creditsSpent, 2, "AliExpress costa 2 crediti");
+});
+
+test("il listino crediti corrisponde al pannello Piloterr", () => {
+  // La sola ricerca Alibaba costa 1 credito: tutto il resto ne costa 2.
+  assert.equal(PILOTERR_CREDIT_COST["/v2/alibaba/search"], 1);
+  assert.equal(PILOTERR_CREDIT_COST["/v2/alibaba/product"], 2);
+  assert.equal(PILOTERR_CREDIT_COST["/v2/aliexpress/search"], 2);
+  assert.equal(PILOTERR_CREDIT_COST["/v2/aliexpress/product"], 2);
+});
+
+test("la scheda prodotto Alibaba conta due crediti, non uno", async () => {
+  const { fetch } = stubFetch([{ body: { title: "x" } }]);
+  const client = new PiloterrClient({ apiKey: "k", fetchImpl: fetch });
+
+  await client.get("/v2/alibaba/product", { query: "1600123456789" });
+  assert.equal(client.getUsage().creditsSpent, 2);
 });
 
 test("il tetto di spesa blocca le chiamate oltre il limite", async () => {

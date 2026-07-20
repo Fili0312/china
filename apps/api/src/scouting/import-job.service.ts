@@ -310,6 +310,30 @@ export class ImportJobService {
       const candidates = row.requestId
         ? await loadCandidates(row.requestId)
         : [];
+      const byId = new Map(candidates.map((c) => [c.id, c]));
+      const selections = await prisma.scoutingResult.findMany({
+        where: { jobRowId: row.id },
+        orderBy: [{ rank: "asc" }, { score: "desc" }],
+      });
+      const toSelection = (entry: (typeof selections)[number]) => {
+        const candidate = byId.get(entry.candidateId);
+        if (!candidate) return null;
+        return {
+          outcome: entry.outcome,
+          rank: entry.rank,
+          score: entry.score,
+          scoreBreakdown:
+            (entry.scoreBreakdown as unknown as Record<string, number>) ?? {},
+          rejectionCode: entry.rejectionCode,
+          rejectionReason: entry.rejectionReason,
+          aiRationale: entry.aiRationale,
+          scoreReused: entry.scoreReused,
+          product: toScoutingProduct(candidate),
+        };
+      };
+      const mapped = selections
+        .map(toSelection)
+        .filter((entry): entry is NonNullable<typeof entry> => entry !== null);
       resultRows.push({
         jobRowId: row.id,
         rowNumber: row.rowNumber,
@@ -322,6 +346,10 @@ export class ImportJobService {
         requirements:
           (row.request?.requirements as unknown as ProductRequirement[]) ?? [],
         candidates: candidates.map(toScoutingProduct),
+        finalists: mapped.filter(
+          (entry) => entry.outcome === "FINALIST" || entry.outcome === "SHORTLISTED"
+        ),
+        rejected: mapped.filter((entry) => entry.outcome === "REJECTED"),
         engines: row.engines.map((entry) => ({
           engine: entry.engine,
           status: entry.status,

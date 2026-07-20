@@ -301,7 +301,7 @@ più le opzionali di comportamento (timeout, TTL cache, soglie, concorrenza,
 | M4 | ImportJob, ScoutingRequest, esecuzione, avanzamento, controlli, UI | **completato** |
 | M5 | Sessioni 1688/Taobao cifrate, scadenza, riconnessione | da implementare |
 | M6 | Dettagli, varianti, MOQ, stock, prezzi per quantità, storico, rilevamento modifiche | da implementare |
-| M7 | Hard constraints, dedup, punteggi, finalisti, motivazioni AI | da implementare |
+| M7 | Hard constraints, dedup, punteggi, finalisti | **completato** (motivazioni AI: da implementare) |
 | M8 | UI, avanzamento job, export Excel, test end-to-end, documentazione | da implementare |
 
 
@@ -538,3 +538,70 @@ Controlli: `pnpm typecheck` ✅ · `pnpm test` 101/101 ✅ · `pnpm build` ✅
 Tutti i dati creati durante la verifica sono stati rimossi dal database, e la
 build di `apps/web` è stata rigenerata con l'URL API di produzione dopo essere
 stata temporaneamente ricompilata verso la porta di test.
+
+
+---
+
+## 10. M7 — esito (completato; motivazioni AI ancora da fare)
+
+Anticipata rispetto a M5 e M6 perché è l'unica delle tre **interamente
+verificabile qui**: M5 richiede le credenziali 1688/Taobao di Filippo, M6 la
+chiave Piloterr e un endpoint che Piloterr dichiara sospeso. Consegnare codice
+mai eseguito su quelle due sarebbe stato peggio che rimandarle.
+
+### Come vengono valutati i prodotti
+
+Tre esiti distinti per ogni requisito, ed è la distinzione che conta:
+
+| Esito | Significato | Effetto |
+| --- | --- | --- |
+| violato | il prodotto dichiara un valore incompatibile | scartato con motivazione |
+| verificato | il prodotto dichiara il valore giusto | punteggio pieno |
+| non verificabile | il prodotto non dichiara nulla | **neutro**, mai penalizzante |
+
+Un titolo cinese di quaranta caratteri non elenca le certificazioni:
+trattarne l'assenza come mancanza scarterebbe i prodotti giusti.
+
+Punteggio deterministico su cento punti: pertinenza 45, requisiti 25, prezzo
+12, reputazione 10, minimo d'ordine 8. Nessuna IA — dev'essere spiegabile e
+identico a distanza di mesi.
+
+Scarti tipizzati: `HARD_CONSTRAINT`, `MOQ_TOO_HIGH`, `PRICE_OVER_TARGET`,
+`UNAVAILABLE`, `DUPLICATE`, `BELOW_THRESHOLD`. Ognuno porta sempre una
+motivazione leggibile: un test lo verifica per tutti.
+
+### Il difetto più importante trovato provando sul serio
+
+Il primo giro su dati reali ha prodotto un risultato **sbagliato ma
+convincente**: cinque «finalisti» a pari merito 52,1 per una richiesta di
+tappetini antistatici — erano tutti **pettini**. Causa: su Chinagoods una
+query cinese incontra titoli inglesi, il motore di pertinenza non può
+confrontarli e assegna a tutti lo stesso punteggio neutro; nessuna misura era
+dichiarata, quindi tutti i requisiti erano «non verificabili» e il punteggio
+finiva identico per chiunque.
+
+Correzione: **un prodotto senza un solo segnale positivo verificabile non può
+essere proposto come finalista.** Serve almeno un requisito verificato oppure
+una pertinenza sopra 55. I prodotti restano in elenco come `SHORTLISTED`, con
+la nota del perché non sono proposti. Sullo stesso job la selezione è passata
+da 5 finalisti sbagliati a **zero finalisti** — che è la risposta onesta.
+
+### Il secondo difetto, nel riuso dei punteggi
+
+Riusando il punteggio di un prodotto immutato veniva riusato anche il
+**giudizio di proponibilità**. Ma quel giudizio dipende dalle regole, non dai
+dati del prodotto: dopo la correzione qui sopra, i vecchi esiti sbagliati le
+sopravvivevano e i pettini restavano finalisti. Ora del calcolo precedente si
+conserva solo il **punteggio** — è quello che deve restare stabile — mentre
+controlli e proponibilità si rideducono sempre da capo. Verificato sul job
+reale: punteggi `riusato=True` a 52,1 invariati, finalisti proposti 0.
+
+Controlli: `pnpm typecheck` ✅ · `pnpm test` 118/118 ✅ · `pnpm build` ✅
+(17 test in `selection.test.ts`).
+
+### Da fare ancora su M7
+
+Le **motivazioni discorsive AI** sui finalisti (`aiRationale`, facoltative e a
+consumo). Il campo esiste a database ed è esposto dall'API, ma non viene
+ancora popolato. Vanno aggiunte dopo, senza mai lasciar loro cambiare la
+classifica: il punteggio resta deterministico.

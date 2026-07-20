@@ -1,9 +1,18 @@
 import { Injectable, Logger } from "@nestjs/common";
-import { prisma } from "@china/db";
-import type { SearchEngine, SearchQuality } from "@china/shared";
+import { prisma, Prisma } from "@china/db";
+import type {
+  ProductRequirement,
+  SearchEngine,
+  SearchQuality,
+} from "@china/shared";
 import { SearchService } from "../search/search.service";
 import { piloterrClient } from "../search/providers/piloterr.client";
 import { persistCandidates, toCandidateData } from "./candidate-store";
+import {
+  selectFinalists,
+  type CandidateForSelection,
+  type StoredEvaluation,
+} from "./selection";
 
 /**
  * Motore di esecuzione dei job di scouting.
@@ -19,6 +28,16 @@ import { persistCandidates, toCandidateData } from "./candidate-store";
  * riavvio del servizio funzionano perché la verità è la riga a database, non
  * una variabile di processo.
  */
+
+/** Soglia di ammissione ai finalisti, per profilo di precisione. */
+function selectionThreshold(quality: SearchQuality): number {
+  const thresholds: Record<SearchQuality, number> = {
+    strict: 65,
+    balanced: 50,
+    broad: 35,
+  };
+  return thresholds[quality] ?? 50;
+}
 
 function numericEnv(name: string, fallback: number): number {
   const parsed = Number(process.env[name]);
@@ -209,6 +228,9 @@ export class ScoutingRunnerService {
           finishedAt: new Date(),
         },
       });
+      // Anche una riga riusata va valutata: i finalisti appartengono alla
+      // riga, non alla richiesta, e questa riga non li ha ancora.
+      await this.scoreRow(jobRowId, row.requestId!, row.job);
       await prisma.importJobRow.update({
         where: { id: jobRowId },
         data: { status: "DONE", reused: true, finishedAt: new Date() },
@@ -237,9 +259,17 @@ export class ScoutingRunnerService {
       data: { lastSearchedAt: new Date(), searchCount: { increment: 1 } },
     });
 
+    const failed = succeeded === 0;
+    if (!failed) {
+      await prisma.importJobRow.update({
+        where: { id: jobRowId },
+        data: { status: "SCORING" },
+      });
+      await this.scoreRow(jobRowId, row.requestId!, row.job);
+    }
+
     // Una riga fallisce solo se **nessuna** fonte ha risposto: un captcha su
     // Alibaba non deve invalidare i prodotti trovati su Yiwugo.
-    const failed = succeeded === 0;
     await prisma.importJobRow.update({
       where: { id: jobRowId },
       data: {
@@ -350,6 +380,109 @@ export class ScoutingRunnerService {
         },
       });
       return { ok: false, creditsSpent: 0 };
+    }
+  }
+
+  /**
+   * Applica vincoli, punteggi e scelta dei finalisti ai candidati della riga.
+   *
+   * I prodotti i cui dati non sono cambiati dall'ultima valutazione
+   * conservano **esattamente** il punteggio precedente: è la regola richiesta,
+   * e senza di essa la classifica si muoverebbe senza che nulla sia cambiato.
+   */
+  private async scoreRow(
+    jobRowId: string,
+    requestId: string,
+    job: { quality: string; finalists: number }
+  ): Promise<void> {
+    const request = await prisma.scoutingRequest.findUnique({
+      where: { id: requestId },
+      select: {
+        requirements: true,
+        targetPrice: true,
+        requestedQuantity: true,
+      },
+    });
+    if (!request) return;
+
+    const records = await prisma.productCandidateRecord.findMany({
+      where: { requestId },
+    });
+    if (records.length === 0) return;
+
+    // Punteggi già calcolati per candidati rimasti identici da allora.
+    const previous = await prisma.scoutingResult.findMany({
+      where: {
+        candidateId: { in: records.map((record) => record.id) },
+        jobRow: { requestId },
+      },
+      orderBy: { createdAt: "desc" },
+    });
+    const stored = new Map<string, StoredEvaluation>();
+    for (const record of records) {
+      const last = previous.find((entry) => entry.candidateId === record.id);
+      if (!last || last.score == null) continue;
+      const changedSince =
+        record.lastChangedAt != null && record.lastChangedAt > last.createdAt;
+      if (changedSince) continue;
+      stored.set(record.id, {
+        score: last.score,
+        breakdown:
+          (last.scoreBreakdown as unknown as Record<string, number>) ?? {},
+        rejectionCode:
+          (last.rejectionCode as StoredEvaluation["rejectionCode"]) ?? null,
+        rejectionReason: last.rejectionReason,
+        checks: [],
+      });
+    }
+
+    const candidates: CandidateForSelection[] = records.map((record) => ({
+      candidateId: record.id,
+      engine: record.engine,
+      title: record.title,
+      specs: (record.specs as unknown as Record<string, string>) ?? undefined,
+      price: record.price == null ? null : Number(record.price),
+      currency: record.currency,
+      moq: record.moq,
+      rating: record.rating,
+      reviewCount: record.reviewCount,
+      totalSales: record.totalSales,
+      relevanceScore: record.relevanceScore,
+      unavailable: record.unavailable,
+    }));
+
+    const outcomes = selectFinalists(
+      candidates,
+      {
+        request: {
+          requirements:
+            (request.requirements as unknown as ProductRequirement[]) ?? [],
+          targetPrice: request.targetPrice,
+          requestedQuantity: request.requestedQuantity,
+        },
+        threshold: selectionThreshold(job.quality as SearchQuality),
+      },
+      job.finalists,
+      stored
+    );
+
+    for (const outcome of outcomes) {
+      const data = {
+        outcome: outcome.outcome,
+        rank: outcome.rank,
+        score: outcome.evaluation.score,
+        scoreBreakdown: outcome.evaluation.breakdown as Prisma.InputJsonValue,
+        rejectionCode: outcome.evaluation.rejectionCode,
+        rejectionReason: outcome.evaluation.rejectionReason,
+        scoreReused: outcome.scoreReused,
+      };
+      await prisma.scoutingResult.upsert({
+        where: {
+          jobRowId_candidateId: { jobRowId, candidateId: outcome.candidateId },
+        },
+        create: { jobRowId, candidateId: outcome.candidateId, ...data },
+        update: data,
+      });
     }
   }
 

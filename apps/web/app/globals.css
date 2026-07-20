@@ -1214,3 +1214,27 @@ select {
   color: #b45309;
   margin-top: 4px;
 }
+
+.scouting-subhead {
+  font-size: 13px;
+  margin: 12px 0 4px;
+}
+
+.scouting-rejected {
+  margin-top: 10px;
+  font-size: 13px;
+}
+
+.scouting-rejected summary {
+  cursor: pointer;
+  color: var(--muted, #6b7280);
+}
+
+.scouting-rejected ul {
+  margin: 8px 0 0;
+  padding-left: 18px;
+}
+
+.scouting-rejected li {
+  margin-bottom: 8px;
+}

@@ -544,6 +544,90 @@ export function ScoutingJob() {
               {row.candidates.length === 0 ? (
                 <p className="muted">Nessun prodotto trovato per questa riga.</p>
               ) : (
+                <>
+                <h4 className="scouting-subhead">
+                  Finalisti ({row.finalists.length})
+                </h4>
+                <div className="scouting-candidates">
+                  {row.finalists.map((selection) => (
+                    <article
+                      key={selection.product.candidateId}
+                      className="product-card"
+                    >
+                      {selection.product.imageUrl ? (
+                        <img
+                          src={selection.product.imageUrl}
+                          alt=""
+                          referrerPolicy="no-referrer"
+                          loading="lazy"
+                        />
+                      ) : null}
+                      <div className="card-body">
+                        <a
+                          className="card-title"
+                          href={selection.product.url ?? "#"}
+                          target="_blank"
+                          rel="noreferrer"
+                        >
+                          {selection.product.title}
+                        </a>
+                        <div className="card-meta">
+                          <span className="badge ok">
+                            #{selection.rank} · {selection.score}
+                          </span>
+                          <span className="chip">{selection.product.engine}</span>
+                          {selection.product.price != null ? (
+                            <strong>
+                              {selection.product.price} {selection.product.currency}
+                            </strong>
+                          ) : null}
+                          {selection.product.moq ? (
+                            <span className="muted">
+                              MOQ {selection.product.moq}
+                            </span>
+                          ) : null}
+                          {selection.scoreReused ? (
+                            <span className="chip" title="Dati invariati: punteggio non ricalcolato">
+                              punteggio invariato
+                            </span>
+                          ) : null}
+                        </div>
+                        <div className="scouting-hint">
+                          {Object.entries(selection.scoreBreakdown)
+                            .map(([name, value]) => `${name} ${value.toFixed(1)}`)
+                            .join(" · ")}
+                        </div>
+                        {selection.product.vendorName ? (
+                          <div className="muted">
+                            {selection.product.vendorName}
+                          </div>
+                        ) : null}
+                      </div>
+                    </article>
+                  ))}
+                </div>
+                {row.rejected.length ? (
+                  <details className="scouting-rejected">
+                    <summary>
+                      Scartati ({row.rejected.length}) e perché
+                    </summary>
+                    <ul>
+                      {row.rejected.map((selection) => (
+                        <li key={selection.product.candidateId}>
+                          <span className="chip err">
+                            {selection.rejectionCode}
+                          </span>{" "}
+                          <strong>{selection.product.title.slice(0, 60)}</strong>
+                          <div className="scouting-hint">
+                            {selection.rejectionReason}
+                          </div>
+                        </li>
+                      ))}
+                    </ul>
+                  </details>
+                ) : null}
+                <details className="scouting-rejected">
+                  <summary>Tutti i prodotti trovati ({row.candidates.length})</summary>
                 <div className="scouting-candidates">
                   {row.candidates.map((candidate) => (
                     <article key={candidate.candidateId} className="product-card">
@@ -595,6 +679,8 @@ export function ScoutingJob() {
                     </article>
                   ))}
                 </div>
+                </details>
+                </>
               )}
             </div>
           ))}

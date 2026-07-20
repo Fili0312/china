@@ -447,6 +447,21 @@ export const ScoutingProductSchema = z.object({
 });
 export type ScoutingProduct = z.infer<typeof ScoutingProductSchema>;
 
+/** Esito di selezione di un prodotto per una riga. */
+export const ScoutingSelectionSchema = z.object({
+  outcome: ScoutingOutcomeSchema,
+  rank: z.number().int().min(1).nullable(),
+  score: z.number().min(0).max(100).nullable(),
+  scoreBreakdown: z.record(z.string(), z.number()),
+  rejectionCode: z.string().nullable(),
+  rejectionReason: z.string().nullable(),
+  aiRationale: z.string().nullable(),
+  /** `true` se il punteggio è stato riusato perché i dati non sono cambiati. */
+  scoreReused: z.boolean(),
+  product: ScoutingProductSchema,
+});
+export type ScoutingSelection = z.infer<typeof ScoutingSelectionSchema>;
+
 export const ScoutingRowResultsSchema = z.object({
   jobRowId: z.string(),
   rowNumber: z.number().int().min(1),
@@ -460,6 +475,10 @@ export const ScoutingRowResultsSchema = z.object({
   requirements: z.array(ProductRequirementSchema),
   /** Tutti i prodotti trovati per la richiesta di questa riga. */
   candidates: z.array(ScoutingProductSchema),
+  /** I migliori, in ordine di punteggio. */
+  finalists: z.array(ScoutingSelectionSchema),
+  /** Gli scartati, ciascuno con la propria motivazione. */
+  rejected: z.array(ScoutingSelectionSchema),
   engines: z.array(ScoutingEngineProgressSchema),
   error: z.string().nullable(),
 });

@@ -30,6 +30,8 @@ import {
   ProviderTimeoutError,
   ProviderUpstreamError,
 } from "./providers/provider";
+import { PiloterrSearchProvider } from "./providers/piloterr.provider";
+import { RoutedSearchProvider } from "./providers/routed.provider";
 import {
   MadeInChinaScraperProvider,
   MarketplaceScraperProvider,
@@ -310,23 +312,34 @@ export class SearchService implements OnModuleDestroy {
         defaultCurrency: "CNY",
       }),
     ],
+    // Alibaba e AliExpress passano da Piloterr quando la chiave è
+    // configurata: dall'IP di questo VPS il browser trova solo captcha.
+    // Senza chiave il comportamento resta quello precedente.
     [
       "alibaba",
-      new MarketplaceScraperProvider({
-        name: "alibaba",
-        adapterName: "alibaba",
-        displayName: "Alibaba",
-        defaultCurrency: "USD",
-      }),
+      new RoutedSearchProvider(
+        "alibaba",
+        new PiloterrSearchProvider({ engine: "alibaba" }),
+        new MarketplaceScraperProvider({
+          name: "alibaba",
+          adapterName: "alibaba",
+          displayName: "Alibaba",
+          defaultCurrency: "USD",
+        })
+      ),
     ],
     [
       "aliexpress",
-      new MarketplaceScraperProvider({
-        name: "aliexpress",
-        adapterName: "aliexpress",
-        displayName: "AliExpress",
-        defaultCurrency: "EUR",
-      }),
+      new RoutedSearchProvider(
+        "aliexpress",
+        new PiloterrSearchProvider({ engine: "aliexpress" }),
+        new MarketplaceScraperProvider({
+          name: "aliexpress",
+          adapterName: "aliexpress",
+          displayName: "AliExpress",
+          defaultCurrency: "EUR",
+        })
+      ),
     ],
     ["made-in-china", new MadeInChinaScraperProvider()],
     [

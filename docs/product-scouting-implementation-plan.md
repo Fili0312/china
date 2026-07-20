@@ -297,7 +297,7 @@ più le opzionali di comportamento (timeout, TTL cache, soglie, concorrenza,
 | --- | --- | --- |
 | M1 | Analisi, inventario, piano, schema DB, rischi | **completato** |
 | M2 | Upload xls/xlsx/csv, anteprima, mapping, normalizzazione, fingerprint, DB, riuso | **completato** |
-| M3 | PiloterrClient, Alibaba/AliExpress, cache e crediti, salvataggio candidati | da implementare |
+| M3 | PiloterrClient, Alibaba/AliExpress, cache e crediti, salvataggio candidati | **parzialmente completato** (manca la prova con chiave reale) |
 | M4 | Infrastruttura Playwright comune, Chinagoods, Yiwugo, Made-in-China, risultati parziali | da implementare |
 | M5 | Sessioni 1688/Taobao cifrate, scadenza, riconnessione | da implementare |
 | M6 | Dettagli, varianti, MOQ, stock, prezzi per quantità, storico, rilevamento modifiche | da implementare |
@@ -367,3 +367,83 @@ Nest fallisce e **ogni** controller risponde 500
 l'API in locale: `pnpm --filter @china/api build && node dist/main.js`.
 Sistemarlo (`@swc-node/register` o `nest start`) è fuori dal perimetro di
 questo intervento, ma va annotato.
+
+
+---
+
+## 8. M3 — esito (parzialmente completato)
+
+### Cosa è stato costruito
+
+| Componente | File |
+| --- | --- |
+| Client HTTP Piloterr: chiave, timeout, cache, crediti, errori tipizzati | `apps/api/src/search/providers/piloterr.client.ts` |
+| Provider di ricerca Alibaba e AliExpress | `apps/api/src/search/providers/piloterr.provider.ts` |
+| Instradamento Piloterr ↔ browser per marketplace | `apps/api/src/search/providers/routed.provider.ts` |
+
+Gli schemi non sono inventati: sono quelli pubblicati da Piloterr
+(`GET /v2/alibaba/search`, `GET /v2/aliexpress/search`, header `x-api-key`,
+base `https://api.piloterr.com`), letti in modo tollerante sui campi
+facoltativi.
+
+### Trattamento della chiave
+
+- vive **solo** in `PILOTERR_API_KEY` (aggiunta vuota a `.env.example`);
+- viaggia **solo** nell'header `x-api-key`, mai in query string: gli URL
+  finiscono nei log di accesso di qualunque proxy attraversato;
+- `redactKey()` la toglie da ogni testo prima che diventi messaggio d'errore
+  o riga di log — verificato da un test dedicato;
+- non compare in interfaccia: `GET /api/search/health` espone solo
+  `configured: true|false` e il consumo di crediti.
+
+### Governo dei crediti
+
+| Meccanismo | Comportamento |
+| --- | --- |
+| Cache per chiamata identica | TTL 1 h (`PILOTERR_CACHE_TTL_MS`); una ripetizione costa 0 |
+| Conteggio | costo reale per endpoint (Alibaba 1, AliExpress 2), esposto in `health` |
+| Tetto di spesa | `PILOTERR_MAX_CALLS_PER_RUN` (0 = illimitato) |
+| Errori 4xx | non conteggiati: Piloterr non li fattura |
+| Paginazione | una pagina per ricerca (20 risultati): ogni pagina in più è un credito in più |
+
+### Instradamento
+
+`alibaba` e `aliexpress` passano da Piloterr **se e solo se** la chiave è
+configurata; altrimenti resta attivo l'adapter Playwright preesistente, con lo
+stesso comportamento di prima. La scelta viene rifatta a ogni chiamata, così la
+chiave può essere aggiunta al `.env` senza ricompilare — basta riavviare il
+servizio. Verificato su istanza reale: senza chiave `route: "browser"`, con
+chiave `route: "piloterr"`, e la chiave non compare nel journal.
+
+**Nessun ripiego automatico in caso di errore**: se Piloterr fallisce, l'errore
+tipizzato arriva all'utente (`SOURCE_UPSTREAM`, `SOURCE_BUSY`,
+`SOURCE_CONFIGURATION`) e viene isolato per fonte dall'aggregatore. Ripiegare
+in silenzio su una fonte che sappiamo bloccata dal captcha nasconderebbe il
+problema invece di risolverlo.
+
+Controlli: `pnpm typecheck` ✅ · `pnpm test` 93/93 ✅ · `pnpm build` ✅
+(15 test nuovi, con `fetch` iniettato: nessuna rete, nessuna chiave).
+
+### ⚠️ Test manuale necessario prima di dichiarare M3 completata
+
+Il percorso non è mai stato eseguito contro l'API reale, perché la chiave è
+tua e non è presente su questo server. Servono, con `PILOTERR_API_KEY`
+valorizzata in `.env`:
+
+1. `systemctl restart china-api`
+2. `curl -s 'http://localhost:3021/api/search/health' | jq '.providers[] | select(.name=="alibaba")'`
+   → deve mostrare `"route": "piloterr"`
+3. `curl -s 'http://localhost:3021/api/search?q=esd+chair&engine=alibaba&quality=broad&frameSize=5'`
+   → devono arrivare prodotti reali con prezzo, MOQ e venditore
+4. ricontrollare `health`: `usage.calls` = 1, `usage.creditsSpent` = 1
+5. ripetere la stessa ricerca entro un'ora: `usage.calls` deve restare 1 e
+   `cacheHits` salire a 1 (conferma che la cache protegge i crediti)
+
+Da verificare in quell'occasione, perché la documentazione non lo chiarisce:
+se `rating` e `review_count` compaiano davvero nella ricerca Alibaba (lo
+schema ufficiale non li elenca, un esempio della libreria sì) e quale
+`subdomain` dia i prezzi migliori (`PILOTERR_ALIBABA_SUBDOMAIN`).
+
+Nota: la documentazione segnala l'endpoint **Alibaba Product** come
+temporaneamente sospeso per manutenzione. Riguarda M6 (dettagli prodotto), non
+la ricerca.

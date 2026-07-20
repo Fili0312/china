@@ -17,6 +17,7 @@ import {
   buildExportWorkbook,
   exportFileName,
 } from "./export-workbook";
+import { CandidateRefreshService } from "./candidate-refresh.service";
 import { ImportJobService } from "./import-job.service";
 
 /**
@@ -29,7 +30,10 @@ import { ImportJobService } from "./import-job.service";
  */
 @Controller("scouting")
 export class ImportJobController {
-  constructor(private readonly jobs: ImportJobService) {}
+  constructor(
+    private readonly jobs: ImportJobService,
+    private readonly refresh: CandidateRefreshService
+  ) {}
 
   /** Avvia lo scouting di un file con i marketplace scelti. */
   @Post("datasets/:id/jobs")
@@ -83,6 +87,33 @@ export class ImportJobController {
     return new StreamableFile(workbook, {
       disposition: `attachment; filename="${exportFileName(results.job.fileName)}"`,
     });
+  }
+
+  /**
+   * Riapre le pagine dei prodotti di una riga e ne aggiorna i dati.
+   * È l'operazione che completa il riuso: la richiesta non viene ricercata di
+   * nuovo, ma i prodotti già trovati vengono riletti alla fonte.
+   */
+  @Post("rows/:jobRowId/refresh")
+  async refreshRow(
+    @Param("jobRowId") jobRowId: string,
+    @Query("limit") limit?: string
+  ) {
+    return this.jobs.refreshRow(jobRowId, {
+      limit: Math.min(50, Math.max(1, Number.parseInt(limit ?? "10", 10) || 10)),
+    });
+  }
+
+  /** Aggiorna un singolo prodotto. */
+  @Post("candidates/:candidateId/refresh")
+  refreshCandidate(@Param("candidateId") candidateId: string) {
+    return this.refresh.refreshCandidate(candidateId);
+  }
+
+  /** Storico dei prezzi di un prodotto. */
+  @Get("candidates/:candidateId/history")
+  history(@Param("candidateId") candidateId: string) {
+    return this.refresh.priceHistory(candidateId);
   }
 
   @Post("jobs/:id/pause")

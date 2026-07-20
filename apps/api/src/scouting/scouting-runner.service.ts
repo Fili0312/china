@@ -390,6 +390,15 @@ export class ScoutingRunnerService {
    * conservano **esattamente** il punteggio precedente: è la regola richiesta,
    * e senza di essa la classifica si muoverebbe senza che nulla sia cambiato.
    */
+  /** Rivaluta una riga dopo un aggiornamento dei prodotti. */
+  async rescoreRow(
+    jobRowId: string,
+    requestId: string,
+    job: { quality: string; finalists: number }
+  ): Promise<void> {
+    await this.scoreRow(jobRowId, requestId, job);
+  }
+
   private async scoreRow(
     jobRowId: string,
     requestId: string,

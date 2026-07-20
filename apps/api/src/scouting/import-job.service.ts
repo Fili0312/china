@@ -17,6 +17,7 @@ import type {
   StartImportJobRequest,
   SearchQuality,
 } from "@china/shared";
+import { CandidateRefreshService } from "./candidate-refresh.service";
 import { loadCandidates } from "./candidate-store";
 import { buildNormalizedRequest } from "./normalize-request";
 import { ScoutingRunnerService } from "./scouting-runner.service";
@@ -42,7 +43,8 @@ const ACTIVE_STATUSES = ["QUEUED", "RUNNING", "PAUSED"] as const;
 export class ImportJobService {
   constructor(
     private readonly scouting: ScoutingService,
-    private readonly runner: ScoutingRunnerService
+    private readonly runner: ScoutingRunnerService,
+    private readonly refresh: CandidateRefreshService
   ) {}
 
   /**
@@ -368,6 +370,43 @@ export class ImportJobService {
     }
 
     return { job: summary, rows: resultRows };
+  }
+
+  /**
+   * Aggiorna i prodotti della richiesta a cui punta una riga, e rivaluta
+   * subito la classifica: dopo un cambio di prezzo i finalisti possono
+   * cambiare, e mostrarli fermi sarebbe fuorviante.
+   */
+  async refreshRow(
+    jobRowId: string,
+    options: { limit: number }
+  ) {
+    const row = await prisma.importJobRow.findUnique({
+      where: { id: jobRowId },
+      include: { job: { select: { quality: true, finalists: true } } },
+    });
+    if (!row) throw new NotFoundException(`Riga non trovata: ${jobRowId}`);
+    if (!row.requestId) {
+      throw new BadRequestException(
+        "Questa riga non ha una richiesta associata: non c'è nulla da aggiornare."
+      );
+    }
+
+    const outcomes = await this.refresh.refreshRequest(row.requestId, {
+      limit: options.limit,
+    });
+    await this.runner.rescoreRow(jobRowId, row.requestId, row.job);
+
+    return {
+      jobRowId,
+      refreshed: outcomes.length,
+      updated: outcomes.filter((entry) => entry.status === "updated").length,
+      unchanged: outcomes.filter((entry) => entry.status === "unchanged").length,
+      unavailable: outcomes.filter((entry) => entry.status === "unavailable")
+        .length,
+      failed: outcomes.filter((entry) => entry.status === "error").length,
+      outcomes,
+    };
   }
 
   async pause(jobId: string): Promise<ImportJobSummary> {

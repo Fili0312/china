@@ -300,7 +300,7 @@ più le opzionali di comportamento (timeout, TTL cache, soglie, concorrenza,
 | M3 | PiloterrClient, Alibaba/AliExpress, cache e crediti, salvataggio candidati | **parzialmente completato** (manca la prova con chiave reale) |
 | M4 | ImportJob, ScoutingRequest, esecuzione, avanzamento, controlli, UI | **completato** |
 | M5 | Sessioni 1688/Taobao cifrate, scadenza, riconnessione | da implementare |
-| M6 | Dettagli, varianti, MOQ, stock, prezzi per quantità, storico, rilevamento modifiche | da implementare |
+| M6 | Aggiornamento prodotti, storico prezzi, rilevamento modifiche | **completato**; varianti/scaglioni dipendono dall'adapter della fonte |
 | M7 | Hard constraints, dedup, punteggi, finalisti | **completato** (motivazioni AI: da implementare) |
 | M8 | Export Excel **completato**; UI base c'è (M4). Resta: rifinitura UI, test end-to-end automatici |
 
@@ -639,3 +639,76 @@ Controlli: `pnpm typecheck` ✅ · `pnpm test` 124/124 ✅ · `pnpm build` ✅
 | M6 dettagli, varianti, stock, storico prezzi | parziale | lo **storico e il rilevamento modifiche funzionano** (§9); mancano i dettagli di prodotto, che richiedono la chiave Piloterr e un endpoint che Piloterr dichiara sospeso |
 | M7 motivazioni AI | da implementare | facoltative e a consumo; la classifica resta deterministica |
 | M8 rifinitura UI e test E2E automatici | da implementare | la UI funziona ed è stata guidata con un browser vero, ma non c'è un test automatico che la copra |
+
+
+---
+
+## 13. M6 — esito (completato per la parte verificabile)
+
+### Cosa fa
+
+`CandidateRefreshService` chiude il ciclo del riuso descritto nella specifica:
+quando una richiesta è già nota non si ricerca di nuovo, si **riaprono le
+pagine** dei prodotti salvati e si rileggono prezzo, minimo d'ordine, stock,
+varianti, prezzi per quantità e disponibilità.
+
+```
+POST /api/scouting/rows/:jobRowId/refresh       aggiorna i prodotti di una riga
+POST /api/scouting/candidates/:id/refresh       aggiorna un singolo prodotto
+GET  /api/scouting/candidates/:id/history       storico dei prezzi
+```
+
+Dopo l'aggiornamento la riga viene **rivalutata**: se un prezzo cambia, i
+finalisti possono cambiare, e mostrarli fermi sarebbe fuorviante.
+
+L'aggiornamento è sequenziale di proposito: ogni scheda è una visita al sito,
+e le visite ravvicinate sono ciò che fa scattare i captcha.
+
+### Il difetto trovato provando sul serio, e la regola che ne è nata
+
+Il primo aggiornamento reale su Yiwugo ha **distrutto dati buoni**: ha
+sostituito il titolo cinese con uno inglese e ha azzerato un prezzo di
+114,75 CNY, perché la scheda di dettaglio risponde sulla vetrina inglese e il
+parser non vi trova il prezzo.
+
+Ne è nata la regola che governa ora tutto l'aggiornamento:
+
+> **Una lettura mancata non è un dato cancellato.**
+
+In concreto:
+
+- prezzo, MOQ, stock, valuta: si sovrascrivono **solo** se la scheda ne
+  restituisce uno; altrimenti resta il valore precedente;
+- varianti, specifiche e scaglioni: si aggiornano solo se non vuoti;
+- il **titolo non viene mai sostituito**. È l'identità su cui è stata calcolata
+  la pertinenza, e alcune schede lo restituiscono tradotto: cambiarlo in
+  silenzio invaliderebbe il punteggio senza dirlo;
+- una pagina irraggiungibile marca il prodotto non disponibile **senza
+  cancellarlo**, così lo storico resta proprio quando serve.
+
+Riverificato sullo stesso caso: l'aggiornamento ora riporta «invariato», e
+titoli, prezzi e finalisti restano intatti.
+
+### Storico prezzi
+
+Ogni cambiamento reale scrive uno `ProductSnapshot` con i valori **precedenti**
+e l'elenco dei campi cambiati — è ciò che permette di dire «costava X, ora
+costa Y». Verificato: dopo una modifica, `GET /candidates/:id/history` ha
+restituito la voce con il prezzo di prima e `changedFields: [title, price]`.
+
+Controlli: `pnpm typecheck` ✅ · `pnpm test` 132/132 ✅ · `pnpm build` ✅
+
+### Limite noto, da sistemare a parte
+
+`YiwugoAdapter.getDetails()` ricade sulla **vetrina inglese** e non estrae
+prezzo, varianti né scaglioni: l'aggiornamento su Yiwugo è quindi oggi un
+non-evento (segnala «invariato»). È un limite dell'adapter, precedente a
+questo lavoro e della stessa famiglia della trappola già documentata nel
+README sulla ricerca. Va corretto nell'adapter — passando alla scheda
+`www.yiwugo.com` e rileggendone i selettori — non nel servizio di
+aggiornamento, che è già corretto e protetto.
+
+Per Alibaba e AliExpress l'aggiornamento passerà da Piloterr
+(`/v2/alibaba/product`, 2 crediti): il client c'è, il percorso è quello della
+ricerca, ma non è verificabile senza chiave — e Piloterr dichiara quell'
+endpoint temporaneamente sospeso.

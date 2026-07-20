@@ -135,11 +135,17 @@ model QuoteLine {
 ///
 /// Blocco additivo: nessun modello preesistente viene modificato. La pipeline
 /// preventivi (QuoteRequest/RequestItem/ProductCandidate) resta intatta.
+///
+/// Gerarchia: un file caricato (ScoutingDataset) genera un ImportJob; ogni
+/// riga del job punta alla ScoutingRequest identificata dalla sua impronta,
+/// quindi righe duplicate — nello stesso file o in file diversi — condividono
+/// la stessa richiesta e gli stessi candidati.
 /// ---------------------------------------------------------------------------
 
-enum ScoutingRunStatus {
+enum ImportJobStatus {
   QUEUED
   RUNNING
+  PAUSED
   COMPLETED
   COMPLETED_WITH_ERRORS
   FAILED
@@ -148,13 +154,21 @@ enum ScoutingRunStatus {
 
 enum ScoutingRowStatus {
   PENDING
-  NORMALIZING
   SEARCHING
   REFRESHING
   SCORING
   DONE
   SKIPPED
   FAILED
+  CANCELLED
+}
+
+enum ScoutingEngineStatus {
+  PENDING
+  RUNNING
+  DONE
+  ERROR
+  SKIPPED
 }
 
 enum ScoutingOutcome {
@@ -183,7 +197,7 @@ model ScoutingDataset {
   createdAt DateTime @default(now())
 
   rows ScoutingDatasetRow[]
-  runs ScoutingRun[]
+  jobs ImportJob[]
 }
 
 /// Riga originale del file: i valori delle celle restano intatti.
@@ -198,14 +212,14 @@ model ScoutingDatasetRow {
   cells     Json
   hyperlink String?
 
-  rowRuns ScoutingRowRun[]
+  jobRows ImportJobRow[]
 
   @@unique([datasetId, rowNumber])
   @@index([datasetId])
 }
 
 /// Richiesta normalizzata: identità stabile fra file, righe e formulazioni.
-model ProductRequest {
+model ScoutingRequest {
   id String @id @default(cuid())
 
   /// Impronta stabile (SHA-256 troncato): identità forte della richiesta.
@@ -242,26 +256,26 @@ model ProductRequest {
   searchCount    Int       @default(0)
 
   candidates ProductCandidateRecord[]
-  rowRuns    ScoutingRowRun[]
+  jobRows    ImportJobRow[]
 
   @@index([normalizedNameKey])
 }
 
-/// Un'esecuzione dello scouting su un dataset.
-model ScoutingRun {
+/// L'elaborazione di un file: una per avvio, con la propria configurazione.
+model ImportJob {
   id        String          @id @default(cuid())
   dataset   ScoutingDataset @relation(fields: [datasetId], references: [id], onDelete: Cascade)
   datasetId String
 
-  status  ScoutingRunStatus @default(QUEUED)
+  status  ImportJobStatus @default(QUEUED)
   engines String[]
-  quality String            @default("balanced")
+  quality String          @default("balanced")
 
   candidatesPerEngine Int     @default(10)
   finalists           Int     @default(3)
   forceFullSearch     Boolean @default(false)
   aiRationale         Boolean @default(false)
-  /// Mappatura usata da questo run: i risultati restano leggibili anche se
+  /// Mappatura usata da questo job: i risultati restano leggibili anche se
   /// la mappatura del dataset viene cambiata in seguito.
   mapping             Json
 
@@ -270,51 +284,87 @@ model ScoutingRun {
   reusedRows    Int @default(0)
   failedRows    Int @default(0)
 
+  /// Crediti Piloterr consumati da questo job (0 se la chiave non è attiva).
+  creditsSpent Int @default(0)
+
   startedAt  DateTime?
   finishedAt DateTime?
   error      String?
   createdAt  DateTime  @default(now())
 
-  rows ScoutingRowRun[]
+  rows ImportJobRow[]
 
   @@index([datasetId])
+  @@index([status])
 }
 
-/// Avanzamento e risultato di una singola riga dentro un run.
-model ScoutingRowRun {
-  id    String      @id @default(cuid())
-  run   ScoutingRun @relation(fields: [runId], references: [id], onDelete: Cascade)
-  runId String
+/// Avanzamento e risultato di una singola riga dentro un job.
+model ImportJobRow {
+  id    String    @id @default(cuid())
+  job   ImportJob @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  jobId String
 
   datasetRow   ScoutingDatasetRow @relation(fields: [datasetRowId], references: [id], onDelete: Cascade)
   datasetRowId String
 
-  request   ProductRequest? @relation(fields: [requestId], references: [id], onDelete: SetNull)
+  request   ScoutingRequest? @relation(fields: [requestId], references: [id], onDelete: SetNull)
   requestId String?
 
-  rowNumber Int
-  status    ScoutingRowStatus @default(PENDING)
+  rowNumber   Int
+  displayName String
+  searchQuery String
+  status      ScoutingRowStatus @default(PENDING)
   /// true quando i prodotti arrivano da una richiesta già elaborata.
-  reused    Boolean           @default(false)
-  /// Esito per motore: quale fonte ha risposto, quale ha fallito e perché.
-  engineStatuses Json?
-  error     String?
+  reused      Boolean           @default(false)
+  error       String?
 
   startedAt  DateTime?
   finishedAt DateTime?
 
+  engines ImportJobRowEngine[]
   results ScoutingResult[]
 
-  @@unique([runId, datasetRowId])
-  @@index([runId])
+  @@unique([jobId, datasetRowId])
+  @@index([jobId, status])
   @@index([requestId])
 }
 
-/// Prodotto trovato per una richiesta. Vive oltre il singolo run: è ciò che
+/// Esito della riga su un singolo marketplace: stato, conteggi ed errore
+/// restano separati per fonte, così un captcha su Alibaba non nasconde i
+/// risultati validi di Yiwugo e si può ritentare solo la fonte fallita.
+model ImportJobRowEngine {
+  id       String       @id @default(cuid())
+  jobRow   ImportJobRow @relation(fields: [jobRowId], references: [id], onDelete: Cascade)
+  jobRowId String
+
+  engine String
+  status ScoutingEngineStatus @default(PENDING)
+
+  /// Query realmente inviata alla fonte (può differire da quella richiesta).
+  queryUsed      String?
+  fetchedCount   Int     @default(0)
+  acceptedCount  Int     @default(0)
+  durationMs     Int     @default(0)
+  /// Codice tipizzato dell'errore (SOURCE_UPSTREAM, SOURCE_BUSY, …).
+  errorCode      String?
+  error          String?
+  retryable      Boolean @default(false)
+  attempts       Int     @default(0)
+  /// true se i risultati provengono dalla cache e non hanno speso crediti.
+  servedFromCache Boolean @default(false)
+
+  startedAt  DateTime?
+  finishedAt DateTime?
+
+  @@unique([jobRowId, engine])
+  @@index([jobRowId])
+}
+
+/// Prodotto trovato per una richiesta. Vive oltre il singolo job: è ciò che
 /// permette di riaprire le pagine e aggiornare i dati invece di ricercare.
 model ProductCandidateRecord {
-  id        String         @id @default(cuid())
-  request   ProductRequest @relation(fields: [requestId], references: [id], onDelete: Cascade)
+  id        String          @id @default(cuid())
+  request   ScoutingRequest @relation(fields: [requestId], references: [id], onDelete: Cascade)
   requestId String
 
   engine     String
@@ -323,20 +373,29 @@ model ProductCandidateRecord {
   title      String
   imageUrl   String?
 
+  /// Query che ha fatto emergere questo candidato: serve a capire perché è
+  /// stato trovato e a rieseguire la stessa ricerca in fase di aggiornamento.
+  foundQuery String
+
   vendorName String?
   vendorUrl  String?
 
-  price      Decimal? @db.Decimal(14, 4)
-  currency   String?
-  moq        Int?
-  stock      Int?
-  rating     Float?
+  price       Decimal? @db.Decimal(14, 4)
+  currency    String?
+  moq         Int?
+  stock       Int?
+  rating      Float?
   reviewCount Int?
-  totalSales Int?
+  totalSales  Int?
 
   variants   Json?
   specs      Json?
   priceTiers Json?
+
+  /// Punteggio di pertinenza calcolato dal motore già esistente.
+  relevanceScore Float?
+  matchReasons   String[]
+  matchWarnings  String[]
 
   /// Impronta dei dati commerciali: se non cambia, il punteggio non si ricalcola.
   contentHash   String
@@ -345,6 +404,8 @@ model ProductCandidateRecord {
   lastChangedAt DateTime?
   /// Campi cambiati all'ultimo aggiornamento.
   changedFields String[]
+  /// Dettaglio prodotto già scaricato almeno una volta (M6).
+  detailsFetchedAt DateTime?
   /// Prodotto non più raggiungibile all'ultimo controllo.
   unavailable   Boolean   @default(false)
 
@@ -353,6 +414,7 @@ model ProductCandidateRecord {
 
   @@unique([requestId, engine, externalId])
   @@index([requestId])
+  @@index([requestId, engine])
 }
 
 /// Storico: una riga per ogni cambiamento reale dei dati del prodotto.
@@ -379,9 +441,9 @@ model ProductSnapshot {
 
 /// Esito di un prodotto per una riga: finalista o scartato, con motivazione.
 model ScoutingResult {
-  id       String         @id @default(cuid())
-  rowRun   ScoutingRowRun @relation(fields: [rowRunId], references: [id], onDelete: Cascade)
-  rowRunId String
+  id       String       @id @default(cuid())
+  jobRow   ImportJobRow @relation(fields: [jobRowId], references: [id], onDelete: Cascade)
+  jobRowId String
 
   candidate   ProductCandidateRecord @relation(fields: [candidateId], references: [id], onDelete: Cascade)
   candidateId String
@@ -400,6 +462,6 @@ model ScoutingResult {
 
   createdAt DateTime @default(now())
 
-  @@unique([rowRunId, candidateId])
-  @@index([rowRunId])
+  @@unique([jobRowId, candidateId])
+  @@index([jobRowId])
 }

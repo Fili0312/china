@@ -4,7 +4,7 @@
 // biome-ignore-all lint: generated file
 // @ts-nocheck 
 /*
- * This file exports the `ProductRequest` model and its related types.
+ * This file exports the `ScoutingRequest` model and its related types.
  *
  * 🟢 You can import this file directly.
  */
@@ -13,20 +13,20 @@ import type * as $Enums from "../enums.js"
 import type * as Prisma from "../internal/prismaNamespace.js"
 
 /**
- * Model ProductRequest
+ * Model ScoutingRequest
  * Richiesta normalizzata: identità stabile fra file, righe e formulazioni.
  */
-export type ProductRequestModel = runtime.Types.Result.DefaultSelection<Prisma.$ProductRequestPayload>
+export type ScoutingRequestModel = runtime.Types.Result.DefaultSelection<Prisma.$ScoutingRequestPayload>
 
-export type AggregateProductRequest = {
-  _count: ProductRequestCountAggregateOutputType | null
-  _avg: ProductRequestAvgAggregateOutputType | null
-  _sum: ProductRequestSumAggregateOutputType | null
-  _min: ProductRequestMinAggregateOutputType | null
-  _max: ProductRequestMaxAggregateOutputType | null
+export type AggregateScoutingRequest = {
+  _count: ScoutingRequestCountAggregateOutputType | null
+  _avg: ScoutingRequestAvgAggregateOutputType | null
+  _sum: ScoutingRequestSumAggregateOutputType | null
+  _min: ScoutingRequestMinAggregateOutputType | null
+  _max: ScoutingRequestMaxAggregateOutputType | null
 }
 
-export type ProductRequestAvgAggregateOutputType = {
+export type ScoutingRequestAvgAggregateOutputType = {
   power: number | null
   voltage: number | null
   capacity: number | null
@@ -35,7 +35,7 @@ export type ProductRequestAvgAggregateOutputType = {
   searchCount: number | null
 }
 
-export type ProductRequestSumAggregateOutputType = {
+export type ScoutingRequestSumAggregateOutputType = {
   power: number | null
   voltage: number | null
   capacity: number | null
@@ -44,7 +44,7 @@ export type ProductRequestSumAggregateOutputType = {
   searchCount: number | null
 }
 
-export type ProductRequestMinAggregateOutputType = {
+export type ScoutingRequestMinAggregateOutputType = {
   id: string | null
   fingerprint: string | null
   normalizedNameKey: string | null
@@ -69,7 +69,7 @@ export type ProductRequestMinAggregateOutputType = {
   searchCount: number | null
 }
 
-export type ProductRequestMaxAggregateOutputType = {
+export type ScoutingRequestMaxAggregateOutputType = {
   id: string | null
   fingerprint: string | null
   normalizedNameKey: string | null
@@ -94,7 +94,7 @@ export type ProductRequestMaxAggregateOutputType = {
   searchCount: number | null
 }
 
-export type ProductRequestCountAggregateOutputType = {
+export type ScoutingRequestCountAggregateOutputType = {
   id: number
   fingerprint: number
   normalizedNameKey: number
@@ -125,7 +125,7 @@ export type ProductRequestCountAggregateOutputType = {
 }
 
 
-export type ProductRequestAvgAggregateInputType = {
+export type ScoutingRequestAvgAggregateInputType = {
   power?: true
   voltage?: true
   capacity?: true
@@ -134,7 +134,7 @@ export type ProductRequestAvgAggregateInputType = {
   searchCount?: true
 }
 
-export type ProductRequestSumAggregateInputType = {
+export type ScoutingRequestSumAggregateInputType = {
   power?: true
   voltage?: true
   capacity?: true
@@ -143,7 +143,7 @@ export type ProductRequestSumAggregateInputType = {
   searchCount?: true
 }
 
-export type ProductRequestMinAggregateInputType = {
+export type ScoutingRequestMinAggregateInputType = {
   id?: true
   fingerprint?: true
   normalizedNameKey?: true
@@ -168,7 +168,7 @@ export type ProductRequestMinAggregateInputType = {
   searchCount?: true
 }
 
-export type ProductRequestMaxAggregateInputType = {
+export type ScoutingRequestMaxAggregateInputType = {
   id?: true
   fingerprint?: true
   normalizedNameKey?: true
@@ -193,7 +193,7 @@ export type ProductRequestMaxAggregateInputType = {
   searchCount?: true
 }
 
-export type ProductRequestCountAggregateInputType = {
+export type ScoutingRequestCountAggregateInputType = {
   id?: true
   fingerprint?: true
   normalizedNameKey?: true
@@ -223,93 +223,93 @@ export type ProductRequestCountAggregateInputType = {
   _all?: true
 }
 
-export type ProductRequestAggregateArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+export type ScoutingRequestAggregateArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   /**
-   * Filter which ProductRequest to aggregate.
+   * Filter which ScoutingRequest to aggregate.
    */
-  where?: Prisma.ProductRequestWhereInput
+  where?: Prisma.ScoutingRequestWhereInput
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
    * 
-   * Determine the order of ProductRequests to fetch.
+   * Determine the order of ScoutingRequests to fetch.
    */
-  orderBy?: Prisma.ProductRequestOrderByWithRelationInput | Prisma.ProductRequestOrderByWithRelationInput[]
+  orderBy?: Prisma.ScoutingRequestOrderByWithRelationInput | Prisma.ScoutingRequestOrderByWithRelationInput[]
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
    * 
    * Sets the start position
    */
-  cursor?: Prisma.ProductRequestWhereUniqueInput
+  cursor?: Prisma.ScoutingRequestWhereUniqueInput
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
    * 
-   * Take `±n` ProductRequests from the position of the cursor.
+   * Take `±n` ScoutingRequests from the position of the cursor.
    */
   take?: number
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
    * 
-   * Skip the first `n` ProductRequests.
+   * Skip the first `n` ScoutingRequests.
    */
   skip?: number
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
    * 
-   * Count returned ProductRequests
+   * Count returned ScoutingRequests
   **/
-  _count?: true | ProductRequestCountAggregateInputType
+  _count?: true | ScoutingRequestCountAggregateInputType
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
    * 
    * Select which fields to average
   **/
-  _avg?: ProductRequestAvgAggregateInputType
+  _avg?: ScoutingRequestAvgAggregateInputType
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
    * 
    * Select which fields to sum
   **/
-  _sum?: ProductRequestSumAggregateInputType
+  _sum?: ScoutingRequestSumAggregateInputType
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
    * 
    * Select which fields to find the minimum value
   **/
-  _min?: ProductRequestMinAggregateInputType
+  _min?: ScoutingRequestMinAggregateInputType
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
    * 
    * Select which fields to find the maximum value
   **/
-  _max?: ProductRequestMaxAggregateInputType
+  _max?: ScoutingRequestMaxAggregateInputType
 }
 
-export type GetProductRequestAggregateType<T extends ProductRequestAggregateArgs> = {
-      [P in keyof T & keyof AggregateProductRequest]: P extends '_count' | 'count'
+export type GetScoutingRequestAggregateType<T extends ScoutingRequestAggregateArgs> = {
+      [P in keyof T & keyof AggregateScoutingRequest]: P extends '_count' | 'count'
     ? T[P] extends true
       ? number
-      : Prisma.GetScalarType<T[P], AggregateProductRequest[P]>
-    : Prisma.GetScalarType<T[P], AggregateProductRequest[P]>
+      : Prisma.GetScalarType<T[P], AggregateScoutingRequest[P]>
+    : Prisma.GetScalarType<T[P], AggregateScoutingRequest[P]>
 }
 
 
 
 
-export type ProductRequestGroupByArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  where?: Prisma.ProductRequestWhereInput
-  orderBy?: Prisma.ProductRequestOrderByWithAggregationInput | Prisma.ProductRequestOrderByWithAggregationInput[]
-  by: Prisma.ProductRequestScalarFieldEnum[] | Prisma.ProductRequestScalarFieldEnum
-  having?: Prisma.ProductRequestScalarWhereWithAggregatesInput
+export type ScoutingRequestGroupByArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.ScoutingRequestWhereInput
+  orderBy?: Prisma.ScoutingRequestOrderByWithAggregationInput | Prisma.ScoutingRequestOrderByWithAggregationInput[]
+  by: Prisma.ScoutingRequestScalarFieldEnum[] | Prisma.ScoutingRequestScalarFieldEnum
+  having?: Prisma.ScoutingRequestScalarWhereWithAggregatesInput
   take?: number
   skip?: number
-  _count?: ProductRequestCountAggregateInputType | true
-  _avg?: ProductRequestAvgAggregateInputType
-  _sum?: ProductRequestSumAggregateInputType
-  _min?: ProductRequestMinAggregateInputType
-  _max?: ProductRequestMaxAggregateInputType
+  _count?: ScoutingRequestCountAggregateInputType | true
+  _avg?: ScoutingRequestAvgAggregateInputType
+  _sum?: ScoutingRequestSumAggregateInputType
+  _min?: ScoutingRequestMinAggregateInputType
+  _max?: ScoutingRequestMaxAggregateInputType
 }
 
-export type ProductRequestGroupByOutputType = {
+export type ScoutingRequestGroupByOutputType = {
   id: string
   fingerprint: string
   normalizedNameKey: string
@@ -336,63 +336,63 @@ export type ProductRequestGroupByOutputType = {
   firstSeenAt: Date
   lastSearchedAt: Date | null
   searchCount: number
-  _count: ProductRequestCountAggregateOutputType | null
-  _avg: ProductRequestAvgAggregateOutputType | null
-  _sum: ProductRequestSumAggregateOutputType | null
-  _min: ProductRequestMinAggregateOutputType | null
-  _max: ProductRequestMaxAggregateOutputType | null
+  _count: ScoutingRequestCountAggregateOutputType | null
+  _avg: ScoutingRequestAvgAggregateOutputType | null
+  _sum: ScoutingRequestSumAggregateOutputType | null
+  _min: ScoutingRequestMinAggregateOutputType | null
+  _max: ScoutingRequestMaxAggregateOutputType | null
 }
 
-export type GetProductRequestGroupByPayload<T extends ProductRequestGroupByArgs> = Prisma.PrismaPromise<
+export type GetScoutingRequestGroupByPayload<T extends ScoutingRequestGroupByArgs> = Prisma.PrismaPromise<
   Array<
-    Prisma.PickEnumerable<ProductRequestGroupByOutputType, T['by']> &
+    Prisma.PickEnumerable<ScoutingRequestGroupByOutputType, T['by']> &
       {
-        [P in ((keyof T) & (keyof ProductRequestGroupByOutputType))]: P extends '_count'
+        [P in ((keyof T) & (keyof ScoutingRequestGroupByOutputType))]: P extends '_count'
           ? T[P] extends boolean
             ? number
-            : Prisma.GetScalarType<T[P], ProductRequestGroupByOutputType[P]>
-          : Prisma.GetScalarType<T[P], ProductRequestGroupByOutputType[P]>
+            : Prisma.GetScalarType<T[P], ScoutingRequestGroupByOutputType[P]>
+          : Prisma.GetScalarType<T[P], ScoutingRequestGroupByOutputType[P]>
       }
     >
   >
 
 
 
-export type ProductRequestWhereInput = {
-  AND?: Prisma.ProductRequestWhereInput | Prisma.ProductRequestWhereInput[]
-  OR?: Prisma.ProductRequestWhereInput[]
-  NOT?: Prisma.ProductRequestWhereInput | Prisma.ProductRequestWhereInput[]
-  id?: Prisma.StringFilter<"ProductRequest"> | string
-  fingerprint?: Prisma.StringFilter<"ProductRequest"> | string
-  normalizedNameKey?: Prisma.StringFilter<"ProductRequest"> | string
-  displayName?: Prisma.StringFilter<"ProductRequest"> | string
-  normalizedName?: Prisma.StringFilter<"ProductRequest"> | string
-  category?: Prisma.StringNullableFilter<"ProductRequest"> | string | null
-  brand?: Prisma.StringNullableFilter<"ProductRequest"> | string | null
-  model?: Prisma.StringNullableFilter<"ProductRequest"> | string | null
-  material?: Prisma.StringNullableFilter<"ProductRequest"> | string | null
-  power?: Prisma.FloatNullableFilter<"ProductRequest"> | number | null
-  voltage?: Prisma.FloatNullableFilter<"ProductRequest"> | number | null
-  capacity?: Prisma.FloatNullableFilter<"ProductRequest"> | number | null
-  dimensions?: Prisma.JsonFilter<"ProductRequest">
-  requiredVariant?: Prisma.JsonFilter<"ProductRequest">
-  certifications?: Prisma.StringNullableListFilter<"ProductRequest">
-  requirements?: Prisma.JsonFilter<"ProductRequest">
-  requestedQuantity?: Prisma.FloatNullableFilter<"ProductRequest"> | number | null
-  unit?: Prisma.StringNullableFilter<"ProductRequest"> | string | null
-  targetPrice?: Prisma.FloatNullableFilter<"ProductRequest"> | number | null
-  notes?: Prisma.StringNullableFilter<"ProductRequest"> | string | null
-  referenceUrl?: Prisma.StringNullableFilter<"ProductRequest"> | string | null
-  searchQuery?: Prisma.StringFilter<"ProductRequest"> | string
-  language?: Prisma.StringFilter<"ProductRequest"> | string
-  firstSeenAt?: Prisma.DateTimeFilter<"ProductRequest"> | Date | string
-  lastSearchedAt?: Prisma.DateTimeNullableFilter<"ProductRequest"> | Date | string | null
-  searchCount?: Prisma.IntFilter<"ProductRequest"> | number
+export type ScoutingRequestWhereInput = {
+  AND?: Prisma.ScoutingRequestWhereInput | Prisma.ScoutingRequestWhereInput[]
+  OR?: Prisma.ScoutingRequestWhereInput[]
+  NOT?: Prisma.ScoutingRequestWhereInput | Prisma.ScoutingRequestWhereInput[]
+  id?: Prisma.StringFilter<"ScoutingRequest"> | string
+  fingerprint?: Prisma.StringFilter<"ScoutingRequest"> | string
+  normalizedNameKey?: Prisma.StringFilter<"ScoutingRequest"> | string
+  displayName?: Prisma.StringFilter<"ScoutingRequest"> | string
+  normalizedName?: Prisma.StringFilter<"ScoutingRequest"> | string
+  category?: Prisma.StringNullableFilter<"ScoutingRequest"> | string | null
+  brand?: Prisma.StringNullableFilter<"ScoutingRequest"> | string | null
+  model?: Prisma.StringNullableFilter<"ScoutingRequest"> | string | null
+  material?: Prisma.StringNullableFilter<"ScoutingRequest"> | string | null
+  power?: Prisma.FloatNullableFilter<"ScoutingRequest"> | number | null
+  voltage?: Prisma.FloatNullableFilter<"ScoutingRequest"> | number | null
+  capacity?: Prisma.FloatNullableFilter<"ScoutingRequest"> | number | null
+  dimensions?: Prisma.JsonFilter<"ScoutingRequest">
+  requiredVariant?: Prisma.JsonFilter<"ScoutingRequest">
+  certifications?: Prisma.StringNullableListFilter<"ScoutingRequest">
+  requirements?: Prisma.JsonFilter<"ScoutingRequest">
+  requestedQuantity?: Prisma.FloatNullableFilter<"ScoutingRequest"> | number | null
+  unit?: Prisma.StringNullableFilter<"ScoutingRequest"> | string | null
+  targetPrice?: Prisma.FloatNullableFilter<"ScoutingRequest"> | number | null
+  notes?: Prisma.StringNullableFilter<"ScoutingRequest"> | string | null
+  referenceUrl?: Prisma.StringNullableFilter<"ScoutingRequest"> | string | null
+  searchQuery?: Prisma.StringFilter<"ScoutingRequest"> | string
+  language?: Prisma.StringFilter<"ScoutingRequest"> | string
+  firstSeenAt?: Prisma.DateTimeFilter<"ScoutingRequest"> | Date | string
+  lastSearchedAt?: Prisma.DateTimeNullableFilter<"ScoutingRequest"> | Date | string | null
+  searchCount?: Prisma.IntFilter<"ScoutingRequest"> | number
   candidates?: Prisma.ProductCandidateRecordListRelationFilter
-  rowRuns?: Prisma.ScoutingRowRunListRelationFilter
+  jobRows?: Prisma.ImportJobRowListRelationFilter
 }
 
-export type ProductRequestOrderByWithRelationInput = {
+export type ScoutingRequestOrderByWithRelationInput = {
   id?: Prisma.SortOrder
   fingerprint?: Prisma.SortOrder
   normalizedNameKey?: Prisma.SortOrder
@@ -420,44 +420,44 @@ export type ProductRequestOrderByWithRelationInput = {
   lastSearchedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   searchCount?: Prisma.SortOrder
   candidates?: Prisma.ProductCandidateRecordOrderByRelationAggregateInput
-  rowRuns?: Prisma.ScoutingRowRunOrderByRelationAggregateInput
+  jobRows?: Prisma.ImportJobRowOrderByRelationAggregateInput
 }
 
-export type ProductRequestWhereUniqueInput = Prisma.AtLeast<{
+export type ScoutingRequestWhereUniqueInput = Prisma.AtLeast<{
   id?: string
   fingerprint?: string
-  AND?: Prisma.ProductRequestWhereInput | Prisma.ProductRequestWhereInput[]
-  OR?: Prisma.ProductRequestWhereInput[]
-  NOT?: Prisma.ProductRequestWhereInput | Prisma.ProductRequestWhereInput[]
-  normalizedNameKey?: Prisma.StringFilter<"ProductRequest"> | string
-  displayName?: Prisma.StringFilter<"ProductRequest"> | string
-  normalizedName?: Prisma.StringFilter<"ProductRequest"> | string
-  category?: Prisma.StringNullableFilter<"ProductRequest"> | string | null
-  brand?: Prisma.StringNullableFilter<"ProductRequest"> | string | null
-  model?: Prisma.StringNullableFilter<"ProductRequest"> | string | null
-  material?: Prisma.StringNullableFilter<"ProductRequest"> | string | null
-  power?: Prisma.FloatNullableFilter<"ProductRequest"> | number | null
-  voltage?: Prisma.FloatNullableFilter<"ProductRequest"> | number | null
-  capacity?: Prisma.FloatNullableFilter<"ProductRequest"> | number | null
-  dimensions?: Prisma.JsonFilter<"ProductRequest">
-  requiredVariant?: Prisma.JsonFilter<"ProductRequest">
-  certifications?: Prisma.StringNullableListFilter<"ProductRequest">
-  requirements?: Prisma.JsonFilter<"ProductRequest">
-  requestedQuantity?: Prisma.FloatNullableFilter<"ProductRequest"> | number | null
-  unit?: Prisma.StringNullableFilter<"ProductRequest"> | string | null
-  targetPrice?: Prisma.FloatNullableFilter<"ProductRequest"> | number | null
-  notes?: Prisma.StringNullableFilter<"ProductRequest"> | string | null
-  referenceUrl?: Prisma.StringNullableFilter<"ProductRequest"> | string | null
-  searchQuery?: Prisma.StringFilter<"ProductRequest"> | string
-  language?: Prisma.StringFilter<"ProductRequest"> | string
-  firstSeenAt?: Prisma.DateTimeFilter<"ProductRequest"> | Date | string
-  lastSearchedAt?: Prisma.DateTimeNullableFilter<"ProductRequest"> | Date | string | null
-  searchCount?: Prisma.IntFilter<"ProductRequest"> | number
+  AND?: Prisma.ScoutingRequestWhereInput | Prisma.ScoutingRequestWhereInput[]
+  OR?: Prisma.ScoutingRequestWhereInput[]
+  NOT?: Prisma.ScoutingRequestWhereInput | Prisma.ScoutingRequestWhereInput[]
+  normalizedNameKey?: Prisma.StringFilter<"ScoutingRequest"> | string
+  displayName?: Prisma.StringFilter<"ScoutingRequest"> | string
+  normalizedName?: Prisma.StringFilter<"ScoutingRequest"> | string
+  category?: Prisma.StringNullableFilter<"ScoutingRequest"> | string | null
+  brand?: Prisma.StringNullableFilter<"ScoutingRequest"> | string | null
+  model?: Prisma.StringNullableFilter<"ScoutingRequest"> | string | null
+  material?: Prisma.StringNullableFilter<"ScoutingRequest"> | string | null
+  power?: Prisma.FloatNullableFilter<"ScoutingRequest"> | number | null
+  voltage?: Prisma.FloatNullableFilter<"ScoutingRequest"> | number | null
+  capacity?: Prisma.FloatNullableFilter<"ScoutingRequest"> | number | null
+  dimensions?: Prisma.JsonFilter<"ScoutingRequest">
+  requiredVariant?: Prisma.JsonFilter<"ScoutingRequest">
+  certifications?: Prisma.StringNullableListFilter<"ScoutingRequest">
+  requirements?: Prisma.JsonFilter<"ScoutingRequest">
+  requestedQuantity?: Prisma.FloatNullableFilter<"ScoutingRequest"> | number | null
+  unit?: Prisma.StringNullableFilter<"ScoutingRequest"> | string | null
+  targetPrice?: Prisma.FloatNullableFilter<"ScoutingRequest"> | number | null
+  notes?: Prisma.StringNullableFilter<"ScoutingRequest"> | string | null
+  referenceUrl?: Prisma.StringNullableFilter<"ScoutingRequest"> | string | null
+  searchQuery?: Prisma.StringFilter<"ScoutingRequest"> | string
+  language?: Prisma.StringFilter<"ScoutingRequest"> | string
+  firstSeenAt?: Prisma.DateTimeFilter<"ScoutingRequest"> | Date | string
+  lastSearchedAt?: Prisma.DateTimeNullableFilter<"ScoutingRequest"> | Date | string | null
+  searchCount?: Prisma.IntFilter<"ScoutingRequest"> | number
   candidates?: Prisma.ProductCandidateRecordListRelationFilter
-  rowRuns?: Prisma.ScoutingRowRunListRelationFilter
+  jobRows?: Prisma.ImportJobRowListRelationFilter
 }, "id" | "fingerprint">
 
-export type ProductRequestOrderByWithAggregationInput = {
+export type ScoutingRequestOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
   fingerprint?: Prisma.SortOrder
   normalizedNameKey?: Prisma.SortOrder
@@ -484,46 +484,46 @@ export type ProductRequestOrderByWithAggregationInput = {
   firstSeenAt?: Prisma.SortOrder
   lastSearchedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   searchCount?: Prisma.SortOrder
-  _count?: Prisma.ProductRequestCountOrderByAggregateInput
-  _avg?: Prisma.ProductRequestAvgOrderByAggregateInput
-  _max?: Prisma.ProductRequestMaxOrderByAggregateInput
-  _min?: Prisma.ProductRequestMinOrderByAggregateInput
-  _sum?: Prisma.ProductRequestSumOrderByAggregateInput
+  _count?: Prisma.ScoutingRequestCountOrderByAggregateInput
+  _avg?: Prisma.ScoutingRequestAvgOrderByAggregateInput
+  _max?: Prisma.ScoutingRequestMaxOrderByAggregateInput
+  _min?: Prisma.ScoutingRequestMinOrderByAggregateInput
+  _sum?: Prisma.ScoutingRequestSumOrderByAggregateInput
 }
 
-export type ProductRequestScalarWhereWithAggregatesInput = {
-  AND?: Prisma.ProductRequestScalarWhereWithAggregatesInput | Prisma.ProductRequestScalarWhereWithAggregatesInput[]
-  OR?: Prisma.ProductRequestScalarWhereWithAggregatesInput[]
-  NOT?: Prisma.ProductRequestScalarWhereWithAggregatesInput | Prisma.ProductRequestScalarWhereWithAggregatesInput[]
-  id?: Prisma.StringWithAggregatesFilter<"ProductRequest"> | string
-  fingerprint?: Prisma.StringWithAggregatesFilter<"ProductRequest"> | string
-  normalizedNameKey?: Prisma.StringWithAggregatesFilter<"ProductRequest"> | string
-  displayName?: Prisma.StringWithAggregatesFilter<"ProductRequest"> | string
-  normalizedName?: Prisma.StringWithAggregatesFilter<"ProductRequest"> | string
-  category?: Prisma.StringNullableWithAggregatesFilter<"ProductRequest"> | string | null
-  brand?: Prisma.StringNullableWithAggregatesFilter<"ProductRequest"> | string | null
-  model?: Prisma.StringNullableWithAggregatesFilter<"ProductRequest"> | string | null
-  material?: Prisma.StringNullableWithAggregatesFilter<"ProductRequest"> | string | null
-  power?: Prisma.FloatNullableWithAggregatesFilter<"ProductRequest"> | number | null
-  voltage?: Prisma.FloatNullableWithAggregatesFilter<"ProductRequest"> | number | null
-  capacity?: Prisma.FloatNullableWithAggregatesFilter<"ProductRequest"> | number | null
-  dimensions?: Prisma.JsonWithAggregatesFilter<"ProductRequest">
-  requiredVariant?: Prisma.JsonWithAggregatesFilter<"ProductRequest">
-  certifications?: Prisma.StringNullableListFilter<"ProductRequest">
-  requirements?: Prisma.JsonWithAggregatesFilter<"ProductRequest">
-  requestedQuantity?: Prisma.FloatNullableWithAggregatesFilter<"ProductRequest"> | number | null
-  unit?: Prisma.StringNullableWithAggregatesFilter<"ProductRequest"> | string | null
-  targetPrice?: Prisma.FloatNullableWithAggregatesFilter<"ProductRequest"> | number | null
-  notes?: Prisma.StringNullableWithAggregatesFilter<"ProductRequest"> | string | null
-  referenceUrl?: Prisma.StringNullableWithAggregatesFilter<"ProductRequest"> | string | null
-  searchQuery?: Prisma.StringWithAggregatesFilter<"ProductRequest"> | string
-  language?: Prisma.StringWithAggregatesFilter<"ProductRequest"> | string
-  firstSeenAt?: Prisma.DateTimeWithAggregatesFilter<"ProductRequest"> | Date | string
-  lastSearchedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"ProductRequest"> | Date | string | null
-  searchCount?: Prisma.IntWithAggregatesFilter<"ProductRequest"> | number
+export type ScoutingRequestScalarWhereWithAggregatesInput = {
+  AND?: Prisma.ScoutingRequestScalarWhereWithAggregatesInput | Prisma.ScoutingRequestScalarWhereWithAggregatesInput[]
+  OR?: Prisma.ScoutingRequestScalarWhereWithAggregatesInput[]
+  NOT?: Prisma.ScoutingRequestScalarWhereWithAggregatesInput | Prisma.ScoutingRequestScalarWhereWithAggregatesInput[]
+  id?: Prisma.StringWithAggregatesFilter<"ScoutingRequest"> | string
+  fingerprint?: Prisma.StringWithAggregatesFilter<"ScoutingRequest"> | string
+  normalizedNameKey?: Prisma.StringWithAggregatesFilter<"ScoutingRequest"> | string
+  displayName?: Prisma.StringWithAggregatesFilter<"ScoutingRequest"> | string
+  normalizedName?: Prisma.StringWithAggregatesFilter<"ScoutingRequest"> | string
+  category?: Prisma.StringNullableWithAggregatesFilter<"ScoutingRequest"> | string | null
+  brand?: Prisma.StringNullableWithAggregatesFilter<"ScoutingRequest"> | string | null
+  model?: Prisma.StringNullableWithAggregatesFilter<"ScoutingRequest"> | string | null
+  material?: Prisma.StringNullableWithAggregatesFilter<"ScoutingRequest"> | string | null
+  power?: Prisma.FloatNullableWithAggregatesFilter<"ScoutingRequest"> | number | null
+  voltage?: Prisma.FloatNullableWithAggregatesFilter<"ScoutingRequest"> | number | null
+  capacity?: Prisma.FloatNullableWithAggregatesFilter<"ScoutingRequest"> | number | null
+  dimensions?: Prisma.JsonWithAggregatesFilter<"ScoutingRequest">
+  requiredVariant?: Prisma.JsonWithAggregatesFilter<"ScoutingRequest">
+  certifications?: Prisma.StringNullableListFilter<"ScoutingRequest">
+  requirements?: Prisma.JsonWithAggregatesFilter<"ScoutingRequest">
+  requestedQuantity?: Prisma.FloatNullableWithAggregatesFilter<"ScoutingRequest"> | number | null
+  unit?: Prisma.StringNullableWithAggregatesFilter<"ScoutingRequest"> | string | null
+  targetPrice?: Prisma.FloatNullableWithAggregatesFilter<"ScoutingRequest"> | number | null
+  notes?: Prisma.StringNullableWithAggregatesFilter<"ScoutingRequest"> | string | null
+  referenceUrl?: Prisma.StringNullableWithAggregatesFilter<"ScoutingRequest"> | string | null
+  searchQuery?: Prisma.StringWithAggregatesFilter<"ScoutingRequest"> | string
+  language?: Prisma.StringWithAggregatesFilter<"ScoutingRequest"> | string
+  firstSeenAt?: Prisma.DateTimeWithAggregatesFilter<"ScoutingRequest"> | Date | string
+  lastSearchedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"ScoutingRequest"> | Date | string | null
+  searchCount?: Prisma.IntWithAggregatesFilter<"ScoutingRequest"> | number
 }
 
-export type ProductRequestCreateInput = {
+export type ScoutingRequestCreateInput = {
   id?: string
   fingerprint: string
   normalizedNameKey: string
@@ -538,7 +538,7 @@ export type ProductRequestCreateInput = {
   capacity?: number | null
   dimensions: Prisma.JsonNullValueInput | runtime.InputJsonValue
   requiredVariant: Prisma.JsonNullValueInput | runtime.InputJsonValue
-  certifications?: Prisma.ProductRequestCreatecertificationsInput | string[]
+  certifications?: Prisma.ScoutingRequestCreatecertificationsInput | string[]
   requirements: Prisma.JsonNullValueInput | runtime.InputJsonValue
   requestedQuantity?: number | null
   unit?: string | null
@@ -551,10 +551,10 @@ export type ProductRequestCreateInput = {
   lastSearchedAt?: Date | string | null
   searchCount?: number
   candidates?: Prisma.ProductCandidateRecordCreateNestedManyWithoutRequestInput
-  rowRuns?: Prisma.ScoutingRowRunCreateNestedManyWithoutRequestInput
+  jobRows?: Prisma.ImportJobRowCreateNestedManyWithoutRequestInput
 }
 
-export type ProductRequestUncheckedCreateInput = {
+export type ScoutingRequestUncheckedCreateInput = {
   id?: string
   fingerprint: string
   normalizedNameKey: string
@@ -569,7 +569,7 @@ export type ProductRequestUncheckedCreateInput = {
   capacity?: number | null
   dimensions: Prisma.JsonNullValueInput | runtime.InputJsonValue
   requiredVariant: Prisma.JsonNullValueInput | runtime.InputJsonValue
-  certifications?: Prisma.ProductRequestCreatecertificationsInput | string[]
+  certifications?: Prisma.ScoutingRequestCreatecertificationsInput | string[]
   requirements: Prisma.JsonNullValueInput | runtime.InputJsonValue
   requestedQuantity?: number | null
   unit?: string | null
@@ -582,10 +582,10 @@ export type ProductRequestUncheckedCreateInput = {
   lastSearchedAt?: Date | string | null
   searchCount?: number
   candidates?: Prisma.ProductCandidateRecordUncheckedCreateNestedManyWithoutRequestInput
-  rowRuns?: Prisma.ScoutingRowRunUncheckedCreateNestedManyWithoutRequestInput
+  jobRows?: Prisma.ImportJobRowUncheckedCreateNestedManyWithoutRequestInput
 }
 
-export type ProductRequestUpdateInput = {
+export type ScoutingRequestUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   fingerprint?: Prisma.StringFieldUpdateOperationsInput | string
   normalizedNameKey?: Prisma.StringFieldUpdateOperationsInput | string
@@ -600,7 +600,7 @@ export type ProductRequestUpdateInput = {
   capacity?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   dimensions?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   requiredVariant?: Prisma.JsonNullValueInput | runtime.InputJsonValue
-  certifications?: Prisma.ProductRequestUpdatecertificationsInput | string[]
+  certifications?: Prisma.ScoutingRequestUpdatecertificationsInput | string[]
   requirements?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   requestedQuantity?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   unit?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -613,10 +613,10 @@ export type ProductRequestUpdateInput = {
   lastSearchedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   searchCount?: Prisma.IntFieldUpdateOperationsInput | number
   candidates?: Prisma.ProductCandidateRecordUpdateManyWithoutRequestNestedInput
-  rowRuns?: Prisma.ScoutingRowRunUpdateManyWithoutRequestNestedInput
+  jobRows?: Prisma.ImportJobRowUpdateManyWithoutRequestNestedInput
 }
 
-export type ProductRequestUncheckedUpdateInput = {
+export type ScoutingRequestUncheckedUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   fingerprint?: Prisma.StringFieldUpdateOperationsInput | string
   normalizedNameKey?: Prisma.StringFieldUpdateOperationsInput | string
@@ -631,7 +631,7 @@ export type ProductRequestUncheckedUpdateInput = {
   capacity?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   dimensions?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   requiredVariant?: Prisma.JsonNullValueInput | runtime.InputJsonValue
-  certifications?: Prisma.ProductRequestUpdatecertificationsInput | string[]
+  certifications?: Prisma.ScoutingRequestUpdatecertificationsInput | string[]
   requirements?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   requestedQuantity?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   unit?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -644,10 +644,10 @@ export type ProductRequestUncheckedUpdateInput = {
   lastSearchedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   searchCount?: Prisma.IntFieldUpdateOperationsInput | number
   candidates?: Prisma.ProductCandidateRecordUncheckedUpdateManyWithoutRequestNestedInput
-  rowRuns?: Prisma.ScoutingRowRunUncheckedUpdateManyWithoutRequestNestedInput
+  jobRows?: Prisma.ImportJobRowUncheckedUpdateManyWithoutRequestNestedInput
 }
 
-export type ProductRequestCreateManyInput = {
+export type ScoutingRequestCreateManyInput = {
   id?: string
   fingerprint: string
   normalizedNameKey: string
@@ -662,7 +662,7 @@ export type ProductRequestCreateManyInput = {
   capacity?: number | null
   dimensions: Prisma.JsonNullValueInput | runtime.InputJsonValue
   requiredVariant: Prisma.JsonNullValueInput | runtime.InputJsonValue
-  certifications?: Prisma.ProductRequestCreatecertificationsInput | string[]
+  certifications?: Prisma.ScoutingRequestCreatecertificationsInput | string[]
   requirements: Prisma.JsonNullValueInput | runtime.InputJsonValue
   requestedQuantity?: number | null
   unit?: string | null
@@ -676,7 +676,7 @@ export type ProductRequestCreateManyInput = {
   searchCount?: number
 }
 
-export type ProductRequestUpdateManyMutationInput = {
+export type ScoutingRequestUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   fingerprint?: Prisma.StringFieldUpdateOperationsInput | string
   normalizedNameKey?: Prisma.StringFieldUpdateOperationsInput | string
@@ -691,7 +691,7 @@ export type ProductRequestUpdateManyMutationInput = {
   capacity?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   dimensions?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   requiredVariant?: Prisma.JsonNullValueInput | runtime.InputJsonValue
-  certifications?: Prisma.ProductRequestUpdatecertificationsInput | string[]
+  certifications?: Prisma.ScoutingRequestUpdatecertificationsInput | string[]
   requirements?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   requestedQuantity?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   unit?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -705,7 +705,7 @@ export type ProductRequestUpdateManyMutationInput = {
   searchCount?: Prisma.IntFieldUpdateOperationsInput | number
 }
 
-export type ProductRequestUncheckedUpdateManyInput = {
+export type ScoutingRequestUncheckedUpdateManyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   fingerprint?: Prisma.StringFieldUpdateOperationsInput | string
   normalizedNameKey?: Prisma.StringFieldUpdateOperationsInput | string
@@ -720,7 +720,7 @@ export type ProductRequestUncheckedUpdateManyInput = {
   capacity?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   dimensions?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   requiredVariant?: Prisma.JsonNullValueInput | runtime.InputJsonValue
-  certifications?: Prisma.ProductRequestUpdatecertificationsInput | string[]
+  certifications?: Prisma.ScoutingRequestUpdatecertificationsInput | string[]
   requirements?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   requestedQuantity?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   unit?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -734,7 +734,7 @@ export type ProductRequestUncheckedUpdateManyInput = {
   searchCount?: Prisma.IntFieldUpdateOperationsInput | number
 }
 
-export type ProductRequestCountOrderByAggregateInput = {
+export type ScoutingRequestCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
   fingerprint?: Prisma.SortOrder
   normalizedNameKey?: Prisma.SortOrder
@@ -763,7 +763,7 @@ export type ProductRequestCountOrderByAggregateInput = {
   searchCount?: Prisma.SortOrder
 }
 
-export type ProductRequestAvgOrderByAggregateInput = {
+export type ScoutingRequestAvgOrderByAggregateInput = {
   power?: Prisma.SortOrder
   voltage?: Prisma.SortOrder
   capacity?: Prisma.SortOrder
@@ -772,7 +772,7 @@ export type ProductRequestAvgOrderByAggregateInput = {
   searchCount?: Prisma.SortOrder
 }
 
-export type ProductRequestMaxOrderByAggregateInput = {
+export type ScoutingRequestMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
   fingerprint?: Prisma.SortOrder
   normalizedNameKey?: Prisma.SortOrder
@@ -797,7 +797,7 @@ export type ProductRequestMaxOrderByAggregateInput = {
   searchCount?: Prisma.SortOrder
 }
 
-export type ProductRequestMinOrderByAggregateInput = {
+export type ScoutingRequestMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
   fingerprint?: Prisma.SortOrder
   normalizedNameKey?: Prisma.SortOrder
@@ -822,7 +822,7 @@ export type ProductRequestMinOrderByAggregateInput = {
   searchCount?: Prisma.SortOrder
 }
 
-export type ProductRequestSumOrderByAggregateInput = {
+export type ScoutingRequestSumOrderByAggregateInput = {
   power?: Prisma.SortOrder
   voltage?: Prisma.SortOrder
   capacity?: Prisma.SortOrder
@@ -831,21 +831,21 @@ export type ProductRequestSumOrderByAggregateInput = {
   searchCount?: Prisma.SortOrder
 }
 
-export type ProductRequestNullableScalarRelationFilter = {
-  is?: Prisma.ProductRequestWhereInput | null
-  isNot?: Prisma.ProductRequestWhereInput | null
+export type ScoutingRequestNullableScalarRelationFilter = {
+  is?: Prisma.ScoutingRequestWhereInput | null
+  isNot?: Prisma.ScoutingRequestWhereInput | null
 }
 
-export type ProductRequestScalarRelationFilter = {
-  is?: Prisma.ProductRequestWhereInput
-  isNot?: Prisma.ProductRequestWhereInput
+export type ScoutingRequestScalarRelationFilter = {
+  is?: Prisma.ScoutingRequestWhereInput
+  isNot?: Prisma.ScoutingRequestWhereInput
 }
 
-export type ProductRequestCreatecertificationsInput = {
+export type ScoutingRequestCreatecertificationsInput = {
   set: string[]
 }
 
-export type ProductRequestUpdatecertificationsInput = {
+export type ScoutingRequestUpdatecertificationsInput = {
   set?: string[]
   push?: string | string[]
 }
@@ -854,37 +854,37 @@ export type NullableDateTimeFieldUpdateOperationsInput = {
   set?: Date | string | null
 }
 
-export type ProductRequestCreateNestedOneWithoutRowRunsInput = {
-  create?: Prisma.XOR<Prisma.ProductRequestCreateWithoutRowRunsInput, Prisma.ProductRequestUncheckedCreateWithoutRowRunsInput>
-  connectOrCreate?: Prisma.ProductRequestCreateOrConnectWithoutRowRunsInput
-  connect?: Prisma.ProductRequestWhereUniqueInput
+export type ScoutingRequestCreateNestedOneWithoutJobRowsInput = {
+  create?: Prisma.XOR<Prisma.ScoutingRequestCreateWithoutJobRowsInput, Prisma.ScoutingRequestUncheckedCreateWithoutJobRowsInput>
+  connectOrCreate?: Prisma.ScoutingRequestCreateOrConnectWithoutJobRowsInput
+  connect?: Prisma.ScoutingRequestWhereUniqueInput
 }
 
-export type ProductRequestUpdateOneWithoutRowRunsNestedInput = {
-  create?: Prisma.XOR<Prisma.ProductRequestCreateWithoutRowRunsInput, Prisma.ProductRequestUncheckedCreateWithoutRowRunsInput>
-  connectOrCreate?: Prisma.ProductRequestCreateOrConnectWithoutRowRunsInput
-  upsert?: Prisma.ProductRequestUpsertWithoutRowRunsInput
-  disconnect?: Prisma.ProductRequestWhereInput | boolean
-  delete?: Prisma.ProductRequestWhereInput | boolean
-  connect?: Prisma.ProductRequestWhereUniqueInput
-  update?: Prisma.XOR<Prisma.XOR<Prisma.ProductRequestUpdateToOneWithWhereWithoutRowRunsInput, Prisma.ProductRequestUpdateWithoutRowRunsInput>, Prisma.ProductRequestUncheckedUpdateWithoutRowRunsInput>
+export type ScoutingRequestUpdateOneWithoutJobRowsNestedInput = {
+  create?: Prisma.XOR<Prisma.ScoutingRequestCreateWithoutJobRowsInput, Prisma.ScoutingRequestUncheckedCreateWithoutJobRowsInput>
+  connectOrCreate?: Prisma.ScoutingRequestCreateOrConnectWithoutJobRowsInput
+  upsert?: Prisma.ScoutingRequestUpsertWithoutJobRowsInput
+  disconnect?: Prisma.ScoutingRequestWhereInput | boolean
+  delete?: Prisma.ScoutingRequestWhereInput | boolean
+  connect?: Prisma.ScoutingRequestWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.ScoutingRequestUpdateToOneWithWhereWithoutJobRowsInput, Prisma.ScoutingRequestUpdateWithoutJobRowsInput>, Prisma.ScoutingRequestUncheckedUpdateWithoutJobRowsInput>
 }
 
-export type ProductRequestCreateNestedOneWithoutCandidatesInput = {
-  create?: Prisma.XOR<Prisma.ProductRequestCreateWithoutCandidatesInput, Prisma.ProductRequestUncheckedCreateWithoutCandidatesInput>
-  connectOrCreate?: Prisma.ProductRequestCreateOrConnectWithoutCandidatesInput
-  connect?: Prisma.ProductRequestWhereUniqueInput
+export type ScoutingRequestCreateNestedOneWithoutCandidatesInput = {
+  create?: Prisma.XOR<Prisma.ScoutingRequestCreateWithoutCandidatesInput, Prisma.ScoutingRequestUncheckedCreateWithoutCandidatesInput>
+  connectOrCreate?: Prisma.ScoutingRequestCreateOrConnectWithoutCandidatesInput
+  connect?: Prisma.ScoutingRequestWhereUniqueInput
 }
 
-export type ProductRequestUpdateOneRequiredWithoutCandidatesNestedInput = {
-  create?: Prisma.XOR<Prisma.ProductRequestCreateWithoutCandidatesInput, Prisma.ProductRequestUncheckedCreateWithoutCandidatesInput>
-  connectOrCreate?: Prisma.ProductRequestCreateOrConnectWithoutCandidatesInput
-  upsert?: Prisma.ProductRequestUpsertWithoutCandidatesInput
-  connect?: Prisma.ProductRequestWhereUniqueInput
-  update?: Prisma.XOR<Prisma.XOR<Prisma.ProductRequestUpdateToOneWithWhereWithoutCandidatesInput, Prisma.ProductRequestUpdateWithoutCandidatesInput>, Prisma.ProductRequestUncheckedUpdateWithoutCandidatesInput>
+export type ScoutingRequestUpdateOneRequiredWithoutCandidatesNestedInput = {
+  create?: Prisma.XOR<Prisma.ScoutingRequestCreateWithoutCandidatesInput, Prisma.ScoutingRequestUncheckedCreateWithoutCandidatesInput>
+  connectOrCreate?: Prisma.ScoutingRequestCreateOrConnectWithoutCandidatesInput
+  upsert?: Prisma.ScoutingRequestUpsertWithoutCandidatesInput
+  connect?: Prisma.ScoutingRequestWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.ScoutingRequestUpdateToOneWithWhereWithoutCandidatesInput, Prisma.ScoutingRequestUpdateWithoutCandidatesInput>, Prisma.ScoutingRequestUncheckedUpdateWithoutCandidatesInput>
 }
 
-export type ProductRequestCreateWithoutRowRunsInput = {
+export type ScoutingRequestCreateWithoutJobRowsInput = {
   id?: string
   fingerprint: string
   normalizedNameKey: string
@@ -899,7 +899,7 @@ export type ProductRequestCreateWithoutRowRunsInput = {
   capacity?: number | null
   dimensions: Prisma.JsonNullValueInput | runtime.InputJsonValue
   requiredVariant: Prisma.JsonNullValueInput | runtime.InputJsonValue
-  certifications?: Prisma.ProductRequestCreatecertificationsInput | string[]
+  certifications?: Prisma.ScoutingRequestCreatecertificationsInput | string[]
   requirements: Prisma.JsonNullValueInput | runtime.InputJsonValue
   requestedQuantity?: number | null
   unit?: string | null
@@ -914,7 +914,7 @@ export type ProductRequestCreateWithoutRowRunsInput = {
   candidates?: Prisma.ProductCandidateRecordCreateNestedManyWithoutRequestInput
 }
 
-export type ProductRequestUncheckedCreateWithoutRowRunsInput = {
+export type ScoutingRequestUncheckedCreateWithoutJobRowsInput = {
   id?: string
   fingerprint: string
   normalizedNameKey: string
@@ -929,7 +929,7 @@ export type ProductRequestUncheckedCreateWithoutRowRunsInput = {
   capacity?: number | null
   dimensions: Prisma.JsonNullValueInput | runtime.InputJsonValue
   requiredVariant: Prisma.JsonNullValueInput | runtime.InputJsonValue
-  certifications?: Prisma.ProductRequestCreatecertificationsInput | string[]
+  certifications?: Prisma.ScoutingRequestCreatecertificationsInput | string[]
   requirements: Prisma.JsonNullValueInput | runtime.InputJsonValue
   requestedQuantity?: number | null
   unit?: string | null
@@ -944,23 +944,23 @@ export type ProductRequestUncheckedCreateWithoutRowRunsInput = {
   candidates?: Prisma.ProductCandidateRecordUncheckedCreateNestedManyWithoutRequestInput
 }
 
-export type ProductRequestCreateOrConnectWithoutRowRunsInput = {
-  where: Prisma.ProductRequestWhereUniqueInput
-  create: Prisma.XOR<Prisma.ProductRequestCreateWithoutRowRunsInput, Prisma.ProductRequestUncheckedCreateWithoutRowRunsInput>
+export type ScoutingRequestCreateOrConnectWithoutJobRowsInput = {
+  where: Prisma.ScoutingRequestWhereUniqueInput
+  create: Prisma.XOR<Prisma.ScoutingRequestCreateWithoutJobRowsInput, Prisma.ScoutingRequestUncheckedCreateWithoutJobRowsInput>
 }
 
-export type ProductRequestUpsertWithoutRowRunsInput = {
-  update: Prisma.XOR<Prisma.ProductRequestUpdateWithoutRowRunsInput, Prisma.ProductRequestUncheckedUpdateWithoutRowRunsInput>
-  create: Prisma.XOR<Prisma.ProductRequestCreateWithoutRowRunsInput, Prisma.ProductRequestUncheckedCreateWithoutRowRunsInput>
-  where?: Prisma.ProductRequestWhereInput
+export type ScoutingRequestUpsertWithoutJobRowsInput = {
+  update: Prisma.XOR<Prisma.ScoutingRequestUpdateWithoutJobRowsInput, Prisma.ScoutingRequestUncheckedUpdateWithoutJobRowsInput>
+  create: Prisma.XOR<Prisma.ScoutingRequestCreateWithoutJobRowsInput, Prisma.ScoutingRequestUncheckedCreateWithoutJobRowsInput>
+  where?: Prisma.ScoutingRequestWhereInput
 }
 
-export type ProductRequestUpdateToOneWithWhereWithoutRowRunsInput = {
-  where?: Prisma.ProductRequestWhereInput
-  data: Prisma.XOR<Prisma.ProductRequestUpdateWithoutRowRunsInput, Prisma.ProductRequestUncheckedUpdateWithoutRowRunsInput>
+export type ScoutingRequestUpdateToOneWithWhereWithoutJobRowsInput = {
+  where?: Prisma.ScoutingRequestWhereInput
+  data: Prisma.XOR<Prisma.ScoutingRequestUpdateWithoutJobRowsInput, Prisma.ScoutingRequestUncheckedUpdateWithoutJobRowsInput>
 }
 
-export type ProductRequestUpdateWithoutRowRunsInput = {
+export type ScoutingRequestUpdateWithoutJobRowsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   fingerprint?: Prisma.StringFieldUpdateOperationsInput | string
   normalizedNameKey?: Prisma.StringFieldUpdateOperationsInput | string
@@ -975,7 +975,7 @@ export type ProductRequestUpdateWithoutRowRunsInput = {
   capacity?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   dimensions?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   requiredVariant?: Prisma.JsonNullValueInput | runtime.InputJsonValue
-  certifications?: Prisma.ProductRequestUpdatecertificationsInput | string[]
+  certifications?: Prisma.ScoutingRequestUpdatecertificationsInput | string[]
   requirements?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   requestedQuantity?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   unit?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -990,7 +990,7 @@ export type ProductRequestUpdateWithoutRowRunsInput = {
   candidates?: Prisma.ProductCandidateRecordUpdateManyWithoutRequestNestedInput
 }
 
-export type ProductRequestUncheckedUpdateWithoutRowRunsInput = {
+export type ScoutingRequestUncheckedUpdateWithoutJobRowsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   fingerprint?: Prisma.StringFieldUpdateOperationsInput | string
   normalizedNameKey?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1005,7 +1005,7 @@ export type ProductRequestUncheckedUpdateWithoutRowRunsInput = {
   capacity?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   dimensions?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   requiredVariant?: Prisma.JsonNullValueInput | runtime.InputJsonValue
-  certifications?: Prisma.ProductRequestUpdatecertificationsInput | string[]
+  certifications?: Prisma.ScoutingRequestUpdatecertificationsInput | string[]
   requirements?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   requestedQuantity?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   unit?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1020,7 +1020,7 @@ export type ProductRequestUncheckedUpdateWithoutRowRunsInput = {
   candidates?: Prisma.ProductCandidateRecordUncheckedUpdateManyWithoutRequestNestedInput
 }
 
-export type ProductRequestCreateWithoutCandidatesInput = {
+export type ScoutingRequestCreateWithoutCandidatesInput = {
   id?: string
   fingerprint: string
   normalizedNameKey: string
@@ -1035,7 +1035,7 @@ export type ProductRequestCreateWithoutCandidatesInput = {
   capacity?: number | null
   dimensions: Prisma.JsonNullValueInput | runtime.InputJsonValue
   requiredVariant: Prisma.JsonNullValueInput | runtime.InputJsonValue
-  certifications?: Prisma.ProductRequestCreatecertificationsInput | string[]
+  certifications?: Prisma.ScoutingRequestCreatecertificationsInput | string[]
   requirements: Prisma.JsonNullValueInput | runtime.InputJsonValue
   requestedQuantity?: number | null
   unit?: string | null
@@ -1047,10 +1047,10 @@ export type ProductRequestCreateWithoutCandidatesInput = {
   firstSeenAt?: Date | string
   lastSearchedAt?: Date | string | null
   searchCount?: number
-  rowRuns?: Prisma.ScoutingRowRunCreateNestedManyWithoutRequestInput
+  jobRows?: Prisma.ImportJobRowCreateNestedManyWithoutRequestInput
 }
 
-export type ProductRequestUncheckedCreateWithoutCandidatesInput = {
+export type ScoutingRequestUncheckedCreateWithoutCandidatesInput = {
   id?: string
   fingerprint: string
   normalizedNameKey: string
@@ -1065,7 +1065,7 @@ export type ProductRequestUncheckedCreateWithoutCandidatesInput = {
   capacity?: number | null
   dimensions: Prisma.JsonNullValueInput | runtime.InputJsonValue
   requiredVariant: Prisma.JsonNullValueInput | runtime.InputJsonValue
-  certifications?: Prisma.ProductRequestCreatecertificationsInput | string[]
+  certifications?: Prisma.ScoutingRequestCreatecertificationsInput | string[]
   requirements: Prisma.JsonNullValueInput | runtime.InputJsonValue
   requestedQuantity?: number | null
   unit?: string | null
@@ -1077,26 +1077,26 @@ export type ProductRequestUncheckedCreateWithoutCandidatesInput = {
   firstSeenAt?: Date | string
   lastSearchedAt?: Date | string | null
   searchCount?: number
-  rowRuns?: Prisma.ScoutingRowRunUncheckedCreateNestedManyWithoutRequestInput
+  jobRows?: Prisma.ImportJobRowUncheckedCreateNestedManyWithoutRequestInput
 }
 
-export type ProductRequestCreateOrConnectWithoutCandidatesInput = {
-  where: Prisma.ProductRequestWhereUniqueInput
-  create: Prisma.XOR<Prisma.ProductRequestCreateWithoutCandidatesInput, Prisma.ProductRequestUncheckedCreateWithoutCandidatesInput>
+export type ScoutingRequestCreateOrConnectWithoutCandidatesInput = {
+  where: Prisma.ScoutingRequestWhereUniqueInput
+  create: Prisma.XOR<Prisma.ScoutingRequestCreateWithoutCandidatesInput, Prisma.ScoutingRequestUncheckedCreateWithoutCandidatesInput>
 }
 
-export type ProductRequestUpsertWithoutCandidatesInput = {
-  update: Prisma.XOR<Prisma.ProductRequestUpdateWithoutCandidatesInput, Prisma.ProductRequestUncheckedUpdateWithoutCandidatesInput>
-  create: Prisma.XOR<Prisma.ProductRequestCreateWithoutCandidatesInput, Prisma.ProductRequestUncheckedCreateWithoutCandidatesInput>
-  where?: Prisma.ProductRequestWhereInput
+export type ScoutingRequestUpsertWithoutCandidatesInput = {
+  update: Prisma.XOR<Prisma.ScoutingRequestUpdateWithoutCandidatesInput, Prisma.ScoutingRequestUncheckedUpdateWithoutCandidatesInput>
+  create: Prisma.XOR<Prisma.ScoutingRequestCreateWithoutCandidatesInput, Prisma.ScoutingRequestUncheckedCreateWithoutCandidatesInput>
+  where?: Prisma.ScoutingRequestWhereInput
 }
 
-export type ProductRequestUpdateToOneWithWhereWithoutCandidatesInput = {
-  where?: Prisma.ProductRequestWhereInput
-  data: Prisma.XOR<Prisma.ProductRequestUpdateWithoutCandidatesInput, Prisma.ProductRequestUncheckedUpdateWithoutCandidatesInput>
+export type ScoutingRequestUpdateToOneWithWhereWithoutCandidatesInput = {
+  where?: Prisma.ScoutingRequestWhereInput
+  data: Prisma.XOR<Prisma.ScoutingRequestUpdateWithoutCandidatesInput, Prisma.ScoutingRequestUncheckedUpdateWithoutCandidatesInput>
 }
 
-export type ProductRequestUpdateWithoutCandidatesInput = {
+export type ScoutingRequestUpdateWithoutCandidatesInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   fingerprint?: Prisma.StringFieldUpdateOperationsInput | string
   normalizedNameKey?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1111,7 +1111,7 @@ export type ProductRequestUpdateWithoutCandidatesInput = {
   capacity?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   dimensions?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   requiredVariant?: Prisma.JsonNullValueInput | runtime.InputJsonValue
-  certifications?: Prisma.ProductRequestUpdatecertificationsInput | string[]
+  certifications?: Prisma.ScoutingRequestUpdatecertificationsInput | string[]
   requirements?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   requestedQuantity?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   unit?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1123,10 +1123,10 @@ export type ProductRequestUpdateWithoutCandidatesInput = {
   firstSeenAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   lastSearchedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   searchCount?: Prisma.IntFieldUpdateOperationsInput | number
-  rowRuns?: Prisma.ScoutingRowRunUpdateManyWithoutRequestNestedInput
+  jobRows?: Prisma.ImportJobRowUpdateManyWithoutRequestNestedInput
 }
 
-export type ProductRequestUncheckedUpdateWithoutCandidatesInput = {
+export type ScoutingRequestUncheckedUpdateWithoutCandidatesInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   fingerprint?: Prisma.StringFieldUpdateOperationsInput | string
   normalizedNameKey?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1141,7 +1141,7 @@ export type ProductRequestUncheckedUpdateWithoutCandidatesInput = {
   capacity?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   dimensions?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   requiredVariant?: Prisma.JsonNullValueInput | runtime.InputJsonValue
-  certifications?: Prisma.ProductRequestUpdatecertificationsInput | string[]
+  certifications?: Prisma.ScoutingRequestUpdatecertificationsInput | string[]
   requirements?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   requestedQuantity?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   unit?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1153,50 +1153,50 @@ export type ProductRequestUncheckedUpdateWithoutCandidatesInput = {
   firstSeenAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   lastSearchedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   searchCount?: Prisma.IntFieldUpdateOperationsInput | number
-  rowRuns?: Prisma.ScoutingRowRunUncheckedUpdateManyWithoutRequestNestedInput
+  jobRows?: Prisma.ImportJobRowUncheckedUpdateManyWithoutRequestNestedInput
 }
 
 
 /**
- * Count Type ProductRequestCountOutputType
+ * Count Type ScoutingRequestCountOutputType
  */
 
-export type ProductRequestCountOutputType = {
+export type ScoutingRequestCountOutputType = {
   candidates: number
-  rowRuns: number
+  jobRows: number
 }
 
-export type ProductRequestCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  candidates?: boolean | ProductRequestCountOutputTypeCountCandidatesArgs
-  rowRuns?: boolean | ProductRequestCountOutputTypeCountRowRunsArgs
+export type ScoutingRequestCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  candidates?: boolean | ScoutingRequestCountOutputTypeCountCandidatesArgs
+  jobRows?: boolean | ScoutingRequestCountOutputTypeCountJobRowsArgs
 }
 
 /**
- * ProductRequestCountOutputType without action
+ * ScoutingRequestCountOutputType without action
  */
-export type ProductRequestCountOutputTypeDefaultArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+export type ScoutingRequestCountOutputTypeDefaultArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   /**
-   * Select specific fields to fetch from the ProductRequestCountOutputType
+   * Select specific fields to fetch from the ScoutingRequestCountOutputType
    */
-  select?: Prisma.ProductRequestCountOutputTypeSelect<ExtArgs> | null
+  select?: Prisma.ScoutingRequestCountOutputTypeSelect<ExtArgs> | null
 }
 
 /**
- * ProductRequestCountOutputType without action
+ * ScoutingRequestCountOutputType without action
  */
-export type ProductRequestCountOutputTypeCountCandidatesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+export type ScoutingRequestCountOutputTypeCountCandidatesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   where?: Prisma.ProductCandidateRecordWhereInput
 }
 
 /**
- * ProductRequestCountOutputType without action
+ * ScoutingRequestCountOutputType without action
  */
-export type ProductRequestCountOutputTypeCountRowRunsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  where?: Prisma.ScoutingRowRunWhereInput
+export type ScoutingRequestCountOutputTypeCountJobRowsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.ImportJobRowWhereInput
 }
 
 
-export type ProductRequestSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
+export type ScoutingRequestSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   fingerprint?: boolean
   normalizedNameKey?: boolean
@@ -1223,12 +1223,12 @@ export type ProductRequestSelect<ExtArgs extends runtime.Types.Extensions.Intern
   firstSeenAt?: boolean
   lastSearchedAt?: boolean
   searchCount?: boolean
-  candidates?: boolean | Prisma.ProductRequest$candidatesArgs<ExtArgs>
-  rowRuns?: boolean | Prisma.ProductRequest$rowRunsArgs<ExtArgs>
-  _count?: boolean | Prisma.ProductRequestCountOutputTypeDefaultArgs<ExtArgs>
-}, ExtArgs["result"]["productRequest"]>
+  candidates?: boolean | Prisma.ScoutingRequest$candidatesArgs<ExtArgs>
+  jobRows?: boolean | Prisma.ScoutingRequest$jobRowsArgs<ExtArgs>
+  _count?: boolean | Prisma.ScoutingRequestCountOutputTypeDefaultArgs<ExtArgs>
+}, ExtArgs["result"]["scoutingRequest"]>
 
-export type ProductRequestSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
+export type ScoutingRequestSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   fingerprint?: boolean
   normalizedNameKey?: boolean
@@ -1255,9 +1255,9 @@ export type ProductRequestSelectCreateManyAndReturn<ExtArgs extends runtime.Type
   firstSeenAt?: boolean
   lastSearchedAt?: boolean
   searchCount?: boolean
-}, ExtArgs["result"]["productRequest"]>
+}, ExtArgs["result"]["scoutingRequest"]>
 
-export type ProductRequestSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
+export type ScoutingRequestSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   fingerprint?: boolean
   normalizedNameKey?: boolean
@@ -1284,9 +1284,9 @@ export type ProductRequestSelectUpdateManyAndReturn<ExtArgs extends runtime.Type
   firstSeenAt?: boolean
   lastSearchedAt?: boolean
   searchCount?: boolean
-}, ExtArgs["result"]["productRequest"]>
+}, ExtArgs["result"]["scoutingRequest"]>
 
-export type ProductRequestSelectScalar = {
+export type ScoutingRequestSelectScalar = {
   id?: boolean
   fingerprint?: boolean
   normalizedNameKey?: boolean
@@ -1315,20 +1315,20 @@ export type ProductRequestSelectScalar = {
   searchCount?: boolean
 }
 
-export type ProductRequestOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "fingerprint" | "normalizedNameKey" | "displayName" | "normalizedName" | "category" | "brand" | "model" | "material" | "power" | "voltage" | "capacity" | "dimensions" | "requiredVariant" | "certifications" | "requirements" | "requestedQuantity" | "unit" | "targetPrice" | "notes" | "referenceUrl" | "searchQuery" | "language" | "firstSeenAt" | "lastSearchedAt" | "searchCount", ExtArgs["result"]["productRequest"]>
-export type ProductRequestInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  candidates?: boolean | Prisma.ProductRequest$candidatesArgs<ExtArgs>
-  rowRuns?: boolean | Prisma.ProductRequest$rowRunsArgs<ExtArgs>
-  _count?: boolean | Prisma.ProductRequestCountOutputTypeDefaultArgs<ExtArgs>
+export type ScoutingRequestOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "fingerprint" | "normalizedNameKey" | "displayName" | "normalizedName" | "category" | "brand" | "model" | "material" | "power" | "voltage" | "capacity" | "dimensions" | "requiredVariant" | "certifications" | "requirements" | "requestedQuantity" | "unit" | "targetPrice" | "notes" | "referenceUrl" | "searchQuery" | "language" | "firstSeenAt" | "lastSearchedAt" | "searchCount", ExtArgs["result"]["scoutingRequest"]>
+export type ScoutingRequestInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  candidates?: boolean | Prisma.ScoutingRequest$candidatesArgs<ExtArgs>
+  jobRows?: boolean | Prisma.ScoutingRequest$jobRowsArgs<ExtArgs>
+  _count?: boolean | Prisma.ScoutingRequestCountOutputTypeDefaultArgs<ExtArgs>
 }
-export type ProductRequestIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {}
-export type ProductRequestIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {}
+export type ScoutingRequestIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {}
+export type ScoutingRequestIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {}
 
-export type $ProductRequestPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  name: "ProductRequest"
+export type $ScoutingRequestPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  name: "ScoutingRequest"
   objects: {
     candidates: Prisma.$ProductCandidateRecordPayload<ExtArgs>[]
-    rowRuns: Prisma.$ScoutingRowRunPayload<ExtArgs>[]
+    jobRows: Prisma.$ImportJobRowPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -1363,136 +1363,136 @@ export type $ProductRequestPayload<ExtArgs extends runtime.Types.Extensions.Inte
     firstSeenAt: Date
     lastSearchedAt: Date | null
     searchCount: number
-  }, ExtArgs["result"]["productRequest"]>
+  }, ExtArgs["result"]["scoutingRequest"]>
   composites: {}
 }
 
-export type ProductRequestGetPayload<S extends boolean | null | undefined | ProductRequestDefaultArgs> = runtime.Types.Result.GetResult<Prisma.$ProductRequestPayload, S>
+export type ScoutingRequestGetPayload<S extends boolean | null | undefined | ScoutingRequestDefaultArgs> = runtime.Types.Result.GetResult<Prisma.$ScoutingRequestPayload, S>
 
-export type ProductRequestCountArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> =
-  Omit<ProductRequestFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
-    select?: ProductRequestCountAggregateInputType | true
+export type ScoutingRequestCountArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> =
+  Omit<ScoutingRequestFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+    select?: ScoutingRequestCountAggregateInputType | true
   }
 
-export interface ProductRequestDelegate<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> {
-  [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['ProductRequest'], meta: { name: 'ProductRequest' } }
+export interface ScoutingRequestDelegate<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+  [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['ScoutingRequest'], meta: { name: 'ScoutingRequest' } }
   /**
-   * Find zero or one ProductRequest that matches the filter.
-   * @param {ProductRequestFindUniqueArgs} args - Arguments to find a ProductRequest
+   * Find zero or one ScoutingRequest that matches the filter.
+   * @param {ScoutingRequestFindUniqueArgs} args - Arguments to find a ScoutingRequest
    * @example
-   * // Get one ProductRequest
-   * const productRequest = await prisma.productRequest.findUnique({
+   * // Get one ScoutingRequest
+   * const scoutingRequest = await prisma.scoutingRequest.findUnique({
    *   where: {
    *     // ... provide filter here
    *   }
    * })
    */
-  findUnique<T extends ProductRequestFindUniqueArgs>(args: Prisma.SelectSubset<T, ProductRequestFindUniqueArgs<ExtArgs>>): Prisma.Prisma__ProductRequestClient<runtime.Types.Result.GetResult<Prisma.$ProductRequestPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  findUnique<T extends ScoutingRequestFindUniqueArgs>(args: Prisma.SelectSubset<T, ScoutingRequestFindUniqueArgs<ExtArgs>>): Prisma.Prisma__ScoutingRequestClient<runtime.Types.Result.GetResult<Prisma.$ScoutingRequestPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
 
   /**
-   * Find one ProductRequest that matches the filter or throw an error with `error.code='P2025'`
+   * Find one ScoutingRequest that matches the filter or throw an error with `error.code='P2025'`
    * if no matches were found.
-   * @param {ProductRequestFindUniqueOrThrowArgs} args - Arguments to find a ProductRequest
+   * @param {ScoutingRequestFindUniqueOrThrowArgs} args - Arguments to find a ScoutingRequest
    * @example
-   * // Get one ProductRequest
-   * const productRequest = await prisma.productRequest.findUniqueOrThrow({
+   * // Get one ScoutingRequest
+   * const scoutingRequest = await prisma.scoutingRequest.findUniqueOrThrow({
    *   where: {
    *     // ... provide filter here
    *   }
    * })
    */
-  findUniqueOrThrow<T extends ProductRequestFindUniqueOrThrowArgs>(args: Prisma.SelectSubset<T, ProductRequestFindUniqueOrThrowArgs<ExtArgs>>): Prisma.Prisma__ProductRequestClient<runtime.Types.Result.GetResult<Prisma.$ProductRequestPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+  findUniqueOrThrow<T extends ScoutingRequestFindUniqueOrThrowArgs>(args: Prisma.SelectSubset<T, ScoutingRequestFindUniqueOrThrowArgs<ExtArgs>>): Prisma.Prisma__ScoutingRequestClient<runtime.Types.Result.GetResult<Prisma.$ScoutingRequestPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
   /**
-   * Find the first ProductRequest that matches the filter.
+   * Find the first ScoutingRequest that matches the filter.
    * Note, that providing `undefined` is treated as the value not being there.
    * Read more here: https://pris.ly/d/null-undefined
-   * @param {ProductRequestFindFirstArgs} args - Arguments to find a ProductRequest
+   * @param {ScoutingRequestFindFirstArgs} args - Arguments to find a ScoutingRequest
    * @example
-   * // Get one ProductRequest
-   * const productRequest = await prisma.productRequest.findFirst({
+   * // Get one ScoutingRequest
+   * const scoutingRequest = await prisma.scoutingRequest.findFirst({
    *   where: {
    *     // ... provide filter here
    *   }
    * })
    */
-  findFirst<T extends ProductRequestFindFirstArgs>(args?: Prisma.SelectSubset<T, ProductRequestFindFirstArgs<ExtArgs>>): Prisma.Prisma__ProductRequestClient<runtime.Types.Result.GetResult<Prisma.$ProductRequestPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  findFirst<T extends ScoutingRequestFindFirstArgs>(args?: Prisma.SelectSubset<T, ScoutingRequestFindFirstArgs<ExtArgs>>): Prisma.Prisma__ScoutingRequestClient<runtime.Types.Result.GetResult<Prisma.$ScoutingRequestPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
 
   /**
-   * Find the first ProductRequest that matches the filter or
+   * Find the first ScoutingRequest that matches the filter or
    * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
    * Note, that providing `undefined` is treated as the value not being there.
    * Read more here: https://pris.ly/d/null-undefined
-   * @param {ProductRequestFindFirstOrThrowArgs} args - Arguments to find a ProductRequest
+   * @param {ScoutingRequestFindFirstOrThrowArgs} args - Arguments to find a ScoutingRequest
    * @example
-   * // Get one ProductRequest
-   * const productRequest = await prisma.productRequest.findFirstOrThrow({
+   * // Get one ScoutingRequest
+   * const scoutingRequest = await prisma.scoutingRequest.findFirstOrThrow({
    *   where: {
    *     // ... provide filter here
    *   }
    * })
    */
-  findFirstOrThrow<T extends ProductRequestFindFirstOrThrowArgs>(args?: Prisma.SelectSubset<T, ProductRequestFindFirstOrThrowArgs<ExtArgs>>): Prisma.Prisma__ProductRequestClient<runtime.Types.Result.GetResult<Prisma.$ProductRequestPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+  findFirstOrThrow<T extends ScoutingRequestFindFirstOrThrowArgs>(args?: Prisma.SelectSubset<T, ScoutingRequestFindFirstOrThrowArgs<ExtArgs>>): Prisma.Prisma__ScoutingRequestClient<runtime.Types.Result.GetResult<Prisma.$ScoutingRequestPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
   /**
-   * Find zero or more ProductRequests that matches the filter.
+   * Find zero or more ScoutingRequests that matches the filter.
    * Note, that providing `undefined` is treated as the value not being there.
    * Read more here: https://pris.ly/d/null-undefined
-   * @param {ProductRequestFindManyArgs} args - Arguments to filter and select certain fields only.
+   * @param {ScoutingRequestFindManyArgs} args - Arguments to filter and select certain fields only.
    * @example
-   * // Get all ProductRequests
-   * const productRequests = await prisma.productRequest.findMany()
+   * // Get all ScoutingRequests
+   * const scoutingRequests = await prisma.scoutingRequest.findMany()
    * 
-   * // Get first 10 ProductRequests
-   * const productRequests = await prisma.productRequest.findMany({ take: 10 })
+   * // Get first 10 ScoutingRequests
+   * const scoutingRequests = await prisma.scoutingRequest.findMany({ take: 10 })
    * 
    * // Only select the `id`
-   * const productRequestWithIdOnly = await prisma.productRequest.findMany({ select: { id: true } })
+   * const scoutingRequestWithIdOnly = await prisma.scoutingRequest.findMany({ select: { id: true } })
    * 
    */
-  findMany<T extends ProductRequestFindManyArgs>(args?: Prisma.SelectSubset<T, ProductRequestFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ProductRequestPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+  findMany<T extends ScoutingRequestFindManyArgs>(args?: Prisma.SelectSubset<T, ScoutingRequestFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ScoutingRequestPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
 
   /**
-   * Create a ProductRequest.
-   * @param {ProductRequestCreateArgs} args - Arguments to create a ProductRequest.
+   * Create a ScoutingRequest.
+   * @param {ScoutingRequestCreateArgs} args - Arguments to create a ScoutingRequest.
    * @example
-   * // Create one ProductRequest
-   * const ProductRequest = await prisma.productRequest.create({
+   * // Create one ScoutingRequest
+   * const ScoutingRequest = await prisma.scoutingRequest.create({
    *   data: {
-   *     // ... data to create a ProductRequest
+   *     // ... data to create a ScoutingRequest
    *   }
    * })
    * 
    */
-  create<T extends ProductRequestCreateArgs>(args: Prisma.SelectSubset<T, ProductRequestCreateArgs<ExtArgs>>): Prisma.Prisma__ProductRequestClient<runtime.Types.Result.GetResult<Prisma.$ProductRequestPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+  create<T extends ScoutingRequestCreateArgs>(args: Prisma.SelectSubset<T, ScoutingRequestCreateArgs<ExtArgs>>): Prisma.Prisma__ScoutingRequestClient<runtime.Types.Result.GetResult<Prisma.$ScoutingRequestPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
   /**
-   * Create many ProductRequests.
-   * @param {ProductRequestCreateManyArgs} args - Arguments to create many ProductRequests.
+   * Create many ScoutingRequests.
+   * @param {ScoutingRequestCreateManyArgs} args - Arguments to create many ScoutingRequests.
    * @example
-   * // Create many ProductRequests
-   * const productRequest = await prisma.productRequest.createMany({
+   * // Create many ScoutingRequests
+   * const scoutingRequest = await prisma.scoutingRequest.createMany({
    *   data: [
    *     // ... provide data here
    *   ]
    * })
    *     
    */
-  createMany<T extends ProductRequestCreateManyArgs>(args?: Prisma.SelectSubset<T, ProductRequestCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<Prisma.BatchPayload>
+  createMany<T extends ScoutingRequestCreateManyArgs>(args?: Prisma.SelectSubset<T, ScoutingRequestCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<Prisma.BatchPayload>
 
   /**
-   * Create many ProductRequests and returns the data saved in the database.
-   * @param {ProductRequestCreateManyAndReturnArgs} args - Arguments to create many ProductRequests.
+   * Create many ScoutingRequests and returns the data saved in the database.
+   * @param {ScoutingRequestCreateManyAndReturnArgs} args - Arguments to create many ScoutingRequests.
    * @example
-   * // Create many ProductRequests
-   * const productRequest = await prisma.productRequest.createManyAndReturn({
+   * // Create many ScoutingRequests
+   * const scoutingRequest = await prisma.scoutingRequest.createManyAndReturn({
    *   data: [
    *     // ... provide data here
    *   ]
    * })
    * 
-   * // Create many ProductRequests and only return the `id`
-   * const productRequestWithIdOnly = await prisma.productRequest.createManyAndReturn({
+   * // Create many ScoutingRequests and only return the `id`
+   * const scoutingRequestWithIdOnly = await prisma.scoutingRequest.createManyAndReturn({
    *   select: { id: true },
    *   data: [
    *     // ... provide data here
@@ -1502,28 +1502,28 @@ export interface ProductRequestDelegate<ExtArgs extends runtime.Types.Extensions
    * Read more here: https://pris.ly/d/null-undefined
    * 
    */
-  createManyAndReturn<T extends ProductRequestCreateManyAndReturnArgs>(args?: Prisma.SelectSubset<T, ProductRequestCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ProductRequestPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+  createManyAndReturn<T extends ScoutingRequestCreateManyAndReturnArgs>(args?: Prisma.SelectSubset<T, ScoutingRequestCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ScoutingRequestPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
 
   /**
-   * Delete a ProductRequest.
-   * @param {ProductRequestDeleteArgs} args - Arguments to delete one ProductRequest.
+   * Delete a ScoutingRequest.
+   * @param {ScoutingRequestDeleteArgs} args - Arguments to delete one ScoutingRequest.
    * @example
-   * // Delete one ProductRequest
-   * const ProductRequest = await prisma.productRequest.delete({
+   * // Delete one ScoutingRequest
+   * const ScoutingRequest = await prisma.scoutingRequest.delete({
    *   where: {
-   *     // ... filter to delete one ProductRequest
+   *     // ... filter to delete one ScoutingRequest
    *   }
    * })
    * 
    */
-  delete<T extends ProductRequestDeleteArgs>(args: Prisma.SelectSubset<T, ProductRequestDeleteArgs<ExtArgs>>): Prisma.Prisma__ProductRequestClient<runtime.Types.Result.GetResult<Prisma.$ProductRequestPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+  delete<T extends ScoutingRequestDeleteArgs>(args: Prisma.SelectSubset<T, ScoutingRequestDeleteArgs<ExtArgs>>): Prisma.Prisma__ScoutingRequestClient<runtime.Types.Result.GetResult<Prisma.$ScoutingRequestPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
   /**
-   * Update one ProductRequest.
-   * @param {ProductRequestUpdateArgs} args - Arguments to update one ProductRequest.
+   * Update one ScoutingRequest.
+   * @param {ScoutingRequestUpdateArgs} args - Arguments to update one ScoutingRequest.
    * @example
-   * // Update one ProductRequest
-   * const productRequest = await prisma.productRequest.update({
+   * // Update one ScoutingRequest
+   * const scoutingRequest = await prisma.scoutingRequest.update({
    *   where: {
    *     // ... provide filter here
    *   },
@@ -1533,30 +1533,30 @@ export interface ProductRequestDelegate<ExtArgs extends runtime.Types.Extensions
    * })
    * 
    */
-  update<T extends ProductRequestUpdateArgs>(args: Prisma.SelectSubset<T, ProductRequestUpdateArgs<ExtArgs>>): Prisma.Prisma__ProductRequestClient<runtime.Types.Result.GetResult<Prisma.$ProductRequestPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+  update<T extends ScoutingRequestUpdateArgs>(args: Prisma.SelectSubset<T, ScoutingRequestUpdateArgs<ExtArgs>>): Prisma.Prisma__ScoutingRequestClient<runtime.Types.Result.GetResult<Prisma.$ScoutingRequestPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
   /**
-   * Delete zero or more ProductRequests.
-   * @param {ProductRequestDeleteManyArgs} args - Arguments to filter ProductRequests to delete.
+   * Delete zero or more ScoutingRequests.
+   * @param {ScoutingRequestDeleteManyArgs} args - Arguments to filter ScoutingRequests to delete.
    * @example
-   * // Delete a few ProductRequests
-   * const { count } = await prisma.productRequest.deleteMany({
+   * // Delete a few ScoutingRequests
+   * const { count } = await prisma.scoutingRequest.deleteMany({
    *   where: {
    *     // ... provide filter here
    *   }
    * })
    * 
    */
-  deleteMany<T extends ProductRequestDeleteManyArgs>(args?: Prisma.SelectSubset<T, ProductRequestDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<Prisma.BatchPayload>
+  deleteMany<T extends ScoutingRequestDeleteManyArgs>(args?: Prisma.SelectSubset<T, ScoutingRequestDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<Prisma.BatchPayload>
 
   /**
-   * Update zero or more ProductRequests.
+   * Update zero or more ScoutingRequests.
    * Note, that providing `undefined` is treated as the value not being there.
    * Read more here: https://pris.ly/d/null-undefined
-   * @param {ProductRequestUpdateManyArgs} args - Arguments to update one or more rows.
+   * @param {ScoutingRequestUpdateManyArgs} args - Arguments to update one or more rows.
    * @example
-   * // Update many ProductRequests
-   * const productRequest = await prisma.productRequest.updateMany({
+   * // Update many ScoutingRequests
+   * const scoutingRequest = await prisma.scoutingRequest.updateMany({
    *   where: {
    *     // ... provide filter here
    *   },
@@ -1566,14 +1566,14 @@ export interface ProductRequestDelegate<ExtArgs extends runtime.Types.Extensions
    * })
    * 
    */
-  updateMany<T extends ProductRequestUpdateManyArgs>(args: Prisma.SelectSubset<T, ProductRequestUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<Prisma.BatchPayload>
+  updateMany<T extends ScoutingRequestUpdateManyArgs>(args: Prisma.SelectSubset<T, ScoutingRequestUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<Prisma.BatchPayload>
 
   /**
-   * Update zero or more ProductRequests and returns the data updated in the database.
-   * @param {ProductRequestUpdateManyAndReturnArgs} args - Arguments to update many ProductRequests.
+   * Update zero or more ScoutingRequests and returns the data updated in the database.
+   * @param {ScoutingRequestUpdateManyAndReturnArgs} args - Arguments to update many ScoutingRequests.
    * @example
-   * // Update many ProductRequests
-   * const productRequest = await prisma.productRequest.updateManyAndReturn({
+   * // Update many ScoutingRequests
+   * const scoutingRequest = await prisma.scoutingRequest.updateManyAndReturn({
    *   where: {
    *     // ... provide filter here
    *   },
@@ -1582,8 +1582,8 @@ export interface ProductRequestDelegate<ExtArgs extends runtime.Types.Extensions
    *   ]
    * })
    * 
-   * // Update zero or more ProductRequests and only return the `id`
-   * const productRequestWithIdOnly = await prisma.productRequest.updateManyAndReturn({
+   * // Update zero or more ScoutingRequests and only return the `id`
+   * const scoutingRequestWithIdOnly = await prisma.scoutingRequest.updateManyAndReturn({
    *   select: { id: true },
    *   where: {
    *     // ... provide filter here
@@ -1596,56 +1596,56 @@ export interface ProductRequestDelegate<ExtArgs extends runtime.Types.Extensions
    * Read more here: https://pris.ly/d/null-undefined
    * 
    */
-  updateManyAndReturn<T extends ProductRequestUpdateManyAndReturnArgs>(args: Prisma.SelectSubset<T, ProductRequestUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ProductRequestPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+  updateManyAndReturn<T extends ScoutingRequestUpdateManyAndReturnArgs>(args: Prisma.SelectSubset<T, ScoutingRequestUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ScoutingRequestPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
 
   /**
-   * Create or update one ProductRequest.
-   * @param {ProductRequestUpsertArgs} args - Arguments to update or create a ProductRequest.
+   * Create or update one ScoutingRequest.
+   * @param {ScoutingRequestUpsertArgs} args - Arguments to update or create a ScoutingRequest.
    * @example
-   * // Update or create a ProductRequest
-   * const productRequest = await prisma.productRequest.upsert({
+   * // Update or create a ScoutingRequest
+   * const scoutingRequest = await prisma.scoutingRequest.upsert({
    *   create: {
-   *     // ... data to create a ProductRequest
+   *     // ... data to create a ScoutingRequest
    *   },
    *   update: {
    *     // ... in case it already exists, update
    *   },
    *   where: {
-   *     // ... the filter for the ProductRequest we want to update
+   *     // ... the filter for the ScoutingRequest we want to update
    *   }
    * })
    */
-  upsert<T extends ProductRequestUpsertArgs>(args: Prisma.SelectSubset<T, ProductRequestUpsertArgs<ExtArgs>>): Prisma.Prisma__ProductRequestClient<runtime.Types.Result.GetResult<Prisma.$ProductRequestPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+  upsert<T extends ScoutingRequestUpsertArgs>(args: Prisma.SelectSubset<T, ScoutingRequestUpsertArgs<ExtArgs>>): Prisma.Prisma__ScoutingRequestClient<runtime.Types.Result.GetResult<Prisma.$ScoutingRequestPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
 
   /**
-   * Count the number of ProductRequests.
+   * Count the number of ScoutingRequests.
    * Note, that providing `undefined` is treated as the value not being there.
    * Read more here: https://pris.ly/d/null-undefined
-   * @param {ProductRequestCountArgs} args - Arguments to filter ProductRequests to count.
+   * @param {ScoutingRequestCountArgs} args - Arguments to filter ScoutingRequests to count.
    * @example
-   * // Count the number of ProductRequests
-   * const count = await prisma.productRequest.count({
+   * // Count the number of ScoutingRequests
+   * const count = await prisma.scoutingRequest.count({
    *   where: {
-   *     // ... the filter for the ProductRequests we want to count
+   *     // ... the filter for the ScoutingRequests we want to count
    *   }
    * })
   **/
-  count<T extends ProductRequestCountArgs>(
-    args?: Prisma.Subset<T, ProductRequestCountArgs>,
+  count<T extends ScoutingRequestCountArgs>(
+    args?: Prisma.Subset<T, ScoutingRequestCountArgs>,
   ): Prisma.PrismaPromise<
     T extends runtime.Types.Utils.Record<'select', any>
       ? T['select'] extends true
         ? number
-        : Prisma.GetScalarType<T['select'], ProductRequestCountAggregateOutputType>
+        : Prisma.GetScalarType<T['select'], ScoutingRequestCountAggregateOutputType>
       : number
   >
 
   /**
-   * Allows you to perform aggregations operations on a ProductRequest.
+   * Allows you to perform aggregations operations on a ScoutingRequest.
    * Note, that providing `undefined` is treated as the value not being there.
    * Read more here: https://pris.ly/d/null-undefined
-   * @param {ProductRequestAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+   * @param {ScoutingRequestAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
    * @example
    * // Ordered by age ascending
    * // Where email contains prisma.io
@@ -1665,13 +1665,13 @@ export interface ProductRequestDelegate<ExtArgs extends runtime.Types.Extensions
    *   take: 10,
    * })
   **/
-  aggregate<T extends ProductRequestAggregateArgs>(args: Prisma.Subset<T, ProductRequestAggregateArgs>): Prisma.PrismaPromise<GetProductRequestAggregateType<T>>
+  aggregate<T extends ScoutingRequestAggregateArgs>(args: Prisma.Subset<T, ScoutingRequestAggregateArgs>): Prisma.PrismaPromise<GetScoutingRequestAggregateType<T>>
 
   /**
-   * Group by ProductRequest.
+   * Group by ScoutingRequest.
    * Note, that providing `undefined` is treated as the value not being there.
    * Read more here: https://pris.ly/d/null-undefined
-   * @param {ProductRequestGroupByArgs} args - Group by arguments.
+   * @param {ScoutingRequestGroupByArgs} args - Group by arguments.
    * @example
    * // Group by city, order by createdAt, get count
    * const result = await prisma.user.groupBy({
@@ -1686,14 +1686,14 @@ export interface ProductRequestDelegate<ExtArgs extends runtime.Types.Extensions
    * 
   **/
   groupBy<
-    T extends ProductRequestGroupByArgs,
+    T extends ScoutingRequestGroupByArgs,
     HasSelectOrTake extends Prisma.Or<
       Prisma.Extends<'skip', Prisma.Keys<T>>,
       Prisma.Extends<'take', Prisma.Keys<T>>
     >,
     OrderByArg extends Prisma.True extends HasSelectOrTake
-      ? { orderBy: ProductRequestGroupByArgs['orderBy'] }
-      : { orderBy?: ProductRequestGroupByArgs['orderBy'] },
+      ? { orderBy: ScoutingRequestGroupByArgs['orderBy'] }
+      : { orderBy?: ScoutingRequestGroupByArgs['orderBy'] },
     OrderFields extends Prisma.ExcludeUnderscoreKeys<Prisma.Keys<Prisma.MaybeTupleToUnion<T['orderBy']>>>,
     ByFields extends Prisma.MaybeTupleToUnion<T['by']>,
     ByValid extends Prisma.Has<ByFields, OrderFields>,
@@ -1742,23 +1742,23 @@ export interface ProductRequestDelegate<ExtArgs extends runtime.Types.Extensions
           ? never
           : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
       }[OrderFields]
-  >(args: Prisma.SubsetIntersection<T, ProductRequestGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetProductRequestGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  >(args: Prisma.SubsetIntersection<T, ScoutingRequestGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetScoutingRequestGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
 /**
- * Fields of the ProductRequest model
+ * Fields of the ScoutingRequest model
  */
-readonly fields: ProductRequestFieldRefs;
+readonly fields: ScoutingRequestFieldRefs;
 }
 
 /**
- * The delegate class that acts as a "Promise-like" for ProductRequest.
+ * The delegate class that acts as a "Promise-like" for ScoutingRequest.
  * Why is this prefixed with `Prisma__`?
  * Because we want to prevent naming conflicts as mentioned in
  * https://github.com/prisma/prisma-client-js/issues/707
  */
-export interface Prisma__ProductRequestClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+export interface Prisma__ScoutingRequestClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
-  candidates<T extends Prisma.ProductRequest$candidatesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ProductRequest$candidatesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ProductCandidateRecordPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
-  rowRuns<T extends Prisma.ProductRequest$rowRunsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ProductRequest$rowRunsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ScoutingRowRunPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  candidates<T extends Prisma.ScoutingRequest$candidatesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ScoutingRequest$candidatesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ProductCandidateRecordPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  jobRows<T extends Prisma.ScoutingRequest$jobRowsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ScoutingRequest$jobRowsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ImportJobRowPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1785,431 +1785,431 @@ export interface Prisma__ProductRequestClient<T, Null = never, ExtArgs extends r
 
 
 /**
- * Fields of the ProductRequest model
+ * Fields of the ScoutingRequest model
  */
-export interface ProductRequestFieldRefs {
-  readonly id: Prisma.FieldRef<"ProductRequest", 'String'>
-  readonly fingerprint: Prisma.FieldRef<"ProductRequest", 'String'>
-  readonly normalizedNameKey: Prisma.FieldRef<"ProductRequest", 'String'>
-  readonly displayName: Prisma.FieldRef<"ProductRequest", 'String'>
-  readonly normalizedName: Prisma.FieldRef<"ProductRequest", 'String'>
-  readonly category: Prisma.FieldRef<"ProductRequest", 'String'>
-  readonly brand: Prisma.FieldRef<"ProductRequest", 'String'>
-  readonly model: Prisma.FieldRef<"ProductRequest", 'String'>
-  readonly material: Prisma.FieldRef<"ProductRequest", 'String'>
-  readonly power: Prisma.FieldRef<"ProductRequest", 'Float'>
-  readonly voltage: Prisma.FieldRef<"ProductRequest", 'Float'>
-  readonly capacity: Prisma.FieldRef<"ProductRequest", 'Float'>
-  readonly dimensions: Prisma.FieldRef<"ProductRequest", 'Json'>
-  readonly requiredVariant: Prisma.FieldRef<"ProductRequest", 'Json'>
-  readonly certifications: Prisma.FieldRef<"ProductRequest", 'String[]'>
-  readonly requirements: Prisma.FieldRef<"ProductRequest", 'Json'>
-  readonly requestedQuantity: Prisma.FieldRef<"ProductRequest", 'Float'>
-  readonly unit: Prisma.FieldRef<"ProductRequest", 'String'>
-  readonly targetPrice: Prisma.FieldRef<"ProductRequest", 'Float'>
-  readonly notes: Prisma.FieldRef<"ProductRequest", 'String'>
-  readonly referenceUrl: Prisma.FieldRef<"ProductRequest", 'String'>
-  readonly searchQuery: Prisma.FieldRef<"ProductRequest", 'String'>
-  readonly language: Prisma.FieldRef<"ProductRequest", 'String'>
-  readonly firstSeenAt: Prisma.FieldRef<"ProductRequest", 'DateTime'>
-  readonly lastSearchedAt: Prisma.FieldRef<"ProductRequest", 'DateTime'>
-  readonly searchCount: Prisma.FieldRef<"ProductRequest", 'Int'>
+export interface ScoutingRequestFieldRefs {
+  readonly id: Prisma.FieldRef<"ScoutingRequest", 'String'>
+  readonly fingerprint: Prisma.FieldRef<"ScoutingRequest", 'String'>
+  readonly normalizedNameKey: Prisma.FieldRef<"ScoutingRequest", 'String'>
+  readonly displayName: Prisma.FieldRef<"ScoutingRequest", 'String'>
+  readonly normalizedName: Prisma.FieldRef<"ScoutingRequest", 'String'>
+  readonly category: Prisma.FieldRef<"ScoutingRequest", 'String'>
+  readonly brand: Prisma.FieldRef<"ScoutingRequest", 'String'>
+  readonly model: Prisma.FieldRef<"ScoutingRequest", 'String'>
+  readonly material: Prisma.FieldRef<"ScoutingRequest", 'String'>
+  readonly power: Prisma.FieldRef<"ScoutingRequest", 'Float'>
+  readonly voltage: Prisma.FieldRef<"ScoutingRequest", 'Float'>
+  readonly capacity: Prisma.FieldRef<"ScoutingRequest", 'Float'>
+  readonly dimensions: Prisma.FieldRef<"ScoutingRequest", 'Json'>
+  readonly requiredVariant: Prisma.FieldRef<"ScoutingRequest", 'Json'>
+  readonly certifications: Prisma.FieldRef<"ScoutingRequest", 'String[]'>
+  readonly requirements: Prisma.FieldRef<"ScoutingRequest", 'Json'>
+  readonly requestedQuantity: Prisma.FieldRef<"ScoutingRequest", 'Float'>
+  readonly unit: Prisma.FieldRef<"ScoutingRequest", 'String'>
+  readonly targetPrice: Prisma.FieldRef<"ScoutingRequest", 'Float'>
+  readonly notes: Prisma.FieldRef<"ScoutingRequest", 'String'>
+  readonly referenceUrl: Prisma.FieldRef<"ScoutingRequest", 'String'>
+  readonly searchQuery: Prisma.FieldRef<"ScoutingRequest", 'String'>
+  readonly language: Prisma.FieldRef<"ScoutingRequest", 'String'>
+  readonly firstSeenAt: Prisma.FieldRef<"ScoutingRequest", 'DateTime'>
+  readonly lastSearchedAt: Prisma.FieldRef<"ScoutingRequest", 'DateTime'>
+  readonly searchCount: Prisma.FieldRef<"ScoutingRequest", 'Int'>
 }
     
 
 // Custom InputTypes
 /**
- * ProductRequest findUnique
+ * ScoutingRequest findUnique
  */
-export type ProductRequestFindUniqueArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+export type ScoutingRequestFindUniqueArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   /**
-   * Select specific fields to fetch from the ProductRequest
+   * Select specific fields to fetch from the ScoutingRequest
    */
-  select?: Prisma.ProductRequestSelect<ExtArgs> | null
+  select?: Prisma.ScoutingRequestSelect<ExtArgs> | null
   /**
-   * Omit specific fields from the ProductRequest
+   * Omit specific fields from the ScoutingRequest
    */
-  omit?: Prisma.ProductRequestOmit<ExtArgs> | null
+  omit?: Prisma.ScoutingRequestOmit<ExtArgs> | null
   /**
    * Choose, which related nodes to fetch as well
    */
-  include?: Prisma.ProductRequestInclude<ExtArgs> | null
+  include?: Prisma.ScoutingRequestInclude<ExtArgs> | null
   /**
-   * Filter, which ProductRequest to fetch.
+   * Filter, which ScoutingRequest to fetch.
    */
-  where: Prisma.ProductRequestWhereUniqueInput
+  where: Prisma.ScoutingRequestWhereUniqueInput
 }
 
 /**
- * ProductRequest findUniqueOrThrow
+ * ScoutingRequest findUniqueOrThrow
  */
-export type ProductRequestFindUniqueOrThrowArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+export type ScoutingRequestFindUniqueOrThrowArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   /**
-   * Select specific fields to fetch from the ProductRequest
+   * Select specific fields to fetch from the ScoutingRequest
    */
-  select?: Prisma.ProductRequestSelect<ExtArgs> | null
+  select?: Prisma.ScoutingRequestSelect<ExtArgs> | null
   /**
-   * Omit specific fields from the ProductRequest
+   * Omit specific fields from the ScoutingRequest
    */
-  omit?: Prisma.ProductRequestOmit<ExtArgs> | null
+  omit?: Prisma.ScoutingRequestOmit<ExtArgs> | null
   /**
    * Choose, which related nodes to fetch as well
    */
-  include?: Prisma.ProductRequestInclude<ExtArgs> | null
+  include?: Prisma.ScoutingRequestInclude<ExtArgs> | null
   /**
-   * Filter, which ProductRequest to fetch.
+   * Filter, which ScoutingRequest to fetch.
    */
-  where: Prisma.ProductRequestWhereUniqueInput
+  where: Prisma.ScoutingRequestWhereUniqueInput
 }
 
 /**
- * ProductRequest findFirst
+ * ScoutingRequest findFirst
  */
-export type ProductRequestFindFirstArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+export type ScoutingRequestFindFirstArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   /**
-   * Select specific fields to fetch from the ProductRequest
+   * Select specific fields to fetch from the ScoutingRequest
    */
-  select?: Prisma.ProductRequestSelect<ExtArgs> | null
+  select?: Prisma.ScoutingRequestSelect<ExtArgs> | null
   /**
-   * Omit specific fields from the ProductRequest
+   * Omit specific fields from the ScoutingRequest
    */
-  omit?: Prisma.ProductRequestOmit<ExtArgs> | null
+  omit?: Prisma.ScoutingRequestOmit<ExtArgs> | null
   /**
    * Choose, which related nodes to fetch as well
    */
-  include?: Prisma.ProductRequestInclude<ExtArgs> | null
+  include?: Prisma.ScoutingRequestInclude<ExtArgs> | null
   /**
-   * Filter, which ProductRequest to fetch.
+   * Filter, which ScoutingRequest to fetch.
    */
-  where?: Prisma.ProductRequestWhereInput
+  where?: Prisma.ScoutingRequestWhereInput
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
    * 
-   * Determine the order of ProductRequests to fetch.
+   * Determine the order of ScoutingRequests to fetch.
    */
-  orderBy?: Prisma.ProductRequestOrderByWithRelationInput | Prisma.ProductRequestOrderByWithRelationInput[]
+  orderBy?: Prisma.ScoutingRequestOrderByWithRelationInput | Prisma.ScoutingRequestOrderByWithRelationInput[]
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
    * 
-   * Sets the position for searching for ProductRequests.
+   * Sets the position for searching for ScoutingRequests.
    */
-  cursor?: Prisma.ProductRequestWhereUniqueInput
+  cursor?: Prisma.ScoutingRequestWhereUniqueInput
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
    * 
-   * Take `±n` ProductRequests from the position of the cursor.
+   * Take `±n` ScoutingRequests from the position of the cursor.
    */
   take?: number
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
    * 
-   * Skip the first `n` ProductRequests.
+   * Skip the first `n` ScoutingRequests.
    */
   skip?: number
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
    * 
-   * Filter by unique combinations of ProductRequests.
+   * Filter by unique combinations of ScoutingRequests.
    */
-  distinct?: Prisma.ProductRequestScalarFieldEnum | Prisma.ProductRequestScalarFieldEnum[]
+  distinct?: Prisma.ScoutingRequestScalarFieldEnum | Prisma.ScoutingRequestScalarFieldEnum[]
 }
 
 /**
- * ProductRequest findFirstOrThrow
+ * ScoutingRequest findFirstOrThrow
  */
-export type ProductRequestFindFirstOrThrowArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+export type ScoutingRequestFindFirstOrThrowArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   /**
-   * Select specific fields to fetch from the ProductRequest
+   * Select specific fields to fetch from the ScoutingRequest
    */
-  select?: Prisma.ProductRequestSelect<ExtArgs> | null
+  select?: Prisma.ScoutingRequestSelect<ExtArgs> | null
   /**
-   * Omit specific fields from the ProductRequest
+   * Omit specific fields from the ScoutingRequest
    */
-  omit?: Prisma.ProductRequestOmit<ExtArgs> | null
+  omit?: Prisma.ScoutingRequestOmit<ExtArgs> | null
   /**
    * Choose, which related nodes to fetch as well
    */
-  include?: Prisma.ProductRequestInclude<ExtArgs> | null
+  include?: Prisma.ScoutingRequestInclude<ExtArgs> | null
   /**
-   * Filter, which ProductRequest to fetch.
+   * Filter, which ScoutingRequest to fetch.
    */
-  where?: Prisma.ProductRequestWhereInput
+  where?: Prisma.ScoutingRequestWhereInput
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
    * 
-   * Determine the order of ProductRequests to fetch.
+   * Determine the order of ScoutingRequests to fetch.
    */
-  orderBy?: Prisma.ProductRequestOrderByWithRelationInput | Prisma.ProductRequestOrderByWithRelationInput[]
+  orderBy?: Prisma.ScoutingRequestOrderByWithRelationInput | Prisma.ScoutingRequestOrderByWithRelationInput[]
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
    * 
-   * Sets the position for searching for ProductRequests.
+   * Sets the position for searching for ScoutingRequests.
    */
-  cursor?: Prisma.ProductRequestWhereUniqueInput
+  cursor?: Prisma.ScoutingRequestWhereUniqueInput
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
    * 
-   * Take `±n` ProductRequests from the position of the cursor.
+   * Take `±n` ScoutingRequests from the position of the cursor.
    */
   take?: number
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
    * 
-   * Skip the first `n` ProductRequests.
+   * Skip the first `n` ScoutingRequests.
    */
   skip?: number
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
    * 
-   * Filter by unique combinations of ProductRequests.
+   * Filter by unique combinations of ScoutingRequests.
    */
-  distinct?: Prisma.ProductRequestScalarFieldEnum | Prisma.ProductRequestScalarFieldEnum[]
+  distinct?: Prisma.ScoutingRequestScalarFieldEnum | Prisma.ScoutingRequestScalarFieldEnum[]
 }
 
 /**
- * ProductRequest findMany
+ * ScoutingRequest findMany
  */
-export type ProductRequestFindManyArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+export type ScoutingRequestFindManyArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   /**
-   * Select specific fields to fetch from the ProductRequest
+   * Select specific fields to fetch from the ScoutingRequest
    */
-  select?: Prisma.ProductRequestSelect<ExtArgs> | null
+  select?: Prisma.ScoutingRequestSelect<ExtArgs> | null
   /**
-   * Omit specific fields from the ProductRequest
+   * Omit specific fields from the ScoutingRequest
    */
-  omit?: Prisma.ProductRequestOmit<ExtArgs> | null
+  omit?: Prisma.ScoutingRequestOmit<ExtArgs> | null
   /**
    * Choose, which related nodes to fetch as well
    */
-  include?: Prisma.ProductRequestInclude<ExtArgs> | null
+  include?: Prisma.ScoutingRequestInclude<ExtArgs> | null
   /**
-   * Filter, which ProductRequests to fetch.
+   * Filter, which ScoutingRequests to fetch.
    */
-  where?: Prisma.ProductRequestWhereInput
+  where?: Prisma.ScoutingRequestWhereInput
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
    * 
-   * Determine the order of ProductRequests to fetch.
+   * Determine the order of ScoutingRequests to fetch.
    */
-  orderBy?: Prisma.ProductRequestOrderByWithRelationInput | Prisma.ProductRequestOrderByWithRelationInput[]
+  orderBy?: Prisma.ScoutingRequestOrderByWithRelationInput | Prisma.ScoutingRequestOrderByWithRelationInput[]
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
    * 
-   * Sets the position for listing ProductRequests.
+   * Sets the position for listing ScoutingRequests.
    */
-  cursor?: Prisma.ProductRequestWhereUniqueInput
+  cursor?: Prisma.ScoutingRequestWhereUniqueInput
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
    * 
-   * Take `±n` ProductRequests from the position of the cursor.
+   * Take `±n` ScoutingRequests from the position of the cursor.
    */
   take?: number
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
    * 
-   * Skip the first `n` ProductRequests.
+   * Skip the first `n` ScoutingRequests.
    */
   skip?: number
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
    * 
-   * Filter by unique combinations of ProductRequests.
+   * Filter by unique combinations of ScoutingRequests.
    */
-  distinct?: Prisma.ProductRequestScalarFieldEnum | Prisma.ProductRequestScalarFieldEnum[]
+  distinct?: Prisma.ScoutingRequestScalarFieldEnum | Prisma.ScoutingRequestScalarFieldEnum[]
 }
 
 /**
- * ProductRequest create
+ * ScoutingRequest create
  */
-export type ProductRequestCreateArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+export type ScoutingRequestCreateArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   /**
-   * Select specific fields to fetch from the ProductRequest
+   * Select specific fields to fetch from the ScoutingRequest
    */
-  select?: Prisma.ProductRequestSelect<ExtArgs> | null
+  select?: Prisma.ScoutingRequestSelect<ExtArgs> | null
   /**
-   * Omit specific fields from the ProductRequest
+   * Omit specific fields from the ScoutingRequest
    */
-  omit?: Prisma.ProductRequestOmit<ExtArgs> | null
+  omit?: Prisma.ScoutingRequestOmit<ExtArgs> | null
   /**
    * Choose, which related nodes to fetch as well
    */
-  include?: Prisma.ProductRequestInclude<ExtArgs> | null
+  include?: Prisma.ScoutingRequestInclude<ExtArgs> | null
   /**
-   * The data needed to create a ProductRequest.
+   * The data needed to create a ScoutingRequest.
    */
-  data: Prisma.XOR<Prisma.ProductRequestCreateInput, Prisma.ProductRequestUncheckedCreateInput>
+  data: Prisma.XOR<Prisma.ScoutingRequestCreateInput, Prisma.ScoutingRequestUncheckedCreateInput>
 }
 
 /**
- * ProductRequest createMany
+ * ScoutingRequest createMany
  */
-export type ProductRequestCreateManyArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+export type ScoutingRequestCreateManyArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   /**
-   * The data used to create many ProductRequests.
+   * The data used to create many ScoutingRequests.
    */
-  data: Prisma.ProductRequestCreateManyInput | Prisma.ProductRequestCreateManyInput[]
+  data: Prisma.ScoutingRequestCreateManyInput | Prisma.ScoutingRequestCreateManyInput[]
   skipDuplicates?: boolean
 }
 
 /**
- * ProductRequest createManyAndReturn
+ * ScoutingRequest createManyAndReturn
  */
-export type ProductRequestCreateManyAndReturnArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+export type ScoutingRequestCreateManyAndReturnArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   /**
-   * Select specific fields to fetch from the ProductRequest
+   * Select specific fields to fetch from the ScoutingRequest
    */
-  select?: Prisma.ProductRequestSelectCreateManyAndReturn<ExtArgs> | null
+  select?: Prisma.ScoutingRequestSelectCreateManyAndReturn<ExtArgs> | null
   /**
-   * Omit specific fields from the ProductRequest
+   * Omit specific fields from the ScoutingRequest
    */
-  omit?: Prisma.ProductRequestOmit<ExtArgs> | null
+  omit?: Prisma.ScoutingRequestOmit<ExtArgs> | null
   /**
-   * The data used to create many ProductRequests.
+   * The data used to create many ScoutingRequests.
    */
-  data: Prisma.ProductRequestCreateManyInput | Prisma.ProductRequestCreateManyInput[]
+  data: Prisma.ScoutingRequestCreateManyInput | Prisma.ScoutingRequestCreateManyInput[]
   skipDuplicates?: boolean
 }
 
 /**
- * ProductRequest update
+ * ScoutingRequest update
  */
-export type ProductRequestUpdateArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+export type ScoutingRequestUpdateArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   /**
-   * Select specific fields to fetch from the ProductRequest
+   * Select specific fields to fetch from the ScoutingRequest
    */
-  select?: Prisma.ProductRequestSelect<ExtArgs> | null
+  select?: Prisma.ScoutingRequestSelect<ExtArgs> | null
   /**
-   * Omit specific fields from the ProductRequest
+   * Omit specific fields from the ScoutingRequest
    */
-  omit?: Prisma.ProductRequestOmit<ExtArgs> | null
+  omit?: Prisma.ScoutingRequestOmit<ExtArgs> | null
   /**
    * Choose, which related nodes to fetch as well
    */
-  include?: Prisma.ProductRequestInclude<ExtArgs> | null
+  include?: Prisma.ScoutingRequestInclude<ExtArgs> | null
   /**
-   * The data needed to update a ProductRequest.
+   * The data needed to update a ScoutingRequest.
    */
-  data: Prisma.XOR<Prisma.ProductRequestUpdateInput, Prisma.ProductRequestUncheckedUpdateInput>
+  data: Prisma.XOR<Prisma.ScoutingRequestUpdateInput, Prisma.ScoutingRequestUncheckedUpdateInput>
   /**
-   * Choose, which ProductRequest to update.
+   * Choose, which ScoutingRequest to update.
    */
-  where: Prisma.ProductRequestWhereUniqueInput
+  where: Prisma.ScoutingRequestWhereUniqueInput
 }
 
 /**
- * ProductRequest updateMany
+ * ScoutingRequest updateMany
  */
-export type ProductRequestUpdateManyArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+export type ScoutingRequestUpdateManyArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   /**
-   * The data used to update ProductRequests.
+   * The data used to update ScoutingRequests.
    */
-  data: Prisma.XOR<Prisma.ProductRequestUpdateManyMutationInput, Prisma.ProductRequestUncheckedUpdateManyInput>
+  data: Prisma.XOR<Prisma.ScoutingRequestUpdateManyMutationInput, Prisma.ScoutingRequestUncheckedUpdateManyInput>
   /**
-   * Filter which ProductRequests to update
+   * Filter which ScoutingRequests to update
    */
-  where?: Prisma.ProductRequestWhereInput
+  where?: Prisma.ScoutingRequestWhereInput
   /**
-   * Limit how many ProductRequests to update.
+   * Limit how many ScoutingRequests to update.
    */
   limit?: number
 }
 
 /**
- * ProductRequest updateManyAndReturn
+ * ScoutingRequest updateManyAndReturn
  */
-export type ProductRequestUpdateManyAndReturnArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+export type ScoutingRequestUpdateManyAndReturnArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   /**
-   * Select specific fields to fetch from the ProductRequest
+   * Select specific fields to fetch from the ScoutingRequest
    */
-  select?: Prisma.ProductRequestSelectUpdateManyAndReturn<ExtArgs> | null
+  select?: Prisma.ScoutingRequestSelectUpdateManyAndReturn<ExtArgs> | null
   /**
-   * Omit specific fields from the ProductRequest
+   * Omit specific fields from the ScoutingRequest
    */
-  omit?: Prisma.ProductRequestOmit<ExtArgs> | null
+  omit?: Prisma.ScoutingRequestOmit<ExtArgs> | null
   /**
-   * The data used to update ProductRequests.
+   * The data used to update ScoutingRequests.
    */
-  data: Prisma.XOR<Prisma.ProductRequestUpdateManyMutationInput, Prisma.ProductRequestUncheckedUpdateManyInput>
+  data: Prisma.XOR<Prisma.ScoutingRequestUpdateManyMutationInput, Prisma.ScoutingRequestUncheckedUpdateManyInput>
   /**
-   * Filter which ProductRequests to update
+   * Filter which ScoutingRequests to update
    */
-  where?: Prisma.ProductRequestWhereInput
+  where?: Prisma.ScoutingRequestWhereInput
   /**
-   * Limit how many ProductRequests to update.
+   * Limit how many ScoutingRequests to update.
    */
   limit?: number
 }
 
 /**
- * ProductRequest upsert
+ * ScoutingRequest upsert
  */
-export type ProductRequestUpsertArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+export type ScoutingRequestUpsertArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   /**
-   * Select specific fields to fetch from the ProductRequest
+   * Select specific fields to fetch from the ScoutingRequest
    */
-  select?: Prisma.ProductRequestSelect<ExtArgs> | null
+  select?: Prisma.ScoutingRequestSelect<ExtArgs> | null
   /**
-   * Omit specific fields from the ProductRequest
+   * Omit specific fields from the ScoutingRequest
    */
-  omit?: Prisma.ProductRequestOmit<ExtArgs> | null
+  omit?: Prisma.ScoutingRequestOmit<ExtArgs> | null
   /**
    * Choose, which related nodes to fetch as well
    */
-  include?: Prisma.ProductRequestInclude<ExtArgs> | null
+  include?: Prisma.ScoutingRequestInclude<ExtArgs> | null
   /**
-   * The filter to search for the ProductRequest to update in case it exists.
+   * The filter to search for the ScoutingRequest to update in case it exists.
    */
-  where: Prisma.ProductRequestWhereUniqueInput
+  where: Prisma.ScoutingRequestWhereUniqueInput
   /**
-   * In case the ProductRequest found by the `where` argument doesn't exist, create a new ProductRequest with this data.
+   * In case the ScoutingRequest found by the `where` argument doesn't exist, create a new ScoutingRequest with this data.
    */
-  create: Prisma.XOR<Prisma.ProductRequestCreateInput, Prisma.ProductRequestUncheckedCreateInput>
+  create: Prisma.XOR<Prisma.ScoutingRequestCreateInput, Prisma.ScoutingRequestUncheckedCreateInput>
   /**
-   * In case the ProductRequest was found with the provided `where` argument, update it with this data.
+   * In case the ScoutingRequest was found with the provided `where` argument, update it with this data.
    */
-  update: Prisma.XOR<Prisma.ProductRequestUpdateInput, Prisma.ProductRequestUncheckedUpdateInput>
+  update: Prisma.XOR<Prisma.ScoutingRequestUpdateInput, Prisma.ScoutingRequestUncheckedUpdateInput>
 }
 
 /**
- * ProductRequest delete
+ * ScoutingRequest delete
  */
-export type ProductRequestDeleteArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+export type ScoutingRequestDeleteArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   /**
-   * Select specific fields to fetch from the ProductRequest
+   * Select specific fields to fetch from the ScoutingRequest
    */
-  select?: Prisma.ProductRequestSelect<ExtArgs> | null
+  select?: Prisma.ScoutingRequestSelect<ExtArgs> | null
   /**
-   * Omit specific fields from the ProductRequest
+   * Omit specific fields from the ScoutingRequest
    */
-  omit?: Prisma.ProductRequestOmit<ExtArgs> | null
+  omit?: Prisma.ScoutingRequestOmit<ExtArgs> | null
   /**
    * Choose, which related nodes to fetch as well
    */
-  include?: Prisma.ProductRequestInclude<ExtArgs> | null
+  include?: Prisma.ScoutingRequestInclude<ExtArgs> | null
   /**
-   * Filter which ProductRequest to delete.
+   * Filter which ScoutingRequest to delete.
    */
-  where: Prisma.ProductRequestWhereUniqueInput
+  where: Prisma.ScoutingRequestWhereUniqueInput
 }
 
 /**
- * ProductRequest deleteMany
+ * ScoutingRequest deleteMany
  */
-export type ProductRequestDeleteManyArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+export type ScoutingRequestDeleteManyArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   /**
-   * Filter which ProductRequests to delete
+   * Filter which ScoutingRequests to delete
    */
-  where?: Prisma.ProductRequestWhereInput
+  where?: Prisma.ScoutingRequestWhereInput
   /**
-   * Limit how many ProductRequests to delete.
+   * Limit how many ScoutingRequests to delete.
    */
   limit?: number
 }
 
 /**
- * ProductRequest.candidates
+ * ScoutingRequest.candidates
  */
-export type ProductRequest$candidatesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+export type ScoutingRequest$candidatesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   /**
    * Select specific fields to fetch from the ProductCandidateRecord
    */
@@ -2231,43 +2231,43 @@ export type ProductRequest$candidatesArgs<ExtArgs extends runtime.Types.Extensio
 }
 
 /**
- * ProductRequest.rowRuns
+ * ScoutingRequest.jobRows
  */
-export type ProductRequest$rowRunsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+export type ScoutingRequest$jobRowsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   /**
-   * Select specific fields to fetch from the ScoutingRowRun
+   * Select specific fields to fetch from the ImportJobRow
    */
-  select?: Prisma.ScoutingRowRunSelect<ExtArgs> | null
+  select?: Prisma.ImportJobRowSelect<ExtArgs> | null
   /**
-   * Omit specific fields from the ScoutingRowRun
+   * Omit specific fields from the ImportJobRow
    */
-  omit?: Prisma.ScoutingRowRunOmit<ExtArgs> | null
+  omit?: Prisma.ImportJobRowOmit<ExtArgs> | null
   /**
    * Choose, which related nodes to fetch as well
    */
-  include?: Prisma.ScoutingRowRunInclude<ExtArgs> | null
-  where?: Prisma.ScoutingRowRunWhereInput
-  orderBy?: Prisma.ScoutingRowRunOrderByWithRelationInput | Prisma.ScoutingRowRunOrderByWithRelationInput[]
-  cursor?: Prisma.ScoutingRowRunWhereUniqueInput
+  include?: Prisma.ImportJobRowInclude<ExtArgs> | null
+  where?: Prisma.ImportJobRowWhereInput
+  orderBy?: Prisma.ImportJobRowOrderByWithRelationInput | Prisma.ImportJobRowOrderByWithRelationInput[]
+  cursor?: Prisma.ImportJobRowWhereUniqueInput
   take?: number
   skip?: number
-  distinct?: Prisma.ScoutingRowRunScalarFieldEnum | Prisma.ScoutingRowRunScalarFieldEnum[]
+  distinct?: Prisma.ImportJobRowScalarFieldEnum | Prisma.ImportJobRowScalarFieldEnum[]
 }
 
 /**
- * ProductRequest without action
+ * ScoutingRequest without action
  */
-export type ProductRequestDefaultArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+export type ScoutingRequestDefaultArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   /**
-   * Select specific fields to fetch from the ProductRequest
+   * Select specific fields to fetch from the ScoutingRequest
    */
-  select?: Prisma.ProductRequestSelect<ExtArgs> | null
+  select?: Prisma.ScoutingRequestSelect<ExtArgs> | null
   /**
-   * Omit specific fields from the ProductRequest
+   * Omit specific fields from the ScoutingRequest
    */
-  omit?: Prisma.ProductRequestOmit<ExtArgs> | null
+  omit?: Prisma.ScoutingRequestOmit<ExtArgs> | null
   /**
    * Choose, which related nodes to fetch as well
    */
-  include?: Prisma.ProductRequestInclude<ExtArgs> | null
+  include?: Prisma.ScoutingRequestInclude<ExtArgs> | null
 }

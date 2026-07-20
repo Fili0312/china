@@ -139,7 +139,7 @@ export class ScoutingService {
         sheetName: true,
         rowCount: true,
         createdAt: true,
-        _count: { select: { runs: true } },
+        _count: { select: { jobs: true } },
       },
     });
     return datasets.map((dataset) => ({
@@ -149,7 +149,7 @@ export class ScoutingService {
       sheet: dataset.sheetName,
       totalRows: dataset.rowCount,
       createdAt: dataset.createdAt.toISOString(),
-      runCount: dataset._count.runs,
+      jobCount: dataset._count.jobs,
     }));
   }
 
@@ -256,7 +256,7 @@ export class ScoutingService {
       >();
     }
 
-    const found = await prisma.productRequest.findMany({
+    const found = await prisma.scoutingRequest.findMany({
       where: { fingerprint: { in: unique } },
       select: {
         id: true,
@@ -286,7 +286,7 @@ export class ScoutingService {
    * L'impronta è la chiave: una riga uguale in un file diverso ricade sullo
    * stesso record e ne eredita i candidati già trovati.
    */
-  async upsertProductRequest(request: NormalizedRequest): Promise<string> {
+  async upsertScoutingRequest(request: NormalizedRequest): Promise<string> {
     const common = {
       normalizedNameKey: request.normalizedNameKey,
       displayName: request.displayName,
@@ -311,7 +311,7 @@ export class ScoutingService {
       language: request.language,
     };
 
-    const record = await prisma.productRequest.upsert({
+    const record = await prisma.scoutingRequest.upsert({
       where: { fingerprint: request.fingerprint },
       create: { fingerprint: request.fingerprint, ...common },
       // La quantità richiesta e le note possono cambiare fra un file e

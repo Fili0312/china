@@ -1046,3 +1046,171 @@ select {
     transition-duration: 0.01ms !important;
   }
 }
+
+/* --- Scouting da file --------------------------------------------------- */
+
+.scouting {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.scouting-step h2 {
+  font-size: 15px;
+  margin: 0 0 12px;
+}
+
+.scouting-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+}
+
+.scouting-options label {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 12px;
+  color: var(--muted, #6b7280);
+}
+
+.scouting-options input[type="number"],
+.scouting-options select {
+  min-width: 120px;
+}
+
+.scouting-check {
+  flex-direction: row !important;
+  align-items: center;
+  gap: 6px !important;
+}
+
+.scouting-engines {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  margin-bottom: 14px;
+}
+
+.scouting-engine {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 14px;
+}
+
+.scouting-table-wrap {
+  overflow-x: auto;
+}
+
+.scouting-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+.scouting-table th,
+.scouting-table td {
+  text-align: left;
+  padding: 8px 10px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.07);
+  vertical-align: top;
+}
+
+.scouting-table th {
+  font-weight: 600;
+  color: var(--muted, #6b7280);
+  font-size: 12px;
+}
+
+.scouting-samples {
+  max-width: 320px;
+}
+
+.scouting-hint {
+  font-size: 11px;
+  color: var(--muted, #6b7280);
+  margin-top: 2px;
+}
+
+.scouting-warning {
+  color: #b45309;
+  font-size: 13px;
+  margin: 8px 0 0;
+}
+
+.scouting-bar {
+  height: 8px;
+  border-radius: 999px;
+  background: rgba(0, 0, 0, 0.08);
+  overflow: hidden;
+  margin: 12px 0;
+}
+
+.scouting-bar-fill {
+  height: 100%;
+  background: #111827;
+  transition: width 0.4s ease;
+}
+
+.scouting-controls {
+  margin-bottom: 16px;
+}
+
+.scouting-engine-summary {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.scouting-engine-card {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 10px 12px;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  border-radius: 10px;
+  font-size: 12px;
+  min-width: 190px;
+}
+
+.scouting-engine-error {
+  color: #b91c1c;
+  font-size: 11px;
+  margin-top: 2px;
+}
+
+.scouting-engine-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.scouting-result-row {
+  border-top: 1px solid rgba(0, 0, 0, 0.07);
+  padding-top: 14px;
+  margin-top: 14px;
+}
+
+.scouting-result-row h3 {
+  font-size: 14px;
+  margin: 0 0 8px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.scouting-candidates {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+  gap: 12px;
+  margin-top: 10px;
+}
+
+.scouting-changed {
+  font-size: 11px;
+  color: #b45309;
+  margin-top: 4px;
+}

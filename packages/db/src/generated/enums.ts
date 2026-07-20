@@ -33,30 +33,42 @@ export const ItemStatus = {
 export type ItemStatus = (typeof ItemStatus)[keyof typeof ItemStatus]
 
 
-export const ScoutingRunStatus = {
+export const ImportJobStatus = {
   QUEUED: 'QUEUED',
   RUNNING: 'RUNNING',
+  PAUSED: 'PAUSED',
   COMPLETED: 'COMPLETED',
   COMPLETED_WITH_ERRORS: 'COMPLETED_WITH_ERRORS',
   FAILED: 'FAILED',
   CANCELLED: 'CANCELLED'
 } as const
 
-export type ScoutingRunStatus = (typeof ScoutingRunStatus)[keyof typeof ScoutingRunStatus]
+export type ImportJobStatus = (typeof ImportJobStatus)[keyof typeof ImportJobStatus]
 
 
 export const ScoutingRowStatus = {
   PENDING: 'PENDING',
-  NORMALIZING: 'NORMALIZING',
   SEARCHING: 'SEARCHING',
   REFRESHING: 'REFRESHING',
   SCORING: 'SCORING',
   DONE: 'DONE',
   SKIPPED: 'SKIPPED',
-  FAILED: 'FAILED'
+  FAILED: 'FAILED',
+  CANCELLED: 'CANCELLED'
 } as const
 
 export type ScoutingRowStatus = (typeof ScoutingRowStatus)[keyof typeof ScoutingRowStatus]
+
+
+export const ScoutingEngineStatus = {
+  PENDING: 'PENDING',
+  RUNNING: 'RUNNING',
+  DONE: 'DONE',
+  ERROR: 'ERROR',
+  SKIPPED: 'SKIPPED'
+} as const
+
+export type ScoutingEngineStatus = (typeof ScoutingEngineStatus)[keyof typeof ScoutingEngineStatus]
 
 
 export const ScoutingOutcome = {

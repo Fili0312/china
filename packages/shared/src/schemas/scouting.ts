@@ -255,38 +255,50 @@ export type NormalizePreviewResult = z.infer<
 >;
 
 /* -------------------------------------------------------------------------- */
-/* Run: esecuzione dello scouting su un dataset                                */
+/* Job: esecuzione dello scouting su un dataset                                */
 /* -------------------------------------------------------------------------- */
 
-export const ScoutingRunStatusSchema = z.enum([
+export const ImportJobStatusSchema = z.enum([
   "QUEUED",
   "RUNNING",
+  "PAUSED",
   "COMPLETED",
   "COMPLETED_WITH_ERRORS",
   "FAILED",
   "CANCELLED",
 ]);
-export type ScoutingRunStatus = z.infer<typeof ScoutingRunStatusSchema>;
+export type ImportJobStatus = z.infer<typeof ImportJobStatusSchema>;
 
 export const ScoutingRowStatusSchema = z.enum([
   "PENDING",
-  "NORMALIZING",
   "SEARCHING",
   "REFRESHING",
   "SCORING",
   "DONE",
   "SKIPPED",
   "FAILED",
+  "CANCELLED",
 ]);
 export type ScoutingRowStatus = z.infer<typeof ScoutingRowStatusSchema>;
 
-export const StartRunRequestSchema = z.object({
+export const ScoutingEngineStatusSchema = z.enum([
+  "PENDING",
+  "RUNNING",
+  "DONE",
+  "ERROR",
+  "SKIPPED",
+]);
+export type ScoutingEngineStatus = z.infer<typeof ScoutingEngineStatusSchema>;
+
+/** POST /api/scouting/datasets/:id/jobs — avvio dell'elaborazione. */
+export const StartImportJobRequestSchema = z.object({
   mapping: z.array(DatasetMappingSchema).min(1),
+  /** Marketplace scelti dall'utente. */
   engines: z.array(SearchEngineSchema).min(1),
   quality: SearchQualitySchema.default("balanced"),
   /** Candidati richiesti a ciascun motore, per riga. */
   candidatesPerEngine: z.coerce.number().int().min(1).max(50).default(10),
-  /** Finalisti da conservare per riga. */
+  /** Finalisti da conservare per riga (usati dalla selezione, M7). */
   finalists: z.coerce.number().int().min(1).max(20).default(3),
   /** Ignora i candidati salvati e ricerca tutto da capo. */
   forceFullSearch: z.boolean().default(false),
@@ -295,44 +307,92 @@ export const StartRunRequestSchema = z.object({
   /** Limita l'esecuzione alle prime N righe (prova su file grandi). */
   maxRows: z.coerce.number().int().min(1).max(5000).optional(),
 });
-export type StartRunRequest = z.infer<typeof StartRunRequestSchema>;
+export type StartImportJobRequest = z.infer<typeof StartImportJobRequestSchema>;
+
+/** POST /api/scouting/jobs/:id/retry */
+export const RetryJobRequestSchema = z.object({
+  /** `failed` ritenta solo ciò che è fallito, `all` rifà tutte le righe. */
+  scope: z.enum(["failed", "all"]).default("failed"),
+  /** Limita il nuovo tentativo a un solo marketplace. */
+  engine: SearchEngineSchema.optional(),
+});
+export type RetryJobRequest = z.infer<typeof RetryJobRequestSchema>;
+
+/** Avanzamento di una riga su un singolo marketplace. */
+export const ScoutingEngineProgressSchema = z.object({
+  engine: z.string(),
+  status: ScoutingEngineStatusSchema,
+  queryUsed: z.string().nullable(),
+  fetchedCount: z.number().int().min(0),
+  acceptedCount: z.number().int().min(0),
+  durationMs: z.number().int().min(0),
+  errorCode: z.string().nullable(),
+  error: z.string().nullable(),
+  retryable: z.boolean(),
+  attempts: z.number().int().min(0),
+  servedFromCache: z.boolean(),
+});
+export type ScoutingEngineProgress = z.infer<
+  typeof ScoutingEngineProgressSchema
+>;
 
 export const ScoutingRowProgressSchema = z.object({
+  jobRowId: z.string(),
   rowNumber: z.number().int().min(1),
-  status: ScoutingRowStatusSchema,
   displayName: z.string(),
+  searchQuery: z.string(),
+  status: ScoutingRowStatusSchema,
   /** `true` quando i risultati arrivano da una richiesta già elaborata. */
   reused: z.boolean(),
+  /** Impronta della richiesta: righe uguali mostrano la stessa impronta. */
+  fingerprint: z.string().nullable(),
   candidateCount: z.number().int().min(0),
-  finalistCount: z.number().int().min(0),
-  rejectedCount: z.number().int().min(0),
-  /** Esito per motore, per capire quale fonte ha fallito e perché. */
-  engineStatuses: z.array(
-    z.object({
-      engine: z.string(),
-      status: z.enum(["done", "error", "skipped"]),
-      acceptedCount: z.number().int().min(0),
-      error: z.string().nullable(),
-    })
-  ),
+  engines: z.array(ScoutingEngineProgressSchema),
   error: z.string().nullable(),
 });
 export type ScoutingRowProgress = z.infer<typeof ScoutingRowProgressSchema>;
 
-export const ScoutingRunProgressSchema = z.object({
-  runId: z.string(),
+/** Avanzamento aggregato per marketplace su tutto il file. */
+export const ScoutingEngineSummarySchema = z.object({
+  engine: z.string(),
+  pending: z.number().int().min(0),
+  running: z.number().int().min(0),
+  done: z.number().int().min(0),
+  error: z.number().int().min(0),
+  skipped: z.number().int().min(0),
+  acceptedCount: z.number().int().min(0),
+  /** Ultimo errore osservato su questa fonte, per capire subito il perché. */
+  lastError: z.string().nullable(),
+});
+export type ScoutingEngineSummary = z.infer<
+  typeof ScoutingEngineSummarySchema
+>;
+
+export const ImportJobSummarySchema = z.object({
+  jobId: z.string(),
   datasetId: z.string(),
-  status: ScoutingRunStatusSchema,
+  fileName: z.string(),
+  status: ImportJobStatusSchema,
+  engines: z.array(z.string()),
+  quality: SearchQualitySchema,
   totalRows: z.number().int().min(0),
   processedRows: z.number().int().min(0),
   reusedRows: z.number().int().min(0),
   failedRows: z.number().int().min(0),
+  creditsSpent: z.number().int().min(0),
+  createdAt: z.string(),
   startedAt: z.string().nullable(),
   finishedAt: z.string().nullable(),
   error: z.string().nullable(),
+});
+export type ImportJobSummary = z.infer<typeof ImportJobSummarySchema>;
+
+export const ImportJobProgressSchema = z.object({
+  job: ImportJobSummarySchema,
+  engineSummary: z.array(ScoutingEngineSummarySchema),
   rows: z.array(ScoutingRowProgressSchema),
 });
-export type ScoutingRunProgress = z.infer<typeof ScoutingRunProgressSchema>;
+export type ImportJobProgress = z.infer<typeof ImportJobProgressSchema>;
 
 /* -------------------------------------------------------------------------- */
 /* Risultati                                                                   */
@@ -359,6 +419,8 @@ export const ScoutingProductSchema = z.object({
   title: z.string(),
   url: z.string().nullable(),
   imageUrl: z.string().nullable(),
+  /** Query che ha fatto emergere questo prodotto. */
+  foundQuery: z.string(),
   vendorName: z.string().nullable(),
   vendorUrl: z.string().nullable(),
   price: z.number().nullable(),
@@ -368,6 +430,9 @@ export const ScoutingProductSchema = z.object({
   rating: z.number().min(0).max(5).nullable(),
   reviewCount: z.number().int().min(0).nullable(),
   totalSales: z.number().int().min(0).nullable(),
+  relevanceScore: z.number().min(0).max(100).nullable(),
+  matchReasons: z.array(z.string()),
+  matchWarnings: z.array(z.string()),
   variants: z.array(
     z.object({ name: z.string(), options: z.array(z.string()) })
   ),
@@ -378,44 +443,30 @@ export const ScoutingProductSchema = z.object({
   lastChangedAt: z.string().nullable(),
   /** Campi cambiati all'ultimo aggiornamento (vuoto se nulla è cambiato). */
   changedFields: z.array(z.string()),
+  unavailable: z.boolean(),
 });
 export type ScoutingProduct = z.infer<typeof ScoutingProductSchema>;
 
-export const ScoutingResultSchema = z.object({
-  id: z.string(),
-  outcome: ScoutingOutcomeSchema,
-  rank: z.number().int().min(1).nullable(),
-  score: z.number().min(0).max(100).nullable(),
-  scoreBreakdown: z.record(z.string(), z.number()),
-  /** Codice macchina della motivazione di scarto (`MOQ_TOO_HIGH`, …). */
-  rejectionCode: z.string().nullable(),
-  /** Motivazione leggibile, sempre presente quando `outcome=REJECTED`. */
-  rejectionReason: z.string().nullable(),
-  /** Motivazione AI, solo sui finalisti e solo se richiesta. */
-  aiRationale: z.string().nullable(),
-  /** `true` se il punteggio è stato riusato perché i dati non sono cambiati. */
-  scoreReused: z.boolean(),
-  product: ScoutingProductSchema,
-});
-export type ScoutingResult = z.infer<typeof ScoutingResultSchema>;
-
 export const ScoutingRowResultsSchema = z.object({
+  jobRowId: z.string(),
   rowNumber: z.number().int().min(1),
   displayName: z.string(),
   searchQuery: z.string(),
   status: ScoutingRowStatusSchema,
   reused: z.boolean(),
+  fingerprint: z.string().nullable(),
   /** Valori originali della riga del file, intatti. */
   cells: z.array(z.string()),
   requirements: z.array(ProductRequirementSchema),
-  finalists: z.array(ScoutingResultSchema),
-  rejected: z.array(ScoutingResultSchema),
+  /** Tutti i prodotti trovati per la richiesta di questa riga. */
+  candidates: z.array(ScoutingProductSchema),
+  engines: z.array(ScoutingEngineProgressSchema),
   error: z.string().nullable(),
 });
 export type ScoutingRowResults = z.infer<typeof ScoutingRowResultsSchema>;
 
-export const ScoutingRunResultsSchema = z.object({
-  run: ScoutingRunProgressSchema.omit({ rows: true }),
+export const ImportJobResultsSchema = z.object({
+  job: ImportJobSummarySchema,
   rows: z.array(ScoutingRowResultsSchema),
 });
-export type ScoutingRunResults = z.infer<typeof ScoutingRunResultsSchema>;
+export type ImportJobResults = z.infer<typeof ImportJobResultsSchema>;

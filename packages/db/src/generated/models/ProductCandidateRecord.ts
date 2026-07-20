@@ -14,7 +14,7 @@ import type * as Prisma from "../internal/prismaNamespace.js"
 
 /**
  * Model ProductCandidateRecord
- * Prodotto trovato per una richiesta. Vive oltre il singolo run: è ciò che
+ * Prodotto trovato per una richiesta. Vive oltre il singolo job: è ciò che
  * permette di riaprire le pagine e aggiornare i dati invece di ricercare.
  */
 export type ProductCandidateRecordModel = runtime.Types.Result.DefaultSelection<Prisma.$ProductCandidateRecordPayload>
@@ -34,6 +34,7 @@ export type ProductCandidateRecordAvgAggregateOutputType = {
   rating: number | null
   reviewCount: number | null
   totalSales: number | null
+  relevanceScore: number | null
 }
 
 export type ProductCandidateRecordSumAggregateOutputType = {
@@ -43,6 +44,7 @@ export type ProductCandidateRecordSumAggregateOutputType = {
   rating: number | null
   reviewCount: number | null
   totalSales: number | null
+  relevanceScore: number | null
 }
 
 export type ProductCandidateRecordMinAggregateOutputType = {
@@ -53,6 +55,7 @@ export type ProductCandidateRecordMinAggregateOutputType = {
   url: string | null
   title: string | null
   imageUrl: string | null
+  foundQuery: string | null
   vendorName: string | null
   vendorUrl: string | null
   price: runtime.Decimal | null
@@ -62,10 +65,12 @@ export type ProductCandidateRecordMinAggregateOutputType = {
   rating: number | null
   reviewCount: number | null
   totalSales: number | null
+  relevanceScore: number | null
   contentHash: string | null
   firstSeenAt: Date | null
   lastCheckedAt: Date | null
   lastChangedAt: Date | null
+  detailsFetchedAt: Date | null
   unavailable: boolean | null
 }
 
@@ -77,6 +82,7 @@ export type ProductCandidateRecordMaxAggregateOutputType = {
   url: string | null
   title: string | null
   imageUrl: string | null
+  foundQuery: string | null
   vendorName: string | null
   vendorUrl: string | null
   price: runtime.Decimal | null
@@ -86,10 +92,12 @@ export type ProductCandidateRecordMaxAggregateOutputType = {
   rating: number | null
   reviewCount: number | null
   totalSales: number | null
+  relevanceScore: number | null
   contentHash: string | null
   firstSeenAt: Date | null
   lastCheckedAt: Date | null
   lastChangedAt: Date | null
+  detailsFetchedAt: Date | null
   unavailable: boolean | null
 }
 
@@ -101,6 +109,7 @@ export type ProductCandidateRecordCountAggregateOutputType = {
   url: number
   title: number
   imageUrl: number
+  foundQuery: number
   vendorName: number
   vendorUrl: number
   price: number
@@ -113,11 +122,15 @@ export type ProductCandidateRecordCountAggregateOutputType = {
   variants: number
   specs: number
   priceTiers: number
+  relevanceScore: number
+  matchReasons: number
+  matchWarnings: number
   contentHash: number
   firstSeenAt: number
   lastCheckedAt: number
   lastChangedAt: number
   changedFields: number
+  detailsFetchedAt: number
   unavailable: number
   _all: number
 }
@@ -130,6 +143,7 @@ export type ProductCandidateRecordAvgAggregateInputType = {
   rating?: true
   reviewCount?: true
   totalSales?: true
+  relevanceScore?: true
 }
 
 export type ProductCandidateRecordSumAggregateInputType = {
@@ -139,6 +153,7 @@ export type ProductCandidateRecordSumAggregateInputType = {
   rating?: true
   reviewCount?: true
   totalSales?: true
+  relevanceScore?: true
 }
 
 export type ProductCandidateRecordMinAggregateInputType = {
@@ -149,6 +164,7 @@ export type ProductCandidateRecordMinAggregateInputType = {
   url?: true
   title?: true
   imageUrl?: true
+  foundQuery?: true
   vendorName?: true
   vendorUrl?: true
   price?: true
@@ -158,10 +174,12 @@ export type ProductCandidateRecordMinAggregateInputType = {
   rating?: true
   reviewCount?: true
   totalSales?: true
+  relevanceScore?: true
   contentHash?: true
   firstSeenAt?: true
   lastCheckedAt?: true
   lastChangedAt?: true
+  detailsFetchedAt?: true
   unavailable?: true
 }
 
@@ -173,6 +191,7 @@ export type ProductCandidateRecordMaxAggregateInputType = {
   url?: true
   title?: true
   imageUrl?: true
+  foundQuery?: true
   vendorName?: true
   vendorUrl?: true
   price?: true
@@ -182,10 +201,12 @@ export type ProductCandidateRecordMaxAggregateInputType = {
   rating?: true
   reviewCount?: true
   totalSales?: true
+  relevanceScore?: true
   contentHash?: true
   firstSeenAt?: true
   lastCheckedAt?: true
   lastChangedAt?: true
+  detailsFetchedAt?: true
   unavailable?: true
 }
 
@@ -197,6 +218,7 @@ export type ProductCandidateRecordCountAggregateInputType = {
   url?: true
   title?: true
   imageUrl?: true
+  foundQuery?: true
   vendorName?: true
   vendorUrl?: true
   price?: true
@@ -209,11 +231,15 @@ export type ProductCandidateRecordCountAggregateInputType = {
   variants?: true
   specs?: true
   priceTiers?: true
+  relevanceScore?: true
+  matchReasons?: true
+  matchWarnings?: true
   contentHash?: true
   firstSeenAt?: true
   lastCheckedAt?: true
   lastChangedAt?: true
   changedFields?: true
+  detailsFetchedAt?: true
   unavailable?: true
   _all?: true
 }
@@ -312,6 +338,7 @@ export type ProductCandidateRecordGroupByOutputType = {
   url: string | null
   title: string
   imageUrl: string | null
+  foundQuery: string
   vendorName: string | null
   vendorUrl: string | null
   price: runtime.Decimal | null
@@ -324,11 +351,15 @@ export type ProductCandidateRecordGroupByOutputType = {
   variants: runtime.JsonValue | null
   specs: runtime.JsonValue | null
   priceTiers: runtime.JsonValue | null
+  relevanceScore: number | null
+  matchReasons: string[]
+  matchWarnings: string[]
   contentHash: string
   firstSeenAt: Date
   lastCheckedAt: Date
   lastChangedAt: Date | null
   changedFields: string[]
+  detailsFetchedAt: Date | null
   unavailable: boolean
   _count: ProductCandidateRecordCountAggregateOutputType | null
   _avg: ProductCandidateRecordAvgAggregateOutputType | null
@@ -363,6 +394,7 @@ export type ProductCandidateRecordWhereInput = {
   url?: Prisma.StringNullableFilter<"ProductCandidateRecord"> | string | null
   title?: Prisma.StringFilter<"ProductCandidateRecord"> | string
   imageUrl?: Prisma.StringNullableFilter<"ProductCandidateRecord"> | string | null
+  foundQuery?: Prisma.StringFilter<"ProductCandidateRecord"> | string
   vendorName?: Prisma.StringNullableFilter<"ProductCandidateRecord"> | string | null
   vendorUrl?: Prisma.StringNullableFilter<"ProductCandidateRecord"> | string | null
   price?: Prisma.DecimalNullableFilter<"ProductCandidateRecord"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -375,13 +407,17 @@ export type ProductCandidateRecordWhereInput = {
   variants?: Prisma.JsonNullableFilter<"ProductCandidateRecord">
   specs?: Prisma.JsonNullableFilter<"ProductCandidateRecord">
   priceTiers?: Prisma.JsonNullableFilter<"ProductCandidateRecord">
+  relevanceScore?: Prisma.FloatNullableFilter<"ProductCandidateRecord"> | number | null
+  matchReasons?: Prisma.StringNullableListFilter<"ProductCandidateRecord">
+  matchWarnings?: Prisma.StringNullableListFilter<"ProductCandidateRecord">
   contentHash?: Prisma.StringFilter<"ProductCandidateRecord"> | string
   firstSeenAt?: Prisma.DateTimeFilter<"ProductCandidateRecord"> | Date | string
   lastCheckedAt?: Prisma.DateTimeFilter<"ProductCandidateRecord"> | Date | string
   lastChangedAt?: Prisma.DateTimeNullableFilter<"ProductCandidateRecord"> | Date | string | null
   changedFields?: Prisma.StringNullableListFilter<"ProductCandidateRecord">
+  detailsFetchedAt?: Prisma.DateTimeNullableFilter<"ProductCandidateRecord"> | Date | string | null
   unavailable?: Prisma.BoolFilter<"ProductCandidateRecord"> | boolean
-  request?: Prisma.XOR<Prisma.ProductRequestScalarRelationFilter, Prisma.ProductRequestWhereInput>
+  request?: Prisma.XOR<Prisma.ScoutingRequestScalarRelationFilter, Prisma.ScoutingRequestWhereInput>
   snapshots?: Prisma.ProductSnapshotListRelationFilter
   results?: Prisma.ScoutingResultListRelationFilter
 }
@@ -394,6 +430,7 @@ export type ProductCandidateRecordOrderByWithRelationInput = {
   url?: Prisma.SortOrderInput | Prisma.SortOrder
   title?: Prisma.SortOrder
   imageUrl?: Prisma.SortOrderInput | Prisma.SortOrder
+  foundQuery?: Prisma.SortOrder
   vendorName?: Prisma.SortOrderInput | Prisma.SortOrder
   vendorUrl?: Prisma.SortOrderInput | Prisma.SortOrder
   price?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -406,13 +443,17 @@ export type ProductCandidateRecordOrderByWithRelationInput = {
   variants?: Prisma.SortOrderInput | Prisma.SortOrder
   specs?: Prisma.SortOrderInput | Prisma.SortOrder
   priceTiers?: Prisma.SortOrderInput | Prisma.SortOrder
+  relevanceScore?: Prisma.SortOrderInput | Prisma.SortOrder
+  matchReasons?: Prisma.SortOrder
+  matchWarnings?: Prisma.SortOrder
   contentHash?: Prisma.SortOrder
   firstSeenAt?: Prisma.SortOrder
   lastCheckedAt?: Prisma.SortOrder
   lastChangedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   changedFields?: Prisma.SortOrder
+  detailsFetchedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   unavailable?: Prisma.SortOrder
-  request?: Prisma.ProductRequestOrderByWithRelationInput
+  request?: Prisma.ScoutingRequestOrderByWithRelationInput
   snapshots?: Prisma.ProductSnapshotOrderByRelationAggregateInput
   results?: Prisma.ScoutingResultOrderByRelationAggregateInput
 }
@@ -429,6 +470,7 @@ export type ProductCandidateRecordWhereUniqueInput = Prisma.AtLeast<{
   url?: Prisma.StringNullableFilter<"ProductCandidateRecord"> | string | null
   title?: Prisma.StringFilter<"ProductCandidateRecord"> | string
   imageUrl?: Prisma.StringNullableFilter<"ProductCandidateRecord"> | string | null
+  foundQuery?: Prisma.StringFilter<"ProductCandidateRecord"> | string
   vendorName?: Prisma.StringNullableFilter<"ProductCandidateRecord"> | string | null
   vendorUrl?: Prisma.StringNullableFilter<"ProductCandidateRecord"> | string | null
   price?: Prisma.DecimalNullableFilter<"ProductCandidateRecord"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -441,13 +483,17 @@ export type ProductCandidateRecordWhereUniqueInput = Prisma.AtLeast<{
   variants?: Prisma.JsonNullableFilter<"ProductCandidateRecord">
   specs?: Prisma.JsonNullableFilter<"ProductCandidateRecord">
   priceTiers?: Prisma.JsonNullableFilter<"ProductCandidateRecord">
+  relevanceScore?: Prisma.FloatNullableFilter<"ProductCandidateRecord"> | number | null
+  matchReasons?: Prisma.StringNullableListFilter<"ProductCandidateRecord">
+  matchWarnings?: Prisma.StringNullableListFilter<"ProductCandidateRecord">
   contentHash?: Prisma.StringFilter<"ProductCandidateRecord"> | string
   firstSeenAt?: Prisma.DateTimeFilter<"ProductCandidateRecord"> | Date | string
   lastCheckedAt?: Prisma.DateTimeFilter<"ProductCandidateRecord"> | Date | string
   lastChangedAt?: Prisma.DateTimeNullableFilter<"ProductCandidateRecord"> | Date | string | null
   changedFields?: Prisma.StringNullableListFilter<"ProductCandidateRecord">
+  detailsFetchedAt?: Prisma.DateTimeNullableFilter<"ProductCandidateRecord"> | Date | string | null
   unavailable?: Prisma.BoolFilter<"ProductCandidateRecord"> | boolean
-  request?: Prisma.XOR<Prisma.ProductRequestScalarRelationFilter, Prisma.ProductRequestWhereInput>
+  request?: Prisma.XOR<Prisma.ScoutingRequestScalarRelationFilter, Prisma.ScoutingRequestWhereInput>
   snapshots?: Prisma.ProductSnapshotListRelationFilter
   results?: Prisma.ScoutingResultListRelationFilter
 }, "id" | "requestId_engine_externalId">
@@ -460,6 +506,7 @@ export type ProductCandidateRecordOrderByWithAggregationInput = {
   url?: Prisma.SortOrderInput | Prisma.SortOrder
   title?: Prisma.SortOrder
   imageUrl?: Prisma.SortOrderInput | Prisma.SortOrder
+  foundQuery?: Prisma.SortOrder
   vendorName?: Prisma.SortOrderInput | Prisma.SortOrder
   vendorUrl?: Prisma.SortOrderInput | Prisma.SortOrder
   price?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -472,11 +519,15 @@ export type ProductCandidateRecordOrderByWithAggregationInput = {
   variants?: Prisma.SortOrderInput | Prisma.SortOrder
   specs?: Prisma.SortOrderInput | Prisma.SortOrder
   priceTiers?: Prisma.SortOrderInput | Prisma.SortOrder
+  relevanceScore?: Prisma.SortOrderInput | Prisma.SortOrder
+  matchReasons?: Prisma.SortOrder
+  matchWarnings?: Prisma.SortOrder
   contentHash?: Prisma.SortOrder
   firstSeenAt?: Prisma.SortOrder
   lastCheckedAt?: Prisma.SortOrder
   lastChangedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   changedFields?: Prisma.SortOrder
+  detailsFetchedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   unavailable?: Prisma.SortOrder
   _count?: Prisma.ProductCandidateRecordCountOrderByAggregateInput
   _avg?: Prisma.ProductCandidateRecordAvgOrderByAggregateInput
@@ -496,6 +547,7 @@ export type ProductCandidateRecordScalarWhereWithAggregatesInput = {
   url?: Prisma.StringNullableWithAggregatesFilter<"ProductCandidateRecord"> | string | null
   title?: Prisma.StringWithAggregatesFilter<"ProductCandidateRecord"> | string
   imageUrl?: Prisma.StringNullableWithAggregatesFilter<"ProductCandidateRecord"> | string | null
+  foundQuery?: Prisma.StringWithAggregatesFilter<"ProductCandidateRecord"> | string
   vendorName?: Prisma.StringNullableWithAggregatesFilter<"ProductCandidateRecord"> | string | null
   vendorUrl?: Prisma.StringNullableWithAggregatesFilter<"ProductCandidateRecord"> | string | null
   price?: Prisma.DecimalNullableWithAggregatesFilter<"ProductCandidateRecord"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -508,11 +560,15 @@ export type ProductCandidateRecordScalarWhereWithAggregatesInput = {
   variants?: Prisma.JsonNullableWithAggregatesFilter<"ProductCandidateRecord">
   specs?: Prisma.JsonNullableWithAggregatesFilter<"ProductCandidateRecord">
   priceTiers?: Prisma.JsonNullableWithAggregatesFilter<"ProductCandidateRecord">
+  relevanceScore?: Prisma.FloatNullableWithAggregatesFilter<"ProductCandidateRecord"> | number | null
+  matchReasons?: Prisma.StringNullableListFilter<"ProductCandidateRecord">
+  matchWarnings?: Prisma.StringNullableListFilter<"ProductCandidateRecord">
   contentHash?: Prisma.StringWithAggregatesFilter<"ProductCandidateRecord"> | string
   firstSeenAt?: Prisma.DateTimeWithAggregatesFilter<"ProductCandidateRecord"> | Date | string
   lastCheckedAt?: Prisma.DateTimeWithAggregatesFilter<"ProductCandidateRecord"> | Date | string
   lastChangedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"ProductCandidateRecord"> | Date | string | null
   changedFields?: Prisma.StringNullableListFilter<"ProductCandidateRecord">
+  detailsFetchedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"ProductCandidateRecord"> | Date | string | null
   unavailable?: Prisma.BoolWithAggregatesFilter<"ProductCandidateRecord"> | boolean
 }
 
@@ -523,6 +579,7 @@ export type ProductCandidateRecordCreateInput = {
   url?: string | null
   title: string
   imageUrl?: string | null
+  foundQuery: string
   vendorName?: string | null
   vendorUrl?: string | null
   price?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -535,13 +592,17 @@ export type ProductCandidateRecordCreateInput = {
   variants?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   specs?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   priceTiers?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  relevanceScore?: number | null
+  matchReasons?: Prisma.ProductCandidateRecordCreatematchReasonsInput | string[]
+  matchWarnings?: Prisma.ProductCandidateRecordCreatematchWarningsInput | string[]
   contentHash: string
   firstSeenAt?: Date | string
   lastCheckedAt?: Date | string
   lastChangedAt?: Date | string | null
   changedFields?: Prisma.ProductCandidateRecordCreatechangedFieldsInput | string[]
+  detailsFetchedAt?: Date | string | null
   unavailable?: boolean
-  request: Prisma.ProductRequestCreateNestedOneWithoutCandidatesInput
+  request: Prisma.ScoutingRequestCreateNestedOneWithoutCandidatesInput
   snapshots?: Prisma.ProductSnapshotCreateNestedManyWithoutCandidateInput
   results?: Prisma.ScoutingResultCreateNestedManyWithoutCandidateInput
 }
@@ -554,6 +615,7 @@ export type ProductCandidateRecordUncheckedCreateInput = {
   url?: string | null
   title: string
   imageUrl?: string | null
+  foundQuery: string
   vendorName?: string | null
   vendorUrl?: string | null
   price?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -566,11 +628,15 @@ export type ProductCandidateRecordUncheckedCreateInput = {
   variants?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   specs?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   priceTiers?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  relevanceScore?: number | null
+  matchReasons?: Prisma.ProductCandidateRecordCreatematchReasonsInput | string[]
+  matchWarnings?: Prisma.ProductCandidateRecordCreatematchWarningsInput | string[]
   contentHash: string
   firstSeenAt?: Date | string
   lastCheckedAt?: Date | string
   lastChangedAt?: Date | string | null
   changedFields?: Prisma.ProductCandidateRecordCreatechangedFieldsInput | string[]
+  detailsFetchedAt?: Date | string | null
   unavailable?: boolean
   snapshots?: Prisma.ProductSnapshotUncheckedCreateNestedManyWithoutCandidateInput
   results?: Prisma.ScoutingResultUncheckedCreateNestedManyWithoutCandidateInput
@@ -583,6 +649,7 @@ export type ProductCandidateRecordUpdateInput = {
   url?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   title?: Prisma.StringFieldUpdateOperationsInput | string
   imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  foundQuery?: Prisma.StringFieldUpdateOperationsInput | string
   vendorName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   vendorUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   price?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -595,13 +662,17 @@ export type ProductCandidateRecordUpdateInput = {
   variants?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   specs?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   priceTiers?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  relevanceScore?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  matchReasons?: Prisma.ProductCandidateRecordUpdatematchReasonsInput | string[]
+  matchWarnings?: Prisma.ProductCandidateRecordUpdatematchWarningsInput | string[]
   contentHash?: Prisma.StringFieldUpdateOperationsInput | string
   firstSeenAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   lastCheckedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   lastChangedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   changedFields?: Prisma.ProductCandidateRecordUpdatechangedFieldsInput | string[]
+  detailsFetchedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   unavailable?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  request?: Prisma.ProductRequestUpdateOneRequiredWithoutCandidatesNestedInput
+  request?: Prisma.ScoutingRequestUpdateOneRequiredWithoutCandidatesNestedInput
   snapshots?: Prisma.ProductSnapshotUpdateManyWithoutCandidateNestedInput
   results?: Prisma.ScoutingResultUpdateManyWithoutCandidateNestedInput
 }
@@ -614,6 +685,7 @@ export type ProductCandidateRecordUncheckedUpdateInput = {
   url?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   title?: Prisma.StringFieldUpdateOperationsInput | string
   imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  foundQuery?: Prisma.StringFieldUpdateOperationsInput | string
   vendorName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   vendorUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   price?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -626,11 +698,15 @@ export type ProductCandidateRecordUncheckedUpdateInput = {
   variants?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   specs?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   priceTiers?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  relevanceScore?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  matchReasons?: Prisma.ProductCandidateRecordUpdatematchReasonsInput | string[]
+  matchWarnings?: Prisma.ProductCandidateRecordUpdatematchWarningsInput | string[]
   contentHash?: Prisma.StringFieldUpdateOperationsInput | string
   firstSeenAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   lastCheckedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   lastChangedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   changedFields?: Prisma.ProductCandidateRecordUpdatechangedFieldsInput | string[]
+  detailsFetchedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   unavailable?: Prisma.BoolFieldUpdateOperationsInput | boolean
   snapshots?: Prisma.ProductSnapshotUncheckedUpdateManyWithoutCandidateNestedInput
   results?: Prisma.ScoutingResultUncheckedUpdateManyWithoutCandidateNestedInput
@@ -644,6 +720,7 @@ export type ProductCandidateRecordCreateManyInput = {
   url?: string | null
   title: string
   imageUrl?: string | null
+  foundQuery: string
   vendorName?: string | null
   vendorUrl?: string | null
   price?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -656,11 +733,15 @@ export type ProductCandidateRecordCreateManyInput = {
   variants?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   specs?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   priceTiers?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  relevanceScore?: number | null
+  matchReasons?: Prisma.ProductCandidateRecordCreatematchReasonsInput | string[]
+  matchWarnings?: Prisma.ProductCandidateRecordCreatematchWarningsInput | string[]
   contentHash: string
   firstSeenAt?: Date | string
   lastCheckedAt?: Date | string
   lastChangedAt?: Date | string | null
   changedFields?: Prisma.ProductCandidateRecordCreatechangedFieldsInput | string[]
+  detailsFetchedAt?: Date | string | null
   unavailable?: boolean
 }
 
@@ -671,6 +752,7 @@ export type ProductCandidateRecordUpdateManyMutationInput = {
   url?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   title?: Prisma.StringFieldUpdateOperationsInput | string
   imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  foundQuery?: Prisma.StringFieldUpdateOperationsInput | string
   vendorName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   vendorUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   price?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -683,11 +765,15 @@ export type ProductCandidateRecordUpdateManyMutationInput = {
   variants?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   specs?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   priceTiers?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  relevanceScore?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  matchReasons?: Prisma.ProductCandidateRecordUpdatematchReasonsInput | string[]
+  matchWarnings?: Prisma.ProductCandidateRecordUpdatematchWarningsInput | string[]
   contentHash?: Prisma.StringFieldUpdateOperationsInput | string
   firstSeenAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   lastCheckedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   lastChangedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   changedFields?: Prisma.ProductCandidateRecordUpdatechangedFieldsInput | string[]
+  detailsFetchedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   unavailable?: Prisma.BoolFieldUpdateOperationsInput | boolean
 }
 
@@ -699,6 +785,7 @@ export type ProductCandidateRecordUncheckedUpdateManyInput = {
   url?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   title?: Prisma.StringFieldUpdateOperationsInput | string
   imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  foundQuery?: Prisma.StringFieldUpdateOperationsInput | string
   vendorName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   vendorUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   price?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -711,11 +798,15 @@ export type ProductCandidateRecordUncheckedUpdateManyInput = {
   variants?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   specs?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   priceTiers?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  relevanceScore?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  matchReasons?: Prisma.ProductCandidateRecordUpdatematchReasonsInput | string[]
+  matchWarnings?: Prisma.ProductCandidateRecordUpdatematchWarningsInput | string[]
   contentHash?: Prisma.StringFieldUpdateOperationsInput | string
   firstSeenAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   lastCheckedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   lastChangedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   changedFields?: Prisma.ProductCandidateRecordUpdatechangedFieldsInput | string[]
+  detailsFetchedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   unavailable?: Prisma.BoolFieldUpdateOperationsInput | boolean
 }
 
@@ -743,6 +834,7 @@ export type ProductCandidateRecordCountOrderByAggregateInput = {
   url?: Prisma.SortOrder
   title?: Prisma.SortOrder
   imageUrl?: Prisma.SortOrder
+  foundQuery?: Prisma.SortOrder
   vendorName?: Prisma.SortOrder
   vendorUrl?: Prisma.SortOrder
   price?: Prisma.SortOrder
@@ -755,11 +847,15 @@ export type ProductCandidateRecordCountOrderByAggregateInput = {
   variants?: Prisma.SortOrder
   specs?: Prisma.SortOrder
   priceTiers?: Prisma.SortOrder
+  relevanceScore?: Prisma.SortOrder
+  matchReasons?: Prisma.SortOrder
+  matchWarnings?: Prisma.SortOrder
   contentHash?: Prisma.SortOrder
   firstSeenAt?: Prisma.SortOrder
   lastCheckedAt?: Prisma.SortOrder
   lastChangedAt?: Prisma.SortOrder
   changedFields?: Prisma.SortOrder
+  detailsFetchedAt?: Prisma.SortOrder
   unavailable?: Prisma.SortOrder
 }
 
@@ -770,6 +866,7 @@ export type ProductCandidateRecordAvgOrderByAggregateInput = {
   rating?: Prisma.SortOrder
   reviewCount?: Prisma.SortOrder
   totalSales?: Prisma.SortOrder
+  relevanceScore?: Prisma.SortOrder
 }
 
 export type ProductCandidateRecordMaxOrderByAggregateInput = {
@@ -780,6 +877,7 @@ export type ProductCandidateRecordMaxOrderByAggregateInput = {
   url?: Prisma.SortOrder
   title?: Prisma.SortOrder
   imageUrl?: Prisma.SortOrder
+  foundQuery?: Prisma.SortOrder
   vendorName?: Prisma.SortOrder
   vendorUrl?: Prisma.SortOrder
   price?: Prisma.SortOrder
@@ -789,10 +887,12 @@ export type ProductCandidateRecordMaxOrderByAggregateInput = {
   rating?: Prisma.SortOrder
   reviewCount?: Prisma.SortOrder
   totalSales?: Prisma.SortOrder
+  relevanceScore?: Prisma.SortOrder
   contentHash?: Prisma.SortOrder
   firstSeenAt?: Prisma.SortOrder
   lastCheckedAt?: Prisma.SortOrder
   lastChangedAt?: Prisma.SortOrder
+  detailsFetchedAt?: Prisma.SortOrder
   unavailable?: Prisma.SortOrder
 }
 
@@ -804,6 +904,7 @@ export type ProductCandidateRecordMinOrderByAggregateInput = {
   url?: Prisma.SortOrder
   title?: Prisma.SortOrder
   imageUrl?: Prisma.SortOrder
+  foundQuery?: Prisma.SortOrder
   vendorName?: Prisma.SortOrder
   vendorUrl?: Prisma.SortOrder
   price?: Prisma.SortOrder
@@ -813,10 +914,12 @@ export type ProductCandidateRecordMinOrderByAggregateInput = {
   rating?: Prisma.SortOrder
   reviewCount?: Prisma.SortOrder
   totalSales?: Prisma.SortOrder
+  relevanceScore?: Prisma.SortOrder
   contentHash?: Prisma.SortOrder
   firstSeenAt?: Prisma.SortOrder
   lastCheckedAt?: Prisma.SortOrder
   lastChangedAt?: Prisma.SortOrder
+  detailsFetchedAt?: Prisma.SortOrder
   unavailable?: Prisma.SortOrder
 }
 
@@ -827,6 +930,7 @@ export type ProductCandidateRecordSumOrderByAggregateInput = {
   rating?: Prisma.SortOrder
   reviewCount?: Prisma.SortOrder
   totalSales?: Prisma.SortOrder
+  relevanceScore?: Prisma.SortOrder
 }
 
 export type ProductCandidateRecordScalarRelationFilter = {
@@ -876,8 +980,26 @@ export type ProductCandidateRecordUncheckedUpdateManyWithoutRequestNestedInput =
   deleteMany?: Prisma.ProductCandidateRecordScalarWhereInput | Prisma.ProductCandidateRecordScalarWhereInput[]
 }
 
+export type ProductCandidateRecordCreatematchReasonsInput = {
+  set: string[]
+}
+
+export type ProductCandidateRecordCreatematchWarningsInput = {
+  set: string[]
+}
+
 export type ProductCandidateRecordCreatechangedFieldsInput = {
   set: string[]
+}
+
+export type ProductCandidateRecordUpdatematchReasonsInput = {
+  set?: string[]
+  push?: string | string[]
+}
+
+export type ProductCandidateRecordUpdatematchWarningsInput = {
+  set?: string[]
+  push?: string | string[]
 }
 
 export type ProductCandidateRecordUpdatechangedFieldsInput = {
@@ -920,6 +1042,7 @@ export type ProductCandidateRecordCreateWithoutRequestInput = {
   url?: string | null
   title: string
   imageUrl?: string | null
+  foundQuery: string
   vendorName?: string | null
   vendorUrl?: string | null
   price?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -932,11 +1055,15 @@ export type ProductCandidateRecordCreateWithoutRequestInput = {
   variants?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   specs?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   priceTiers?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  relevanceScore?: number | null
+  matchReasons?: Prisma.ProductCandidateRecordCreatematchReasonsInput | string[]
+  matchWarnings?: Prisma.ProductCandidateRecordCreatematchWarningsInput | string[]
   contentHash: string
   firstSeenAt?: Date | string
   lastCheckedAt?: Date | string
   lastChangedAt?: Date | string | null
   changedFields?: Prisma.ProductCandidateRecordCreatechangedFieldsInput | string[]
+  detailsFetchedAt?: Date | string | null
   unavailable?: boolean
   snapshots?: Prisma.ProductSnapshotCreateNestedManyWithoutCandidateInput
   results?: Prisma.ScoutingResultCreateNestedManyWithoutCandidateInput
@@ -949,6 +1076,7 @@ export type ProductCandidateRecordUncheckedCreateWithoutRequestInput = {
   url?: string | null
   title: string
   imageUrl?: string | null
+  foundQuery: string
   vendorName?: string | null
   vendorUrl?: string | null
   price?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -961,11 +1089,15 @@ export type ProductCandidateRecordUncheckedCreateWithoutRequestInput = {
   variants?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   specs?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   priceTiers?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  relevanceScore?: number | null
+  matchReasons?: Prisma.ProductCandidateRecordCreatematchReasonsInput | string[]
+  matchWarnings?: Prisma.ProductCandidateRecordCreatematchWarningsInput | string[]
   contentHash: string
   firstSeenAt?: Date | string
   lastCheckedAt?: Date | string
   lastChangedAt?: Date | string | null
   changedFields?: Prisma.ProductCandidateRecordCreatechangedFieldsInput | string[]
+  detailsFetchedAt?: Date | string | null
   unavailable?: boolean
   snapshots?: Prisma.ProductSnapshotUncheckedCreateNestedManyWithoutCandidateInput
   results?: Prisma.ScoutingResultUncheckedCreateNestedManyWithoutCandidateInput
@@ -1008,6 +1140,7 @@ export type ProductCandidateRecordScalarWhereInput = {
   url?: Prisma.StringNullableFilter<"ProductCandidateRecord"> | string | null
   title?: Prisma.StringFilter<"ProductCandidateRecord"> | string
   imageUrl?: Prisma.StringNullableFilter<"ProductCandidateRecord"> | string | null
+  foundQuery?: Prisma.StringFilter<"ProductCandidateRecord"> | string
   vendorName?: Prisma.StringNullableFilter<"ProductCandidateRecord"> | string | null
   vendorUrl?: Prisma.StringNullableFilter<"ProductCandidateRecord"> | string | null
   price?: Prisma.DecimalNullableFilter<"ProductCandidateRecord"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -1020,11 +1153,15 @@ export type ProductCandidateRecordScalarWhereInput = {
   variants?: Prisma.JsonNullableFilter<"ProductCandidateRecord">
   specs?: Prisma.JsonNullableFilter<"ProductCandidateRecord">
   priceTiers?: Prisma.JsonNullableFilter<"ProductCandidateRecord">
+  relevanceScore?: Prisma.FloatNullableFilter<"ProductCandidateRecord"> | number | null
+  matchReasons?: Prisma.StringNullableListFilter<"ProductCandidateRecord">
+  matchWarnings?: Prisma.StringNullableListFilter<"ProductCandidateRecord">
   contentHash?: Prisma.StringFilter<"ProductCandidateRecord"> | string
   firstSeenAt?: Prisma.DateTimeFilter<"ProductCandidateRecord"> | Date | string
   lastCheckedAt?: Prisma.DateTimeFilter<"ProductCandidateRecord"> | Date | string
   lastChangedAt?: Prisma.DateTimeNullableFilter<"ProductCandidateRecord"> | Date | string | null
   changedFields?: Prisma.StringNullableListFilter<"ProductCandidateRecord">
+  detailsFetchedAt?: Prisma.DateTimeNullableFilter<"ProductCandidateRecord"> | Date | string | null
   unavailable?: Prisma.BoolFilter<"ProductCandidateRecord"> | boolean
 }
 
@@ -1035,6 +1172,7 @@ export type ProductCandidateRecordCreateWithoutSnapshotsInput = {
   url?: string | null
   title: string
   imageUrl?: string | null
+  foundQuery: string
   vendorName?: string | null
   vendorUrl?: string | null
   price?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -1047,13 +1185,17 @@ export type ProductCandidateRecordCreateWithoutSnapshotsInput = {
   variants?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   specs?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   priceTiers?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  relevanceScore?: number | null
+  matchReasons?: Prisma.ProductCandidateRecordCreatematchReasonsInput | string[]
+  matchWarnings?: Prisma.ProductCandidateRecordCreatematchWarningsInput | string[]
   contentHash: string
   firstSeenAt?: Date | string
   lastCheckedAt?: Date | string
   lastChangedAt?: Date | string | null
   changedFields?: Prisma.ProductCandidateRecordCreatechangedFieldsInput | string[]
+  detailsFetchedAt?: Date | string | null
   unavailable?: boolean
-  request: Prisma.ProductRequestCreateNestedOneWithoutCandidatesInput
+  request: Prisma.ScoutingRequestCreateNestedOneWithoutCandidatesInput
   results?: Prisma.ScoutingResultCreateNestedManyWithoutCandidateInput
 }
 
@@ -1065,6 +1207,7 @@ export type ProductCandidateRecordUncheckedCreateWithoutSnapshotsInput = {
   url?: string | null
   title: string
   imageUrl?: string | null
+  foundQuery: string
   vendorName?: string | null
   vendorUrl?: string | null
   price?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -1077,11 +1220,15 @@ export type ProductCandidateRecordUncheckedCreateWithoutSnapshotsInput = {
   variants?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   specs?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   priceTiers?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  relevanceScore?: number | null
+  matchReasons?: Prisma.ProductCandidateRecordCreatematchReasonsInput | string[]
+  matchWarnings?: Prisma.ProductCandidateRecordCreatematchWarningsInput | string[]
   contentHash: string
   firstSeenAt?: Date | string
   lastCheckedAt?: Date | string
   lastChangedAt?: Date | string | null
   changedFields?: Prisma.ProductCandidateRecordCreatechangedFieldsInput | string[]
+  detailsFetchedAt?: Date | string | null
   unavailable?: boolean
   results?: Prisma.ScoutingResultUncheckedCreateNestedManyWithoutCandidateInput
 }
@@ -1109,6 +1256,7 @@ export type ProductCandidateRecordUpdateWithoutSnapshotsInput = {
   url?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   title?: Prisma.StringFieldUpdateOperationsInput | string
   imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  foundQuery?: Prisma.StringFieldUpdateOperationsInput | string
   vendorName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   vendorUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   price?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -1121,13 +1269,17 @@ export type ProductCandidateRecordUpdateWithoutSnapshotsInput = {
   variants?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   specs?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   priceTiers?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  relevanceScore?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  matchReasons?: Prisma.ProductCandidateRecordUpdatematchReasonsInput | string[]
+  matchWarnings?: Prisma.ProductCandidateRecordUpdatematchWarningsInput | string[]
   contentHash?: Prisma.StringFieldUpdateOperationsInput | string
   firstSeenAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   lastCheckedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   lastChangedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   changedFields?: Prisma.ProductCandidateRecordUpdatechangedFieldsInput | string[]
+  detailsFetchedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   unavailable?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  request?: Prisma.ProductRequestUpdateOneRequiredWithoutCandidatesNestedInput
+  request?: Prisma.ScoutingRequestUpdateOneRequiredWithoutCandidatesNestedInput
   results?: Prisma.ScoutingResultUpdateManyWithoutCandidateNestedInput
 }
 
@@ -1139,6 +1291,7 @@ export type ProductCandidateRecordUncheckedUpdateWithoutSnapshotsInput = {
   url?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   title?: Prisma.StringFieldUpdateOperationsInput | string
   imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  foundQuery?: Prisma.StringFieldUpdateOperationsInput | string
   vendorName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   vendorUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   price?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -1151,11 +1304,15 @@ export type ProductCandidateRecordUncheckedUpdateWithoutSnapshotsInput = {
   variants?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   specs?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   priceTiers?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  relevanceScore?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  matchReasons?: Prisma.ProductCandidateRecordUpdatematchReasonsInput | string[]
+  matchWarnings?: Prisma.ProductCandidateRecordUpdatematchWarningsInput | string[]
   contentHash?: Prisma.StringFieldUpdateOperationsInput | string
   firstSeenAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   lastCheckedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   lastChangedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   changedFields?: Prisma.ProductCandidateRecordUpdatechangedFieldsInput | string[]
+  detailsFetchedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   unavailable?: Prisma.BoolFieldUpdateOperationsInput | boolean
   results?: Prisma.ScoutingResultUncheckedUpdateManyWithoutCandidateNestedInput
 }
@@ -1167,6 +1324,7 @@ export type ProductCandidateRecordCreateWithoutResultsInput = {
   url?: string | null
   title: string
   imageUrl?: string | null
+  foundQuery: string
   vendorName?: string | null
   vendorUrl?: string | null
   price?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -1179,13 +1337,17 @@ export type ProductCandidateRecordCreateWithoutResultsInput = {
   variants?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   specs?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   priceTiers?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  relevanceScore?: number | null
+  matchReasons?: Prisma.ProductCandidateRecordCreatematchReasonsInput | string[]
+  matchWarnings?: Prisma.ProductCandidateRecordCreatematchWarningsInput | string[]
   contentHash: string
   firstSeenAt?: Date | string
   lastCheckedAt?: Date | string
   lastChangedAt?: Date | string | null
   changedFields?: Prisma.ProductCandidateRecordCreatechangedFieldsInput | string[]
+  detailsFetchedAt?: Date | string | null
   unavailable?: boolean
-  request: Prisma.ProductRequestCreateNestedOneWithoutCandidatesInput
+  request: Prisma.ScoutingRequestCreateNestedOneWithoutCandidatesInput
   snapshots?: Prisma.ProductSnapshotCreateNestedManyWithoutCandidateInput
 }
 
@@ -1197,6 +1359,7 @@ export type ProductCandidateRecordUncheckedCreateWithoutResultsInput = {
   url?: string | null
   title: string
   imageUrl?: string | null
+  foundQuery: string
   vendorName?: string | null
   vendorUrl?: string | null
   price?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -1209,11 +1372,15 @@ export type ProductCandidateRecordUncheckedCreateWithoutResultsInput = {
   variants?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   specs?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   priceTiers?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  relevanceScore?: number | null
+  matchReasons?: Prisma.ProductCandidateRecordCreatematchReasonsInput | string[]
+  matchWarnings?: Prisma.ProductCandidateRecordCreatematchWarningsInput | string[]
   contentHash: string
   firstSeenAt?: Date | string
   lastCheckedAt?: Date | string
   lastChangedAt?: Date | string | null
   changedFields?: Prisma.ProductCandidateRecordCreatechangedFieldsInput | string[]
+  detailsFetchedAt?: Date | string | null
   unavailable?: boolean
   snapshots?: Prisma.ProductSnapshotUncheckedCreateNestedManyWithoutCandidateInput
 }
@@ -1241,6 +1408,7 @@ export type ProductCandidateRecordUpdateWithoutResultsInput = {
   url?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   title?: Prisma.StringFieldUpdateOperationsInput | string
   imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  foundQuery?: Prisma.StringFieldUpdateOperationsInput | string
   vendorName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   vendorUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   price?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -1253,13 +1421,17 @@ export type ProductCandidateRecordUpdateWithoutResultsInput = {
   variants?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   specs?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   priceTiers?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  relevanceScore?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  matchReasons?: Prisma.ProductCandidateRecordUpdatematchReasonsInput | string[]
+  matchWarnings?: Prisma.ProductCandidateRecordUpdatematchWarningsInput | string[]
   contentHash?: Prisma.StringFieldUpdateOperationsInput | string
   firstSeenAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   lastCheckedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   lastChangedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   changedFields?: Prisma.ProductCandidateRecordUpdatechangedFieldsInput | string[]
+  detailsFetchedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   unavailable?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  request?: Prisma.ProductRequestUpdateOneRequiredWithoutCandidatesNestedInput
+  request?: Prisma.ScoutingRequestUpdateOneRequiredWithoutCandidatesNestedInput
   snapshots?: Prisma.ProductSnapshotUpdateManyWithoutCandidateNestedInput
 }
 
@@ -1271,6 +1443,7 @@ export type ProductCandidateRecordUncheckedUpdateWithoutResultsInput = {
   url?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   title?: Prisma.StringFieldUpdateOperationsInput | string
   imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  foundQuery?: Prisma.StringFieldUpdateOperationsInput | string
   vendorName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   vendorUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   price?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -1283,11 +1456,15 @@ export type ProductCandidateRecordUncheckedUpdateWithoutResultsInput = {
   variants?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   specs?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   priceTiers?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  relevanceScore?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  matchReasons?: Prisma.ProductCandidateRecordUpdatematchReasonsInput | string[]
+  matchWarnings?: Prisma.ProductCandidateRecordUpdatematchWarningsInput | string[]
   contentHash?: Prisma.StringFieldUpdateOperationsInput | string
   firstSeenAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   lastCheckedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   lastChangedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   changedFields?: Prisma.ProductCandidateRecordUpdatechangedFieldsInput | string[]
+  detailsFetchedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   unavailable?: Prisma.BoolFieldUpdateOperationsInput | boolean
   snapshots?: Prisma.ProductSnapshotUncheckedUpdateManyWithoutCandidateNestedInput
 }
@@ -1299,6 +1476,7 @@ export type ProductCandidateRecordCreateManyRequestInput = {
   url?: string | null
   title: string
   imageUrl?: string | null
+  foundQuery: string
   vendorName?: string | null
   vendorUrl?: string | null
   price?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -1311,11 +1489,15 @@ export type ProductCandidateRecordCreateManyRequestInput = {
   variants?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   specs?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   priceTiers?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  relevanceScore?: number | null
+  matchReasons?: Prisma.ProductCandidateRecordCreatematchReasonsInput | string[]
+  matchWarnings?: Prisma.ProductCandidateRecordCreatematchWarningsInput | string[]
   contentHash: string
   firstSeenAt?: Date | string
   lastCheckedAt?: Date | string
   lastChangedAt?: Date | string | null
   changedFields?: Prisma.ProductCandidateRecordCreatechangedFieldsInput | string[]
+  detailsFetchedAt?: Date | string | null
   unavailable?: boolean
 }
 
@@ -1326,6 +1508,7 @@ export type ProductCandidateRecordUpdateWithoutRequestInput = {
   url?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   title?: Prisma.StringFieldUpdateOperationsInput | string
   imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  foundQuery?: Prisma.StringFieldUpdateOperationsInput | string
   vendorName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   vendorUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   price?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -1338,11 +1521,15 @@ export type ProductCandidateRecordUpdateWithoutRequestInput = {
   variants?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   specs?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   priceTiers?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  relevanceScore?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  matchReasons?: Prisma.ProductCandidateRecordUpdatematchReasonsInput | string[]
+  matchWarnings?: Prisma.ProductCandidateRecordUpdatematchWarningsInput | string[]
   contentHash?: Prisma.StringFieldUpdateOperationsInput | string
   firstSeenAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   lastCheckedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   lastChangedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   changedFields?: Prisma.ProductCandidateRecordUpdatechangedFieldsInput | string[]
+  detailsFetchedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   unavailable?: Prisma.BoolFieldUpdateOperationsInput | boolean
   snapshots?: Prisma.ProductSnapshotUpdateManyWithoutCandidateNestedInput
   results?: Prisma.ScoutingResultUpdateManyWithoutCandidateNestedInput
@@ -1355,6 +1542,7 @@ export type ProductCandidateRecordUncheckedUpdateWithoutRequestInput = {
   url?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   title?: Prisma.StringFieldUpdateOperationsInput | string
   imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  foundQuery?: Prisma.StringFieldUpdateOperationsInput | string
   vendorName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   vendorUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   price?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -1367,11 +1555,15 @@ export type ProductCandidateRecordUncheckedUpdateWithoutRequestInput = {
   variants?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   specs?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   priceTiers?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  relevanceScore?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  matchReasons?: Prisma.ProductCandidateRecordUpdatematchReasonsInput | string[]
+  matchWarnings?: Prisma.ProductCandidateRecordUpdatematchWarningsInput | string[]
   contentHash?: Prisma.StringFieldUpdateOperationsInput | string
   firstSeenAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   lastCheckedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   lastChangedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   changedFields?: Prisma.ProductCandidateRecordUpdatechangedFieldsInput | string[]
+  detailsFetchedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   unavailable?: Prisma.BoolFieldUpdateOperationsInput | boolean
   snapshots?: Prisma.ProductSnapshotUncheckedUpdateManyWithoutCandidateNestedInput
   results?: Prisma.ScoutingResultUncheckedUpdateManyWithoutCandidateNestedInput
@@ -1384,6 +1576,7 @@ export type ProductCandidateRecordUncheckedUpdateManyWithoutRequestInput = {
   url?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   title?: Prisma.StringFieldUpdateOperationsInput | string
   imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  foundQuery?: Prisma.StringFieldUpdateOperationsInput | string
   vendorName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   vendorUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   price?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -1396,11 +1589,15 @@ export type ProductCandidateRecordUncheckedUpdateManyWithoutRequestInput = {
   variants?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   specs?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   priceTiers?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  relevanceScore?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  matchReasons?: Prisma.ProductCandidateRecordUpdatematchReasonsInput | string[]
+  matchWarnings?: Prisma.ProductCandidateRecordUpdatematchWarningsInput | string[]
   contentHash?: Prisma.StringFieldUpdateOperationsInput | string
   firstSeenAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   lastCheckedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   lastChangedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   changedFields?: Prisma.ProductCandidateRecordUpdatechangedFieldsInput | string[]
+  detailsFetchedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   unavailable?: Prisma.BoolFieldUpdateOperationsInput | boolean
 }
 
@@ -1452,6 +1649,7 @@ export type ProductCandidateRecordSelect<ExtArgs extends runtime.Types.Extension
   url?: boolean
   title?: boolean
   imageUrl?: boolean
+  foundQuery?: boolean
   vendorName?: boolean
   vendorUrl?: boolean
   price?: boolean
@@ -1464,13 +1662,17 @@ export type ProductCandidateRecordSelect<ExtArgs extends runtime.Types.Extension
   variants?: boolean
   specs?: boolean
   priceTiers?: boolean
+  relevanceScore?: boolean
+  matchReasons?: boolean
+  matchWarnings?: boolean
   contentHash?: boolean
   firstSeenAt?: boolean
   lastCheckedAt?: boolean
   lastChangedAt?: boolean
   changedFields?: boolean
+  detailsFetchedAt?: boolean
   unavailable?: boolean
-  request?: boolean | Prisma.ProductRequestDefaultArgs<ExtArgs>
+  request?: boolean | Prisma.ScoutingRequestDefaultArgs<ExtArgs>
   snapshots?: boolean | Prisma.ProductCandidateRecord$snapshotsArgs<ExtArgs>
   results?: boolean | Prisma.ProductCandidateRecord$resultsArgs<ExtArgs>
   _count?: boolean | Prisma.ProductCandidateRecordCountOutputTypeDefaultArgs<ExtArgs>
@@ -1484,6 +1686,7 @@ export type ProductCandidateRecordSelectCreateManyAndReturn<ExtArgs extends runt
   url?: boolean
   title?: boolean
   imageUrl?: boolean
+  foundQuery?: boolean
   vendorName?: boolean
   vendorUrl?: boolean
   price?: boolean
@@ -1496,13 +1699,17 @@ export type ProductCandidateRecordSelectCreateManyAndReturn<ExtArgs extends runt
   variants?: boolean
   specs?: boolean
   priceTiers?: boolean
+  relevanceScore?: boolean
+  matchReasons?: boolean
+  matchWarnings?: boolean
   contentHash?: boolean
   firstSeenAt?: boolean
   lastCheckedAt?: boolean
   lastChangedAt?: boolean
   changedFields?: boolean
+  detailsFetchedAt?: boolean
   unavailable?: boolean
-  request?: boolean | Prisma.ProductRequestDefaultArgs<ExtArgs>
+  request?: boolean | Prisma.ScoutingRequestDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["productCandidateRecord"]>
 
 export type ProductCandidateRecordSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -1513,6 +1720,7 @@ export type ProductCandidateRecordSelectUpdateManyAndReturn<ExtArgs extends runt
   url?: boolean
   title?: boolean
   imageUrl?: boolean
+  foundQuery?: boolean
   vendorName?: boolean
   vendorUrl?: boolean
   price?: boolean
@@ -1525,13 +1733,17 @@ export type ProductCandidateRecordSelectUpdateManyAndReturn<ExtArgs extends runt
   variants?: boolean
   specs?: boolean
   priceTiers?: boolean
+  relevanceScore?: boolean
+  matchReasons?: boolean
+  matchWarnings?: boolean
   contentHash?: boolean
   firstSeenAt?: boolean
   lastCheckedAt?: boolean
   lastChangedAt?: boolean
   changedFields?: boolean
+  detailsFetchedAt?: boolean
   unavailable?: boolean
-  request?: boolean | Prisma.ProductRequestDefaultArgs<ExtArgs>
+  request?: boolean | Prisma.ScoutingRequestDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["productCandidateRecord"]>
 
 export type ProductCandidateRecordSelectScalar = {
@@ -1542,6 +1754,7 @@ export type ProductCandidateRecordSelectScalar = {
   url?: boolean
   title?: boolean
   imageUrl?: boolean
+  foundQuery?: boolean
   vendorName?: boolean
   vendorUrl?: boolean
   price?: boolean
@@ -1554,32 +1767,36 @@ export type ProductCandidateRecordSelectScalar = {
   variants?: boolean
   specs?: boolean
   priceTiers?: boolean
+  relevanceScore?: boolean
+  matchReasons?: boolean
+  matchWarnings?: boolean
   contentHash?: boolean
   firstSeenAt?: boolean
   lastCheckedAt?: boolean
   lastChangedAt?: boolean
   changedFields?: boolean
+  detailsFetchedAt?: boolean
   unavailable?: boolean
 }
 
-export type ProductCandidateRecordOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "requestId" | "engine" | "externalId" | "url" | "title" | "imageUrl" | "vendorName" | "vendorUrl" | "price" | "currency" | "moq" | "stock" | "rating" | "reviewCount" | "totalSales" | "variants" | "specs" | "priceTiers" | "contentHash" | "firstSeenAt" | "lastCheckedAt" | "lastChangedAt" | "changedFields" | "unavailable", ExtArgs["result"]["productCandidateRecord"]>
+export type ProductCandidateRecordOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "requestId" | "engine" | "externalId" | "url" | "title" | "imageUrl" | "foundQuery" | "vendorName" | "vendorUrl" | "price" | "currency" | "moq" | "stock" | "rating" | "reviewCount" | "totalSales" | "variants" | "specs" | "priceTiers" | "relevanceScore" | "matchReasons" | "matchWarnings" | "contentHash" | "firstSeenAt" | "lastCheckedAt" | "lastChangedAt" | "changedFields" | "detailsFetchedAt" | "unavailable", ExtArgs["result"]["productCandidateRecord"]>
 export type ProductCandidateRecordInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  request?: boolean | Prisma.ProductRequestDefaultArgs<ExtArgs>
+  request?: boolean | Prisma.ScoutingRequestDefaultArgs<ExtArgs>
   snapshots?: boolean | Prisma.ProductCandidateRecord$snapshotsArgs<ExtArgs>
   results?: boolean | Prisma.ProductCandidateRecord$resultsArgs<ExtArgs>
   _count?: boolean | Prisma.ProductCandidateRecordCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type ProductCandidateRecordIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  request?: boolean | Prisma.ProductRequestDefaultArgs<ExtArgs>
+  request?: boolean | Prisma.ScoutingRequestDefaultArgs<ExtArgs>
 }
 export type ProductCandidateRecordIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  request?: boolean | Prisma.ProductRequestDefaultArgs<ExtArgs>
+  request?: boolean | Prisma.ScoutingRequestDefaultArgs<ExtArgs>
 }
 
 export type $ProductCandidateRecordPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "ProductCandidateRecord"
   objects: {
-    request: Prisma.$ProductRequestPayload<ExtArgs>
+    request: Prisma.$ScoutingRequestPayload<ExtArgs>
     snapshots: Prisma.$ProductSnapshotPayload<ExtArgs>[]
     results: Prisma.$ScoutingResultPayload<ExtArgs>[]
   }
@@ -1591,6 +1808,11 @@ export type $ProductCandidateRecordPayload<ExtArgs extends runtime.Types.Extensi
     url: string | null
     title: string
     imageUrl: string | null
+    /**
+     * Query che ha fatto emergere questo candidato: serve a capire perché è
+     * stato trovato e a rieseguire la stessa ricerca in fase di aggiornamento.
+     */
+    foundQuery: string
     vendorName: string | null
     vendorUrl: string | null
     price: runtime.Decimal | null
@@ -1604,6 +1826,12 @@ export type $ProductCandidateRecordPayload<ExtArgs extends runtime.Types.Extensi
     specs: runtime.JsonValue | null
     priceTiers: runtime.JsonValue | null
     /**
+     * Punteggio di pertinenza calcolato dal motore già esistente.
+     */
+    relevanceScore: number | null
+    matchReasons: string[]
+    matchWarnings: string[]
+    /**
      * Impronta dei dati commerciali: se non cambia, il punteggio non si ricalcola.
      */
     contentHash: string
@@ -1614,6 +1842,10 @@ export type $ProductCandidateRecordPayload<ExtArgs extends runtime.Types.Extensi
      * Campi cambiati all'ultimo aggiornamento.
      */
     changedFields: string[]
+    /**
+     * Dettaglio prodotto già scaricato almeno una volta (M6).
+     */
+    detailsFetchedAt: Date | null
     /**
      * Prodotto non più raggiungibile all'ultimo controllo.
      */
@@ -2012,7 +2244,7 @@ readonly fields: ProductCandidateRecordFieldRefs;
  */
 export interface Prisma__ProductCandidateRecordClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
-  request<T extends Prisma.ProductRequestDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ProductRequestDefaultArgs<ExtArgs>>): Prisma.Prisma__ProductRequestClient<runtime.Types.Result.GetResult<Prisma.$ProductRequestPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+  request<T extends Prisma.ScoutingRequestDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ScoutingRequestDefaultArgs<ExtArgs>>): Prisma.Prisma__ScoutingRequestClient<runtime.Types.Result.GetResult<Prisma.$ScoutingRequestPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   snapshots<T extends Prisma.ProductCandidateRecord$snapshotsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ProductCandidateRecord$snapshotsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ProductSnapshotPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   results<T extends Prisma.ProductCandidateRecord$resultsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ProductCandidateRecord$resultsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ScoutingResultPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
@@ -2051,6 +2283,7 @@ export interface ProductCandidateRecordFieldRefs {
   readonly url: Prisma.FieldRef<"ProductCandidateRecord", 'String'>
   readonly title: Prisma.FieldRef<"ProductCandidateRecord", 'String'>
   readonly imageUrl: Prisma.FieldRef<"ProductCandidateRecord", 'String'>
+  readonly foundQuery: Prisma.FieldRef<"ProductCandidateRecord", 'String'>
   readonly vendorName: Prisma.FieldRef<"ProductCandidateRecord", 'String'>
   readonly vendorUrl: Prisma.FieldRef<"ProductCandidateRecord", 'String'>
   readonly price: Prisma.FieldRef<"ProductCandidateRecord", 'Decimal'>
@@ -2063,11 +2296,15 @@ export interface ProductCandidateRecordFieldRefs {
   readonly variants: Prisma.FieldRef<"ProductCandidateRecord", 'Json'>
   readonly specs: Prisma.FieldRef<"ProductCandidateRecord", 'Json'>
   readonly priceTiers: Prisma.FieldRef<"ProductCandidateRecord", 'Json'>
+  readonly relevanceScore: Prisma.FieldRef<"ProductCandidateRecord", 'Float'>
+  readonly matchReasons: Prisma.FieldRef<"ProductCandidateRecord", 'String[]'>
+  readonly matchWarnings: Prisma.FieldRef<"ProductCandidateRecord", 'String[]'>
   readonly contentHash: Prisma.FieldRef<"ProductCandidateRecord", 'String'>
   readonly firstSeenAt: Prisma.FieldRef<"ProductCandidateRecord", 'DateTime'>
   readonly lastCheckedAt: Prisma.FieldRef<"ProductCandidateRecord", 'DateTime'>
   readonly lastChangedAt: Prisma.FieldRef<"ProductCandidateRecord", 'DateTime'>
   readonly changedFields: Prisma.FieldRef<"ProductCandidateRecord", 'String[]'>
+  readonly detailsFetchedAt: Prisma.FieldRef<"ProductCandidateRecord", 'DateTime'>
   readonly unavailable: Prisma.FieldRef<"ProductCandidateRecord", 'Boolean'>
 }
     

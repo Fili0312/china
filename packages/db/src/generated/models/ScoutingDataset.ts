@@ -261,7 +261,7 @@ export type ScoutingDatasetWhereInput = {
   warnings?: Prisma.StringNullableListFilter<"ScoutingDataset">
   createdAt?: Prisma.DateTimeFilter<"ScoutingDataset"> | Date | string
   rows?: Prisma.ScoutingDatasetRowListRelationFilter
-  runs?: Prisma.ScoutingRunListRelationFilter
+  jobs?: Prisma.ImportJobListRelationFilter
 }
 
 export type ScoutingDatasetOrderByWithRelationInput = {
@@ -277,7 +277,7 @@ export type ScoutingDatasetOrderByWithRelationInput = {
   warnings?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   rows?: Prisma.ScoutingDatasetRowOrderByRelationAggregateInput
-  runs?: Prisma.ScoutingRunOrderByRelationAggregateInput
+  jobs?: Prisma.ImportJobOrderByRelationAggregateInput
 }
 
 export type ScoutingDatasetWhereUniqueInput = Prisma.AtLeast<{
@@ -296,7 +296,7 @@ export type ScoutingDatasetWhereUniqueInput = Prisma.AtLeast<{
   warnings?: Prisma.StringNullableListFilter<"ScoutingDataset">
   createdAt?: Prisma.DateTimeFilter<"ScoutingDataset"> | Date | string
   rows?: Prisma.ScoutingDatasetRowListRelationFilter
-  runs?: Prisma.ScoutingRunListRelationFilter
+  jobs?: Prisma.ImportJobListRelationFilter
 }, "id">
 
 export type ScoutingDatasetOrderByWithAggregationInput = {
@@ -348,7 +348,7 @@ export type ScoutingDatasetCreateInput = {
   warnings?: Prisma.ScoutingDatasetCreatewarningsInput | string[]
   createdAt?: Date | string
   rows?: Prisma.ScoutingDatasetRowCreateNestedManyWithoutDatasetInput
-  runs?: Prisma.ScoutingRunCreateNestedManyWithoutDatasetInput
+  jobs?: Prisma.ImportJobCreateNestedManyWithoutDatasetInput
 }
 
 export type ScoutingDatasetUncheckedCreateInput = {
@@ -364,7 +364,7 @@ export type ScoutingDatasetUncheckedCreateInput = {
   warnings?: Prisma.ScoutingDatasetCreatewarningsInput | string[]
   createdAt?: Date | string
   rows?: Prisma.ScoutingDatasetRowUncheckedCreateNestedManyWithoutDatasetInput
-  runs?: Prisma.ScoutingRunUncheckedCreateNestedManyWithoutDatasetInput
+  jobs?: Prisma.ImportJobUncheckedCreateNestedManyWithoutDatasetInput
 }
 
 export type ScoutingDatasetUpdateInput = {
@@ -380,7 +380,7 @@ export type ScoutingDatasetUpdateInput = {
   warnings?: Prisma.ScoutingDatasetUpdatewarningsInput | string[]
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   rows?: Prisma.ScoutingDatasetRowUpdateManyWithoutDatasetNestedInput
-  runs?: Prisma.ScoutingRunUpdateManyWithoutDatasetNestedInput
+  jobs?: Prisma.ImportJobUpdateManyWithoutDatasetNestedInput
 }
 
 export type ScoutingDatasetUncheckedUpdateInput = {
@@ -396,7 +396,7 @@ export type ScoutingDatasetUncheckedUpdateInput = {
   warnings?: Prisma.ScoutingDatasetUpdatewarningsInput | string[]
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   rows?: Prisma.ScoutingDatasetRowUncheckedUpdateManyWithoutDatasetNestedInput
-  runs?: Prisma.ScoutingRunUncheckedUpdateManyWithoutDatasetNestedInput
+  jobs?: Prisma.ImportJobUncheckedUpdateManyWithoutDatasetNestedInput
 }
 
 export type ScoutingDatasetCreateManyInput = {
@@ -525,18 +525,18 @@ export type ScoutingDatasetUpdateOneRequiredWithoutRowsNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.ScoutingDatasetUpdateToOneWithWhereWithoutRowsInput, Prisma.ScoutingDatasetUpdateWithoutRowsInput>, Prisma.ScoutingDatasetUncheckedUpdateWithoutRowsInput>
 }
 
-export type ScoutingDatasetCreateNestedOneWithoutRunsInput = {
-  create?: Prisma.XOR<Prisma.ScoutingDatasetCreateWithoutRunsInput, Prisma.ScoutingDatasetUncheckedCreateWithoutRunsInput>
-  connectOrCreate?: Prisma.ScoutingDatasetCreateOrConnectWithoutRunsInput
+export type ScoutingDatasetCreateNestedOneWithoutJobsInput = {
+  create?: Prisma.XOR<Prisma.ScoutingDatasetCreateWithoutJobsInput, Prisma.ScoutingDatasetUncheckedCreateWithoutJobsInput>
+  connectOrCreate?: Prisma.ScoutingDatasetCreateOrConnectWithoutJobsInput
   connect?: Prisma.ScoutingDatasetWhereUniqueInput
 }
 
-export type ScoutingDatasetUpdateOneRequiredWithoutRunsNestedInput = {
-  create?: Prisma.XOR<Prisma.ScoutingDatasetCreateWithoutRunsInput, Prisma.ScoutingDatasetUncheckedCreateWithoutRunsInput>
-  connectOrCreate?: Prisma.ScoutingDatasetCreateOrConnectWithoutRunsInput
-  upsert?: Prisma.ScoutingDatasetUpsertWithoutRunsInput
+export type ScoutingDatasetUpdateOneRequiredWithoutJobsNestedInput = {
+  create?: Prisma.XOR<Prisma.ScoutingDatasetCreateWithoutJobsInput, Prisma.ScoutingDatasetUncheckedCreateWithoutJobsInput>
+  connectOrCreate?: Prisma.ScoutingDatasetCreateOrConnectWithoutJobsInput
+  upsert?: Prisma.ScoutingDatasetUpsertWithoutJobsInput
   connect?: Prisma.ScoutingDatasetWhereUniqueInput
-  update?: Prisma.XOR<Prisma.XOR<Prisma.ScoutingDatasetUpdateToOneWithWhereWithoutRunsInput, Prisma.ScoutingDatasetUpdateWithoutRunsInput>, Prisma.ScoutingDatasetUncheckedUpdateWithoutRunsInput>
+  update?: Prisma.XOR<Prisma.XOR<Prisma.ScoutingDatasetUpdateToOneWithWhereWithoutJobsInput, Prisma.ScoutingDatasetUpdateWithoutJobsInput>, Prisma.ScoutingDatasetUncheckedUpdateWithoutJobsInput>
 }
 
 export type ScoutingDatasetCreateWithoutRowsInput = {
@@ -551,7 +551,7 @@ export type ScoutingDatasetCreateWithoutRowsInput = {
   rowCount: number
   warnings?: Prisma.ScoutingDatasetCreatewarningsInput | string[]
   createdAt?: Date | string
-  runs?: Prisma.ScoutingRunCreateNestedManyWithoutDatasetInput
+  jobs?: Prisma.ImportJobCreateNestedManyWithoutDatasetInput
 }
 
 export type ScoutingDatasetUncheckedCreateWithoutRowsInput = {
@@ -566,7 +566,7 @@ export type ScoutingDatasetUncheckedCreateWithoutRowsInput = {
   rowCount: number
   warnings?: Prisma.ScoutingDatasetCreatewarningsInput | string[]
   createdAt?: Date | string
-  runs?: Prisma.ScoutingRunUncheckedCreateNestedManyWithoutDatasetInput
+  jobs?: Prisma.ImportJobUncheckedCreateNestedManyWithoutDatasetInput
 }
 
 export type ScoutingDatasetCreateOrConnectWithoutRowsInput = {
@@ -597,7 +597,7 @@ export type ScoutingDatasetUpdateWithoutRowsInput = {
   rowCount?: Prisma.IntFieldUpdateOperationsInput | number
   warnings?: Prisma.ScoutingDatasetUpdatewarningsInput | string[]
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  runs?: Prisma.ScoutingRunUpdateManyWithoutDatasetNestedInput
+  jobs?: Prisma.ImportJobUpdateManyWithoutDatasetNestedInput
 }
 
 export type ScoutingDatasetUncheckedUpdateWithoutRowsInput = {
@@ -612,10 +612,10 @@ export type ScoutingDatasetUncheckedUpdateWithoutRowsInput = {
   rowCount?: Prisma.IntFieldUpdateOperationsInput | number
   warnings?: Prisma.ScoutingDatasetUpdatewarningsInput | string[]
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  runs?: Prisma.ScoutingRunUncheckedUpdateManyWithoutDatasetNestedInput
+  jobs?: Prisma.ImportJobUncheckedUpdateManyWithoutDatasetNestedInput
 }
 
-export type ScoutingDatasetCreateWithoutRunsInput = {
+export type ScoutingDatasetCreateWithoutJobsInput = {
   id?: string
   fileName: string
   format: string
@@ -630,7 +630,7 @@ export type ScoutingDatasetCreateWithoutRunsInput = {
   rows?: Prisma.ScoutingDatasetRowCreateNestedManyWithoutDatasetInput
 }
 
-export type ScoutingDatasetUncheckedCreateWithoutRunsInput = {
+export type ScoutingDatasetUncheckedCreateWithoutJobsInput = {
   id?: string
   fileName: string
   format: string
@@ -645,23 +645,23 @@ export type ScoutingDatasetUncheckedCreateWithoutRunsInput = {
   rows?: Prisma.ScoutingDatasetRowUncheckedCreateNestedManyWithoutDatasetInput
 }
 
-export type ScoutingDatasetCreateOrConnectWithoutRunsInput = {
+export type ScoutingDatasetCreateOrConnectWithoutJobsInput = {
   where: Prisma.ScoutingDatasetWhereUniqueInput
-  create: Prisma.XOR<Prisma.ScoutingDatasetCreateWithoutRunsInput, Prisma.ScoutingDatasetUncheckedCreateWithoutRunsInput>
+  create: Prisma.XOR<Prisma.ScoutingDatasetCreateWithoutJobsInput, Prisma.ScoutingDatasetUncheckedCreateWithoutJobsInput>
 }
 
-export type ScoutingDatasetUpsertWithoutRunsInput = {
-  update: Prisma.XOR<Prisma.ScoutingDatasetUpdateWithoutRunsInput, Prisma.ScoutingDatasetUncheckedUpdateWithoutRunsInput>
-  create: Prisma.XOR<Prisma.ScoutingDatasetCreateWithoutRunsInput, Prisma.ScoutingDatasetUncheckedCreateWithoutRunsInput>
+export type ScoutingDatasetUpsertWithoutJobsInput = {
+  update: Prisma.XOR<Prisma.ScoutingDatasetUpdateWithoutJobsInput, Prisma.ScoutingDatasetUncheckedUpdateWithoutJobsInput>
+  create: Prisma.XOR<Prisma.ScoutingDatasetCreateWithoutJobsInput, Prisma.ScoutingDatasetUncheckedCreateWithoutJobsInput>
   where?: Prisma.ScoutingDatasetWhereInput
 }
 
-export type ScoutingDatasetUpdateToOneWithWhereWithoutRunsInput = {
+export type ScoutingDatasetUpdateToOneWithWhereWithoutJobsInput = {
   where?: Prisma.ScoutingDatasetWhereInput
-  data: Prisma.XOR<Prisma.ScoutingDatasetUpdateWithoutRunsInput, Prisma.ScoutingDatasetUncheckedUpdateWithoutRunsInput>
+  data: Prisma.XOR<Prisma.ScoutingDatasetUpdateWithoutJobsInput, Prisma.ScoutingDatasetUncheckedUpdateWithoutJobsInput>
 }
 
-export type ScoutingDatasetUpdateWithoutRunsInput = {
+export type ScoutingDatasetUpdateWithoutJobsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   fileName?: Prisma.StringFieldUpdateOperationsInput | string
   format?: Prisma.StringFieldUpdateOperationsInput | string
@@ -676,7 +676,7 @@ export type ScoutingDatasetUpdateWithoutRunsInput = {
   rows?: Prisma.ScoutingDatasetRowUpdateManyWithoutDatasetNestedInput
 }
 
-export type ScoutingDatasetUncheckedUpdateWithoutRunsInput = {
+export type ScoutingDatasetUncheckedUpdateWithoutJobsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   fileName?: Prisma.StringFieldUpdateOperationsInput | string
   format?: Prisma.StringFieldUpdateOperationsInput | string
@@ -698,12 +698,12 @@ export type ScoutingDatasetUncheckedUpdateWithoutRunsInput = {
 
 export type ScoutingDatasetCountOutputType = {
   rows: number
-  runs: number
+  jobs: number
 }
 
 export type ScoutingDatasetCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   rows?: boolean | ScoutingDatasetCountOutputTypeCountRowsArgs
-  runs?: boolean | ScoutingDatasetCountOutputTypeCountRunsArgs
+  jobs?: boolean | ScoutingDatasetCountOutputTypeCountJobsArgs
 }
 
 /**
@@ -726,8 +726,8 @@ export type ScoutingDatasetCountOutputTypeCountRowsArgs<ExtArgs extends runtime.
 /**
  * ScoutingDatasetCountOutputType without action
  */
-export type ScoutingDatasetCountOutputTypeCountRunsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  where?: Prisma.ScoutingRunWhereInput
+export type ScoutingDatasetCountOutputTypeCountJobsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.ImportJobWhereInput
 }
 
 
@@ -744,7 +744,7 @@ export type ScoutingDatasetSelect<ExtArgs extends runtime.Types.Extensions.Inter
   warnings?: boolean
   createdAt?: boolean
   rows?: boolean | Prisma.ScoutingDataset$rowsArgs<ExtArgs>
-  runs?: boolean | Prisma.ScoutingDataset$runsArgs<ExtArgs>
+  jobs?: boolean | Prisma.ScoutingDataset$jobsArgs<ExtArgs>
   _count?: boolean | Prisma.ScoutingDatasetCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["scoutingDataset"]>
 
@@ -793,7 +793,7 @@ export type ScoutingDatasetSelectScalar = {
 export type ScoutingDatasetOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "fileName" | "format" | "sheetName" | "sizeBytes" | "headerRowNumber" | "columns" | "mapping" | "rowCount" | "warnings" | "createdAt", ExtArgs["result"]["scoutingDataset"]>
 export type ScoutingDatasetInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   rows?: boolean | Prisma.ScoutingDataset$rowsArgs<ExtArgs>
-  runs?: boolean | Prisma.ScoutingDataset$runsArgs<ExtArgs>
+  jobs?: boolean | Prisma.ScoutingDataset$jobsArgs<ExtArgs>
   _count?: boolean | Prisma.ScoutingDatasetCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type ScoutingDatasetIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {}
@@ -803,7 +803,7 @@ export type $ScoutingDatasetPayload<ExtArgs extends runtime.Types.Extensions.Int
   name: "ScoutingDataset"
   objects: {
     rows: Prisma.$ScoutingDatasetRowPayload<ExtArgs>[]
-    runs: Prisma.$ScoutingRunPayload<ExtArgs>[]
+    jobs: Prisma.$ImportJobPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -1221,7 +1221,7 @@ readonly fields: ScoutingDatasetFieldRefs;
 export interface Prisma__ScoutingDatasetClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
   rows<T extends Prisma.ScoutingDataset$rowsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ScoutingDataset$rowsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ScoutingDatasetRowPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
-  runs<T extends Prisma.ScoutingDataset$runsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ScoutingDataset$runsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ScoutingRunPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  jobs<T extends Prisma.ScoutingDataset$jobsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ScoutingDataset$jobsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ImportJobPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1679,27 +1679,27 @@ export type ScoutingDataset$rowsArgs<ExtArgs extends runtime.Types.Extensions.In
 }
 
 /**
- * ScoutingDataset.runs
+ * ScoutingDataset.jobs
  */
-export type ScoutingDataset$runsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+export type ScoutingDataset$jobsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   /**
-   * Select specific fields to fetch from the ScoutingRun
+   * Select specific fields to fetch from the ImportJob
    */
-  select?: Prisma.ScoutingRunSelect<ExtArgs> | null
+  select?: Prisma.ImportJobSelect<ExtArgs> | null
   /**
-   * Omit specific fields from the ScoutingRun
+   * Omit specific fields from the ImportJob
    */
-  omit?: Prisma.ScoutingRunOmit<ExtArgs> | null
+  omit?: Prisma.ImportJobOmit<ExtArgs> | null
   /**
    * Choose, which related nodes to fetch as well
    */
-  include?: Prisma.ScoutingRunInclude<ExtArgs> | null
-  where?: Prisma.ScoutingRunWhereInput
-  orderBy?: Prisma.ScoutingRunOrderByWithRelationInput | Prisma.ScoutingRunOrderByWithRelationInput[]
-  cursor?: Prisma.ScoutingRunWhereUniqueInput
+  include?: Prisma.ImportJobInclude<ExtArgs> | null
+  where?: Prisma.ImportJobWhereInput
+  orderBy?: Prisma.ImportJobOrderByWithRelationInput | Prisma.ImportJobOrderByWithRelationInput[]
+  cursor?: Prisma.ImportJobWhereUniqueInput
   take?: number
   skip?: number
-  distinct?: Prisma.ScoutingRunScalarFieldEnum | Prisma.ScoutingRunScalarFieldEnum[]
+  distinct?: Prisma.ImportJobScalarFieldEnum | Prisma.ImportJobScalarFieldEnum[]
 }
 
 /**

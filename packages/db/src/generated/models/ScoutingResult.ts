@@ -38,7 +38,7 @@ export type ScoutingResultSumAggregateOutputType = {
 
 export type ScoutingResultMinAggregateOutputType = {
   id: string | null
-  rowRunId: string | null
+  jobRowId: string | null
   candidateId: string | null
   outcome: $Enums.ScoutingOutcome | null
   rank: number | null
@@ -52,7 +52,7 @@ export type ScoutingResultMinAggregateOutputType = {
 
 export type ScoutingResultMaxAggregateOutputType = {
   id: string | null
-  rowRunId: string | null
+  jobRowId: string | null
   candidateId: string | null
   outcome: $Enums.ScoutingOutcome | null
   rank: number | null
@@ -66,7 +66,7 @@ export type ScoutingResultMaxAggregateOutputType = {
 
 export type ScoutingResultCountAggregateOutputType = {
   id: number
-  rowRunId: number
+  jobRowId: number
   candidateId: number
   outcome: number
   rank: number
@@ -93,7 +93,7 @@ export type ScoutingResultSumAggregateInputType = {
 
 export type ScoutingResultMinAggregateInputType = {
   id?: true
-  rowRunId?: true
+  jobRowId?: true
   candidateId?: true
   outcome?: true
   rank?: true
@@ -107,7 +107,7 @@ export type ScoutingResultMinAggregateInputType = {
 
 export type ScoutingResultMaxAggregateInputType = {
   id?: true
-  rowRunId?: true
+  jobRowId?: true
   candidateId?: true
   outcome?: true
   rank?: true
@@ -121,7 +121,7 @@ export type ScoutingResultMaxAggregateInputType = {
 
 export type ScoutingResultCountAggregateInputType = {
   id?: true
-  rowRunId?: true
+  jobRowId?: true
   candidateId?: true
   outcome?: true
   rank?: true
@@ -223,7 +223,7 @@ export type ScoutingResultGroupByArgs<ExtArgs extends runtime.Types.Extensions.I
 
 export type ScoutingResultGroupByOutputType = {
   id: string
-  rowRunId: string
+  jobRowId: string
   candidateId: string
   outcome: $Enums.ScoutingOutcome
   rank: number | null
@@ -261,7 +261,7 @@ export type ScoutingResultWhereInput = {
   OR?: Prisma.ScoutingResultWhereInput[]
   NOT?: Prisma.ScoutingResultWhereInput | Prisma.ScoutingResultWhereInput[]
   id?: Prisma.StringFilter<"ScoutingResult"> | string
-  rowRunId?: Prisma.StringFilter<"ScoutingResult"> | string
+  jobRowId?: Prisma.StringFilter<"ScoutingResult"> | string
   candidateId?: Prisma.StringFilter<"ScoutingResult"> | string
   outcome?: Prisma.EnumScoutingOutcomeFilter<"ScoutingResult"> | $Enums.ScoutingOutcome
   rank?: Prisma.IntNullableFilter<"ScoutingResult"> | number | null
@@ -272,13 +272,13 @@ export type ScoutingResultWhereInput = {
   aiRationale?: Prisma.StringNullableFilter<"ScoutingResult"> | string | null
   scoreReused?: Prisma.BoolFilter<"ScoutingResult"> | boolean
   createdAt?: Prisma.DateTimeFilter<"ScoutingResult"> | Date | string
-  rowRun?: Prisma.XOR<Prisma.ScoutingRowRunScalarRelationFilter, Prisma.ScoutingRowRunWhereInput>
+  jobRow?: Prisma.XOR<Prisma.ImportJobRowScalarRelationFilter, Prisma.ImportJobRowWhereInput>
   candidate?: Prisma.XOR<Prisma.ProductCandidateRecordScalarRelationFilter, Prisma.ProductCandidateRecordWhereInput>
 }
 
 export type ScoutingResultOrderByWithRelationInput = {
   id?: Prisma.SortOrder
-  rowRunId?: Prisma.SortOrder
+  jobRowId?: Prisma.SortOrder
   candidateId?: Prisma.SortOrder
   outcome?: Prisma.SortOrder
   rank?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -289,17 +289,17 @@ export type ScoutingResultOrderByWithRelationInput = {
   aiRationale?: Prisma.SortOrderInput | Prisma.SortOrder
   scoreReused?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
-  rowRun?: Prisma.ScoutingRowRunOrderByWithRelationInput
+  jobRow?: Prisma.ImportJobRowOrderByWithRelationInput
   candidate?: Prisma.ProductCandidateRecordOrderByWithRelationInput
 }
 
 export type ScoutingResultWhereUniqueInput = Prisma.AtLeast<{
   id?: string
-  rowRunId_candidateId?: Prisma.ScoutingResultRowRunIdCandidateIdCompoundUniqueInput
+  jobRowId_candidateId?: Prisma.ScoutingResultJobRowIdCandidateIdCompoundUniqueInput
   AND?: Prisma.ScoutingResultWhereInput | Prisma.ScoutingResultWhereInput[]
   OR?: Prisma.ScoutingResultWhereInput[]
   NOT?: Prisma.ScoutingResultWhereInput | Prisma.ScoutingResultWhereInput[]
-  rowRunId?: Prisma.StringFilter<"ScoutingResult"> | string
+  jobRowId?: Prisma.StringFilter<"ScoutingResult"> | string
   candidateId?: Prisma.StringFilter<"ScoutingResult"> | string
   outcome?: Prisma.EnumScoutingOutcomeFilter<"ScoutingResult"> | $Enums.ScoutingOutcome
   rank?: Prisma.IntNullableFilter<"ScoutingResult"> | number | null
@@ -310,13 +310,13 @@ export type ScoutingResultWhereUniqueInput = Prisma.AtLeast<{
   aiRationale?: Prisma.StringNullableFilter<"ScoutingResult"> | string | null
   scoreReused?: Prisma.BoolFilter<"ScoutingResult"> | boolean
   createdAt?: Prisma.DateTimeFilter<"ScoutingResult"> | Date | string
-  rowRun?: Prisma.XOR<Prisma.ScoutingRowRunScalarRelationFilter, Prisma.ScoutingRowRunWhereInput>
+  jobRow?: Prisma.XOR<Prisma.ImportJobRowScalarRelationFilter, Prisma.ImportJobRowWhereInput>
   candidate?: Prisma.XOR<Prisma.ProductCandidateRecordScalarRelationFilter, Prisma.ProductCandidateRecordWhereInput>
-}, "id" | "rowRunId_candidateId">
+}, "id" | "jobRowId_candidateId">
 
 export type ScoutingResultOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
-  rowRunId?: Prisma.SortOrder
+  jobRowId?: Prisma.SortOrder
   candidateId?: Prisma.SortOrder
   outcome?: Prisma.SortOrder
   rank?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -339,7 +339,7 @@ export type ScoutingResultScalarWhereWithAggregatesInput = {
   OR?: Prisma.ScoutingResultScalarWhereWithAggregatesInput[]
   NOT?: Prisma.ScoutingResultScalarWhereWithAggregatesInput | Prisma.ScoutingResultScalarWhereWithAggregatesInput[]
   id?: Prisma.StringWithAggregatesFilter<"ScoutingResult"> | string
-  rowRunId?: Prisma.StringWithAggregatesFilter<"ScoutingResult"> | string
+  jobRowId?: Prisma.StringWithAggregatesFilter<"ScoutingResult"> | string
   candidateId?: Prisma.StringWithAggregatesFilter<"ScoutingResult"> | string
   outcome?: Prisma.EnumScoutingOutcomeWithAggregatesFilter<"ScoutingResult"> | $Enums.ScoutingOutcome
   rank?: Prisma.IntNullableWithAggregatesFilter<"ScoutingResult"> | number | null
@@ -363,13 +363,13 @@ export type ScoutingResultCreateInput = {
   aiRationale?: string | null
   scoreReused?: boolean
   createdAt?: Date | string
-  rowRun: Prisma.ScoutingRowRunCreateNestedOneWithoutResultsInput
+  jobRow: Prisma.ImportJobRowCreateNestedOneWithoutResultsInput
   candidate: Prisma.ProductCandidateRecordCreateNestedOneWithoutResultsInput
 }
 
 export type ScoutingResultUncheckedCreateInput = {
   id?: string
-  rowRunId: string
+  jobRowId: string
   candidateId: string
   outcome: $Enums.ScoutingOutcome
   rank?: number | null
@@ -393,13 +393,13 @@ export type ScoutingResultUpdateInput = {
   aiRationale?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   scoreReused?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  rowRun?: Prisma.ScoutingRowRunUpdateOneRequiredWithoutResultsNestedInput
+  jobRow?: Prisma.ImportJobRowUpdateOneRequiredWithoutResultsNestedInput
   candidate?: Prisma.ProductCandidateRecordUpdateOneRequiredWithoutResultsNestedInput
 }
 
 export type ScoutingResultUncheckedUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  rowRunId?: Prisma.StringFieldUpdateOperationsInput | string
+  jobRowId?: Prisma.StringFieldUpdateOperationsInput | string
   candidateId?: Prisma.StringFieldUpdateOperationsInput | string
   outcome?: Prisma.EnumScoutingOutcomeFieldUpdateOperationsInput | $Enums.ScoutingOutcome
   rank?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -414,7 +414,7 @@ export type ScoutingResultUncheckedUpdateInput = {
 
 export type ScoutingResultCreateManyInput = {
   id?: string
-  rowRunId: string
+  jobRowId: string
   candidateId: string
   outcome: $Enums.ScoutingOutcome
   rank?: number | null
@@ -442,7 +442,7 @@ export type ScoutingResultUpdateManyMutationInput = {
 
 export type ScoutingResultUncheckedUpdateManyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  rowRunId?: Prisma.StringFieldUpdateOperationsInput | string
+  jobRowId?: Prisma.StringFieldUpdateOperationsInput | string
   candidateId?: Prisma.StringFieldUpdateOperationsInput | string
   outcome?: Prisma.EnumScoutingOutcomeFieldUpdateOperationsInput | $Enums.ScoutingOutcome
   rank?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -465,14 +465,14 @@ export type ScoutingResultOrderByRelationAggregateInput = {
   _count?: Prisma.SortOrder
 }
 
-export type ScoutingResultRowRunIdCandidateIdCompoundUniqueInput = {
-  rowRunId: string
+export type ScoutingResultJobRowIdCandidateIdCompoundUniqueInput = {
+  jobRowId: string
   candidateId: string
 }
 
 export type ScoutingResultCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
-  rowRunId?: Prisma.SortOrder
+  jobRowId?: Prisma.SortOrder
   candidateId?: Prisma.SortOrder
   outcome?: Prisma.SortOrder
   rank?: Prisma.SortOrder
@@ -492,7 +492,7 @@ export type ScoutingResultAvgOrderByAggregateInput = {
 
 export type ScoutingResultMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
-  rowRunId?: Prisma.SortOrder
+  jobRowId?: Prisma.SortOrder
   candidateId?: Prisma.SortOrder
   outcome?: Prisma.SortOrder
   rank?: Prisma.SortOrder
@@ -506,7 +506,7 @@ export type ScoutingResultMaxOrderByAggregateInput = {
 
 export type ScoutingResultMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
-  rowRunId?: Prisma.SortOrder
+  jobRowId?: Prisma.SortOrder
   candidateId?: Prisma.SortOrder
   outcome?: Prisma.SortOrder
   rank?: Prisma.SortOrder
@@ -523,45 +523,45 @@ export type ScoutingResultSumOrderByAggregateInput = {
   score?: Prisma.SortOrder
 }
 
-export type ScoutingResultCreateNestedManyWithoutRowRunInput = {
-  create?: Prisma.XOR<Prisma.ScoutingResultCreateWithoutRowRunInput, Prisma.ScoutingResultUncheckedCreateWithoutRowRunInput> | Prisma.ScoutingResultCreateWithoutRowRunInput[] | Prisma.ScoutingResultUncheckedCreateWithoutRowRunInput[]
-  connectOrCreate?: Prisma.ScoutingResultCreateOrConnectWithoutRowRunInput | Prisma.ScoutingResultCreateOrConnectWithoutRowRunInput[]
-  createMany?: Prisma.ScoutingResultCreateManyRowRunInputEnvelope
+export type ScoutingResultCreateNestedManyWithoutJobRowInput = {
+  create?: Prisma.XOR<Prisma.ScoutingResultCreateWithoutJobRowInput, Prisma.ScoutingResultUncheckedCreateWithoutJobRowInput> | Prisma.ScoutingResultCreateWithoutJobRowInput[] | Prisma.ScoutingResultUncheckedCreateWithoutJobRowInput[]
+  connectOrCreate?: Prisma.ScoutingResultCreateOrConnectWithoutJobRowInput | Prisma.ScoutingResultCreateOrConnectWithoutJobRowInput[]
+  createMany?: Prisma.ScoutingResultCreateManyJobRowInputEnvelope
   connect?: Prisma.ScoutingResultWhereUniqueInput | Prisma.ScoutingResultWhereUniqueInput[]
 }
 
-export type ScoutingResultUncheckedCreateNestedManyWithoutRowRunInput = {
-  create?: Prisma.XOR<Prisma.ScoutingResultCreateWithoutRowRunInput, Prisma.ScoutingResultUncheckedCreateWithoutRowRunInput> | Prisma.ScoutingResultCreateWithoutRowRunInput[] | Prisma.ScoutingResultUncheckedCreateWithoutRowRunInput[]
-  connectOrCreate?: Prisma.ScoutingResultCreateOrConnectWithoutRowRunInput | Prisma.ScoutingResultCreateOrConnectWithoutRowRunInput[]
-  createMany?: Prisma.ScoutingResultCreateManyRowRunInputEnvelope
+export type ScoutingResultUncheckedCreateNestedManyWithoutJobRowInput = {
+  create?: Prisma.XOR<Prisma.ScoutingResultCreateWithoutJobRowInput, Prisma.ScoutingResultUncheckedCreateWithoutJobRowInput> | Prisma.ScoutingResultCreateWithoutJobRowInput[] | Prisma.ScoutingResultUncheckedCreateWithoutJobRowInput[]
+  connectOrCreate?: Prisma.ScoutingResultCreateOrConnectWithoutJobRowInput | Prisma.ScoutingResultCreateOrConnectWithoutJobRowInput[]
+  createMany?: Prisma.ScoutingResultCreateManyJobRowInputEnvelope
   connect?: Prisma.ScoutingResultWhereUniqueInput | Prisma.ScoutingResultWhereUniqueInput[]
 }
 
-export type ScoutingResultUpdateManyWithoutRowRunNestedInput = {
-  create?: Prisma.XOR<Prisma.ScoutingResultCreateWithoutRowRunInput, Prisma.ScoutingResultUncheckedCreateWithoutRowRunInput> | Prisma.ScoutingResultCreateWithoutRowRunInput[] | Prisma.ScoutingResultUncheckedCreateWithoutRowRunInput[]
-  connectOrCreate?: Prisma.ScoutingResultCreateOrConnectWithoutRowRunInput | Prisma.ScoutingResultCreateOrConnectWithoutRowRunInput[]
-  upsert?: Prisma.ScoutingResultUpsertWithWhereUniqueWithoutRowRunInput | Prisma.ScoutingResultUpsertWithWhereUniqueWithoutRowRunInput[]
-  createMany?: Prisma.ScoutingResultCreateManyRowRunInputEnvelope
+export type ScoutingResultUpdateManyWithoutJobRowNestedInput = {
+  create?: Prisma.XOR<Prisma.ScoutingResultCreateWithoutJobRowInput, Prisma.ScoutingResultUncheckedCreateWithoutJobRowInput> | Prisma.ScoutingResultCreateWithoutJobRowInput[] | Prisma.ScoutingResultUncheckedCreateWithoutJobRowInput[]
+  connectOrCreate?: Prisma.ScoutingResultCreateOrConnectWithoutJobRowInput | Prisma.ScoutingResultCreateOrConnectWithoutJobRowInput[]
+  upsert?: Prisma.ScoutingResultUpsertWithWhereUniqueWithoutJobRowInput | Prisma.ScoutingResultUpsertWithWhereUniqueWithoutJobRowInput[]
+  createMany?: Prisma.ScoutingResultCreateManyJobRowInputEnvelope
   set?: Prisma.ScoutingResultWhereUniqueInput | Prisma.ScoutingResultWhereUniqueInput[]
   disconnect?: Prisma.ScoutingResultWhereUniqueInput | Prisma.ScoutingResultWhereUniqueInput[]
   delete?: Prisma.ScoutingResultWhereUniqueInput | Prisma.ScoutingResultWhereUniqueInput[]
   connect?: Prisma.ScoutingResultWhereUniqueInput | Prisma.ScoutingResultWhereUniqueInput[]
-  update?: Prisma.ScoutingResultUpdateWithWhereUniqueWithoutRowRunInput | Prisma.ScoutingResultUpdateWithWhereUniqueWithoutRowRunInput[]
-  updateMany?: Prisma.ScoutingResultUpdateManyWithWhereWithoutRowRunInput | Prisma.ScoutingResultUpdateManyWithWhereWithoutRowRunInput[]
+  update?: Prisma.ScoutingResultUpdateWithWhereUniqueWithoutJobRowInput | Prisma.ScoutingResultUpdateWithWhereUniqueWithoutJobRowInput[]
+  updateMany?: Prisma.ScoutingResultUpdateManyWithWhereWithoutJobRowInput | Prisma.ScoutingResultUpdateManyWithWhereWithoutJobRowInput[]
   deleteMany?: Prisma.ScoutingResultScalarWhereInput | Prisma.ScoutingResultScalarWhereInput[]
 }
 
-export type ScoutingResultUncheckedUpdateManyWithoutRowRunNestedInput = {
-  create?: Prisma.XOR<Prisma.ScoutingResultCreateWithoutRowRunInput, Prisma.ScoutingResultUncheckedCreateWithoutRowRunInput> | Prisma.ScoutingResultCreateWithoutRowRunInput[] | Prisma.ScoutingResultUncheckedCreateWithoutRowRunInput[]
-  connectOrCreate?: Prisma.ScoutingResultCreateOrConnectWithoutRowRunInput | Prisma.ScoutingResultCreateOrConnectWithoutRowRunInput[]
-  upsert?: Prisma.ScoutingResultUpsertWithWhereUniqueWithoutRowRunInput | Prisma.ScoutingResultUpsertWithWhereUniqueWithoutRowRunInput[]
-  createMany?: Prisma.ScoutingResultCreateManyRowRunInputEnvelope
+export type ScoutingResultUncheckedUpdateManyWithoutJobRowNestedInput = {
+  create?: Prisma.XOR<Prisma.ScoutingResultCreateWithoutJobRowInput, Prisma.ScoutingResultUncheckedCreateWithoutJobRowInput> | Prisma.ScoutingResultCreateWithoutJobRowInput[] | Prisma.ScoutingResultUncheckedCreateWithoutJobRowInput[]
+  connectOrCreate?: Prisma.ScoutingResultCreateOrConnectWithoutJobRowInput | Prisma.ScoutingResultCreateOrConnectWithoutJobRowInput[]
+  upsert?: Prisma.ScoutingResultUpsertWithWhereUniqueWithoutJobRowInput | Prisma.ScoutingResultUpsertWithWhereUniqueWithoutJobRowInput[]
+  createMany?: Prisma.ScoutingResultCreateManyJobRowInputEnvelope
   set?: Prisma.ScoutingResultWhereUniqueInput | Prisma.ScoutingResultWhereUniqueInput[]
   disconnect?: Prisma.ScoutingResultWhereUniqueInput | Prisma.ScoutingResultWhereUniqueInput[]
   delete?: Prisma.ScoutingResultWhereUniqueInput | Prisma.ScoutingResultWhereUniqueInput[]
   connect?: Prisma.ScoutingResultWhereUniqueInput | Prisma.ScoutingResultWhereUniqueInput[]
-  update?: Prisma.ScoutingResultUpdateWithWhereUniqueWithoutRowRunInput | Prisma.ScoutingResultUpdateWithWhereUniqueWithoutRowRunInput[]
-  updateMany?: Prisma.ScoutingResultUpdateManyWithWhereWithoutRowRunInput | Prisma.ScoutingResultUpdateManyWithWhereWithoutRowRunInput[]
+  update?: Prisma.ScoutingResultUpdateWithWhereUniqueWithoutJobRowInput | Prisma.ScoutingResultUpdateWithWhereUniqueWithoutJobRowInput[]
+  updateMany?: Prisma.ScoutingResultUpdateManyWithWhereWithoutJobRowInput | Prisma.ScoutingResultUpdateManyWithWhereWithoutJobRowInput[]
   deleteMany?: Prisma.ScoutingResultScalarWhereInput | Prisma.ScoutingResultScalarWhereInput[]
 }
 
@@ -611,7 +611,7 @@ export type EnumScoutingOutcomeFieldUpdateOperationsInput = {
   set?: $Enums.ScoutingOutcome
 }
 
-export type ScoutingResultCreateWithoutRowRunInput = {
+export type ScoutingResultCreateWithoutJobRowInput = {
   id?: string
   outcome: $Enums.ScoutingOutcome
   rank?: number | null
@@ -625,7 +625,7 @@ export type ScoutingResultCreateWithoutRowRunInput = {
   candidate: Prisma.ProductCandidateRecordCreateNestedOneWithoutResultsInput
 }
 
-export type ScoutingResultUncheckedCreateWithoutRowRunInput = {
+export type ScoutingResultUncheckedCreateWithoutJobRowInput = {
   id?: string
   candidateId: string
   outcome: $Enums.ScoutingOutcome
@@ -639,30 +639,30 @@ export type ScoutingResultUncheckedCreateWithoutRowRunInput = {
   createdAt?: Date | string
 }
 
-export type ScoutingResultCreateOrConnectWithoutRowRunInput = {
+export type ScoutingResultCreateOrConnectWithoutJobRowInput = {
   where: Prisma.ScoutingResultWhereUniqueInput
-  create: Prisma.XOR<Prisma.ScoutingResultCreateWithoutRowRunInput, Prisma.ScoutingResultUncheckedCreateWithoutRowRunInput>
+  create: Prisma.XOR<Prisma.ScoutingResultCreateWithoutJobRowInput, Prisma.ScoutingResultUncheckedCreateWithoutJobRowInput>
 }
 
-export type ScoutingResultCreateManyRowRunInputEnvelope = {
-  data: Prisma.ScoutingResultCreateManyRowRunInput | Prisma.ScoutingResultCreateManyRowRunInput[]
+export type ScoutingResultCreateManyJobRowInputEnvelope = {
+  data: Prisma.ScoutingResultCreateManyJobRowInput | Prisma.ScoutingResultCreateManyJobRowInput[]
   skipDuplicates?: boolean
 }
 
-export type ScoutingResultUpsertWithWhereUniqueWithoutRowRunInput = {
+export type ScoutingResultUpsertWithWhereUniqueWithoutJobRowInput = {
   where: Prisma.ScoutingResultWhereUniqueInput
-  update: Prisma.XOR<Prisma.ScoutingResultUpdateWithoutRowRunInput, Prisma.ScoutingResultUncheckedUpdateWithoutRowRunInput>
-  create: Prisma.XOR<Prisma.ScoutingResultCreateWithoutRowRunInput, Prisma.ScoutingResultUncheckedCreateWithoutRowRunInput>
+  update: Prisma.XOR<Prisma.ScoutingResultUpdateWithoutJobRowInput, Prisma.ScoutingResultUncheckedUpdateWithoutJobRowInput>
+  create: Prisma.XOR<Prisma.ScoutingResultCreateWithoutJobRowInput, Prisma.ScoutingResultUncheckedCreateWithoutJobRowInput>
 }
 
-export type ScoutingResultUpdateWithWhereUniqueWithoutRowRunInput = {
+export type ScoutingResultUpdateWithWhereUniqueWithoutJobRowInput = {
   where: Prisma.ScoutingResultWhereUniqueInput
-  data: Prisma.XOR<Prisma.ScoutingResultUpdateWithoutRowRunInput, Prisma.ScoutingResultUncheckedUpdateWithoutRowRunInput>
+  data: Prisma.XOR<Prisma.ScoutingResultUpdateWithoutJobRowInput, Prisma.ScoutingResultUncheckedUpdateWithoutJobRowInput>
 }
 
-export type ScoutingResultUpdateManyWithWhereWithoutRowRunInput = {
+export type ScoutingResultUpdateManyWithWhereWithoutJobRowInput = {
   where: Prisma.ScoutingResultScalarWhereInput
-  data: Prisma.XOR<Prisma.ScoutingResultUpdateManyMutationInput, Prisma.ScoutingResultUncheckedUpdateManyWithoutRowRunInput>
+  data: Prisma.XOR<Prisma.ScoutingResultUpdateManyMutationInput, Prisma.ScoutingResultUncheckedUpdateManyWithoutJobRowInput>
 }
 
 export type ScoutingResultScalarWhereInput = {
@@ -670,7 +670,7 @@ export type ScoutingResultScalarWhereInput = {
   OR?: Prisma.ScoutingResultScalarWhereInput[]
   NOT?: Prisma.ScoutingResultScalarWhereInput | Prisma.ScoutingResultScalarWhereInput[]
   id?: Prisma.StringFilter<"ScoutingResult"> | string
-  rowRunId?: Prisma.StringFilter<"ScoutingResult"> | string
+  jobRowId?: Prisma.StringFilter<"ScoutingResult"> | string
   candidateId?: Prisma.StringFilter<"ScoutingResult"> | string
   outcome?: Prisma.EnumScoutingOutcomeFilter<"ScoutingResult"> | $Enums.ScoutingOutcome
   rank?: Prisma.IntNullableFilter<"ScoutingResult"> | number | null
@@ -694,12 +694,12 @@ export type ScoutingResultCreateWithoutCandidateInput = {
   aiRationale?: string | null
   scoreReused?: boolean
   createdAt?: Date | string
-  rowRun: Prisma.ScoutingRowRunCreateNestedOneWithoutResultsInput
+  jobRow: Prisma.ImportJobRowCreateNestedOneWithoutResultsInput
 }
 
 export type ScoutingResultUncheckedCreateWithoutCandidateInput = {
   id?: string
-  rowRunId: string
+  jobRowId: string
   outcome: $Enums.ScoutingOutcome
   rank?: number | null
   score?: number | null
@@ -737,7 +737,7 @@ export type ScoutingResultUpdateManyWithWhereWithoutCandidateInput = {
   data: Prisma.XOR<Prisma.ScoutingResultUpdateManyMutationInput, Prisma.ScoutingResultUncheckedUpdateManyWithoutCandidateInput>
 }
 
-export type ScoutingResultCreateManyRowRunInput = {
+export type ScoutingResultCreateManyJobRowInput = {
   id?: string
   candidateId: string
   outcome: $Enums.ScoutingOutcome
@@ -751,7 +751,7 @@ export type ScoutingResultCreateManyRowRunInput = {
   createdAt?: Date | string
 }
 
-export type ScoutingResultUpdateWithoutRowRunInput = {
+export type ScoutingResultUpdateWithoutJobRowInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   outcome?: Prisma.EnumScoutingOutcomeFieldUpdateOperationsInput | $Enums.ScoutingOutcome
   rank?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -765,7 +765,7 @@ export type ScoutingResultUpdateWithoutRowRunInput = {
   candidate?: Prisma.ProductCandidateRecordUpdateOneRequiredWithoutResultsNestedInput
 }
 
-export type ScoutingResultUncheckedUpdateWithoutRowRunInput = {
+export type ScoutingResultUncheckedUpdateWithoutJobRowInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   candidateId?: Prisma.StringFieldUpdateOperationsInput | string
   outcome?: Prisma.EnumScoutingOutcomeFieldUpdateOperationsInput | $Enums.ScoutingOutcome
@@ -779,7 +779,7 @@ export type ScoutingResultUncheckedUpdateWithoutRowRunInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
-export type ScoutingResultUncheckedUpdateManyWithoutRowRunInput = {
+export type ScoutingResultUncheckedUpdateManyWithoutJobRowInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   candidateId?: Prisma.StringFieldUpdateOperationsInput | string
   outcome?: Prisma.EnumScoutingOutcomeFieldUpdateOperationsInput | $Enums.ScoutingOutcome
@@ -795,7 +795,7 @@ export type ScoutingResultUncheckedUpdateManyWithoutRowRunInput = {
 
 export type ScoutingResultCreateManyCandidateInput = {
   id?: string
-  rowRunId: string
+  jobRowId: string
   outcome: $Enums.ScoutingOutcome
   rank?: number | null
   score?: number | null
@@ -818,12 +818,12 @@ export type ScoutingResultUpdateWithoutCandidateInput = {
   aiRationale?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   scoreReused?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  rowRun?: Prisma.ScoutingRowRunUpdateOneRequiredWithoutResultsNestedInput
+  jobRow?: Prisma.ImportJobRowUpdateOneRequiredWithoutResultsNestedInput
 }
 
 export type ScoutingResultUncheckedUpdateWithoutCandidateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  rowRunId?: Prisma.StringFieldUpdateOperationsInput | string
+  jobRowId?: Prisma.StringFieldUpdateOperationsInput | string
   outcome?: Prisma.EnumScoutingOutcomeFieldUpdateOperationsInput | $Enums.ScoutingOutcome
   rank?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   score?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
@@ -837,7 +837,7 @@ export type ScoutingResultUncheckedUpdateWithoutCandidateInput = {
 
 export type ScoutingResultUncheckedUpdateManyWithoutCandidateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  rowRunId?: Prisma.StringFieldUpdateOperationsInput | string
+  jobRowId?: Prisma.StringFieldUpdateOperationsInput | string
   outcome?: Prisma.EnumScoutingOutcomeFieldUpdateOperationsInput | $Enums.ScoutingOutcome
   rank?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   score?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
@@ -853,7 +853,7 @@ export type ScoutingResultUncheckedUpdateManyWithoutCandidateInput = {
 
 export type ScoutingResultSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
-  rowRunId?: boolean
+  jobRowId?: boolean
   candidateId?: boolean
   outcome?: boolean
   rank?: boolean
@@ -864,13 +864,13 @@ export type ScoutingResultSelect<ExtArgs extends runtime.Types.Extensions.Intern
   aiRationale?: boolean
   scoreReused?: boolean
   createdAt?: boolean
-  rowRun?: boolean | Prisma.ScoutingRowRunDefaultArgs<ExtArgs>
+  jobRow?: boolean | Prisma.ImportJobRowDefaultArgs<ExtArgs>
   candidate?: boolean | Prisma.ProductCandidateRecordDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["scoutingResult"]>
 
 export type ScoutingResultSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
-  rowRunId?: boolean
+  jobRowId?: boolean
   candidateId?: boolean
   outcome?: boolean
   rank?: boolean
@@ -881,13 +881,13 @@ export type ScoutingResultSelectCreateManyAndReturn<ExtArgs extends runtime.Type
   aiRationale?: boolean
   scoreReused?: boolean
   createdAt?: boolean
-  rowRun?: boolean | Prisma.ScoutingRowRunDefaultArgs<ExtArgs>
+  jobRow?: boolean | Prisma.ImportJobRowDefaultArgs<ExtArgs>
   candidate?: boolean | Prisma.ProductCandidateRecordDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["scoutingResult"]>
 
 export type ScoutingResultSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
-  rowRunId?: boolean
+  jobRowId?: boolean
   candidateId?: boolean
   outcome?: boolean
   rank?: boolean
@@ -898,13 +898,13 @@ export type ScoutingResultSelectUpdateManyAndReturn<ExtArgs extends runtime.Type
   aiRationale?: boolean
   scoreReused?: boolean
   createdAt?: boolean
-  rowRun?: boolean | Prisma.ScoutingRowRunDefaultArgs<ExtArgs>
+  jobRow?: boolean | Prisma.ImportJobRowDefaultArgs<ExtArgs>
   candidate?: boolean | Prisma.ProductCandidateRecordDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["scoutingResult"]>
 
 export type ScoutingResultSelectScalar = {
   id?: boolean
-  rowRunId?: boolean
+  jobRowId?: boolean
   candidateId?: boolean
   outcome?: boolean
   rank?: boolean
@@ -917,29 +917,29 @@ export type ScoutingResultSelectScalar = {
   createdAt?: boolean
 }
 
-export type ScoutingResultOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "rowRunId" | "candidateId" | "outcome" | "rank" | "score" | "scoreBreakdown" | "rejectionCode" | "rejectionReason" | "aiRationale" | "scoreReused" | "createdAt", ExtArgs["result"]["scoutingResult"]>
+export type ScoutingResultOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "jobRowId" | "candidateId" | "outcome" | "rank" | "score" | "scoreBreakdown" | "rejectionCode" | "rejectionReason" | "aiRationale" | "scoreReused" | "createdAt", ExtArgs["result"]["scoutingResult"]>
 export type ScoutingResultInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  rowRun?: boolean | Prisma.ScoutingRowRunDefaultArgs<ExtArgs>
+  jobRow?: boolean | Prisma.ImportJobRowDefaultArgs<ExtArgs>
   candidate?: boolean | Prisma.ProductCandidateRecordDefaultArgs<ExtArgs>
 }
 export type ScoutingResultIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  rowRun?: boolean | Prisma.ScoutingRowRunDefaultArgs<ExtArgs>
+  jobRow?: boolean | Prisma.ImportJobRowDefaultArgs<ExtArgs>
   candidate?: boolean | Prisma.ProductCandidateRecordDefaultArgs<ExtArgs>
 }
 export type ScoutingResultIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  rowRun?: boolean | Prisma.ScoutingRowRunDefaultArgs<ExtArgs>
+  jobRow?: boolean | Prisma.ImportJobRowDefaultArgs<ExtArgs>
   candidate?: boolean | Prisma.ProductCandidateRecordDefaultArgs<ExtArgs>
 }
 
 export type $ScoutingResultPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "ScoutingResult"
   objects: {
-    rowRun: Prisma.$ScoutingRowRunPayload<ExtArgs>
+    jobRow: Prisma.$ImportJobRowPayload<ExtArgs>
     candidate: Prisma.$ProductCandidateRecordPayload<ExtArgs>
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
-    rowRunId: string
+    jobRowId: string
     candidateId: string
     outcome: $Enums.ScoutingOutcome
     rank: number | null
@@ -1350,7 +1350,7 @@ readonly fields: ScoutingResultFieldRefs;
  */
 export interface Prisma__ScoutingResultClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
-  rowRun<T extends Prisma.ScoutingRowRunDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ScoutingRowRunDefaultArgs<ExtArgs>>): Prisma.Prisma__ScoutingRowRunClient<runtime.Types.Result.GetResult<Prisma.$ScoutingRowRunPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+  jobRow<T extends Prisma.ImportJobRowDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ImportJobRowDefaultArgs<ExtArgs>>): Prisma.Prisma__ImportJobRowClient<runtime.Types.Result.GetResult<Prisma.$ImportJobRowPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   candidate<T extends Prisma.ProductCandidateRecordDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ProductCandidateRecordDefaultArgs<ExtArgs>>): Prisma.Prisma__ProductCandidateRecordClient<runtime.Types.Result.GetResult<Prisma.$ProductCandidateRecordPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
@@ -1382,7 +1382,7 @@ export interface Prisma__ScoutingResultClient<T, Null = never, ExtArgs extends r
  */
 export interface ScoutingResultFieldRefs {
   readonly id: Prisma.FieldRef<"ScoutingResult", 'String'>
-  readonly rowRunId: Prisma.FieldRef<"ScoutingResult", 'String'>
+  readonly jobRowId: Prisma.FieldRef<"ScoutingResult", 'String'>
   readonly candidateId: Prisma.FieldRef<"ScoutingResult", 'String'>
   readonly outcome: Prisma.FieldRef<"ScoutingResult", 'ScoutingOutcome'>
   readonly rank: Prisma.FieldRef<"ScoutingResult", 'Int'>

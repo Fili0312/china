@@ -433,11 +433,11 @@ export type DateTimeNullableWithAggregatesFilter<$PrismaModel = never> = {
   _max?: Prisma.NestedDateTimeNullableFilter<$PrismaModel>
 }
 
-export type EnumScoutingRunStatusFilter<$PrismaModel = never> = {
-  equals?: $Enums.ScoutingRunStatus | Prisma.EnumScoutingRunStatusFieldRefInput<$PrismaModel>
-  in?: $Enums.ScoutingRunStatus[] | Prisma.ListEnumScoutingRunStatusFieldRefInput<$PrismaModel>
-  notIn?: $Enums.ScoutingRunStatus[] | Prisma.ListEnumScoutingRunStatusFieldRefInput<$PrismaModel>
-  not?: Prisma.NestedEnumScoutingRunStatusFilter<$PrismaModel> | $Enums.ScoutingRunStatus
+export type EnumImportJobStatusFilter<$PrismaModel = never> = {
+  equals?: $Enums.ImportJobStatus | Prisma.EnumImportJobStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.ImportJobStatus[] | Prisma.ListEnumImportJobStatusFieldRefInput<$PrismaModel>
+  notIn?: $Enums.ImportJobStatus[] | Prisma.ListEnumImportJobStatusFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumImportJobStatusFilter<$PrismaModel> | $Enums.ImportJobStatus
 }
 
 export type BoolFilter<$PrismaModel = never> = {
@@ -445,14 +445,14 @@ export type BoolFilter<$PrismaModel = never> = {
   not?: Prisma.NestedBoolFilter<$PrismaModel> | boolean
 }
 
-export type EnumScoutingRunStatusWithAggregatesFilter<$PrismaModel = never> = {
-  equals?: $Enums.ScoutingRunStatus | Prisma.EnumScoutingRunStatusFieldRefInput<$PrismaModel>
-  in?: $Enums.ScoutingRunStatus[] | Prisma.ListEnumScoutingRunStatusFieldRefInput<$PrismaModel>
-  notIn?: $Enums.ScoutingRunStatus[] | Prisma.ListEnumScoutingRunStatusFieldRefInput<$PrismaModel>
-  not?: Prisma.NestedEnumScoutingRunStatusWithAggregatesFilter<$PrismaModel> | $Enums.ScoutingRunStatus
+export type EnumImportJobStatusWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.ImportJobStatus | Prisma.EnumImportJobStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.ImportJobStatus[] | Prisma.ListEnumImportJobStatusFieldRefInput<$PrismaModel>
+  notIn?: $Enums.ImportJobStatus[] | Prisma.ListEnumImportJobStatusFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumImportJobStatusWithAggregatesFilter<$PrismaModel> | $Enums.ImportJobStatus
   _count?: Prisma.NestedIntFilter<$PrismaModel>
-  _min?: Prisma.NestedEnumScoutingRunStatusFilter<$PrismaModel>
-  _max?: Prisma.NestedEnumScoutingRunStatusFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumImportJobStatusFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumImportJobStatusFilter<$PrismaModel>
 }
 
 export type BoolWithAggregatesFilter<$PrismaModel = never> = {
@@ -478,6 +478,23 @@ export type EnumScoutingRowStatusWithAggregatesFilter<$PrismaModel = never> = {
   _count?: Prisma.NestedIntFilter<$PrismaModel>
   _min?: Prisma.NestedEnumScoutingRowStatusFilter<$PrismaModel>
   _max?: Prisma.NestedEnumScoutingRowStatusFilter<$PrismaModel>
+}
+
+export type EnumScoutingEngineStatusFilter<$PrismaModel = never> = {
+  equals?: $Enums.ScoutingEngineStatus | Prisma.EnumScoutingEngineStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.ScoutingEngineStatus[] | Prisma.ListEnumScoutingEngineStatusFieldRefInput<$PrismaModel>
+  notIn?: $Enums.ScoutingEngineStatus[] | Prisma.ListEnumScoutingEngineStatusFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumScoutingEngineStatusFilter<$PrismaModel> | $Enums.ScoutingEngineStatus
+}
+
+export type EnumScoutingEngineStatusWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.ScoutingEngineStatus | Prisma.EnumScoutingEngineStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.ScoutingEngineStatus[] | Prisma.ListEnumScoutingEngineStatusFieldRefInput<$PrismaModel>
+  notIn?: $Enums.ScoutingEngineStatus[] | Prisma.ListEnumScoutingEngineStatusFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumScoutingEngineStatusWithAggregatesFilter<$PrismaModel> | $Enums.ScoutingEngineStatus
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumScoutingEngineStatusFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumScoutingEngineStatusFilter<$PrismaModel>
 }
 
 export type EnumScoutingOutcomeFilter<$PrismaModel = never> = {
@@ -853,11 +870,11 @@ export type NestedDateTimeNullableWithAggregatesFilter<$PrismaModel = never> = {
   _max?: Prisma.NestedDateTimeNullableFilter<$PrismaModel>
 }
 
-export type NestedEnumScoutingRunStatusFilter<$PrismaModel = never> = {
-  equals?: $Enums.ScoutingRunStatus | Prisma.EnumScoutingRunStatusFieldRefInput<$PrismaModel>
-  in?: $Enums.ScoutingRunStatus[] | Prisma.ListEnumScoutingRunStatusFieldRefInput<$PrismaModel>
-  notIn?: $Enums.ScoutingRunStatus[] | Prisma.ListEnumScoutingRunStatusFieldRefInput<$PrismaModel>
-  not?: Prisma.NestedEnumScoutingRunStatusFilter<$PrismaModel> | $Enums.ScoutingRunStatus
+export type NestedEnumImportJobStatusFilter<$PrismaModel = never> = {
+  equals?: $Enums.ImportJobStatus | Prisma.EnumImportJobStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.ImportJobStatus[] | Prisma.ListEnumImportJobStatusFieldRefInput<$PrismaModel>
+  notIn?: $Enums.ImportJobStatus[] | Prisma.ListEnumImportJobStatusFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumImportJobStatusFilter<$PrismaModel> | $Enums.ImportJobStatus
 }
 
 export type NestedBoolFilter<$PrismaModel = never> = {
@@ -865,14 +882,14 @@ export type NestedBoolFilter<$PrismaModel = never> = {
   not?: Prisma.NestedBoolFilter<$PrismaModel> | boolean
 }
 
-export type NestedEnumScoutingRunStatusWithAggregatesFilter<$PrismaModel = never> = {
-  equals?: $Enums.ScoutingRunStatus | Prisma.EnumScoutingRunStatusFieldRefInput<$PrismaModel>
-  in?: $Enums.ScoutingRunStatus[] | Prisma.ListEnumScoutingRunStatusFieldRefInput<$PrismaModel>
-  notIn?: $Enums.ScoutingRunStatus[] | Prisma.ListEnumScoutingRunStatusFieldRefInput<$PrismaModel>
-  not?: Prisma.NestedEnumScoutingRunStatusWithAggregatesFilter<$PrismaModel> | $Enums.ScoutingRunStatus
+export type NestedEnumImportJobStatusWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.ImportJobStatus | Prisma.EnumImportJobStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.ImportJobStatus[] | Prisma.ListEnumImportJobStatusFieldRefInput<$PrismaModel>
+  notIn?: $Enums.ImportJobStatus[] | Prisma.ListEnumImportJobStatusFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumImportJobStatusWithAggregatesFilter<$PrismaModel> | $Enums.ImportJobStatus
   _count?: Prisma.NestedIntFilter<$PrismaModel>
-  _min?: Prisma.NestedEnumScoutingRunStatusFilter<$PrismaModel>
-  _max?: Prisma.NestedEnumScoutingRunStatusFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumImportJobStatusFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumImportJobStatusFilter<$PrismaModel>
 }
 
 export type NestedBoolWithAggregatesFilter<$PrismaModel = never> = {
@@ -898,6 +915,23 @@ export type NestedEnumScoutingRowStatusWithAggregatesFilter<$PrismaModel = never
   _count?: Prisma.NestedIntFilter<$PrismaModel>
   _min?: Prisma.NestedEnumScoutingRowStatusFilter<$PrismaModel>
   _max?: Prisma.NestedEnumScoutingRowStatusFilter<$PrismaModel>
+}
+
+export type NestedEnumScoutingEngineStatusFilter<$PrismaModel = never> = {
+  equals?: $Enums.ScoutingEngineStatus | Prisma.EnumScoutingEngineStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.ScoutingEngineStatus[] | Prisma.ListEnumScoutingEngineStatusFieldRefInput<$PrismaModel>
+  notIn?: $Enums.ScoutingEngineStatus[] | Prisma.ListEnumScoutingEngineStatusFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumScoutingEngineStatusFilter<$PrismaModel> | $Enums.ScoutingEngineStatus
+}
+
+export type NestedEnumScoutingEngineStatusWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.ScoutingEngineStatus | Prisma.EnumScoutingEngineStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.ScoutingEngineStatus[] | Prisma.ListEnumScoutingEngineStatusFieldRefInput<$PrismaModel>
+  notIn?: $Enums.ScoutingEngineStatus[] | Prisma.ListEnumScoutingEngineStatusFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumScoutingEngineStatusWithAggregatesFilter<$PrismaModel> | $Enums.ScoutingEngineStatus
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumScoutingEngineStatusFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumScoutingEngineStatusFilter<$PrismaModel>
 }
 
 export type NestedEnumScoutingOutcomeFilter<$PrismaModel = never> = {

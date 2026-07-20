@@ -391,9 +391,10 @@ export const ModelName = {
   QuoteLine: 'QuoteLine',
   ScoutingDataset: 'ScoutingDataset',
   ScoutingDatasetRow: 'ScoutingDatasetRow',
-  ProductRequest: 'ProductRequest',
-  ScoutingRun: 'ScoutingRun',
-  ScoutingRowRun: 'ScoutingRowRun',
+  ScoutingRequest: 'ScoutingRequest',
+  ImportJob: 'ImportJob',
+  ImportJobRow: 'ImportJobRow',
+  ImportJobRowEngine: 'ImportJobRowEngine',
   ProductCandidateRecord: 'ProductCandidateRecord',
   ProductSnapshot: 'ProductSnapshot',
   ScoutingResult: 'ScoutingResult'
@@ -412,7 +413,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "quoteRequest" | "requestItem" | "productCandidate" | "quote" | "quoteLine" | "scoutingDataset" | "scoutingDatasetRow" | "productRequest" | "scoutingRun" | "scoutingRowRun" | "productCandidateRecord" | "productSnapshot" | "scoutingResult"
+    modelProps: "quoteRequest" | "requestItem" | "productCandidate" | "quote" | "quoteLine" | "scoutingDataset" | "scoutingDatasetRow" | "scoutingRequest" | "importJob" | "importJobRow" | "importJobRowEngine" | "productCandidateRecord" | "productSnapshot" | "scoutingResult"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -934,225 +935,299 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
-    ProductRequest: {
-      payload: Prisma.$ProductRequestPayload<ExtArgs>
-      fields: Prisma.ProductRequestFieldRefs
+    ScoutingRequest: {
+      payload: Prisma.$ScoutingRequestPayload<ExtArgs>
+      fields: Prisma.ScoutingRequestFieldRefs
       operations: {
         findUnique: {
-          args: Prisma.ProductRequestFindUniqueArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductRequestPayload> | null
+          args: Prisma.ScoutingRequestFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ScoutingRequestPayload> | null
         }
         findUniqueOrThrow: {
-          args: Prisma.ProductRequestFindUniqueOrThrowArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductRequestPayload>
+          args: Prisma.ScoutingRequestFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ScoutingRequestPayload>
         }
         findFirst: {
-          args: Prisma.ProductRequestFindFirstArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductRequestPayload> | null
+          args: Prisma.ScoutingRequestFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ScoutingRequestPayload> | null
         }
         findFirstOrThrow: {
-          args: Prisma.ProductRequestFindFirstOrThrowArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductRequestPayload>
+          args: Prisma.ScoutingRequestFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ScoutingRequestPayload>
         }
         findMany: {
-          args: Prisma.ProductRequestFindManyArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductRequestPayload>[]
+          args: Prisma.ScoutingRequestFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ScoutingRequestPayload>[]
         }
         create: {
-          args: Prisma.ProductRequestCreateArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductRequestPayload>
+          args: Prisma.ScoutingRequestCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ScoutingRequestPayload>
         }
         createMany: {
-          args: Prisma.ProductRequestCreateManyArgs<ExtArgs>
+          args: Prisma.ScoutingRequestCreateManyArgs<ExtArgs>
           result: BatchPayload
         }
         createManyAndReturn: {
-          args: Prisma.ProductRequestCreateManyAndReturnArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductRequestPayload>[]
+          args: Prisma.ScoutingRequestCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ScoutingRequestPayload>[]
         }
         delete: {
-          args: Prisma.ProductRequestDeleteArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductRequestPayload>
+          args: Prisma.ScoutingRequestDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ScoutingRequestPayload>
         }
         update: {
-          args: Prisma.ProductRequestUpdateArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductRequestPayload>
+          args: Prisma.ScoutingRequestUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ScoutingRequestPayload>
         }
         deleteMany: {
-          args: Prisma.ProductRequestDeleteManyArgs<ExtArgs>
+          args: Prisma.ScoutingRequestDeleteManyArgs<ExtArgs>
           result: BatchPayload
         }
         updateMany: {
-          args: Prisma.ProductRequestUpdateManyArgs<ExtArgs>
+          args: Prisma.ScoutingRequestUpdateManyArgs<ExtArgs>
           result: BatchPayload
         }
         updateManyAndReturn: {
-          args: Prisma.ProductRequestUpdateManyAndReturnArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductRequestPayload>[]
+          args: Prisma.ScoutingRequestUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ScoutingRequestPayload>[]
         }
         upsert: {
-          args: Prisma.ProductRequestUpsertArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductRequestPayload>
+          args: Prisma.ScoutingRequestUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ScoutingRequestPayload>
         }
         aggregate: {
-          args: Prisma.ProductRequestAggregateArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.AggregateProductRequest>
+          args: Prisma.ScoutingRequestAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateScoutingRequest>
         }
         groupBy: {
-          args: Prisma.ProductRequestGroupByArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.ProductRequestGroupByOutputType>[]
+          args: Prisma.ScoutingRequestGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ScoutingRequestGroupByOutputType>[]
         }
         count: {
-          args: Prisma.ProductRequestCountArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.ProductRequestCountAggregateOutputType> | number
+          args: Prisma.ScoutingRequestCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ScoutingRequestCountAggregateOutputType> | number
         }
       }
     }
-    ScoutingRun: {
-      payload: Prisma.$ScoutingRunPayload<ExtArgs>
-      fields: Prisma.ScoutingRunFieldRefs
+    ImportJob: {
+      payload: Prisma.$ImportJobPayload<ExtArgs>
+      fields: Prisma.ImportJobFieldRefs
       operations: {
         findUnique: {
-          args: Prisma.ScoutingRunFindUniqueArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ScoutingRunPayload> | null
+          args: Prisma.ImportJobFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ImportJobPayload> | null
         }
         findUniqueOrThrow: {
-          args: Prisma.ScoutingRunFindUniqueOrThrowArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ScoutingRunPayload>
+          args: Prisma.ImportJobFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ImportJobPayload>
         }
         findFirst: {
-          args: Prisma.ScoutingRunFindFirstArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ScoutingRunPayload> | null
+          args: Prisma.ImportJobFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ImportJobPayload> | null
         }
         findFirstOrThrow: {
-          args: Prisma.ScoutingRunFindFirstOrThrowArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ScoutingRunPayload>
+          args: Prisma.ImportJobFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ImportJobPayload>
         }
         findMany: {
-          args: Prisma.ScoutingRunFindManyArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ScoutingRunPayload>[]
+          args: Prisma.ImportJobFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ImportJobPayload>[]
         }
         create: {
-          args: Prisma.ScoutingRunCreateArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ScoutingRunPayload>
+          args: Prisma.ImportJobCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ImportJobPayload>
         }
         createMany: {
-          args: Prisma.ScoutingRunCreateManyArgs<ExtArgs>
+          args: Prisma.ImportJobCreateManyArgs<ExtArgs>
           result: BatchPayload
         }
         createManyAndReturn: {
-          args: Prisma.ScoutingRunCreateManyAndReturnArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ScoutingRunPayload>[]
+          args: Prisma.ImportJobCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ImportJobPayload>[]
         }
         delete: {
-          args: Prisma.ScoutingRunDeleteArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ScoutingRunPayload>
+          args: Prisma.ImportJobDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ImportJobPayload>
         }
         update: {
-          args: Prisma.ScoutingRunUpdateArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ScoutingRunPayload>
+          args: Prisma.ImportJobUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ImportJobPayload>
         }
         deleteMany: {
-          args: Prisma.ScoutingRunDeleteManyArgs<ExtArgs>
+          args: Prisma.ImportJobDeleteManyArgs<ExtArgs>
           result: BatchPayload
         }
         updateMany: {
-          args: Prisma.ScoutingRunUpdateManyArgs<ExtArgs>
+          args: Prisma.ImportJobUpdateManyArgs<ExtArgs>
           result: BatchPayload
         }
         updateManyAndReturn: {
-          args: Prisma.ScoutingRunUpdateManyAndReturnArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ScoutingRunPayload>[]
+          args: Prisma.ImportJobUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ImportJobPayload>[]
         }
         upsert: {
-          args: Prisma.ScoutingRunUpsertArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ScoutingRunPayload>
+          args: Prisma.ImportJobUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ImportJobPayload>
         }
         aggregate: {
-          args: Prisma.ScoutingRunAggregateArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.AggregateScoutingRun>
+          args: Prisma.ImportJobAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateImportJob>
         }
         groupBy: {
-          args: Prisma.ScoutingRunGroupByArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.ScoutingRunGroupByOutputType>[]
+          args: Prisma.ImportJobGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ImportJobGroupByOutputType>[]
         }
         count: {
-          args: Prisma.ScoutingRunCountArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.ScoutingRunCountAggregateOutputType> | number
+          args: Prisma.ImportJobCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ImportJobCountAggregateOutputType> | number
         }
       }
     }
-    ScoutingRowRun: {
-      payload: Prisma.$ScoutingRowRunPayload<ExtArgs>
-      fields: Prisma.ScoutingRowRunFieldRefs
+    ImportJobRow: {
+      payload: Prisma.$ImportJobRowPayload<ExtArgs>
+      fields: Prisma.ImportJobRowFieldRefs
       operations: {
         findUnique: {
-          args: Prisma.ScoutingRowRunFindUniqueArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ScoutingRowRunPayload> | null
+          args: Prisma.ImportJobRowFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ImportJobRowPayload> | null
         }
         findUniqueOrThrow: {
-          args: Prisma.ScoutingRowRunFindUniqueOrThrowArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ScoutingRowRunPayload>
+          args: Prisma.ImportJobRowFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ImportJobRowPayload>
         }
         findFirst: {
-          args: Prisma.ScoutingRowRunFindFirstArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ScoutingRowRunPayload> | null
+          args: Prisma.ImportJobRowFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ImportJobRowPayload> | null
         }
         findFirstOrThrow: {
-          args: Prisma.ScoutingRowRunFindFirstOrThrowArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ScoutingRowRunPayload>
+          args: Prisma.ImportJobRowFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ImportJobRowPayload>
         }
         findMany: {
-          args: Prisma.ScoutingRowRunFindManyArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ScoutingRowRunPayload>[]
+          args: Prisma.ImportJobRowFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ImportJobRowPayload>[]
         }
         create: {
-          args: Prisma.ScoutingRowRunCreateArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ScoutingRowRunPayload>
+          args: Prisma.ImportJobRowCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ImportJobRowPayload>
         }
         createMany: {
-          args: Prisma.ScoutingRowRunCreateManyArgs<ExtArgs>
+          args: Prisma.ImportJobRowCreateManyArgs<ExtArgs>
           result: BatchPayload
         }
         createManyAndReturn: {
-          args: Prisma.ScoutingRowRunCreateManyAndReturnArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ScoutingRowRunPayload>[]
+          args: Prisma.ImportJobRowCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ImportJobRowPayload>[]
         }
         delete: {
-          args: Prisma.ScoutingRowRunDeleteArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ScoutingRowRunPayload>
+          args: Prisma.ImportJobRowDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ImportJobRowPayload>
         }
         update: {
-          args: Prisma.ScoutingRowRunUpdateArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ScoutingRowRunPayload>
+          args: Prisma.ImportJobRowUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ImportJobRowPayload>
         }
         deleteMany: {
-          args: Prisma.ScoutingRowRunDeleteManyArgs<ExtArgs>
+          args: Prisma.ImportJobRowDeleteManyArgs<ExtArgs>
           result: BatchPayload
         }
         updateMany: {
-          args: Prisma.ScoutingRowRunUpdateManyArgs<ExtArgs>
+          args: Prisma.ImportJobRowUpdateManyArgs<ExtArgs>
           result: BatchPayload
         }
         updateManyAndReturn: {
-          args: Prisma.ScoutingRowRunUpdateManyAndReturnArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ScoutingRowRunPayload>[]
+          args: Prisma.ImportJobRowUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ImportJobRowPayload>[]
         }
         upsert: {
-          args: Prisma.ScoutingRowRunUpsertArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ScoutingRowRunPayload>
+          args: Prisma.ImportJobRowUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ImportJobRowPayload>
         }
         aggregate: {
-          args: Prisma.ScoutingRowRunAggregateArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.AggregateScoutingRowRun>
+          args: Prisma.ImportJobRowAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateImportJobRow>
         }
         groupBy: {
-          args: Prisma.ScoutingRowRunGroupByArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.ScoutingRowRunGroupByOutputType>[]
+          args: Prisma.ImportJobRowGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ImportJobRowGroupByOutputType>[]
         }
         count: {
-          args: Prisma.ScoutingRowRunCountArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.ScoutingRowRunCountAggregateOutputType> | number
+          args: Prisma.ImportJobRowCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ImportJobRowCountAggregateOutputType> | number
+        }
+      }
+    }
+    ImportJobRowEngine: {
+      payload: Prisma.$ImportJobRowEnginePayload<ExtArgs>
+      fields: Prisma.ImportJobRowEngineFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.ImportJobRowEngineFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ImportJobRowEnginePayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.ImportJobRowEngineFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ImportJobRowEnginePayload>
+        }
+        findFirst: {
+          args: Prisma.ImportJobRowEngineFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ImportJobRowEnginePayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.ImportJobRowEngineFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ImportJobRowEnginePayload>
+        }
+        findMany: {
+          args: Prisma.ImportJobRowEngineFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ImportJobRowEnginePayload>[]
+        }
+        create: {
+          args: Prisma.ImportJobRowEngineCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ImportJobRowEnginePayload>
+        }
+        createMany: {
+          args: Prisma.ImportJobRowEngineCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.ImportJobRowEngineCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ImportJobRowEnginePayload>[]
+        }
+        delete: {
+          args: Prisma.ImportJobRowEngineDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ImportJobRowEnginePayload>
+        }
+        update: {
+          args: Prisma.ImportJobRowEngineUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ImportJobRowEnginePayload>
+        }
+        deleteMany: {
+          args: Prisma.ImportJobRowEngineDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.ImportJobRowEngineUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.ImportJobRowEngineUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ImportJobRowEnginePayload>[]
+        }
+        upsert: {
+          args: Prisma.ImportJobRowEngineUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ImportJobRowEnginePayload>
+        }
+        aggregate: {
+          args: Prisma.ImportJobRowEngineAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateImportJobRowEngine>
+        }
+        groupBy: {
+          args: Prisma.ImportJobRowEngineGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ImportJobRowEngineGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.ImportJobRowEngineCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ImportJobRowEngineCountAggregateOutputType> | number
         }
       }
     }
@@ -1534,7 +1609,7 @@ export const ScoutingDatasetRowScalarFieldEnum = {
 export type ScoutingDatasetRowScalarFieldEnum = (typeof ScoutingDatasetRowScalarFieldEnum)[keyof typeof ScoutingDatasetRowScalarFieldEnum]
 
 
-export const ProductRequestScalarFieldEnum = {
+export const ScoutingRequestScalarFieldEnum = {
   id: 'id',
   fingerprint: 'fingerprint',
   normalizedNameKey: 'normalizedNameKey',
@@ -1563,10 +1638,10 @@ export const ProductRequestScalarFieldEnum = {
   searchCount: 'searchCount'
 } as const
 
-export type ProductRequestScalarFieldEnum = (typeof ProductRequestScalarFieldEnum)[keyof typeof ProductRequestScalarFieldEnum]
+export type ScoutingRequestScalarFieldEnum = (typeof ScoutingRequestScalarFieldEnum)[keyof typeof ScoutingRequestScalarFieldEnum]
 
 
-export const ScoutingRunScalarFieldEnum = {
+export const ImportJobScalarFieldEnum = {
   id: 'id',
   datasetId: 'datasetId',
   status: 'status',
@@ -1581,30 +1656,53 @@ export const ScoutingRunScalarFieldEnum = {
   processedRows: 'processedRows',
   reusedRows: 'reusedRows',
   failedRows: 'failedRows',
+  creditsSpent: 'creditsSpent',
   startedAt: 'startedAt',
   finishedAt: 'finishedAt',
   error: 'error',
   createdAt: 'createdAt'
 } as const
 
-export type ScoutingRunScalarFieldEnum = (typeof ScoutingRunScalarFieldEnum)[keyof typeof ScoutingRunScalarFieldEnum]
+export type ImportJobScalarFieldEnum = (typeof ImportJobScalarFieldEnum)[keyof typeof ImportJobScalarFieldEnum]
 
 
-export const ScoutingRowRunScalarFieldEnum = {
+export const ImportJobRowScalarFieldEnum = {
   id: 'id',
-  runId: 'runId',
+  jobId: 'jobId',
   datasetRowId: 'datasetRowId',
   requestId: 'requestId',
   rowNumber: 'rowNumber',
+  displayName: 'displayName',
+  searchQuery: 'searchQuery',
   status: 'status',
   reused: 'reused',
-  engineStatuses: 'engineStatuses',
   error: 'error',
   startedAt: 'startedAt',
   finishedAt: 'finishedAt'
 } as const
 
-export type ScoutingRowRunScalarFieldEnum = (typeof ScoutingRowRunScalarFieldEnum)[keyof typeof ScoutingRowRunScalarFieldEnum]
+export type ImportJobRowScalarFieldEnum = (typeof ImportJobRowScalarFieldEnum)[keyof typeof ImportJobRowScalarFieldEnum]
+
+
+export const ImportJobRowEngineScalarFieldEnum = {
+  id: 'id',
+  jobRowId: 'jobRowId',
+  engine: 'engine',
+  status: 'status',
+  queryUsed: 'queryUsed',
+  fetchedCount: 'fetchedCount',
+  acceptedCount: 'acceptedCount',
+  durationMs: 'durationMs',
+  errorCode: 'errorCode',
+  error: 'error',
+  retryable: 'retryable',
+  attempts: 'attempts',
+  servedFromCache: 'servedFromCache',
+  startedAt: 'startedAt',
+  finishedAt: 'finishedAt'
+} as const
+
+export type ImportJobRowEngineScalarFieldEnum = (typeof ImportJobRowEngineScalarFieldEnum)[keyof typeof ImportJobRowEngineScalarFieldEnum]
 
 
 export const ProductCandidateRecordScalarFieldEnum = {
@@ -1615,6 +1713,7 @@ export const ProductCandidateRecordScalarFieldEnum = {
   url: 'url',
   title: 'title',
   imageUrl: 'imageUrl',
+  foundQuery: 'foundQuery',
   vendorName: 'vendorName',
   vendorUrl: 'vendorUrl',
   price: 'price',
@@ -1627,11 +1726,15 @@ export const ProductCandidateRecordScalarFieldEnum = {
   variants: 'variants',
   specs: 'specs',
   priceTiers: 'priceTiers',
+  relevanceScore: 'relevanceScore',
+  matchReasons: 'matchReasons',
+  matchWarnings: 'matchWarnings',
   contentHash: 'contentHash',
   firstSeenAt: 'firstSeenAt',
   lastCheckedAt: 'lastCheckedAt',
   lastChangedAt: 'lastChangedAt',
   changedFields: 'changedFields',
+  detailsFetchedAt: 'detailsFetchedAt',
   unavailable: 'unavailable'
 } as const
 
@@ -1658,7 +1761,7 @@ export type ProductSnapshotScalarFieldEnum = (typeof ProductSnapshotScalarFieldE
 
 export const ScoutingResultScalarFieldEnum = {
   id: 'id',
-  rowRunId: 'rowRunId',
+  jobRowId: 'jobRowId',
   candidateId: 'candidateId',
   outcome: 'outcome',
   rank: 'rank',
@@ -1841,16 +1944,16 @@ export type ListDecimalFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaMo
 
 
 /**
- * Reference to a field of type 'ScoutingRunStatus'
+ * Reference to a field of type 'ImportJobStatus'
  */
-export type EnumScoutingRunStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ScoutingRunStatus'>
+export type EnumImportJobStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ImportJobStatus'>
     
 
 
 /**
- * Reference to a field of type 'ScoutingRunStatus[]'
+ * Reference to a field of type 'ImportJobStatus[]'
  */
-export type ListEnumScoutingRunStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ScoutingRunStatus[]'>
+export type ListEnumImportJobStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ImportJobStatus[]'>
     
 
 
@@ -1872,6 +1975,20 @@ export type EnumScoutingRowStatusFieldRefInput<$PrismaModel> = FieldRefInputType
  * Reference to a field of type 'ScoutingRowStatus[]'
  */
 export type ListEnumScoutingRowStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ScoutingRowStatus[]'>
+    
+
+
+/**
+ * Reference to a field of type 'ScoutingEngineStatus'
+ */
+export type EnumScoutingEngineStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ScoutingEngineStatus'>
+    
+
+
+/**
+ * Reference to a field of type 'ScoutingEngineStatus[]'
+ */
+export type ListEnumScoutingEngineStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ScoutingEngineStatus[]'>
     
 
 
@@ -2005,9 +2122,10 @@ export type GlobalOmitConfig = {
   quoteLine?: Prisma.QuoteLineOmit
   scoutingDataset?: Prisma.ScoutingDatasetOmit
   scoutingDatasetRow?: Prisma.ScoutingDatasetRowOmit
-  productRequest?: Prisma.ProductRequestOmit
-  scoutingRun?: Prisma.ScoutingRunOmit
-  scoutingRowRun?: Prisma.ScoutingRowRunOmit
+  scoutingRequest?: Prisma.ScoutingRequestOmit
+  importJob?: Prisma.ImportJobOmit
+  importJobRow?: Prisma.ImportJobRowOmit
+  importJobRowEngine?: Prisma.ImportJobRowEngineOmit
   productCandidateRecord?: Prisma.ProductCandidateRecordOmit
   productSnapshot?: Prisma.ProductSnapshotOmit
   scoutingResult?: Prisma.ScoutingResultOmit

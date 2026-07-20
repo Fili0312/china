@@ -58,9 +58,10 @@ export const ModelName = {
   QuoteLine: 'QuoteLine',
   ScoutingDataset: 'ScoutingDataset',
   ScoutingDatasetRow: 'ScoutingDatasetRow',
-  ProductRequest: 'ProductRequest',
-  ScoutingRun: 'ScoutingRun',
-  ScoutingRowRun: 'ScoutingRowRun',
+  ScoutingRequest: 'ScoutingRequest',
+  ImportJob: 'ImportJob',
+  ImportJobRow: 'ImportJobRow',
+  ImportJobRowEngine: 'ImportJobRowEngine',
   ProductCandidateRecord: 'ProductCandidateRecord',
   ProductSnapshot: 'ProductSnapshot',
   ScoutingResult: 'ScoutingResult'
@@ -199,7 +200,7 @@ export const ScoutingDatasetRowScalarFieldEnum = {
 export type ScoutingDatasetRowScalarFieldEnum = (typeof ScoutingDatasetRowScalarFieldEnum)[keyof typeof ScoutingDatasetRowScalarFieldEnum]
 
 
-export const ProductRequestScalarFieldEnum = {
+export const ScoutingRequestScalarFieldEnum = {
   id: 'id',
   fingerprint: 'fingerprint',
   normalizedNameKey: 'normalizedNameKey',
@@ -228,10 +229,10 @@ export const ProductRequestScalarFieldEnum = {
   searchCount: 'searchCount'
 } as const
 
-export type ProductRequestScalarFieldEnum = (typeof ProductRequestScalarFieldEnum)[keyof typeof ProductRequestScalarFieldEnum]
+export type ScoutingRequestScalarFieldEnum = (typeof ScoutingRequestScalarFieldEnum)[keyof typeof ScoutingRequestScalarFieldEnum]
 
 
-export const ScoutingRunScalarFieldEnum = {
+export const ImportJobScalarFieldEnum = {
   id: 'id',
   datasetId: 'datasetId',
   status: 'status',
@@ -246,30 +247,53 @@ export const ScoutingRunScalarFieldEnum = {
   processedRows: 'processedRows',
   reusedRows: 'reusedRows',
   failedRows: 'failedRows',
+  creditsSpent: 'creditsSpent',
   startedAt: 'startedAt',
   finishedAt: 'finishedAt',
   error: 'error',
   createdAt: 'createdAt'
 } as const
 
-export type ScoutingRunScalarFieldEnum = (typeof ScoutingRunScalarFieldEnum)[keyof typeof ScoutingRunScalarFieldEnum]
+export type ImportJobScalarFieldEnum = (typeof ImportJobScalarFieldEnum)[keyof typeof ImportJobScalarFieldEnum]
 
 
-export const ScoutingRowRunScalarFieldEnum = {
+export const ImportJobRowScalarFieldEnum = {
   id: 'id',
-  runId: 'runId',
+  jobId: 'jobId',
   datasetRowId: 'datasetRowId',
   requestId: 'requestId',
   rowNumber: 'rowNumber',
+  displayName: 'displayName',
+  searchQuery: 'searchQuery',
   status: 'status',
   reused: 'reused',
-  engineStatuses: 'engineStatuses',
   error: 'error',
   startedAt: 'startedAt',
   finishedAt: 'finishedAt'
 } as const
 
-export type ScoutingRowRunScalarFieldEnum = (typeof ScoutingRowRunScalarFieldEnum)[keyof typeof ScoutingRowRunScalarFieldEnum]
+export type ImportJobRowScalarFieldEnum = (typeof ImportJobRowScalarFieldEnum)[keyof typeof ImportJobRowScalarFieldEnum]
+
+
+export const ImportJobRowEngineScalarFieldEnum = {
+  id: 'id',
+  jobRowId: 'jobRowId',
+  engine: 'engine',
+  status: 'status',
+  queryUsed: 'queryUsed',
+  fetchedCount: 'fetchedCount',
+  acceptedCount: 'acceptedCount',
+  durationMs: 'durationMs',
+  errorCode: 'errorCode',
+  error: 'error',
+  retryable: 'retryable',
+  attempts: 'attempts',
+  servedFromCache: 'servedFromCache',
+  startedAt: 'startedAt',
+  finishedAt: 'finishedAt'
+} as const
+
+export type ImportJobRowEngineScalarFieldEnum = (typeof ImportJobRowEngineScalarFieldEnum)[keyof typeof ImportJobRowEngineScalarFieldEnum]
 
 
 export const ProductCandidateRecordScalarFieldEnum = {
@@ -280,6 +304,7 @@ export const ProductCandidateRecordScalarFieldEnum = {
   url: 'url',
   title: 'title',
   imageUrl: 'imageUrl',
+  foundQuery: 'foundQuery',
   vendorName: 'vendorName',
   vendorUrl: 'vendorUrl',
   price: 'price',
@@ -292,11 +317,15 @@ export const ProductCandidateRecordScalarFieldEnum = {
   variants: 'variants',
   specs: 'specs',
   priceTiers: 'priceTiers',
+  relevanceScore: 'relevanceScore',
+  matchReasons: 'matchReasons',
+  matchWarnings: 'matchWarnings',
   contentHash: 'contentHash',
   firstSeenAt: 'firstSeenAt',
   lastCheckedAt: 'lastCheckedAt',
   lastChangedAt: 'lastChangedAt',
   changedFields: 'changedFields',
+  detailsFetchedAt: 'detailsFetchedAt',
   unavailable: 'unavailable'
 } as const
 
@@ -323,7 +352,7 @@ export type ProductSnapshotScalarFieldEnum = (typeof ProductSnapshotScalarFieldE
 
 export const ScoutingResultScalarFieldEnum = {
   id: 'id',
-  rowRunId: 'rowRunId',
+  jobRowId: 'jobRowId',
   candidateId: 'candidateId',
   outcome: 'outcome',
   rank: 'rank',

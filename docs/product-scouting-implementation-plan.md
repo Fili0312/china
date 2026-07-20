@@ -298,7 +298,7 @@ più le opzionali di comportamento (timeout, TTL cache, soglie, concorrenza,
 | M1 | Analisi, inventario, piano, schema DB, rischi | **completato** |
 | M2 | Upload xls/xlsx/csv, anteprima, mapping, normalizzazione, fingerprint, DB, riuso | **completato** |
 | M3 | PiloterrClient, Alibaba/AliExpress, cache e crediti, salvataggio candidati | **parzialmente completato** (manca la prova con chiave reale) |
-| M4 | Infrastruttura Playwright comune, Chinagoods, Yiwugo, Made-in-China, risultati parziali | da implementare |
+| M4 | ImportJob, ScoutingRequest, esecuzione, avanzamento, controlli, UI | **completato** |
 | M5 | Sessioni 1688/Taobao cifrate, scadenza, riconnessione | da implementare |
 | M6 | Dettagli, varianti, MOQ, stock, prezzi per quantità, storico, rilevamento modifiche | da implementare |
 | M7 | Hard constraints, dedup, punteggi, finalisti, motivazioni AI | da implementare |
@@ -447,3 +447,94 @@ schema ufficiale non li elenca, un esempio della libreria sì) e quale
 Nota: la documentazione segnala l'endpoint **Alibaba Product** come
 temporaneamente sospeso per manutenzione. Riguarda M6 (dettagli prodotto), non
 la ricerca.
+
+
+---
+
+## 9. M4 — esito (completato)
+
+### Vocabolario allineato
+
+I modelli sono stati rinominati per corrispondere ai termini della specifica.
+Le tabelle erano vuote, quindi il rename è stato applicato senza perdita:
+
+| Prima | Ora |
+| --- | --- |
+| `ScoutingRun` | `ImportJob` (uno per elaborazione di un file) |
+| `ScoutingRowRun` | `ImportJobRow` |
+| `ProductRequest` | `ScoutingRequest` (una per impronta distinta) |
+| — | `ImportJobRowEngine` (**nuovo**: stato per riga × marketplace) |
+
+### I quindici punti richiesti
+
+| # | Requisito | Dove |
+| --- | --- | --- |
+| 1 | ImportJob per file | `ImportJobService.createJob` |
+| 2 | ScoutingRequest per impronta | idem, tramite `upsertScoutingRequest` |
+| 3 | Righe duplicate sulla stessa richiesta | `requestIdByFingerprint` |
+| 4 | Scelta dei marketplace | `StartImportJobRequest.engines`, caselle in UI |
+| 5 | Avvio automatico di tutte le righe | `ScoutingRunnerService.start` |
+| 6 | Candidati salvati permanentemente | `candidate-store.ts` |
+| 7 | Candidato legato a richiesta **e** query | campo `foundQuery` |
+| 8 | Stato ed errori separati per marketplace | `ImportJobRowEngine` |
+| 9 | Avanzamento per file, riga e fonte | `GET /api/scouting/jobs/:id` |
+| 10 | Pausa, annulla, riprendi, ritenta | quattro endpoint POST + pulsanti |
+| 11 | Riuso dei candidati per impronta nota | `ScoutingRunnerService.canReuse` |
+| 12 | Nessuna ripetizione Piloterr con cache valida | cache del client + `servedFromCache` |
+| 13 | Aggiornamento dei candidati preparato | confronto `contentHash` + `ProductSnapshot` |
+| 14 | Endpoint backend | `import-job.controller.ts` |
+| 15 | Prima UI funzionante | `apps/web/app/scouting/` |
+
+### Perché l'esecuzione sta nell'API e non nel worker
+
+I provider di ricerca vivono nel processo API, Chromium compreso, e ogni
+marketplace ha già lì la propria coda, la propria cache e il proprio cooldown
+anti-captcha. Spostare l'esecuzione nel worker BullMQ significherebbe un
+secondo Chromium e due cache che si ignorano, cioè il doppio delle visite agli
+stessi siti — esattamente ciò che fa scattare i captcha. Lo stato vive
+interamente su Postgres, quindi pausa, ripresa e riavvio del servizio
+funzionano lo stesso.
+
+### Verifica end-to-end su marketplace reali
+
+CSV con tre righe di cui **due uguali a parole invertite**
+(`防静电椅 黑色 升降` e `防静电椅 升降 黑色`), fonti Chinagoods + Yiwugo:
+
+- job concluso 3/3, **1 riga riusata**: la riga 4 ha ereditato gli 8 candidati
+  della riga 2 senza interrogare nessuna fonte (entrambe le fonti `SKIPPED`
+  con motivazione esplicita);
+- prodotti veri salvati con prezzo e valuta della fonte (110 CNY da Yiwugo,
+  1,33 USD da Chinagoods) e con la query che li ha trovati;
+- durata e conteggi registrati per fonte: Chinagoods 13,8 s, Yiwugo 68,2 s;
+- crediti Piloterr consumati: 0 (chiave non configurata).
+
+Controlli di comando, su un job abbastanza lento da poterlo fermare davvero:
+
+- **pausa** durante l'esecuzione → `PAUSED` a 2/4 righe, le righe in corso
+  hanno completato il loro lavoro invece di buttarlo;
+- **ripresa** → riparte dalle righe rimaste;
+- **annulla** → `CANCELLED`, righe mai iniziate chiuse come annullate;
+- **ripresa di un job annullato** → rifiutata con messaggio che indirizza a
+  «ritenta»;
+- **ritenta tutto** dopo l'annullamento → 4/4 completate, **3 riusate**: la
+  sola riga senza candidati è stata ricercata di nuovo.
+
+UI guidata con un browser vero (Playwright): caricamento del CSV, colonne
+riconosciute con i campi giusti, marketplace preselezionati, avvio, barra di
+avanzamento, riepilogo per fonte, pulsante di pausa.
+
+Controlli: `pnpm typecheck` ✅ · `pnpm test` 101/101 ✅ · `pnpm build` ✅
+
+### Difetti trovati dai test e corretti
+
+1. **`resume` accettava anche job già conclusi**, riportandoli a `QUEUED` per
+   poi richiuderli subito: un giro a vuoto che in interfaccia sembra un errore.
+   Ora è permesso solo da `PAUSED`, `QUEUED`, `RUNNING`, `FAILED`.
+2. **L'annullamento lasciava in attesa le righe mai iniziate**, che «ritenta»
+   non riusciva più a vedere. Ora il ciclo le chiude come `CANCELLED`.
+
+### Nota sui dati di prova
+
+Tutti i dati creati durante la verifica sono stati rimossi dal database, e la
+build di `apps/web` è stata rigenerata con l'URL API di produzione dopo essere
+stata temporaneamente ricompilata verso la porta di test.

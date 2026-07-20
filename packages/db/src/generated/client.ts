@@ -75,23 +75,30 @@ export type ScoutingDataset = Prisma.ScoutingDatasetModel
  */
 export type ScoutingDatasetRow = Prisma.ScoutingDatasetRowModel
 /**
- * Model ProductRequest
+ * Model ScoutingRequest
  * Richiesta normalizzata: identità stabile fra file, righe e formulazioni.
  */
-export type ProductRequest = Prisma.ProductRequestModel
+export type ScoutingRequest = Prisma.ScoutingRequestModel
 /**
- * Model ScoutingRun
- * Un'esecuzione dello scouting su un dataset.
+ * Model ImportJob
+ * L'elaborazione di un file: una per avvio, con la propria configurazione.
  */
-export type ScoutingRun = Prisma.ScoutingRunModel
+export type ImportJob = Prisma.ImportJobModel
 /**
- * Model ScoutingRowRun
- * Avanzamento e risultato di una singola riga dentro un run.
+ * Model ImportJobRow
+ * Avanzamento e risultato di una singola riga dentro un job.
  */
-export type ScoutingRowRun = Prisma.ScoutingRowRunModel
+export type ImportJobRow = Prisma.ImportJobRowModel
+/**
+ * Model ImportJobRowEngine
+ * Esito della riga su un singolo marketplace: stato, conteggi ed errore
+ * restano separati per fonte, così un captcha su Alibaba non nasconde i
+ * risultati validi di Yiwugo e si può ritentare solo la fonte fallita.
+ */
+export type ImportJobRowEngine = Prisma.ImportJobRowEngineModel
 /**
  * Model ProductCandidateRecord
- * Prodotto trovato per una richiesta. Vive oltre il singolo run: è ciò che
+ * Prodotto trovato per una richiesta. Vive oltre il singolo job: è ciò che
  * permette di riaprire le pagine e aggiornare i dati invece di ricercare.
  */
 export type ProductCandidateRecord = Prisma.ProductCandidateRecordModel

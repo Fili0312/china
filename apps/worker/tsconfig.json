@@ -1,0 +1,13 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "rootDir": "src",
+    "outDir": "dist",
+    "declaration": false,
+    "declarationMap": false
+  },
+  "include": ["src"],
+  // I tool di debug Playwright si lanciano con tsx e non fanno parte del dist:
+  // fuori dalla build finché la modalità scraping è accantonata.
+  "exclude": ["src/tools"]
+}

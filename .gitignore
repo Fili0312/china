@@ -1,0 +1,9 @@
+node_modules/
+dist/
+.next/
+.turbo/
+.env
+*.tsbuildinfo
+
+# Fogli di richiesta caricati dagli utenti: dati cliente, non codice sorgente.
+data/

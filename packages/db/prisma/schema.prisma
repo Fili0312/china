@@ -1,0 +1,131 @@
+generator client {
+  provider     = "prisma-client"
+  output       = "../src/generated"
+  moduleFormat = "cjs"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum RequestStatus {
+  RECEIVED // creata, in coda per il parsing
+  PARSING // Claude sta estraendo la lista strutturata
+  SEARCHING // fan-out ricerche sui marketplace
+  ASSEMBLING // fan-in: calcolo preventivo
+  READY // preventivo pronto
+  FAILED
+}
+
+enum ItemStatus {
+  PENDING
+  SEARCHING
+  MATCHING // selezione AI dei candidati migliori
+  SELECTED
+  NO_RESULTS // nessun candidato trovato/adeguato: da quotare a mano
+  FAILED
+}
+
+model QuoteRequest {
+  id        String        @id @default(cuid())
+  rawText   String
+  status    RequestStatus @default(RECEIVED)
+  markupPct Float
+  currency  String        @default("USD")
+  error     String?
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt
+
+  items RequestItem[]
+  quote Quote?
+}
+
+model RequestItem {
+  id        String       @id @default(cuid())
+  request   QuoteRequest @relation(fields: [requestId], references: [id], onDelete: Cascade)
+  requestId String
+  position  Int
+
+  name       String
+  quantity   Int
+  color      String?
+  size       String?
+  attributes Json?
+  notes      String?
+
+  queryEn String?
+  queryZh String?
+
+  status ItemStatus @default(PENDING)
+  error  String?
+
+  candidates ProductCandidate[]
+
+  @@index([requestId])
+}
+
+model ProductCandidate {
+  id     String      @id @default(cuid())
+  item   RequestItem @relation(fields: [itemId], references: [id], onDelete: Cascade)
+  itemId String
+
+  marketplace String
+  externalId  String // id opaco lato adapter (per gli scraper: l'URL prodotto)
+  title       String
+  url         String
+  imageUrl    String?
+
+  priceValue    Decimal? @db.Decimal(12, 4)
+  priceCurrency String?
+  moq           Int?
+  raw           Json?
+
+  // Valorizzati dal passo di matching AI (solo per i candidati scelti)
+  selectedRank Int? // 1 = scelta principale, 2-3 alternative
+  score        Float?
+  reason       String?
+  variant      String?
+
+  createdAt DateTime @default(now())
+
+  @@unique([itemId, marketplace, externalId])
+  @@index([itemId])
+}
+
+model Quote {
+  id        String       @id @default(cuid())
+  request   QuoteRequest @relation(fields: [requestId], references: [id], onDelete: Cascade)
+  requestId String       @unique
+
+  currency   String
+  markupPct  Float
+  totalCost  Decimal @db.Decimal(14, 2)
+  totalPrice Decimal @db.Decimal(14, 2)
+
+  createdAt DateTime    @default(now())
+  lines     QuoteLine[]
+}
+
+model QuoteLine {
+  id      String @id @default(cuid())
+  quote   Quote  @relation(fields: [quoteId], references: [id], onDelete: Cascade)
+  quoteId String
+
+  itemId      String
+  candidateId String?
+
+  description String
+  quantity    Int
+  unitCost    Decimal @db.Decimal(12, 4)
+  unitPrice   Decimal @db.Decimal(12, 4)
+  lineTotal   Decimal @db.Decimal(14, 2)
+
+  marketplace String?
+  url         String?
+  imageUrl    String?
+  moq         Int?
+  variant     String?
+  note        String?
+
+  @@index([quoteId])
+}

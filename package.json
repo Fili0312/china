@@ -1,0 +1,27 @@
+{
+  "name": "china-sourcing",
+  "private": true,
+  "packageManager": "pnpm@9.15.9",
+  "scripts": {
+    "build": "turbo run build",
+    "dev": "turbo run dev",
+    "test:search": "pnpm --filter @china/api test:search",
+    "typecheck": "turbo run typecheck",
+    "db:generate": "pnpm --filter @china/db db:generate",
+    "db:push": "pnpm --filter @china/db db:push",
+    "start:api": "pnpm --filter @china/api start",
+    "start:worker": "pnpm --filter @china/worker start",
+    "start:web": "pnpm --filter @china/web start"
+  },
+  "devDependencies": {
+    "@types/node": "^26.1.1",
+    "tsx": "^4.23.0",
+    "turbo": "^2.3.0",
+    "typescript": "^5.7.0"
+  },
+  "pnpm": {
+    "overrides": {
+      "ioredis": "^5.11.1"
+    }
+  }
+}

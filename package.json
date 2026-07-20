@@ -6,6 +6,7 @@
     "build": "turbo run build",
     "dev": "turbo run dev",
     "test:search": "pnpm --filter @china/api test:search",
+    "test": "pnpm --filter @china/api test",
     "typecheck": "turbo run typecheck",
     "db:generate": "pnpm --filter @china/db db:generate",
     "db:push": "pnpm --filter @china/db db:push",

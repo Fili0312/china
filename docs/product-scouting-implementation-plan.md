@@ -1,0 +1,369 @@
+# Scouting prodotti multi-marketplace da file Excel — piano di implementazione
+
+Branch: `feature/multi-marketplace-scouting`
+Documento vivo: ogni milestone aggiorna la propria sezione di stato
+(`completato` / `parzialmente completato` / `bloccato` / `da implementare`).
+
+---
+
+## 1. Inventario del repository esistente
+
+### 1.1 Stack rilevato
+
+| Livello | Tecnologia | Dove |
+| --- | --- | --- |
+| Monorepo | pnpm 9.15.9 workspace + Turborepo 2 | `pnpm-workspace.yaml`, `turbo.json` |
+| Linguaggio | TypeScript 5.7 strict, `module: NodeNext` | `tsconfig.base.json` |
+| Backend | NestJS 11 REST (+ SSE), porta 3021, prefisso globale `/api` | `apps/api` |
+| Worker | BullMQ 5 + Playwright, code Redis | `apps/worker` |
+| Frontend | Next 16 App Router, React 19, porta 3020, `basePath=/china` | `apps/web` |
+| Database | PostgreSQL 16 + Prisma 7 (`prisma-client` generator, `@prisma/adapter-pg`) | `packages/db` |
+| Contratti | Zod 4 | `packages/shared` |
+| Scraping | interfaccia `MarketplaceAdapter` + Chromium condiviso | `packages/adapters` |
+| AI | Claude structured output (`@anthropic-ai/sdk`) | `packages/ai` |
+| Excel | `xlsx` 0.18.5 (già dipendenza di `@china/api`) | `apps/api/src/inquiry` |
+| Test | `node --test` via `tsx --test` (nessun framework esterno) | `*.test.ts` |
+
+**Autenticazione: assente.** Non esiste alcun modulo di login, sessione o
+guard Nest. L'applicazione è esposta dietro nginx su
+`filippo.eventoyou.com/china` senza controllo accessi.
+
+**Lint: assente.** Non esiste ESLint/Biome né configurazione. Lo script
+`typecheck` (`tsc --noEmit`) è oggi l'unico controllo statico.
+
+**Migrazioni: assenti.** Lo schema è applicato con `prisma db push`, non
+esiste `prisma/migrations/`. Le 5 tabelle attuali sono già create sul DB
+`china_sourcing`.
+
+### 1.2 Funzionalità già operative (da riutilizzare, non riscrivere)
+
+1. **Ricerca multi-motore** — `apps/api/src/search/search.service.ts`
+   registra 7 motori dietro l'interfaccia `ProductSearchProvider`:
+   `taobao`/`tmall` (OTAPI) e `alibaba`/`aliexpress`/`made-in-china`/
+   `chinagoods`/`yiwugo` (`MarketplaceScraperProvider` → adapter Playwright).
+   Espone `GET /api/search` (singolo motore) e `POST /api/v1/searches`
+   (aggregato, errori tipizzati isolati per fonte).
+2. **Motore di pertinenza** — `relevance.ts` (1319 righe): punteggio 0-100,
+   copertura termini, gestione query cinese vs titolo inglese, dedup,
+   `matchReasons`/`matchWarnings`. Soglie per profilo `strict|balanced|broad`.
+3. **Pianificazione query** — `query-planner.ts`: normalizzazione unità e
+   forma della query **per motore** (OTAPI vuole `10000 mah` staccato, i
+   cataloghi internazionali `10000mAh`).
+4. **Aggregazione** — `aggregate.ts`: merge dei duplicati fra fonti in
+   `offers[]` con `canonicalKey`, selezione diversificata.
+5. **Import fogli 询价** — `apps/api/src/inquiry/`: lettura `.xls/.xlsx/.xlsm`
+   con riconoscimento delle intestazioni **cinesi** per nome (non per
+   posizione), estrazione del link di riferimento (hyperlink o URL in cella),
+   costruzione della query cinese verbatim (`inquiry-query.ts`), upload come
+   corpo binario `application/octet-stream` (niente multer: `express` non è
+   risolvibile da `apps/api` con pnpm).
+6. **Adapter Playwright** — `packages/adapters`: 5 marketplace reali con
+   `search()` **e** `getDetails()` già implementati (varianti, `priceTiers`,
+   `attributes`, immagini), rilevamento captcha esplicito, browser Chromium
+   condiviso per processo (`browser.ts`).
+7. **Protezioni di carico** — cache per-provider con TTL, cooldown captcha,
+   coda serializzata per marketplace, `SEARCH_MAX_IN_FLIGHT`,
+   `search-rate-limit.service.ts`.
+8. **Pipeline preventivi legacy** — BullMQ Flow
+   (`quote-parse` → `item-search` → `item-select` → `quote-assemble`) con
+   avanzamento via Redis pub/sub + SSE `GET /api/quotes/:id/events`.
+   Accantonata ma **intatta**: è il modello di riferimento per i job.
+9. **UI** — `search-experience.tsx` (motore singolo), `bulk-search.tsx`
+   (lista prodotti, pool client-side), `inquiry-search.tsx` (righe da Excel),
+   `search-shared.tsx` (card prodotto condivisa).
+
+### 1.3 Cosa manca rispetto all'obiettivo
+
+| Requisito | Stato attuale |
+| --- | --- |
+| Upload CSV | ❌ solo `.xls/.xlsx/.xlsm` |
+| Mapping colonne scelto dall'utente | ❌ intestazioni cinesi fisse |
+| Anteprima righe/colonne generiche | ❌ solo schema 询价 |
+| Fingerprint della richiesta | ❌ inesistente |
+| Riuso di richieste già elaborate | ❌ inesistente |
+| Job server-side con avanzamento per riga | ❌ il bulk gira nel browser |
+| Persistenza di candidati/scartati/finalisti | ❌ nessuna tabella |
+| Storico prezzi e rilevamento modifiche | ❌ inesistente |
+| Piloterr | ❌ inesistente |
+| Sessioni account 1688/Taobao cifrate | ❌ inesistenti |
+| Export Excel | ⚠️ solo CSV lato browser |
+
+---
+
+## 2. Vincoli reali verificati (non negoziabili)
+
+Questi limiti sono stati verificati sul campo in sessioni precedenti e sono
+registrati nel README: il piano ci si adatta invece di ignorarli.
+
+- **Alibaba e Made-in-China sono bloccati da captcha dall'IP del VPS**, anche
+  con query inglesi. Non sono risolvibili via Playwright da questo server →
+  è esattamente il caso d'uso di **Piloterr** (M3).
+- **AliExpress non ha vetrina cinese** e reindirizza a `de.aliexpress.com`:
+  è un catalogo export al dettaglio, impreciso sui ricambi industriali.
+- **`s.1688.com` risponde con punish page**, **`s.taobao.com` richiede login**:
+  Taobao resta raggiungibile solo via OTAPI; 1688 richiede sessione (M5).
+- **Chinagoods capisce il cinese ma pubblica titoli in inglese** → il ranking
+  cross-lingua è già gestito da `relevance.ts` e non va rifatto.
+- **Yiwugo cinese è una SPA**: serve `waitFor` ≥ 15 s.
+- Fonti affidabili per un blocco di richieste cinesi: **Yiwugo** e
+  **Chinagoods**.
+
+---
+
+## 3. Architettura proposta
+
+Nuovo dominio **`scouting`**, additivo: non tocca `search`, `inquiry`,
+`quotes`. Riusa i loro servizi come dipendenze.
+
+```
+apps/api/src/scouting/
+  scouting.module.ts
+  datasets/            upload, parsing xls/xlsx/csv, anteprima, mapping
+  normalize/           riga grezza → richiesta normalizzata + requisiti
+  fingerprint/         impronta stabile della richiesta
+  runs/                job di scouting, avanzamento per riga
+  selection/           hard constraints, dedup, punteggi, finalisti
+  export/              workbook dei risultati
+apps/api/src/search/providers/piloterr.provider.ts
+packages/shared/src/schemas/scouting.ts
+```
+
+Il **worker** esegue le righe (BullMQ, come la pipeline preventivi); l'API
+pubblica lo stato via SSE riusando `events.service.ts`.
+
+### 3.1 Impronta della richiesta (identità)
+
+Il tipo richiesto dalla specifica è il contratto di input:
+
+```ts
+type ProductRequirementFingerprintInput = {
+  category: string | null;
+  brand: string | null;
+  model: string | null;
+  normalizedName: string;
+  requiredVariant: Record<string, string | number>;
+  dimensions: Record<string, number>;
+  material: string | null;
+  power: number | null;
+  voltage: number | null;
+  capacity: number | null;
+  certifications: string[];
+  requestedQuantity: number | null;
+};
+```
+
+Regole di stabilità (il fingerprint **non** dipende da file, riga o ordine):
+
+- `normalizedName`: NFKC, minuscole, punteggiatura → spazio, token ordinati
+  alfabeticamente (l'ordine delle parole non conta), stopword amministrative
+  rimosse;
+- unità convertite in **unità base SI** prima dell'hash (mm, W, V, ml/l → l,
+  g/kg → kg): `1.5 m` e `1500 mm` producono la stessa impronta;
+- `requiredVariant` e `dimensions`: chiavi ordinate, numeri arrotondati a 4
+  decimali per evitare derive in virgola mobile;
+- `certifications`: deduplicate, maiuscole, ordinate;
+- `requestedQuantity` **esclusa** dall'hash (una quantità diversa non è un
+  prodotto diverso) ma conservata sul record;
+- hash = SHA-256 del JSON canonico, primi 32 caratteri esadecimali.
+
+Due `fingerprint` a confronto:
+`ProductRequest.fingerprint` (identità forte, indice unico) e
+`normalizedNameKey` (identità debole, per suggerire richieste simili).
+
+### 3.2 Riuso vs nuova ricerca
+
+Per ogni riga:
+
+1. calcolo del fingerprint → `SELECT ProductRequest WHERE fingerprint = ?`;
+2. **mai vista** → ricerca completa sui motori scelti;
+3. **già vista** → si riaprono le pagine dei candidati salvati
+   (`getDetails`/Piloterr), si aggiornano prezzo, variante, stock, MOQ,
+   venditore, recensioni, disponibilità;
+4. confronto campo per campo con `ProductSnapshot`: se nulla è cambiato il
+   punteggio resta **invariato** (nessun ricalcolo, nessun consumo di crediti);
+5. ricalcolo dei punteggi **solo** per i candidati con dati modificati;
+6. nuova ricerca completa solo se: nessun candidato salvato, finalisti sotto
+   la soglia minima, oppure `staleness` > `SCOUTING_REFRESH_AFTER_DAYS`,
+   oppure richiesta esplicita dell'utente (`forceFullSearch`).
+
+---
+
+## 4. Schema database proposto (additivo)
+
+Nessuna tabella esistente viene modificata o rimossa.
+
+```prisma
+model ScoutingDataset {          // un file caricato
+  id, fileName, format(xls|xlsx|csv), sheetName, sizeBytes,
+  columns Json,                  // intestazioni riconosciute
+  mapping Json,                  // scelta dell'utente colonna→campo
+  rowCount, createdAt
+  rows ScoutingDatasetRow[]
+  runs ScoutingRun[]
+}
+
+model ScoutingDatasetRow {       // riga originale, valori intatti
+  id, datasetId, rowNumber, cells Json, createdAt
+  @@unique([datasetId, rowNumber])
+}
+
+model ProductRequest {           // richiesta normalizzata, riusabile fra file
+  id, fingerprint @unique, normalizedNameKey,
+  normalizedName, category, brand, model,
+  requiredVariant Json, dimensions Json,
+  material, power, voltage, capacity,
+  certifications String[], requestedQuantity,
+  searchQuery, language, firstSeenAt, lastSearchedAt, searchCount
+  candidates ProductCandidateRecord[]
+  rowRuns ScoutingRowRun[]
+}
+
+model ScoutingRun {              // esecuzione su un dataset
+  id, datasetId, status, engines String[], quality,
+  totalRows, processedRows, reusedRows, failedRows,
+  startedAt, finishedAt, error
+  rows ScoutingRowRun[]
+}
+
+model ScoutingRowRun {           // avanzamento della singola riga
+  id, runId, datasetRowId, productRequestId,
+  status(PENDING|NORMALIZING|SEARCHING|REFRESHING|SCORING|DONE|SKIPPED|FAILED),
+  reused Boolean, engineStatuses Json, error,
+  startedAt, finishedAt
+  results ScoutingResult[]
+}
+
+model ProductCandidateRecord {   // prodotto trovato, vive oltre il run
+  id, productRequestId, engine, externalId, url, title, imageUrl,
+  vendorName, vendorUrl, price, currency, moq, stock,
+  rating, reviewCount, variants Json, specs Json, priceTiers Json,
+  firstSeenAt, lastCheckedAt, lastChangedAt, contentHash
+  snapshots ProductSnapshot[]
+  results ScoutingResult[]
+  @@unique([productRequestId, engine, externalId])
+}
+
+model ProductSnapshot {          // storico: una riga per cambiamento reale
+  id, candidateId, capturedAt, price, currency, moq, stock,
+  rating, reviewCount, availability, contentHash, changedFields String[]
+}
+
+model ScoutingResult {           // esito per riga: finalista o scartato
+  id, rowRunId, candidateId,
+  outcome(FINALIST|REJECTED|SHORTLISTED),
+  rank, score, scoreBreakdown Json,
+  rejectionCode, rejectionReason, aiRationale,
+  scoreReused Boolean, createdAt
+}
+```
+
+Applicazione: `pnpm db:push` (coerente con la prassi esistente).
+
+---
+
+## 5. Rischi e dipendenze mancanti
+
+| # | Rischio | Impatto | Mitigazione |
+| --- | --- | --- | --- |
+| R1 | **Chiave Piloterr non disponibile in questa sessione** | il provider non è verificabile live | client completo + test unitari con `fetch` iniettato; nessun mock nel percorso di produzione: senza chiave il motore risponde con errore tipizzato `SOURCE_CONFIGURATION` |
+| R2 | Captcha su Alibaba/Made-in-China da questo IP | scouting incompleto su quelle fonti | instradamento automatico su Piloterr quando la chiave è presente; errore esplicito altrimenti |
+| R3 | 1688/Taobao richiedono login | M5 non verificabile senza credenziali reali | infrastruttura sessioni cifrate completa + procedura di test manuale documentata |
+| R4 | Nessun ESLint nel repo | «esegui lint» non ha un comando | `typecheck` + `test` + `build` come gate; aggiungere ESLint è fuori perimetro e produrrebbe migliaia di segnalazioni sul codice esistente |
+| R5 | Nessuna autenticazione | i dataset caricati sono pubblici | fuori perimetro, ma **segnalato**: l'endpoint di upload eredita l'esposizione attuale |
+| R6 | Costo AI sulle motivazioni (M7) | ~3¢/articolo con opus | motivazione AI **opzionale** e solo sui finalisti; punteggi sempre deterministici |
+| R7 | `prisma db push` senza migrazioni | derive fra ambienti | schema additivo, nessuna colonna rimossa |
+| R8 | Playwright serializzato per marketplace | un file da 400 righe è lento | riuso della cache per fingerprint + concorrenza per motore configurabile |
+
+### Dipendenze nuove
+
+- **nessun nuovo pacchetto npm richiesto**: `xlsx` (Excel + CSV), `zod`,
+  `bullmq`, `playwright`, `@prisma/client` sono già presenti; la cifratura
+  delle sessioni usa `node:crypto` (AES-256-GCM).
+
+### Variabili d'ambiente nuove (solo `.env.example`, valori mai nel codice)
+
+```
+PILOTERR_API_KEY=
+```
+
+più le opzionali di comportamento (timeout, TTL cache, soglie, concorrenza,
+`SCOUTING_SESSION_SECRET` per M5).
+
+---
+
+## 6. Stato delle milestone
+
+| # | Contenuto | Stato |
+| --- | --- | --- |
+| M1 | Analisi, inventario, piano, schema DB, rischi | **completato** |
+| M2 | Upload xls/xlsx/csv, anteprima, mapping, normalizzazione, fingerprint, DB, riuso | **completato** |
+| M3 | PiloterrClient, Alibaba/AliExpress, cache e crediti, salvataggio candidati | da implementare |
+| M4 | Infrastruttura Playwright comune, Chinagoods, Yiwugo, Made-in-China, risultati parziali | da implementare |
+| M5 | Sessioni 1688/Taobao cifrate, scadenza, riconnessione | da implementare |
+| M6 | Dettagli, varianti, MOQ, stock, prezzi per quantità, storico, rilevamento modifiche | da implementare |
+| M7 | Hard constraints, dedup, punteggi, finalisti, motivazioni AI | da implementare |
+| M8 | UI, avanzamento job, export Excel, test end-to-end, documentazione | da implementare |
+
+
+---
+
+## 7. M2 — esito (completato)
+
+### Cosa è stato costruito
+
+| Componente | File |
+| --- | --- |
+| Contratti Zod dello scouting | `packages/shared/src/schemas/scouting.ts` |
+| Impronta stabile della richiesta | `packages/shared/src/scouting/fingerprint.ts` |
+| Estrazione requisiti + conversione unità | `packages/shared/src/scouting/requirements.ts` |
+| Lettura file xls/xlsx/xlsm/csv, colonne, mapping | `apps/api/src/scouting/dataset-workbook.ts` |
+| Riga → richiesta normalizzata | `apps/api/src/scouting/normalize-request.ts` |
+| Persistenza, riuso, ricerca per impronta | `apps/api/src/scouting/scouting.service.ts` |
+| API REST | `apps/api/src/scouting/scouting.controller.ts` |
+| Lettura corpo binario condivisa | `apps/api/src/common/binary-body.ts` |
+| Schema DB (9 modelli, 3 enum) | `packages/db/prisma/schema.prisma` |
+
+Endpoint disponibili:
+
+```
+GET    /api/scouting/datasets                  elenco dei file caricati
+POST   /api/scouting/datasets                  upload (corpo binario)
+GET    /api/scouting/datasets/:id              anteprima righe e colonne
+PUT    /api/scouting/datasets/:id/mapping      conferma mappatura
+POST   /api/scouting/datasets/:id/normalize    normalizza + segnala i già noti
+```
+
+### Verifica su dati reali
+
+Eseguita sul foglio `副本博工询价.xls` (249 righe, colonne cinesi):
+
+- riga di intestazione trovata alla **riga 5**, non alla prima;
+- 12 colonne su 19 associate automaticamente al campo giusto, compresa la
+  colonna **S senza intestazione**, riconosciuta come link di riferimento dai
+  collegamenti ipertestuali delle celle;
+- 248 righe normalizzate, 1 scartata (priva di nome prodotto);
+- **240 impronte distinte**: 8 righe erano duplicati interni al file,
+  individuati senza intervento manuale;
+- al secondo passaggio tutte e 240 le richieste risultano già elaborate;
+- `长200*宽40*高140` → `{length: 200, width: 40, height: 140}` mm;
+  la stessa riga riscritta come `高14cm*宽4cm*长20cm`, con le parole in ordine
+  diverso, produce **la stessa identica impronta**;
+- `针规 2.48` e `针规 2.62` restano due richieste **diverse**: i numeri non
+  consumati da una misura restano parte dell'identità.
+
+Controlli: `pnpm typecheck` ✅ · `pnpm test` 78/78 ✅ · `pnpm build` ✅
+(34 test nuovi in `apps/api/src/scouting/`).
+
+I dati di prova sono stati rimossi dal database al termine della verifica.
+
+### Gotcha scoperto durante la verifica
+
+**`pnpm dev` non funziona per l'API, e non è colpa dello scouting.** `tsx` usa
+esbuild, che non emette `design:paramtypes`: l'iniezione delle dipendenze di
+Nest fallisce e **ogni** controller risponde 500
+(`Cannot read properties of undefined`). Vale anche per `quotes`, `search` e
+`inquiry`, che sono precedenti a questo lavoro. Il servizio in produzione non
+è toccato perché gira su `node dist/main.js`, compilato da `tsc`. Per provare
+l'API in locale: `pnpm --filter @china/api build && node dist/main.js`.
+Sistemarlo (`@swc-node/register` o `nest start`) è fuori dal perimetro di
+questo intervento, ma va annotato.

@@ -55,7 +55,15 @@ export const ModelName = {
   RequestItem: 'RequestItem',
   ProductCandidate: 'ProductCandidate',
   Quote: 'Quote',
-  QuoteLine: 'QuoteLine'
+  QuoteLine: 'QuoteLine',
+  ScoutingDataset: 'ScoutingDataset',
+  ScoutingDatasetRow: 'ScoutingDatasetRow',
+  ProductRequest: 'ProductRequest',
+  ScoutingRun: 'ScoutingRun',
+  ScoutingRowRun: 'ScoutingRowRun',
+  ProductCandidateRecord: 'ProductCandidateRecord',
+  ProductSnapshot: 'ProductSnapshot',
+  ScoutingResult: 'ScoutingResult'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -163,6 +171,174 @@ export const QuoteLineScalarFieldEnum = {
 export type QuoteLineScalarFieldEnum = (typeof QuoteLineScalarFieldEnum)[keyof typeof QuoteLineScalarFieldEnum]
 
 
+export const ScoutingDatasetScalarFieldEnum = {
+  id: 'id',
+  fileName: 'fileName',
+  format: 'format',
+  sheetName: 'sheetName',
+  sizeBytes: 'sizeBytes',
+  headerRowNumber: 'headerRowNumber',
+  columns: 'columns',
+  mapping: 'mapping',
+  rowCount: 'rowCount',
+  warnings: 'warnings',
+  createdAt: 'createdAt'
+} as const
+
+export type ScoutingDatasetScalarFieldEnum = (typeof ScoutingDatasetScalarFieldEnum)[keyof typeof ScoutingDatasetScalarFieldEnum]
+
+
+export const ScoutingDatasetRowScalarFieldEnum = {
+  id: 'id',
+  datasetId: 'datasetId',
+  rowNumber: 'rowNumber',
+  cells: 'cells',
+  hyperlink: 'hyperlink'
+} as const
+
+export type ScoutingDatasetRowScalarFieldEnum = (typeof ScoutingDatasetRowScalarFieldEnum)[keyof typeof ScoutingDatasetRowScalarFieldEnum]
+
+
+export const ProductRequestScalarFieldEnum = {
+  id: 'id',
+  fingerprint: 'fingerprint',
+  normalizedNameKey: 'normalizedNameKey',
+  displayName: 'displayName',
+  normalizedName: 'normalizedName',
+  category: 'category',
+  brand: 'brand',
+  model: 'model',
+  material: 'material',
+  power: 'power',
+  voltage: 'voltage',
+  capacity: 'capacity',
+  dimensions: 'dimensions',
+  requiredVariant: 'requiredVariant',
+  certifications: 'certifications',
+  requirements: 'requirements',
+  requestedQuantity: 'requestedQuantity',
+  unit: 'unit',
+  targetPrice: 'targetPrice',
+  notes: 'notes',
+  referenceUrl: 'referenceUrl',
+  searchQuery: 'searchQuery',
+  language: 'language',
+  firstSeenAt: 'firstSeenAt',
+  lastSearchedAt: 'lastSearchedAt',
+  searchCount: 'searchCount'
+} as const
+
+export type ProductRequestScalarFieldEnum = (typeof ProductRequestScalarFieldEnum)[keyof typeof ProductRequestScalarFieldEnum]
+
+
+export const ScoutingRunScalarFieldEnum = {
+  id: 'id',
+  datasetId: 'datasetId',
+  status: 'status',
+  engines: 'engines',
+  quality: 'quality',
+  candidatesPerEngine: 'candidatesPerEngine',
+  finalists: 'finalists',
+  forceFullSearch: 'forceFullSearch',
+  aiRationale: 'aiRationale',
+  mapping: 'mapping',
+  totalRows: 'totalRows',
+  processedRows: 'processedRows',
+  reusedRows: 'reusedRows',
+  failedRows: 'failedRows',
+  startedAt: 'startedAt',
+  finishedAt: 'finishedAt',
+  error: 'error',
+  createdAt: 'createdAt'
+} as const
+
+export type ScoutingRunScalarFieldEnum = (typeof ScoutingRunScalarFieldEnum)[keyof typeof ScoutingRunScalarFieldEnum]
+
+
+export const ScoutingRowRunScalarFieldEnum = {
+  id: 'id',
+  runId: 'runId',
+  datasetRowId: 'datasetRowId',
+  requestId: 'requestId',
+  rowNumber: 'rowNumber',
+  status: 'status',
+  reused: 'reused',
+  engineStatuses: 'engineStatuses',
+  error: 'error',
+  startedAt: 'startedAt',
+  finishedAt: 'finishedAt'
+} as const
+
+export type ScoutingRowRunScalarFieldEnum = (typeof ScoutingRowRunScalarFieldEnum)[keyof typeof ScoutingRowRunScalarFieldEnum]
+
+
+export const ProductCandidateRecordScalarFieldEnum = {
+  id: 'id',
+  requestId: 'requestId',
+  engine: 'engine',
+  externalId: 'externalId',
+  url: 'url',
+  title: 'title',
+  imageUrl: 'imageUrl',
+  vendorName: 'vendorName',
+  vendorUrl: 'vendorUrl',
+  price: 'price',
+  currency: 'currency',
+  moq: 'moq',
+  stock: 'stock',
+  rating: 'rating',
+  reviewCount: 'reviewCount',
+  totalSales: 'totalSales',
+  variants: 'variants',
+  specs: 'specs',
+  priceTiers: 'priceTiers',
+  contentHash: 'contentHash',
+  firstSeenAt: 'firstSeenAt',
+  lastCheckedAt: 'lastCheckedAt',
+  lastChangedAt: 'lastChangedAt',
+  changedFields: 'changedFields',
+  unavailable: 'unavailable'
+} as const
+
+export type ProductCandidateRecordScalarFieldEnum = (typeof ProductCandidateRecordScalarFieldEnum)[keyof typeof ProductCandidateRecordScalarFieldEnum]
+
+
+export const ProductSnapshotScalarFieldEnum = {
+  id: 'id',
+  candidateId: 'candidateId',
+  capturedAt: 'capturedAt',
+  price: 'price',
+  currency: 'currency',
+  moq: 'moq',
+  stock: 'stock',
+  rating: 'rating',
+  reviewCount: 'reviewCount',
+  available: 'available',
+  contentHash: 'contentHash',
+  changedFields: 'changedFields'
+} as const
+
+export type ProductSnapshotScalarFieldEnum = (typeof ProductSnapshotScalarFieldEnum)[keyof typeof ProductSnapshotScalarFieldEnum]
+
+
+export const ScoutingResultScalarFieldEnum = {
+  id: 'id',
+  rowRunId: 'rowRunId',
+  candidateId: 'candidateId',
+  outcome: 'outcome',
+  rank: 'rank',
+  score: 'score',
+  scoreBreakdown: 'scoreBreakdown',
+  rejectionCode: 'rejectionCode',
+  rejectionReason: 'rejectionReason',
+  aiRationale: 'aiRationale',
+  scoreReused: 'scoreReused',
+  createdAt: 'createdAt'
+} as const
+
+export type ScoutingResultScalarFieldEnum = (typeof ScoutingResultScalarFieldEnum)[keyof typeof ScoutingResultScalarFieldEnum]
+
+
 export const SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -177,6 +353,13 @@ export const NullableJsonNullValueInput = {
 } as const
 
 export type NullableJsonNullValueInput = (typeof NullableJsonNullValueInput)[keyof typeof NullableJsonNullValueInput]
+
+
+export const JsonNullValueInput = {
+  JsonNull: JsonNull
+} as const
+
+export type JsonNullValueInput = (typeof JsonNullValueInput)[keyof typeof JsonNullValueInput]
 
 
 export const QueryMode = {

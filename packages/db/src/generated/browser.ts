@@ -42,3 +42,44 @@ export type Quote = Prisma.QuoteModel
  * 
  */
 export type QuoteLine = Prisma.QuoteLineModel
+/**
+ * Model ScoutingDataset
+ * Un file caricato dall'utente, con le colonne riconosciute.
+ */
+export type ScoutingDataset = Prisma.ScoutingDatasetModel
+/**
+ * Model ScoutingDatasetRow
+ * Riga originale del file: i valori delle celle restano intatti.
+ */
+export type ScoutingDatasetRow = Prisma.ScoutingDatasetRowModel
+/**
+ * Model ProductRequest
+ * Richiesta normalizzata: identità stabile fra file, righe e formulazioni.
+ */
+export type ProductRequest = Prisma.ProductRequestModel
+/**
+ * Model ScoutingRun
+ * Un'esecuzione dello scouting su un dataset.
+ */
+export type ScoutingRun = Prisma.ScoutingRunModel
+/**
+ * Model ScoutingRowRun
+ * Avanzamento e risultato di una singola riga dentro un run.
+ */
+export type ScoutingRowRun = Prisma.ScoutingRowRunModel
+/**
+ * Model ProductCandidateRecord
+ * Prodotto trovato per una richiesta. Vive oltre il singolo run: è ciò che
+ * permette di riaprire le pagine e aggiornare i dati invece di ricercare.
+ */
+export type ProductCandidateRecord = Prisma.ProductCandidateRecordModel
+/**
+ * Model ProductSnapshot
+ * Storico: una riga per ogni cambiamento reale dei dati del prodotto.
+ */
+export type ProductSnapshot = Prisma.ProductSnapshotModel
+/**
+ * Model ScoutingResult
+ * Esito di un prodotto per una riga: finalista o scartato, con motivazione.
+ */
+export type ScoutingResult = Prisma.ScoutingResultModel

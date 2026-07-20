@@ -12,43 +12,9 @@ import {
   InquiryImportQuerySchema,
   InquiryRowsQuerySchema,
 } from "@china/shared";
+import { readBinaryBody, type BinaryRequest } from "../common/binary-body";
 import { InquiryService } from "./inquiry.service";
 import { InquiryWorkbookError } from "./inquiry-workbook";
-
-/**
- * Il corpo della richiesta arriva come stream binario: i parser JSON e
- * urlencoded di Nest ignorano `application/octet-stream`, quindi lo stream è
- * ancora leggibile qui e non serve un parser multipart aggiuntivo.
- */
-interface BinaryRequest {
-  on(event: "data", listener: (chunk: Buffer) => void): this;
-  on(event: "end", listener: () => void): this;
-  on(event: "error", listener: (error: Error) => void): this;
-  destroy(error?: Error): void;
-}
-
-function readBody(request: BinaryRequest, maxBytes: number): Promise<Buffer> {
-  return new Promise((resolvePromise, rejectPromise) => {
-    const chunks: Buffer[] = [];
-    let size = 0;
-    request.on("data", (chunk) => {
-      size += chunk.length;
-      if (size > maxBytes) {
-        request.destroy();
-        rejectPromise(
-          new HttpException(
-            `File troppo grande: il limite è ${Math.floor(maxBytes / (1024 * 1024))} MB.`,
-            HttpStatus.PAYLOAD_TOO_LARGE
-          )
-        );
-        return;
-      }
-      chunks.push(chunk);
-    });
-    request.on("end", () => resolvePromise(Buffer.concat(chunks)));
-    request.on("error", (error) => rejectPromise(error));
-  });
-}
 
 function toHttpError(error: unknown): never {
   if (error instanceof InquiryWorkbookError) {
@@ -93,7 +59,7 @@ export class InquiryController {
     if (!parsed.success) {
       throw new BadRequestException(parsed.error.flatten());
     }
-    const content = await readBody(request, this.inquiry.maxUploadBytes);
+    const content = await readBinaryBody(request, this.inquiry.maxUploadBytes);
     if (content.length === 0) {
       throw new BadRequestException("Nessun file ricevuto.");
     }

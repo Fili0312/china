@@ -31,3 +31,38 @@ export const ItemStatus = {
 } as const
 
 export type ItemStatus = (typeof ItemStatus)[keyof typeof ItemStatus]
+
+
+export const ScoutingRunStatus = {
+  QUEUED: 'QUEUED',
+  RUNNING: 'RUNNING',
+  COMPLETED: 'COMPLETED',
+  COMPLETED_WITH_ERRORS: 'COMPLETED_WITH_ERRORS',
+  FAILED: 'FAILED',
+  CANCELLED: 'CANCELLED'
+} as const
+
+export type ScoutingRunStatus = (typeof ScoutingRunStatus)[keyof typeof ScoutingRunStatus]
+
+
+export const ScoutingRowStatus = {
+  PENDING: 'PENDING',
+  NORMALIZING: 'NORMALIZING',
+  SEARCHING: 'SEARCHING',
+  REFRESHING: 'REFRESHING',
+  SCORING: 'SCORING',
+  DONE: 'DONE',
+  SKIPPED: 'SKIPPED',
+  FAILED: 'FAILED'
+} as const
+
+export type ScoutingRowStatus = (typeof ScoutingRowStatus)[keyof typeof ScoutingRowStatus]
+
+
+export const ScoutingOutcome = {
+  FINALIST: 'FINALIST',
+  SHORTLISTED: 'SHORTLISTED',
+  REJECTED: 'REJECTED'
+} as const
+
+export type ScoutingOutcome = (typeof ScoutingOutcome)[keyof typeof ScoutingOutcome]

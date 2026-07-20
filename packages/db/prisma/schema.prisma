@@ -129,3 +129,277 @@ model QuoteLine {
 
   @@index([quoteId])
 }
+
+/// ---------------------------------------------------------------------------
+/// Scouting prodotti multi-marketplace da file (Excel/XLS/CSV).
+///
+/// Blocco additivo: nessun modello preesistente viene modificato. La pipeline
+/// preventivi (QuoteRequest/RequestItem/ProductCandidate) resta intatta.
+/// ---------------------------------------------------------------------------
+
+enum ScoutingRunStatus {
+  QUEUED
+  RUNNING
+  COMPLETED
+  COMPLETED_WITH_ERRORS
+  FAILED
+  CANCELLED
+}
+
+enum ScoutingRowStatus {
+  PENDING
+  NORMALIZING
+  SEARCHING
+  REFRESHING
+  SCORING
+  DONE
+  SKIPPED
+  FAILED
+}
+
+enum ScoutingOutcome {
+  FINALIST
+  SHORTLISTED
+  REJECTED
+}
+
+/// Un file caricato dall'utente, con le colonne riconosciute.
+model ScoutingDataset {
+  id        String   @id @default(cuid())
+  fileName  String
+  format    String // xlsx | xls | xlsm | csv
+  sheetName String
+  sizeBytes Int
+
+  /// Riga di intestazione nel file (1-based); null se il file non ne ha.
+  headerRowNumber Int?
+  /// Colonne riconosciute (DatasetColumn[]), con campioni e suggerimenti.
+  columns         Json
+  /// Ultima mappatura colonna→campo confermata dall'utente.
+  mapping         Json?
+  rowCount        Int
+  warnings        String[]
+
+  createdAt DateTime @default(now())
+
+  rows ScoutingDatasetRow[]
+  runs ScoutingRun[]
+}
+
+/// Riga originale del file: i valori delle celle restano intatti.
+model ScoutingDatasetRow {
+  id        String          @id @default(cuid())
+  dataset   ScoutingDataset @relation(fields: [datasetId], references: [id], onDelete: Cascade)
+  datasetId String
+
+  /// Numero di riga nel file di origine (1-based).
+  rowNumber Int
+  /// Valori originali, allineati a ScoutingDataset.columns.
+  cells     Json
+  hyperlink String?
+
+  rowRuns ScoutingRowRun[]
+
+  @@unique([datasetId, rowNumber])
+  @@index([datasetId])
+}
+
+/// Richiesta normalizzata: identità stabile fra file, righe e formulazioni.
+model ProductRequest {
+  id String @id @default(cuid())
+
+  /// Impronta stabile (SHA-256 troncato): identità forte della richiesta.
+  fingerprint       String  @unique
+  /// Identità debole, per proporre richieste simili già elaborate.
+  normalizedNameKey String
+  displayName       String
+  normalizedName    String
+
+  category String?
+  brand    String?
+  model    String?
+  material String?
+  power    Float?
+  voltage  Float?
+  capacity Float?
+
+  dimensions      Json
+  requiredVariant Json
+  certifications  String[]
+  requirements    Json
+
+  requestedQuantity Float?
+  unit              String?
+  targetPrice       Float?
+  notes             String?
+  referenceUrl      String?
+
+  searchQuery String
+  language    String
+
+  firstSeenAt    DateTime  @default(now())
+  lastSearchedAt DateTime?
+  searchCount    Int       @default(0)
+
+  candidates ProductCandidateRecord[]
+  rowRuns    ScoutingRowRun[]
+
+  @@index([normalizedNameKey])
+}
+
+/// Un'esecuzione dello scouting su un dataset.
+model ScoutingRun {
+  id        String          @id @default(cuid())
+  dataset   ScoutingDataset @relation(fields: [datasetId], references: [id], onDelete: Cascade)
+  datasetId String
+
+  status  ScoutingRunStatus @default(QUEUED)
+  engines String[]
+  quality String            @default("balanced")
+
+  candidatesPerEngine Int     @default(10)
+  finalists           Int     @default(3)
+  forceFullSearch     Boolean @default(false)
+  aiRationale         Boolean @default(false)
+  /// Mappatura usata da questo run: i risultati restano leggibili anche se
+  /// la mappatura del dataset viene cambiata in seguito.
+  mapping             Json
+
+  totalRows     Int @default(0)
+  processedRows Int @default(0)
+  reusedRows    Int @default(0)
+  failedRows    Int @default(0)
+
+  startedAt  DateTime?
+  finishedAt DateTime?
+  error      String?
+  createdAt  DateTime  @default(now())
+
+  rows ScoutingRowRun[]
+
+  @@index([datasetId])
+}
+
+/// Avanzamento e risultato di una singola riga dentro un run.
+model ScoutingRowRun {
+  id    String      @id @default(cuid())
+  run   ScoutingRun @relation(fields: [runId], references: [id], onDelete: Cascade)
+  runId String
+
+  datasetRow   ScoutingDatasetRow @relation(fields: [datasetRowId], references: [id], onDelete: Cascade)
+  datasetRowId String
+
+  request   ProductRequest? @relation(fields: [requestId], references: [id], onDelete: SetNull)
+  requestId String?
+
+  rowNumber Int
+  status    ScoutingRowStatus @default(PENDING)
+  /// true quando i prodotti arrivano da una richiesta già elaborata.
+  reused    Boolean           @default(false)
+  /// Esito per motore: quale fonte ha risposto, quale ha fallito e perché.
+  engineStatuses Json?
+  error     String?
+
+  startedAt  DateTime?
+  finishedAt DateTime?
+
+  results ScoutingResult[]
+
+  @@unique([runId, datasetRowId])
+  @@index([runId])
+  @@index([requestId])
+}
+
+/// Prodotto trovato per una richiesta. Vive oltre il singolo run: è ciò che
+/// permette di riaprire le pagine e aggiornare i dati invece di ricercare.
+model ProductCandidateRecord {
+  id        String         @id @default(cuid())
+  request   ProductRequest @relation(fields: [requestId], references: [id], onDelete: Cascade)
+  requestId String
+
+  engine     String
+  externalId String
+  url        String?
+  title      String
+  imageUrl   String?
+
+  vendorName String?
+  vendorUrl  String?
+
+  price      Decimal? @db.Decimal(14, 4)
+  currency   String?
+  moq        Int?
+  stock      Int?
+  rating     Float?
+  reviewCount Int?
+  totalSales Int?
+
+  variants   Json?
+  specs      Json?
+  priceTiers Json?
+
+  /// Impronta dei dati commerciali: se non cambia, il punteggio non si ricalcola.
+  contentHash   String
+  firstSeenAt   DateTime  @default(now())
+  lastCheckedAt DateTime  @default(now())
+  lastChangedAt DateTime?
+  /// Campi cambiati all'ultimo aggiornamento.
+  changedFields String[]
+  /// Prodotto non più raggiungibile all'ultimo controllo.
+  unavailable   Boolean   @default(false)
+
+  snapshots ProductSnapshot[]
+  results   ScoutingResult[]
+
+  @@unique([requestId, engine, externalId])
+  @@index([requestId])
+}
+
+/// Storico: una riga per ogni cambiamento reale dei dati del prodotto.
+model ProductSnapshot {
+  id          String                 @id @default(cuid())
+  candidate   ProductCandidateRecord @relation(fields: [candidateId], references: [id], onDelete: Cascade)
+  candidateId String
+
+  capturedAt DateTime @default(now())
+
+  price       Decimal? @db.Decimal(14, 4)
+  currency    String?
+  moq         Int?
+  stock       Int?
+  rating      Float?
+  reviewCount Int?
+  available   Boolean  @default(true)
+
+  contentHash   String
+  changedFields String[]
+
+  @@index([candidateId, capturedAt])
+}
+
+/// Esito di un prodotto per una riga: finalista o scartato, con motivazione.
+model ScoutingResult {
+  id       String         @id @default(cuid())
+  rowRun   ScoutingRowRun @relation(fields: [rowRunId], references: [id], onDelete: Cascade)
+  rowRunId String
+
+  candidate   ProductCandidateRecord @relation(fields: [candidateId], references: [id], onDelete: Cascade)
+  candidateId String
+
+  outcome ScoutingOutcome
+  rank    Int?
+  score   Float?
+  /// Contributo di ogni criterio al punteggio finale.
+  scoreBreakdown Json?
+
+  rejectionCode   String?
+  rejectionReason String?
+  aiRationale     String?
+  /// true se il punteggio è stato riusato perché i dati non sono cambiati.
+  scoreReused     Boolean @default(false)
+
+  createdAt DateTime @default(now())
+
+  @@unique([rowRunId, candidateId])
+  @@index([rowRunId])
+}

@@ -302,7 +302,7 @@ più le opzionali di comportamento (timeout, TTL cache, soglie, concorrenza,
 | M5 | Sessioni 1688/Taobao cifrate, scadenza, riconnessione | da implementare |
 | M6 | Dettagli, varianti, MOQ, stock, prezzi per quantità, storico, rilevamento modifiche | da implementare |
 | M7 | Hard constraints, dedup, punteggi, finalisti | **completato** (motivazioni AI: da implementare) |
-| M8 | UI, avanzamento job, export Excel, test end-to-end, documentazione | da implementare |
+| M8 | Export Excel **completato**; UI base c'è (M4). Resta: rifinitura UI, test end-to-end automatici |
 
 
 ---
@@ -605,3 +605,37 @@ Le **motivazioni discorsive AI** sui finalisti (`aiRationale`, facoltative e a
 consumo). Il campo esiste a database ed è esposto dall'API, ma non viene
 ancora popolato. Vanno aggiunte dopo, senza mai lasciar loro cambiare la
 classifica: il punteggio resta deterministico.
+
+
+---
+
+## 11. M8 — export Excel (completato)
+
+`GET /api/scouting/jobs/:id/export` scarica un `.xlsx` con quattro fogli:
+
+| Foglio | Contenuto |
+| --- | --- |
+| **Finalisti** | i prodotti proposti, con posizione e punteggio |
+| **In elenco** | i trovati non proposti, con il perché |
+| **Scartati** | codice e motivo dello scarto |
+| **Riepilogo** | dati del job ed esito per riga × marketplace |
+
+Ogni riga dei primi tre fogli riporta in testa **le celle originali del file
+caricato**, più numero di riga, query e impronta: il foglio esportato si
+affianca a quello di richiesta senza doverli riconciliare a mano.
+
+Verificato scaricandolo davvero dall'endpoint: 33 KB, `Content-Disposition`
+con nome derivato dal file caricato, quattro fogli, primo finalista con
+impronta, celle originali, punteggio 57 e prodotto Yiwugo reale a 43,75 CNY.
+
+Controlli: `pnpm typecheck` ✅ · `pnpm test` 124/124 ✅ · `pnpm build` ✅
+
+## 12. Cosa resta
+
+| Milestone | Stato | Perché |
+| --- | --- | --- |
+| M3 prova con chiave reale | bloccato | serve `PILOTERR_API_KEY`: procedura al §8 |
+| M5 sessioni 1688/Taobao | da implementare | serve un login manuale con credenziali vere |
+| M6 dettagli, varianti, stock, storico prezzi | parziale | lo **storico e il rilevamento modifiche funzionano** (§9); mancano i dettagli di prodotto, che richiedono la chiave Piloterr e un endpoint che Piloterr dichiara sospeso |
+| M7 motivazioni AI | da implementare | facoltative e a consumo; la classifica resta deterministica |
+| M8 rifinitura UI e test E2E automatici | da implementare | la UI funziona ed è stata guidata con un browser vero, ma non c'è un test automatico che la copra |

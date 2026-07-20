@@ -3,14 +3,20 @@ import {
   Body,
   Controller,
   Get,
+  Header,
   Param,
   Post,
   Query,
+  StreamableFile,
 } from "@nestjs/common";
 import {
   RetryJobRequestSchema,
   StartImportJobRequestSchema,
 } from "@china/shared";
+import {
+  buildExportWorkbook,
+  exportFileName,
+} from "./export-workbook";
 import { ImportJobService } from "./import-job.service";
 
 /**
@@ -60,6 +66,22 @@ export class ImportJobController {
     return this.jobs.results(jobId, {
       limit: Math.min(200, Math.max(1, Number.parseInt(limit ?? "50", 10) || 50)),
       offset: Math.max(0, Number.parseInt(offset ?? "0", 10) || 0),
+    });
+  }
+
+  /** Scarica tutti i risultati in un unico Excel. */
+  @Get("jobs/:id/export")
+  @Header(
+    "Content-Type",
+    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+  )
+  async export(@Param("id") jobId: string) {
+    // Si esporta tutto: un export parziale sarebbe una trappola, perché il
+    // file scaricato sembra completo.
+    const results = await this.jobs.results(jobId, { limit: 5000, offset: 0 });
+    const workbook = buildExportWorkbook(results);
+    return new StreamableFile(workbook, {
+      disposition: `attachment; filename="${exportFileName(results.job.fileName)}"`,
     });
   }
 

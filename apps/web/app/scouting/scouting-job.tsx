@@ -435,6 +435,12 @@ export function ScoutingJob() {
             <button type="button" onClick={() => void loadResults()}>
               Mostra i prodotti trovati
             </button>
+            <a
+              className="scouting-download"
+              href={`${API_URL}/api/scouting/jobs/${jobId}/export`}
+            >
+              Esporta in Excel
+            </a>
           </div>
 
           <div className="scouting-engine-summary">

@@ -297,7 +297,7 @@ più le opzionali di comportamento (timeout, TTL cache, soglie, concorrenza,
 | --- | --- | --- |
 | M1 | Analisi, inventario, piano, schema DB, rischi | **completato** |
 | M2 | Upload xls/xlsx/csv, anteprima, mapping, normalizzazione, fingerprint, DB, riuso | **completato** |
-| M3 | PiloterrClient, Alibaba/AliExpress, cache e crediti, salvataggio candidati | **parzialmente completato** (manca la prova con chiave reale) |
+| M3 | PiloterrClient, Alibaba/AliExpress, cache e crediti, salvataggio candidati | **completato e verificato con chiave reale** |
 | M4 | ImportJob, ScoutingRequest, esecuzione, avanzamento, controlli, UI | **completato** |
 | M5 | Sessioni 1688/Taobao cifrate, scadenza, riconnessione | **completato** salvo il collegamento con credenziali reali |
 | M6 | Aggiornamento prodotti, storico prezzi, rilevamento modifiche | **completato**; varianti/scaglioni dipendono dall'adapter della fonte |
@@ -790,3 +790,53 @@ Controlli: `pnpm typecheck` ✅ · `pnpm test` 145/145 ✅ · `pnpm build` ✅
    ancora. Va fatto quando ci sarà una sessione vera con cui provarlo —
    scriverlo alla cieca significherebbe consegnare codice mai eseguito contro
    il sito che deve superare.
+
+
+---
+
+## 15. Verifica con la chiave Piloterr reale (2026-07-20)
+
+Chiave inserita da Filippo nel `.env` del server. Tutto provato in diretta.
+
+### M3 — confermata
+
+| Prova | Esito |
+| --- | --- |
+| Instradamento | `alibaba` e `aliexpress` → `route: "piloterr"` |
+| Ricerca Alibaba (`esd chair`) | **5 prodotti reali** con prezzo, MOQ, venditore e vendite — la fonte che da questo IP era bloccata dal captcha |
+| Ricerca AliExpress (`power bank 10000mAh`) | prodotto reale, 27,19 €, voto 4,9, 4000 vendite |
+| Conteggio crediti | 1 chiamata → 1 credito (Alibaba), 2 (AliExpress) |
+| Cache | ricerca ripetuta → `cacheHits +1`, **crediti invariati** |
+| Chiave nei log | **0 occorrenze** |
+
+### M6 — completata anche per Alibaba
+
+**`/v2/alibaba/product` non è sospeso: funziona.** La nota sulla manutenzione
+nella documentazione è superata. L'aggiornamento di un candidato Alibaba ora
+passa da Piloterr e restituisce ciò che la ricerca non dà:
+
+- **3 scaglioni di prezzo** (2 pz → 33,36 $ · 500 → 31,86 $ · 2000 → 29,21 $);
+- **16 specifiche** (`Size: 430*400mm`, `Material: PU leather`, `Feature:
+  Antistatic`…), che sono esattamente ciò su cui i vincoli obbligatori di M7
+  possono finalmente lavorare;
+- nome del venditore e volume di vendite.
+
+### Due difetti trovati e corretti in questa verifica
+
+1. **I crediti erano attribuiti male.** Il client è condiviso, quindi il
+   consumo mostrato sotto `aliexpress` era il totale globale: una spesa fatta
+   su Alibaba sembrava fatta anche su AliExpress. Ora il consumo è contato
+   **per endpoint** e ogni motore espone il proprio, con il totale del piano a
+   parte.
+2. **Il prezzo aggiornato era quello sbagliato.** Prendendo `price.min` la
+   scheda restituiva 29,21 $ — la tariffa per **2000 pezzi**. Per una richiesta
+   da 10 pezzi è un prezzo non ottenibile, ed era pure **più basso** di quello
+   visto in ricerca: un peggioramento mascherato da aggiornamento. Ora si usa
+   lo scaglione più basso (33,36 $ a partire da 2 pezzi) e gli scaglioni
+   restano tutti disponibili.
+
+### Costo della verifica
+
+Circa **8 crediti** in tutto: due ricerche Alibaba (1 ciascuna), una AliExpress
+(2), due schede prodotto (2 ciascuna). La cache ha evitato la spesa sulla
+ricerca ripetuta.

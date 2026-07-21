@@ -3,6 +3,11 @@ import { getAdapter } from "@china/adapters";
 import { prisma, Prisma } from "@china/db";
 import type { PriceTierRecord } from "@china/shared";
 import {
+  fetchAlibabaProduct,
+  type PiloterrProductDetails,
+} from "../search/providers/piloterr.provider";
+import { piloterrClient } from "../search/providers/piloterr.client";
+import {
   candidateContentHash,
   type CandidateData,
 } from "./candidate-store";
@@ -72,7 +77,7 @@ export class CandidateRefreshService {
 
     const reference = candidate.url || candidate.externalId;
     try {
-      const details = await getAdapter(candidate.engine).getDetails(reference);
+      const details = await this.loadDetails(candidate.engine, reference);
 
       const next: CandidateData = {
         engine: candidate.engine,
@@ -84,8 +89,8 @@ export class CandidateRefreshService {
         title: candidate.title || details.title,
         url: details.url || candidate.url,
         imageUrl: details.imageUrl ?? candidate.imageUrl,
-        vendorName: candidate.vendorName,
-        vendorUrl: candidate.vendorUrl,
+        vendorName: details.vendorName ?? candidate.vendorName,
+        vendorUrl: details.vendorUrl ?? candidate.vendorUrl,
         // Regola generale: una lettura mancata non è un dato cancellato.
         // Se la scheda non espone il prezzo si tiene quello che avevamo,
         // altrimenti un parser che sbaglia distruggerebbe i dati buoni.
@@ -96,7 +101,7 @@ export class CandidateRefreshService {
         stock: readStock(details.attributes) ?? candidate.stock,
         rating: candidate.rating,
         reviewCount: candidate.reviewCount,
-        totalSales: candidate.totalSales,
+        totalSales: details.totalSales ?? candidate.totalSales,
         relevanceScore: candidate.relevanceScore,
         matchReasons: candidate.matchReasons,
         matchWarnings: candidate.matchWarnings,
@@ -215,6 +220,38 @@ export class CandidateRefreshService {
   }
 
   /**
+   * Scarica la scheda prodotto dalla via giusta per quella fonte.
+   *
+   * Alibaba passa da Piloterr quando la chiave è configurata — dall'IP di
+   * questo server il browser trova solo captcha — e ricade sull'adapter
+   * altrimenti, come fa la ricerca.
+   */
+  private async loadDetails(
+    engine: string,
+    reference: string
+  ): Promise<DetailsShape> {
+    if (engine === "alibaba" && piloterrClient.isConfigured) {
+      const details = await fetchAlibabaProduct(reference);
+      return fromPiloterr(details);
+    }
+
+    const details = await getAdapter(engine).getDetails(reference);
+    return {
+      title: details.title,
+      url: details.url,
+      imageUrl: details.imageUrl ?? null,
+      price: details.price ?? null,
+      moq: details.moq ?? null,
+      vendorName: null,
+      vendorUrl: null,
+      totalSales: null,
+      variants: details.variants,
+      attributes: details.attributes,
+      priceTiers: details.priceTiers,
+    };
+  }
+
+  /**
    * Aggiorna tutti i prodotti di una richiesta, uno alla volta.
    *
    * Sequenziale di proposito: ogni scheda è una visita al sito, e le visite
@@ -297,6 +334,45 @@ export class CandidateRefreshService {
       })),
     };
   }
+}
+
+/** Forma comune di una scheda prodotto, qualunque sia la via da cui arriva. */
+export interface DetailsShape {
+  title: string;
+  url: string;
+  imageUrl: string | null;
+  price: { value: number; currency: string } | null;
+  moq: number | null;
+  vendorName: string | null;
+  vendorUrl: string | null;
+  totalSales: number | null;
+  variants: Array<{ name: string; options: string[] }>;
+  attributes: Record<string, string>;
+  priceTiers: Array<{ minQty: number; price: { value: number; currency: string } }>;
+}
+
+/** Scheda Piloterr → forma comune. */
+function fromPiloterr(details: PiloterrProductDetails): DetailsShape {
+  return {
+    title: details.title ?? "",
+    url: details.url ?? "",
+    imageUrl: details.imageUrl,
+    price:
+      details.price == null
+        ? null
+        : { value: details.price, currency: details.currency ?? "USD" },
+    moq: details.moq,
+    vendorName: details.vendorName,
+    vendorUrl: details.vendorUrl,
+    totalSales: details.totalSales,
+    // Piloterr non espone le varianti nella scheda documentata.
+    variants: [],
+    attributes: details.specs,
+    priceTiers: details.priceTiers.map((tier) => ({
+      minQty: tier.minQty,
+      price: { value: tier.price, currency: tier.currency },
+    })),
+  };
 }
 
 /** Stock dichiarato negli attributi della scheda, quando c'è. */

@@ -68,6 +68,12 @@ export interface PiloterrUsage {
   creditsSpent: number;
   /** Chiamate rifiutate perché il tetto di spesa era esaurito. */
   blockedByBudget: number;
+  /**
+   * Dettaglio per endpoint. Il client è condiviso da tutti i motori, quindi
+   * i totali qui sopra sono **globali**: senza questa ripartizione una
+   * spesa fatta su Alibaba sembrerebbe fatta anche su AliExpress.
+   */
+  byEndpoint: Record<string, { calls: number; cacheHits: number; credits: number }>;
 }
 
 interface CacheEntry {
@@ -87,7 +93,16 @@ export class PiloterrClient {
     cacheHits: 0,
     creditsSpent: 0,
     blockedByBudget: 0,
+    byEndpoint: {},
   };
+
+  private bucket(path: string) {
+    return (this.usage.byEndpoint[path] ??= {
+      calls: 0,
+      cacheHits: 0,
+      credits: 0,
+    });
+  }
 
   constructor(private readonly options: PiloterrClientOptions = {}) {}
 
@@ -101,7 +116,33 @@ export class PiloterrClient {
   }
 
   getUsage(): PiloterrUsage {
-    return { ...this.usage };
+    return {
+      ...this.usage,
+      byEndpoint: Object.fromEntries(
+        Object.entries(this.usage.byEndpoint).map(([path, entry]) => [
+          path,
+          { ...entry },
+        ])
+      ),
+    };
+  }
+
+  /** Consumo dei soli endpoint di un motore (`alibaba`, `aliexpress`). */
+  getUsageFor(engine: string): {
+    calls: number;
+    cacheHits: number;
+    creditsSpent: number;
+  } {
+    let calls = 0;
+    let cacheHits = 0;
+    let creditsSpent = 0;
+    for (const [path, entry] of Object.entries(this.usage.byEndpoint)) {
+      if (!path.startsWith(`/v2/${engine}/`)) continue;
+      calls += entry.calls;
+      cacheHits += entry.cacheHits;
+      creditsSpent += entry.credits;
+    }
+    return { calls, cacheHits, creditsSpent };
   }
 
   /**
@@ -141,6 +182,7 @@ export class PiloterrClient {
     const cached = this.cache.get(cacheKey);
     if (cached && cached.expiresAt > Date.now()) {
       this.usage.cacheHits += 1;
+      this.bucket(path).cacheHits += 1;
       return cached.body as T;
     }
     if (cached) this.cache.delete(cacheKey);
@@ -199,8 +241,12 @@ export class PiloterrClient {
 
     // Una chiamata riuscita è una chiamata pagata: si conta anche se il corpo
     // dovesse poi risultare illeggibile.
+    const cost = PILOTERR_CREDIT_COST[path] ?? 1;
     this.usage.calls += 1;
-    this.usage.creditsSpent += PILOTERR_CREDIT_COST[path] ?? 1;
+    this.usage.creditsSpent += cost;
+    const bucket = this.bucket(path);
+    bucket.calls += 1;
+    bucket.credits += cost;
 
     let body: unknown;
     try {

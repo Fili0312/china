@@ -164,7 +164,12 @@ export class PiloterrSearchProvider implements ProductSearchProvider {
     return {
       transport: "piloterr" as const,
       configured: this.client.isConfigured,
-      usage: this.client.getUsage(),
+      // Consumo di questo motore soltanto; il totale del piano è a parte.
+      usage: this.client.getUsageFor(this.options.engine),
+      accountTotals: {
+        calls: this.client.getUsage().calls,
+        creditsSpent: this.client.getUsage().creditsSpent,
+      },
     };
   }
 
@@ -280,4 +285,155 @@ export class PiloterrSearchProvider implements ProductSearchProvider {
       totalCount: parsed.data.pagination?.total_results ?? null,
     };
   }
+}
+
+/* -------------------------------------------------------------------------- */
+/* Scheda prodotto                                                             */
+/* -------------------------------------------------------------------------- */
+
+/**
+ * Attributi della scheda: Piloterr li restituisce come elenco di coppie, ma
+ * la forma esatta delle chiavi varia. Si accettano le varianti plausibili e
+ * si ignora ciò che non è riconoscibile, invece di rifiutare tutta la scheda.
+ */
+const AttributeSchema = z.union([
+  z.object({ name: LooseString, value: LooseString }),
+  z.object({ key: LooseString, value: LooseString }),
+  z.record(z.string(), z.unknown()),
+]);
+
+const QuantityPriceSchema = z.object({
+  min_quantity: LooseNumber,
+  max_quantity: LooseNumber,
+  price: LooseNumber,
+  price_usd: LooseNumber,
+});
+
+const AlibabaProductSchema = z.object({
+  product_id: LooseString,
+  title: LooseString,
+  url: LooseString,
+  images: z.array(z.string()).nullish(),
+  price: z
+    .object({
+      min: LooseNumber,
+      max: LooseNumber,
+      unit: LooseString,
+      currency: LooseString,
+      quantity_prices: z.array(QuantityPriceSchema).nullish(),
+    })
+    .nullish(),
+  seller: z
+    .object({
+      company_name: LooseString,
+      profile_url: LooseString,
+      country: LooseString,
+      years: LooseNumber,
+    })
+    .nullish(),
+  trade: z
+    .object({
+      sales_volume: LooseNumber,
+      min_order: LooseString,
+    })
+    .nullish(),
+  attributes: z.array(AttributeSchema).nullish(),
+});
+
+/** Scheda prodotto normalizzata, indipendente dalla fonte. */
+export interface PiloterrProductDetails {
+  title: string | null;
+  url: string | null;
+  imageUrl: string | null;
+  price: number | null;
+  currency: string | null;
+  moq: number | null;
+  vendorName: string | null;
+  vendorUrl: string | null;
+  totalSales: number | null;
+  priceTiers: Array<{ minQty: number; price: number; currency: string }>;
+  specs: Record<string, string>;
+}
+
+function readAttributes(
+  entries: readonly unknown[] | null | undefined
+): Record<string, string> {
+  const specs: Record<string, string> = {};
+  for (const entry of entries ?? []) {
+    if (typeof entry !== "object" || entry === null) continue;
+    const record = entry as Record<string, unknown>;
+    const name = record.name ?? record.key;
+    const value = record.value;
+    if (typeof name === "string" && name.trim() && value != null) {
+      specs[name.trim()] = String(value).trim();
+      continue;
+    }
+    // Forma `{ "Materiale": "acciaio" }`.
+    for (const [key, raw] of Object.entries(record)) {
+      if (key === "name" || key === "key" || key === "value") continue;
+      if (raw == null) continue;
+      specs[key] = String(raw).trim();
+    }
+  }
+  return specs;
+}
+
+/**
+ * Scarica la scheda prodotto di Alibaba tramite Piloterr.
+ *
+ * Costa 2 crediti a chiamata: va usata sui prodotti che contano davvero, non
+ * su tutti i risultati di una ricerca.
+ */
+export async function fetchAlibabaProduct(
+  reference: string,
+  client: PiloterrClient = piloterrClient
+): Promise<PiloterrProductDetails> {
+  const raw = await client.get<unknown>("/v2/alibaba/product", {
+    query: reference,
+    subdomain: process.env.PILOTERR_ALIBABA_SUBDOMAIN,
+  });
+
+  const parsed = AlibabaProductSchema.safeParse(raw);
+  if (!parsed.success) {
+    throw new ProviderUpstreamError(
+      "Scheda prodotto Alibaba non riconosciuta: lo schema dell'API è cambiato."
+    );
+  }
+  const data = parsed.data;
+  const currency = data.price?.currency ?? "USD";
+
+  const priceTiers = (data.price?.quantity_prices ?? [])
+    .map((tier) => ({
+      minQty: tier.min_quantity == null ? 0 : Math.round(tier.min_quantity),
+      price: tier.price ?? tier.price_usd,
+      currency,
+    }))
+    .filter(
+      (tier): tier is { minQty: number; price: number; currency: string } =>
+        tier.minQty > 0 && tier.price != null
+    )
+    .sort((left, right) => left.minQty - right.minQty);
+
+  return {
+    title: data.title,
+    url: data.url,
+    imageUrl: data.images?.[0] ?? null,
+    // Il prezzo di riferimento è quello dello **scaglione più basso**, cioè
+    // ciò che si paga ordinando il minimo. `price.min` sarebbe la tariffa da
+    // migliaia di pezzi: mostrarla per un ordine da dieci farebbe sembrare il
+    // prodotto più economico di quanto sia, e sarebbe più bassa di quella
+    // vista in ricerca — un peggioramento mascherato da aggiornamento.
+    price: priceTiers[0]?.price ?? data.price?.min ?? data.price?.max ?? null,
+    currency,
+    // Il minimo d'ordine è il primo scaglione, se la scheda non lo dichiara.
+    moq: parseMinOrder(data.trade?.min_order ?? null) ?? priceTiers[0]?.minQty ?? null,
+    vendorName: data.seller?.company_name ?? null,
+    vendorUrl: data.seller?.profile_url ?? null,
+    totalSales:
+      data.trade?.sales_volume == null
+        ? null
+        : Math.round(data.trade.sales_volume),
+    priceTiers,
+    specs: readAttributes(data.attributes),
+  };
 }

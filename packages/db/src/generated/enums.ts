@@ -78,3 +78,15 @@ export const ScoutingOutcome = {
 } as const
 
 export type ScoutingOutcome = (typeof ScoutingOutcome)[keyof typeof ScoutingOutcome]
+
+
+export const AnalysisRowState = {
+  NEW_PRODUCT: 'NEW_PRODUCT',
+  NEW_VARIANT: 'NEW_VARIANT',
+  KNOWN_PRODUCT: 'KNOWN_PRODUCT',
+  NEEDS_REVIEW: 'NEEDS_REVIEW',
+  ANALYSIS_FAILED: 'ANALYSIS_FAILED',
+  READY: 'READY'
+} as const
+
+export type AnalysisRowState = (typeof AnalysisRowState)[keyof typeof AnalysisRowState]

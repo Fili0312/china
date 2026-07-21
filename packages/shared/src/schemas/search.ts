@@ -47,6 +47,26 @@ export const SEARCH_ENGINES = [
 export const SearchEngineSchema = z.enum(SEARCH_ENGINES);
 export type SearchEngine = z.infer<typeof SearchEngineSchema>;
 
+/**
+ * Fonti che espongono il mercato interno cinese: rispondono alla query cinese.
+ *
+ * Le altre (Alibaba, AliExpress, Made-in-China) sono vetrine per l'export e
+ * indicizzano titoli in inglese. Mandare la query sbagliata non dà un errore —
+ * dà zero risultati o risultati fuori tema, che è molto più difficile da
+ * diagnosticare.
+ */
+export const CHINESE_MARKET_ENGINES: readonly SearchEngine[] = [
+  "taobao",
+  "tmall",
+  "chinagoods",
+  "yiwugo",
+];
+
+/** Lingua della query da usare su una fonte. */
+export function queryLanguageForEngine(engine: string): "zh" | "en" {
+  return (CHINESE_MARKET_ENGINES as readonly string[]).includes(engine) ? "zh" : "en";
+}
+
 /** Query string di GET /api/search (coerce: arrivano come stringhe). */
 export const ProductSearchQuerySchema = z.object({
   q: z.string().trim().min(1).max(200),

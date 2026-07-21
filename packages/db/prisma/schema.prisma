@@ -196,8 +196,9 @@ model ScoutingDataset {
 
   createdAt DateTime @default(now())
 
-  rows ScoutingDatasetRow[]
-  jobs ImportJob[]
+  rows         ScoutingDatasetRow[]
+  jobs         ImportJob[]
+  analysisRuns AnalysisRun[]
 }
 
 /// Riga originale del file: i valori delle celle restano intatti.
@@ -212,7 +213,8 @@ model ScoutingDatasetRow {
   cells     Json
   hyperlink String?
 
-  jobRows ImportJobRow[]
+  jobRows      ImportJobRow[]
+  analysisRows AnalysisRunRow[]
 
   @@unique([datasetId, rowNumber])
   @@index([datasetId])
@@ -223,11 +225,36 @@ model ScoutingRequest {
   id String @id @default(cuid())
 
   /// Impronta stabile (SHA-256 troncato): identità forte della richiesta.
+  ///
+  /// Resta la chiave del percorso senza analisi IA (import diretto, job già
+  /// salvati). Con l'analisi attiva l'identità è `variantKey`: l'impronta
+  /// continua a essere calcolata e salvata, ma non decide più il riuso.
   fingerprint       String  @unique
   /// Identità debole, per proporre richieste simili già elaborate.
   normalizedNameKey String
   displayName       String
   normalizedName    String
+
+  /// ------------------------------------------------------------------
+  /// Identità a tre livelli (dall'analisi Claude).
+  ///
+  /// Nullable perché le richieste create prima dell'analisi IA non le hanno:
+  /// il riuso ricade sull'impronta, come prima. `variantKey` è unica quando
+  /// presente — in Postgres più `NULL` non collidono fra loro.
+  /// ------------------------------------------------------------------
+  familyKey    String?
+  variantKey   String? @unique
+  duplicateKey String?
+
+  productNameChinese String?
+  productNameEnglish String?
+  searchQueryChinese String?
+  searchQueryEnglish String?
+
+  /// Ultima volta che i prodotti di questa variante sono stati riletti alla
+  /// fonte. Diverso da `lastSearchedAt`: quella è l'ultima **ricerca**, questa
+  /// l'ultima **verifica** di ciò che avevamo già.
+  lastVerifiedAt DateTime?
 
   category String?
   brand    String?
@@ -259,6 +286,150 @@ model ScoutingRequest {
   jobRows    ImportJobRow[]
 
   @@index([normalizedNameKey])
+  @@index([familyKey])
+  @@index([duplicateKey])
+}
+
+/// ---------------------------------------------------------------------------
+/// Analisi delle richieste con Claude.
+///
+/// La memoria del sistema vive qui, non nella conversazione: ogni analisi è un
+/// record con la versione del prompt e il modello che l'hanno prodotta. Prima
+/// di richiamare l'API si cerca in `RequestAnalysis` la stessa riga
+/// normalizzata analizzata con la stessa versione del prompt; se c'è, la
+/// chiamata non si fa.
+/// ---------------------------------------------------------------------------
+
+enum AnalysisRowState {
+  NEW_PRODUCT
+  NEW_VARIANT
+  KNOWN_PRODUCT
+  NEEDS_REVIEW
+  ANALYSIS_FAILED
+  READY
+}
+
+/// Analisi di una riga, riusabile fra file e sessioni diverse.
+///
+/// La chiave è (testo normalizzato, versione prompt, modello): cambiare il
+/// prompt o il modello produce una nuova analisi invece di sporcare quella
+/// vecchia, così si può confrontare il prima e il dopo.
+model RequestAnalysis {
+  id String @id @default(cuid())
+
+  /// SHA-256 del testo inviato: la riga stessa non viene usata come chiave
+  /// perché può essere lunga e contenere caratteri di ogni scrittura.
+  inputHash     String
+  promptVersion String
+  model         String
+
+  /// Testo effettivamente inviato a Claude, conservato per poter rispiegare
+  /// **su cosa** è stata fatta l'analisi (e per riprodurla).
+  submittedText String
+
+  /// Risultato validato con Zod (`ProductAnalysis`); `null` se l'analisi è
+  /// fallita — anche i fallimenti si memorizzano, per non ritentare in loop.
+  analysis Json?
+  ok       Boolean @default(true)
+  error    String?
+
+  familyKey    String?
+  variantKey   String?
+  duplicateKey String?
+  confidence   Float?
+
+  /// Consumo della chiamata che ha prodotto questa analisi. Con un batch, i
+  /// token sono già ripartiti fra le righe che ne facevano parte.
+  inputTokens  Int   @default(0)
+  outputTokens Int   @default(0)
+  costUsd      Float @default(0)
+
+  createdAt DateTime @default(now())
+
+  rows AnalysisRunRow[]
+
+  @@unique([inputHash, promptVersion, model])
+  @@index([variantKey])
+}
+
+/// Una sessione di analisi su un file: è ciò che l'utente rivede prima di
+/// avviare lo scouting.
+model AnalysisRun {
+  id        String          @id @default(cuid())
+  dataset   ScoutingDataset @relation(fields: [datasetId], references: [id], onDelete: Cascade)
+  datasetId String
+
+  /// Mappatura colonne usata: i risultati restano leggibili anche se la
+  /// mappatura del dataset cambia dopo.
+  mapping       Json
+  promptVersion String
+  model         String
+
+  totalRows    Int @default(0)
+  analyzedRows Int @default(0)
+  failedRows   Int @default(0)
+
+  /// Consumo complessivo della sessione, per rispondere a «quanto è costata».
+  apiCalls     Int   @default(0)
+  cachedRows   Int   @default(0)
+  inputTokens  Int   @default(0)
+  outputTokens Int   @default(0)
+  costUsd      Float @default(0)
+
+  createdAt  DateTime  @default(now())
+  finishedAt DateTime?
+  error      String?
+
+  rows AnalysisRunRow[]
+  jobs ImportJob[]
+
+  @@index([datasetId])
+}
+
+/// Una riga dentro una sessione di analisi: analisi, correzioni manuali e
+/// stato rispetto al database.
+model AnalysisRunRow {
+  id    String      @id @default(cuid())
+  run   AnalysisRun @relation(fields: [runId], references: [id], onDelete: Cascade)
+  runId String
+
+  datasetRow   ScoutingDatasetRow @relation(fields: [datasetRowId], references: [id], onDelete: Cascade)
+  datasetRowId String
+
+  /// Analisi di provenienza. `SetNull` e non `Cascade`: cancellare una cache
+  /// non deve cancellare la revisione fatta da un umano.
+  analysis   RequestAnalysis? @relation(fields: [analysisId], references: [id], onDelete: SetNull)
+  analysisId String?
+
+  rowNumber Int
+  state     AnalysisRowState @default(NEEDS_REVIEW)
+
+  /// Analisi **effettiva** della riga: parte da quella di Claude e incorpora
+  /// le correzioni manuali. È questa che alimenta ricerca e identità.
+  effectiveAnalysis Json?
+  /// Solo i campi cambiati a mano, per poter mostrare cosa ha corretto l'utente.
+  manualEdits       Json?
+  edited            Boolean @default(false)
+  /// `true` se l'analisi è arrivata dalla cache senza spendere una chiamata.
+  fromCache         Boolean @default(false)
+  /// Riga sbloccata a mano nonostante confidenza bassa o warning critici.
+  approvedByUser    Boolean @default(false)
+
+  familyKey    String?
+  variantKey   String?
+  duplicateKey String?
+  confidence   Float?
+
+  error String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  jobRows ImportJobRow[]
+
+  @@unique([runId, datasetRowId])
+  @@index([runId, state])
+  @@index([variantKey])
 }
 
 /// L'elaborazione di un file: una per avvio, con la propria configurazione.
@@ -266,6 +437,11 @@ model ImportJob {
   id        String          @id @default(cuid())
   dataset   ScoutingDataset @relation(fields: [datasetId], references: [id], onDelete: Cascade)
   datasetId String
+
+  /// Sessione di analisi da cui nasce il job. Nullable: i job avviati senza
+  /// analisi IA — compresi tutti quelli già salvati — continuano a funzionare.
+  analysisRun   AnalysisRun? @relation(fields: [analysisRunId], references: [id], onDelete: SetNull)
+  analysisRunId String?
 
   status  ImportJobStatus @default(QUEUED)
   engines String[]
@@ -310,12 +486,20 @@ model ImportJobRow {
   request   ScoutingRequest? @relation(fields: [requestId], references: [id], onDelete: SetNull)
   requestId String?
 
+  /// Riga di analisi che ha generato questa riga di job, quando il job nasce
+  /// dalla revisione IA.
+  analysisRow   AnalysisRunRow? @relation(fields: [analysisRowId], references: [id], onDelete: SetNull)
+  analysisRowId String?
+
   rowNumber   Int
   displayName String
   searchQuery String
   status      ScoutingRowStatus @default(PENDING)
   /// true quando i prodotti arrivano da una richiesta già elaborata.
   reused      Boolean           @default(false)
+  /// Perché la riga è stata riusata o rifatta: è la spiegazione mostrata
+  /// all'utente quando chiede «perché non l'hai ricercato?».
+  reuseReason String?
   error       String?
 
   startedAt  DateTime?

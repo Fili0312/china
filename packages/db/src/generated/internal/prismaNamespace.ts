@@ -392,6 +392,9 @@ export const ModelName = {
   ScoutingDataset: 'ScoutingDataset',
   ScoutingDatasetRow: 'ScoutingDatasetRow',
   ScoutingRequest: 'ScoutingRequest',
+  RequestAnalysis: 'RequestAnalysis',
+  AnalysisRun: 'AnalysisRun',
+  AnalysisRunRow: 'AnalysisRunRow',
   ImportJob: 'ImportJob',
   ImportJobRow: 'ImportJobRow',
   ImportJobRowEngine: 'ImportJobRowEngine',
@@ -414,7 +417,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "quoteRequest" | "requestItem" | "productCandidate" | "quote" | "quoteLine" | "scoutingDataset" | "scoutingDatasetRow" | "scoutingRequest" | "importJob" | "importJobRow" | "importJobRowEngine" | "productCandidateRecord" | "productSnapshot" | "scoutingResult" | "marketplaceSession"
+    modelProps: "quoteRequest" | "requestItem" | "productCandidate" | "quote" | "quoteLine" | "scoutingDataset" | "scoutingDatasetRow" | "scoutingRequest" | "requestAnalysis" | "analysisRun" | "analysisRunRow" | "importJob" | "importJobRow" | "importJobRowEngine" | "productCandidateRecord" | "productSnapshot" | "scoutingResult" | "marketplaceSession"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -1007,6 +1010,228 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         count: {
           args: Prisma.ScoutingRequestCountArgs<ExtArgs>
           result: runtime.Types.Utils.Optional<Prisma.ScoutingRequestCountAggregateOutputType> | number
+        }
+      }
+    }
+    RequestAnalysis: {
+      payload: Prisma.$RequestAnalysisPayload<ExtArgs>
+      fields: Prisma.RequestAnalysisFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.RequestAnalysisFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RequestAnalysisPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.RequestAnalysisFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RequestAnalysisPayload>
+        }
+        findFirst: {
+          args: Prisma.RequestAnalysisFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RequestAnalysisPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.RequestAnalysisFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RequestAnalysisPayload>
+        }
+        findMany: {
+          args: Prisma.RequestAnalysisFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RequestAnalysisPayload>[]
+        }
+        create: {
+          args: Prisma.RequestAnalysisCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RequestAnalysisPayload>
+        }
+        createMany: {
+          args: Prisma.RequestAnalysisCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.RequestAnalysisCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RequestAnalysisPayload>[]
+        }
+        delete: {
+          args: Prisma.RequestAnalysisDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RequestAnalysisPayload>
+        }
+        update: {
+          args: Prisma.RequestAnalysisUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RequestAnalysisPayload>
+        }
+        deleteMany: {
+          args: Prisma.RequestAnalysisDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.RequestAnalysisUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.RequestAnalysisUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RequestAnalysisPayload>[]
+        }
+        upsert: {
+          args: Prisma.RequestAnalysisUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RequestAnalysisPayload>
+        }
+        aggregate: {
+          args: Prisma.RequestAnalysisAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateRequestAnalysis>
+        }
+        groupBy: {
+          args: Prisma.RequestAnalysisGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.RequestAnalysisGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.RequestAnalysisCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.RequestAnalysisCountAggregateOutputType> | number
+        }
+      }
+    }
+    AnalysisRun: {
+      payload: Prisma.$AnalysisRunPayload<ExtArgs>
+      fields: Prisma.AnalysisRunFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.AnalysisRunFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AnalysisRunPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.AnalysisRunFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AnalysisRunPayload>
+        }
+        findFirst: {
+          args: Prisma.AnalysisRunFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AnalysisRunPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.AnalysisRunFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AnalysisRunPayload>
+        }
+        findMany: {
+          args: Prisma.AnalysisRunFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AnalysisRunPayload>[]
+        }
+        create: {
+          args: Prisma.AnalysisRunCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AnalysisRunPayload>
+        }
+        createMany: {
+          args: Prisma.AnalysisRunCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.AnalysisRunCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AnalysisRunPayload>[]
+        }
+        delete: {
+          args: Prisma.AnalysisRunDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AnalysisRunPayload>
+        }
+        update: {
+          args: Prisma.AnalysisRunUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AnalysisRunPayload>
+        }
+        deleteMany: {
+          args: Prisma.AnalysisRunDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.AnalysisRunUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.AnalysisRunUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AnalysisRunPayload>[]
+        }
+        upsert: {
+          args: Prisma.AnalysisRunUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AnalysisRunPayload>
+        }
+        aggregate: {
+          args: Prisma.AnalysisRunAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateAnalysisRun>
+        }
+        groupBy: {
+          args: Prisma.AnalysisRunGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AnalysisRunGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.AnalysisRunCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AnalysisRunCountAggregateOutputType> | number
+        }
+      }
+    }
+    AnalysisRunRow: {
+      payload: Prisma.$AnalysisRunRowPayload<ExtArgs>
+      fields: Prisma.AnalysisRunRowFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.AnalysisRunRowFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AnalysisRunRowPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.AnalysisRunRowFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AnalysisRunRowPayload>
+        }
+        findFirst: {
+          args: Prisma.AnalysisRunRowFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AnalysisRunRowPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.AnalysisRunRowFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AnalysisRunRowPayload>
+        }
+        findMany: {
+          args: Prisma.AnalysisRunRowFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AnalysisRunRowPayload>[]
+        }
+        create: {
+          args: Prisma.AnalysisRunRowCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AnalysisRunRowPayload>
+        }
+        createMany: {
+          args: Prisma.AnalysisRunRowCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.AnalysisRunRowCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AnalysisRunRowPayload>[]
+        }
+        delete: {
+          args: Prisma.AnalysisRunRowDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AnalysisRunRowPayload>
+        }
+        update: {
+          args: Prisma.AnalysisRunRowUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AnalysisRunRowPayload>
+        }
+        deleteMany: {
+          args: Prisma.AnalysisRunRowDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.AnalysisRunRowUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.AnalysisRunRowUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AnalysisRunRowPayload>[]
+        }
+        upsert: {
+          args: Prisma.AnalysisRunRowUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AnalysisRunRowPayload>
+        }
+        aggregate: {
+          args: Prisma.AnalysisRunRowAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateAnalysisRunRow>
+        }
+        groupBy: {
+          args: Prisma.AnalysisRunRowGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AnalysisRunRowGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.AnalysisRunRowCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AnalysisRunRowCountAggregateOutputType> | number
         }
       }
     }
@@ -1690,6 +1915,14 @@ export const ScoutingRequestScalarFieldEnum = {
   normalizedNameKey: 'normalizedNameKey',
   displayName: 'displayName',
   normalizedName: 'normalizedName',
+  familyKey: 'familyKey',
+  variantKey: 'variantKey',
+  duplicateKey: 'duplicateKey',
+  productNameChinese: 'productNameChinese',
+  productNameEnglish: 'productNameEnglish',
+  searchQueryChinese: 'searchQueryChinese',
+  searchQueryEnglish: 'searchQueryEnglish',
+  lastVerifiedAt: 'lastVerifiedAt',
   category: 'category',
   brand: 'brand',
   model: 'model',
@@ -1716,9 +1949,78 @@ export const ScoutingRequestScalarFieldEnum = {
 export type ScoutingRequestScalarFieldEnum = (typeof ScoutingRequestScalarFieldEnum)[keyof typeof ScoutingRequestScalarFieldEnum]
 
 
+export const RequestAnalysisScalarFieldEnum = {
+  id: 'id',
+  inputHash: 'inputHash',
+  promptVersion: 'promptVersion',
+  model: 'model',
+  submittedText: 'submittedText',
+  analysis: 'analysis',
+  ok: 'ok',
+  error: 'error',
+  familyKey: 'familyKey',
+  variantKey: 'variantKey',
+  duplicateKey: 'duplicateKey',
+  confidence: 'confidence',
+  inputTokens: 'inputTokens',
+  outputTokens: 'outputTokens',
+  costUsd: 'costUsd',
+  createdAt: 'createdAt'
+} as const
+
+export type RequestAnalysisScalarFieldEnum = (typeof RequestAnalysisScalarFieldEnum)[keyof typeof RequestAnalysisScalarFieldEnum]
+
+
+export const AnalysisRunScalarFieldEnum = {
+  id: 'id',
+  datasetId: 'datasetId',
+  mapping: 'mapping',
+  promptVersion: 'promptVersion',
+  model: 'model',
+  totalRows: 'totalRows',
+  analyzedRows: 'analyzedRows',
+  failedRows: 'failedRows',
+  apiCalls: 'apiCalls',
+  cachedRows: 'cachedRows',
+  inputTokens: 'inputTokens',
+  outputTokens: 'outputTokens',
+  costUsd: 'costUsd',
+  createdAt: 'createdAt',
+  finishedAt: 'finishedAt',
+  error: 'error'
+} as const
+
+export type AnalysisRunScalarFieldEnum = (typeof AnalysisRunScalarFieldEnum)[keyof typeof AnalysisRunScalarFieldEnum]
+
+
+export const AnalysisRunRowScalarFieldEnum = {
+  id: 'id',
+  runId: 'runId',
+  datasetRowId: 'datasetRowId',
+  analysisId: 'analysisId',
+  rowNumber: 'rowNumber',
+  state: 'state',
+  effectiveAnalysis: 'effectiveAnalysis',
+  manualEdits: 'manualEdits',
+  edited: 'edited',
+  fromCache: 'fromCache',
+  approvedByUser: 'approvedByUser',
+  familyKey: 'familyKey',
+  variantKey: 'variantKey',
+  duplicateKey: 'duplicateKey',
+  confidence: 'confidence',
+  error: 'error',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type AnalysisRunRowScalarFieldEnum = (typeof AnalysisRunRowScalarFieldEnum)[keyof typeof AnalysisRunRowScalarFieldEnum]
+
+
 export const ImportJobScalarFieldEnum = {
   id: 'id',
   datasetId: 'datasetId',
+  analysisRunId: 'analysisRunId',
   status: 'status',
   engines: 'engines',
   quality: 'quality',
@@ -1746,11 +2048,13 @@ export const ImportJobRowScalarFieldEnum = {
   jobId: 'jobId',
   datasetRowId: 'datasetRowId',
   requestId: 'requestId',
+  analysisRowId: 'analysisRowId',
   rowNumber: 'rowNumber',
   displayName: 'displayName',
   searchQuery: 'searchQuery',
   status: 'status',
   reused: 'reused',
+  reuseReason: 'reuseReason',
   error: 'error',
   startedAt: 'startedAt',
   finishedAt: 'finishedAt'
@@ -2039,6 +2343,27 @@ export type ListDecimalFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaMo
 
 
 /**
+ * Reference to a field of type 'Boolean'
+ */
+export type BooleanFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Boolean'>
+    
+
+
+/**
+ * Reference to a field of type 'AnalysisRowState'
+ */
+export type EnumAnalysisRowStateFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'AnalysisRowState'>
+    
+
+
+/**
+ * Reference to a field of type 'AnalysisRowState[]'
+ */
+export type ListEnumAnalysisRowStateFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'AnalysisRowState[]'>
+    
+
+
+/**
  * Reference to a field of type 'ImportJobStatus'
  */
 export type EnumImportJobStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ImportJobStatus'>
@@ -2049,13 +2374,6 @@ export type EnumImportJobStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$
  * Reference to a field of type 'ImportJobStatus[]'
  */
 export type ListEnumImportJobStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ImportJobStatus[]'>
-    
-
-
-/**
- * Reference to a field of type 'Boolean'
- */
-export type BooleanFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Boolean'>
     
 
 
@@ -2218,6 +2536,9 @@ export type GlobalOmitConfig = {
   scoutingDataset?: Prisma.ScoutingDatasetOmit
   scoutingDatasetRow?: Prisma.ScoutingDatasetRowOmit
   scoutingRequest?: Prisma.ScoutingRequestOmit
+  requestAnalysis?: Prisma.RequestAnalysisOmit
+  analysisRun?: Prisma.AnalysisRunOmit
+  analysisRunRow?: Prisma.AnalysisRunRowOmit
   importJob?: Prisma.ImportJobOmit
   importJobRow?: Prisma.ImportJobRowOmit
   importJobRowEngine?: Prisma.ImportJobRowEngineOmit

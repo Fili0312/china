@@ -49,6 +49,7 @@ export type ImportJobSumAggregateOutputType = {
 export type ImportJobMinAggregateOutputType = {
   id: string | null
   datasetId: string | null
+  analysisRunId: string | null
   status: $Enums.ImportJobStatus | null
   quality: string | null
   candidatesPerEngine: number | null
@@ -69,6 +70,7 @@ export type ImportJobMinAggregateOutputType = {
 export type ImportJobMaxAggregateOutputType = {
   id: string | null
   datasetId: string | null
+  analysisRunId: string | null
   status: $Enums.ImportJobStatus | null
   quality: string | null
   candidatesPerEngine: number | null
@@ -89,6 +91,7 @@ export type ImportJobMaxAggregateOutputType = {
 export type ImportJobCountAggregateOutputType = {
   id: number
   datasetId: number
+  analysisRunId: number
   status: number
   engines: number
   quality: number
@@ -133,6 +136,7 @@ export type ImportJobSumAggregateInputType = {
 export type ImportJobMinAggregateInputType = {
   id?: true
   datasetId?: true
+  analysisRunId?: true
   status?: true
   quality?: true
   candidatesPerEngine?: true
@@ -153,6 +157,7 @@ export type ImportJobMinAggregateInputType = {
 export type ImportJobMaxAggregateInputType = {
   id?: true
   datasetId?: true
+  analysisRunId?: true
   status?: true
   quality?: true
   candidatesPerEngine?: true
@@ -173,6 +178,7 @@ export type ImportJobMaxAggregateInputType = {
 export type ImportJobCountAggregateInputType = {
   id?: true
   datasetId?: true
+  analysisRunId?: true
   status?: true
   engines?: true
   quality?: true
@@ -282,6 +288,7 @@ export type ImportJobGroupByArgs<ExtArgs extends runtime.Types.Extensions.Intern
 export type ImportJobGroupByOutputType = {
   id: string
   datasetId: string
+  analysisRunId: string | null
   status: $Enums.ImportJobStatus
   engines: string[]
   quality: string
@@ -327,6 +334,7 @@ export type ImportJobWhereInput = {
   NOT?: Prisma.ImportJobWhereInput | Prisma.ImportJobWhereInput[]
   id?: Prisma.StringFilter<"ImportJob"> | string
   datasetId?: Prisma.StringFilter<"ImportJob"> | string
+  analysisRunId?: Prisma.StringNullableFilter<"ImportJob"> | string | null
   status?: Prisma.EnumImportJobStatusFilter<"ImportJob"> | $Enums.ImportJobStatus
   engines?: Prisma.StringNullableListFilter<"ImportJob">
   quality?: Prisma.StringFilter<"ImportJob"> | string
@@ -345,12 +353,14 @@ export type ImportJobWhereInput = {
   error?: Prisma.StringNullableFilter<"ImportJob"> | string | null
   createdAt?: Prisma.DateTimeFilter<"ImportJob"> | Date | string
   dataset?: Prisma.XOR<Prisma.ScoutingDatasetScalarRelationFilter, Prisma.ScoutingDatasetWhereInput>
+  analysisRun?: Prisma.XOR<Prisma.AnalysisRunNullableScalarRelationFilter, Prisma.AnalysisRunWhereInput> | null
   rows?: Prisma.ImportJobRowListRelationFilter
 }
 
 export type ImportJobOrderByWithRelationInput = {
   id?: Prisma.SortOrder
   datasetId?: Prisma.SortOrder
+  analysisRunId?: Prisma.SortOrderInput | Prisma.SortOrder
   status?: Prisma.SortOrder
   engines?: Prisma.SortOrder
   quality?: Prisma.SortOrder
@@ -369,6 +379,7 @@ export type ImportJobOrderByWithRelationInput = {
   error?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   dataset?: Prisma.ScoutingDatasetOrderByWithRelationInput
+  analysisRun?: Prisma.AnalysisRunOrderByWithRelationInput
   rows?: Prisma.ImportJobRowOrderByRelationAggregateInput
 }
 
@@ -378,6 +389,7 @@ export type ImportJobWhereUniqueInput = Prisma.AtLeast<{
   OR?: Prisma.ImportJobWhereInput[]
   NOT?: Prisma.ImportJobWhereInput | Prisma.ImportJobWhereInput[]
   datasetId?: Prisma.StringFilter<"ImportJob"> | string
+  analysisRunId?: Prisma.StringNullableFilter<"ImportJob"> | string | null
   status?: Prisma.EnumImportJobStatusFilter<"ImportJob"> | $Enums.ImportJobStatus
   engines?: Prisma.StringNullableListFilter<"ImportJob">
   quality?: Prisma.StringFilter<"ImportJob"> | string
@@ -396,12 +408,14 @@ export type ImportJobWhereUniqueInput = Prisma.AtLeast<{
   error?: Prisma.StringNullableFilter<"ImportJob"> | string | null
   createdAt?: Prisma.DateTimeFilter<"ImportJob"> | Date | string
   dataset?: Prisma.XOR<Prisma.ScoutingDatasetScalarRelationFilter, Prisma.ScoutingDatasetWhereInput>
+  analysisRun?: Prisma.XOR<Prisma.AnalysisRunNullableScalarRelationFilter, Prisma.AnalysisRunWhereInput> | null
   rows?: Prisma.ImportJobRowListRelationFilter
 }, "id">
 
 export type ImportJobOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
   datasetId?: Prisma.SortOrder
+  analysisRunId?: Prisma.SortOrderInput | Prisma.SortOrder
   status?: Prisma.SortOrder
   engines?: Prisma.SortOrder
   quality?: Prisma.SortOrder
@@ -432,6 +446,7 @@ export type ImportJobScalarWhereWithAggregatesInput = {
   NOT?: Prisma.ImportJobScalarWhereWithAggregatesInput | Prisma.ImportJobScalarWhereWithAggregatesInput[]
   id?: Prisma.StringWithAggregatesFilter<"ImportJob"> | string
   datasetId?: Prisma.StringWithAggregatesFilter<"ImportJob"> | string
+  analysisRunId?: Prisma.StringNullableWithAggregatesFilter<"ImportJob"> | string | null
   status?: Prisma.EnumImportJobStatusWithAggregatesFilter<"ImportJob"> | $Enums.ImportJobStatus
   engines?: Prisma.StringNullableListFilter<"ImportJob">
   quality?: Prisma.StringWithAggregatesFilter<"ImportJob"> | string
@@ -471,12 +486,14 @@ export type ImportJobCreateInput = {
   error?: string | null
   createdAt?: Date | string
   dataset: Prisma.ScoutingDatasetCreateNestedOneWithoutJobsInput
+  analysisRun?: Prisma.AnalysisRunCreateNestedOneWithoutJobsInput
   rows?: Prisma.ImportJobRowCreateNestedManyWithoutJobInput
 }
 
 export type ImportJobUncheckedCreateInput = {
   id?: string
   datasetId: string
+  analysisRunId?: string | null
   status?: $Enums.ImportJobStatus
   engines?: Prisma.ImportJobCreateenginesInput | string[]
   quality?: string
@@ -517,12 +534,14 @@ export type ImportJobUpdateInput = {
   error?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   dataset?: Prisma.ScoutingDatasetUpdateOneRequiredWithoutJobsNestedInput
+  analysisRun?: Prisma.AnalysisRunUpdateOneWithoutJobsNestedInput
   rows?: Prisma.ImportJobRowUpdateManyWithoutJobNestedInput
 }
 
 export type ImportJobUncheckedUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   datasetId?: Prisma.StringFieldUpdateOperationsInput | string
+  analysisRunId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumImportJobStatusFieldUpdateOperationsInput | $Enums.ImportJobStatus
   engines?: Prisma.ImportJobUpdateenginesInput | string[]
   quality?: Prisma.StringFieldUpdateOperationsInput | string
@@ -546,6 +565,7 @@ export type ImportJobUncheckedUpdateInput = {
 export type ImportJobCreateManyInput = {
   id?: string
   datasetId: string
+  analysisRunId?: string | null
   status?: $Enums.ImportJobStatus
   engines?: Prisma.ImportJobCreateenginesInput | string[]
   quality?: string
@@ -589,6 +609,7 @@ export type ImportJobUpdateManyMutationInput = {
 export type ImportJobUncheckedUpdateManyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   datasetId?: Prisma.StringFieldUpdateOperationsInput | string
+  analysisRunId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumImportJobStatusFieldUpdateOperationsInput | $Enums.ImportJobStatus
   engines?: Prisma.ImportJobUpdateenginesInput | string[]
   quality?: Prisma.StringFieldUpdateOperationsInput | string
@@ -621,6 +642,7 @@ export type ImportJobOrderByRelationAggregateInput = {
 export type ImportJobCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
   datasetId?: Prisma.SortOrder
+  analysisRunId?: Prisma.SortOrder
   status?: Prisma.SortOrder
   engines?: Prisma.SortOrder
   quality?: Prisma.SortOrder
@@ -653,6 +675,7 @@ export type ImportJobAvgOrderByAggregateInput = {
 export type ImportJobMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
   datasetId?: Prisma.SortOrder
+  analysisRunId?: Prisma.SortOrder
   status?: Prisma.SortOrder
   quality?: Prisma.SortOrder
   candidatesPerEngine?: Prisma.SortOrder
@@ -673,6 +696,7 @@ export type ImportJobMaxOrderByAggregateInput = {
 export type ImportJobMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
   datasetId?: Prisma.SortOrder
+  analysisRunId?: Prisma.SortOrder
   status?: Prisma.SortOrder
   quality?: Prisma.SortOrder
   candidatesPerEngine?: Prisma.SortOrder
@@ -747,6 +771,48 @@ export type ImportJobUncheckedUpdateManyWithoutDatasetNestedInput = {
   deleteMany?: Prisma.ImportJobScalarWhereInput | Prisma.ImportJobScalarWhereInput[]
 }
 
+export type ImportJobCreateNestedManyWithoutAnalysisRunInput = {
+  create?: Prisma.XOR<Prisma.ImportJobCreateWithoutAnalysisRunInput, Prisma.ImportJobUncheckedCreateWithoutAnalysisRunInput> | Prisma.ImportJobCreateWithoutAnalysisRunInput[] | Prisma.ImportJobUncheckedCreateWithoutAnalysisRunInput[]
+  connectOrCreate?: Prisma.ImportJobCreateOrConnectWithoutAnalysisRunInput | Prisma.ImportJobCreateOrConnectWithoutAnalysisRunInput[]
+  createMany?: Prisma.ImportJobCreateManyAnalysisRunInputEnvelope
+  connect?: Prisma.ImportJobWhereUniqueInput | Prisma.ImportJobWhereUniqueInput[]
+}
+
+export type ImportJobUncheckedCreateNestedManyWithoutAnalysisRunInput = {
+  create?: Prisma.XOR<Prisma.ImportJobCreateWithoutAnalysisRunInput, Prisma.ImportJobUncheckedCreateWithoutAnalysisRunInput> | Prisma.ImportJobCreateWithoutAnalysisRunInput[] | Prisma.ImportJobUncheckedCreateWithoutAnalysisRunInput[]
+  connectOrCreate?: Prisma.ImportJobCreateOrConnectWithoutAnalysisRunInput | Prisma.ImportJobCreateOrConnectWithoutAnalysisRunInput[]
+  createMany?: Prisma.ImportJobCreateManyAnalysisRunInputEnvelope
+  connect?: Prisma.ImportJobWhereUniqueInput | Prisma.ImportJobWhereUniqueInput[]
+}
+
+export type ImportJobUpdateManyWithoutAnalysisRunNestedInput = {
+  create?: Prisma.XOR<Prisma.ImportJobCreateWithoutAnalysisRunInput, Prisma.ImportJobUncheckedCreateWithoutAnalysisRunInput> | Prisma.ImportJobCreateWithoutAnalysisRunInput[] | Prisma.ImportJobUncheckedCreateWithoutAnalysisRunInput[]
+  connectOrCreate?: Prisma.ImportJobCreateOrConnectWithoutAnalysisRunInput | Prisma.ImportJobCreateOrConnectWithoutAnalysisRunInput[]
+  upsert?: Prisma.ImportJobUpsertWithWhereUniqueWithoutAnalysisRunInput | Prisma.ImportJobUpsertWithWhereUniqueWithoutAnalysisRunInput[]
+  createMany?: Prisma.ImportJobCreateManyAnalysisRunInputEnvelope
+  set?: Prisma.ImportJobWhereUniqueInput | Prisma.ImportJobWhereUniqueInput[]
+  disconnect?: Prisma.ImportJobWhereUniqueInput | Prisma.ImportJobWhereUniqueInput[]
+  delete?: Prisma.ImportJobWhereUniqueInput | Prisma.ImportJobWhereUniqueInput[]
+  connect?: Prisma.ImportJobWhereUniqueInput | Prisma.ImportJobWhereUniqueInput[]
+  update?: Prisma.ImportJobUpdateWithWhereUniqueWithoutAnalysisRunInput | Prisma.ImportJobUpdateWithWhereUniqueWithoutAnalysisRunInput[]
+  updateMany?: Prisma.ImportJobUpdateManyWithWhereWithoutAnalysisRunInput | Prisma.ImportJobUpdateManyWithWhereWithoutAnalysisRunInput[]
+  deleteMany?: Prisma.ImportJobScalarWhereInput | Prisma.ImportJobScalarWhereInput[]
+}
+
+export type ImportJobUncheckedUpdateManyWithoutAnalysisRunNestedInput = {
+  create?: Prisma.XOR<Prisma.ImportJobCreateWithoutAnalysisRunInput, Prisma.ImportJobUncheckedCreateWithoutAnalysisRunInput> | Prisma.ImportJobCreateWithoutAnalysisRunInput[] | Prisma.ImportJobUncheckedCreateWithoutAnalysisRunInput[]
+  connectOrCreate?: Prisma.ImportJobCreateOrConnectWithoutAnalysisRunInput | Prisma.ImportJobCreateOrConnectWithoutAnalysisRunInput[]
+  upsert?: Prisma.ImportJobUpsertWithWhereUniqueWithoutAnalysisRunInput | Prisma.ImportJobUpsertWithWhereUniqueWithoutAnalysisRunInput[]
+  createMany?: Prisma.ImportJobCreateManyAnalysisRunInputEnvelope
+  set?: Prisma.ImportJobWhereUniqueInput | Prisma.ImportJobWhereUniqueInput[]
+  disconnect?: Prisma.ImportJobWhereUniqueInput | Prisma.ImportJobWhereUniqueInput[]
+  delete?: Prisma.ImportJobWhereUniqueInput | Prisma.ImportJobWhereUniqueInput[]
+  connect?: Prisma.ImportJobWhereUniqueInput | Prisma.ImportJobWhereUniqueInput[]
+  update?: Prisma.ImportJobUpdateWithWhereUniqueWithoutAnalysisRunInput | Prisma.ImportJobUpdateWithWhereUniqueWithoutAnalysisRunInput[]
+  updateMany?: Prisma.ImportJobUpdateManyWithWhereWithoutAnalysisRunInput | Prisma.ImportJobUpdateManyWithWhereWithoutAnalysisRunInput[]
+  deleteMany?: Prisma.ImportJobScalarWhereInput | Prisma.ImportJobScalarWhereInput[]
+}
+
 export type ImportJobCreateenginesInput = {
   set: string[]
 }
@@ -758,10 +824,6 @@ export type EnumImportJobStatusFieldUpdateOperationsInput = {
 export type ImportJobUpdateenginesInput = {
   set?: string[]
   push?: string | string[]
-}
-
-export type BoolFieldUpdateOperationsInput = {
-  set?: boolean
 }
 
 export type ImportJobCreateNestedOneWithoutRowsInput = {
@@ -797,11 +859,13 @@ export type ImportJobCreateWithoutDatasetInput = {
   finishedAt?: Date | string | null
   error?: string | null
   createdAt?: Date | string
+  analysisRun?: Prisma.AnalysisRunCreateNestedOneWithoutJobsInput
   rows?: Prisma.ImportJobRowCreateNestedManyWithoutJobInput
 }
 
 export type ImportJobUncheckedCreateWithoutDatasetInput = {
   id?: string
+  analysisRunId?: string | null
   status?: $Enums.ImportJobStatus
   engines?: Prisma.ImportJobCreateenginesInput | string[]
   quality?: string
@@ -854,6 +918,7 @@ export type ImportJobScalarWhereInput = {
   NOT?: Prisma.ImportJobScalarWhereInput | Prisma.ImportJobScalarWhereInput[]
   id?: Prisma.StringFilter<"ImportJob"> | string
   datasetId?: Prisma.StringFilter<"ImportJob"> | string
+  analysisRunId?: Prisma.StringNullableFilter<"ImportJob"> | string | null
   status?: Prisma.EnumImportJobStatusFilter<"ImportJob"> | $Enums.ImportJobStatus
   engines?: Prisma.StringNullableListFilter<"ImportJob">
   quality?: Prisma.StringFilter<"ImportJob"> | string
@@ -871,6 +936,78 @@ export type ImportJobScalarWhereInput = {
   finishedAt?: Prisma.DateTimeNullableFilter<"ImportJob"> | Date | string | null
   error?: Prisma.StringNullableFilter<"ImportJob"> | string | null
   createdAt?: Prisma.DateTimeFilter<"ImportJob"> | Date | string
+}
+
+export type ImportJobCreateWithoutAnalysisRunInput = {
+  id?: string
+  status?: $Enums.ImportJobStatus
+  engines?: Prisma.ImportJobCreateenginesInput | string[]
+  quality?: string
+  candidatesPerEngine?: number
+  finalists?: number
+  forceFullSearch?: boolean
+  aiRationale?: boolean
+  mapping: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  totalRows?: number
+  processedRows?: number
+  reusedRows?: number
+  failedRows?: number
+  creditsSpent?: number
+  startedAt?: Date | string | null
+  finishedAt?: Date | string | null
+  error?: string | null
+  createdAt?: Date | string
+  dataset: Prisma.ScoutingDatasetCreateNestedOneWithoutJobsInput
+  rows?: Prisma.ImportJobRowCreateNestedManyWithoutJobInput
+}
+
+export type ImportJobUncheckedCreateWithoutAnalysisRunInput = {
+  id?: string
+  datasetId: string
+  status?: $Enums.ImportJobStatus
+  engines?: Prisma.ImportJobCreateenginesInput | string[]
+  quality?: string
+  candidatesPerEngine?: number
+  finalists?: number
+  forceFullSearch?: boolean
+  aiRationale?: boolean
+  mapping: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  totalRows?: number
+  processedRows?: number
+  reusedRows?: number
+  failedRows?: number
+  creditsSpent?: number
+  startedAt?: Date | string | null
+  finishedAt?: Date | string | null
+  error?: string | null
+  createdAt?: Date | string
+  rows?: Prisma.ImportJobRowUncheckedCreateNestedManyWithoutJobInput
+}
+
+export type ImportJobCreateOrConnectWithoutAnalysisRunInput = {
+  where: Prisma.ImportJobWhereUniqueInput
+  create: Prisma.XOR<Prisma.ImportJobCreateWithoutAnalysisRunInput, Prisma.ImportJobUncheckedCreateWithoutAnalysisRunInput>
+}
+
+export type ImportJobCreateManyAnalysisRunInputEnvelope = {
+  data: Prisma.ImportJobCreateManyAnalysisRunInput | Prisma.ImportJobCreateManyAnalysisRunInput[]
+  skipDuplicates?: boolean
+}
+
+export type ImportJobUpsertWithWhereUniqueWithoutAnalysisRunInput = {
+  where: Prisma.ImportJobWhereUniqueInput
+  update: Prisma.XOR<Prisma.ImportJobUpdateWithoutAnalysisRunInput, Prisma.ImportJobUncheckedUpdateWithoutAnalysisRunInput>
+  create: Prisma.XOR<Prisma.ImportJobCreateWithoutAnalysisRunInput, Prisma.ImportJobUncheckedCreateWithoutAnalysisRunInput>
+}
+
+export type ImportJobUpdateWithWhereUniqueWithoutAnalysisRunInput = {
+  where: Prisma.ImportJobWhereUniqueInput
+  data: Prisma.XOR<Prisma.ImportJobUpdateWithoutAnalysisRunInput, Prisma.ImportJobUncheckedUpdateWithoutAnalysisRunInput>
+}
+
+export type ImportJobUpdateManyWithWhereWithoutAnalysisRunInput = {
+  where: Prisma.ImportJobScalarWhereInput
+  data: Prisma.XOR<Prisma.ImportJobUpdateManyMutationInput, Prisma.ImportJobUncheckedUpdateManyWithoutAnalysisRunInput>
 }
 
 export type ImportJobCreateWithoutRowsInput = {
@@ -893,11 +1030,13 @@ export type ImportJobCreateWithoutRowsInput = {
   error?: string | null
   createdAt?: Date | string
   dataset: Prisma.ScoutingDatasetCreateNestedOneWithoutJobsInput
+  analysisRun?: Prisma.AnalysisRunCreateNestedOneWithoutJobsInput
 }
 
 export type ImportJobUncheckedCreateWithoutRowsInput = {
   id?: string
   datasetId: string
+  analysisRunId?: string | null
   status?: $Enums.ImportJobStatus
   engines?: Prisma.ImportJobCreateenginesInput | string[]
   quality?: string
@@ -953,11 +1092,13 @@ export type ImportJobUpdateWithoutRowsInput = {
   error?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   dataset?: Prisma.ScoutingDatasetUpdateOneRequiredWithoutJobsNestedInput
+  analysisRun?: Prisma.AnalysisRunUpdateOneWithoutJobsNestedInput
 }
 
 export type ImportJobUncheckedUpdateWithoutRowsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   datasetId?: Prisma.StringFieldUpdateOperationsInput | string
+  analysisRunId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumImportJobStatusFieldUpdateOperationsInput | $Enums.ImportJobStatus
   engines?: Prisma.ImportJobUpdateenginesInput | string[]
   quality?: Prisma.StringFieldUpdateOperationsInput | string
@@ -979,6 +1120,7 @@ export type ImportJobUncheckedUpdateWithoutRowsInput = {
 
 export type ImportJobCreateManyDatasetInput = {
   id?: string
+  analysisRunId?: string | null
   status?: $Enums.ImportJobStatus
   engines?: Prisma.ImportJobCreateenginesInput | string[]
   quality?: string
@@ -1017,11 +1159,13 @@ export type ImportJobUpdateWithoutDatasetInput = {
   finishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   error?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  analysisRun?: Prisma.AnalysisRunUpdateOneWithoutJobsNestedInput
   rows?: Prisma.ImportJobRowUpdateManyWithoutJobNestedInput
 }
 
 export type ImportJobUncheckedUpdateWithoutDatasetInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  analysisRunId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumImportJobStatusFieldUpdateOperationsInput | $Enums.ImportJobStatus
   engines?: Prisma.ImportJobUpdateenginesInput | string[]
   quality?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1044,6 +1188,97 @@ export type ImportJobUncheckedUpdateWithoutDatasetInput = {
 
 export type ImportJobUncheckedUpdateManyWithoutDatasetInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  analysisRunId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.EnumImportJobStatusFieldUpdateOperationsInput | $Enums.ImportJobStatus
+  engines?: Prisma.ImportJobUpdateenginesInput | string[]
+  quality?: Prisma.StringFieldUpdateOperationsInput | string
+  candidatesPerEngine?: Prisma.IntFieldUpdateOperationsInput | number
+  finalists?: Prisma.IntFieldUpdateOperationsInput | number
+  forceFullSearch?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  aiRationale?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  mapping?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  totalRows?: Prisma.IntFieldUpdateOperationsInput | number
+  processedRows?: Prisma.IntFieldUpdateOperationsInput | number
+  reusedRows?: Prisma.IntFieldUpdateOperationsInput | number
+  failedRows?: Prisma.IntFieldUpdateOperationsInput | number
+  creditsSpent?: Prisma.IntFieldUpdateOperationsInput | number
+  startedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  finishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  error?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type ImportJobCreateManyAnalysisRunInput = {
+  id?: string
+  datasetId: string
+  status?: $Enums.ImportJobStatus
+  engines?: Prisma.ImportJobCreateenginesInput | string[]
+  quality?: string
+  candidatesPerEngine?: number
+  finalists?: number
+  forceFullSearch?: boolean
+  aiRationale?: boolean
+  mapping: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  totalRows?: number
+  processedRows?: number
+  reusedRows?: number
+  failedRows?: number
+  creditsSpent?: number
+  startedAt?: Date | string | null
+  finishedAt?: Date | string | null
+  error?: string | null
+  createdAt?: Date | string
+}
+
+export type ImportJobUpdateWithoutAnalysisRunInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.EnumImportJobStatusFieldUpdateOperationsInput | $Enums.ImportJobStatus
+  engines?: Prisma.ImportJobUpdateenginesInput | string[]
+  quality?: Prisma.StringFieldUpdateOperationsInput | string
+  candidatesPerEngine?: Prisma.IntFieldUpdateOperationsInput | number
+  finalists?: Prisma.IntFieldUpdateOperationsInput | number
+  forceFullSearch?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  aiRationale?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  mapping?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  totalRows?: Prisma.IntFieldUpdateOperationsInput | number
+  processedRows?: Prisma.IntFieldUpdateOperationsInput | number
+  reusedRows?: Prisma.IntFieldUpdateOperationsInput | number
+  failedRows?: Prisma.IntFieldUpdateOperationsInput | number
+  creditsSpent?: Prisma.IntFieldUpdateOperationsInput | number
+  startedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  finishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  error?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  dataset?: Prisma.ScoutingDatasetUpdateOneRequiredWithoutJobsNestedInput
+  rows?: Prisma.ImportJobRowUpdateManyWithoutJobNestedInput
+}
+
+export type ImportJobUncheckedUpdateWithoutAnalysisRunInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  datasetId?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.EnumImportJobStatusFieldUpdateOperationsInput | $Enums.ImportJobStatus
+  engines?: Prisma.ImportJobUpdateenginesInput | string[]
+  quality?: Prisma.StringFieldUpdateOperationsInput | string
+  candidatesPerEngine?: Prisma.IntFieldUpdateOperationsInput | number
+  finalists?: Prisma.IntFieldUpdateOperationsInput | number
+  forceFullSearch?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  aiRationale?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  mapping?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  totalRows?: Prisma.IntFieldUpdateOperationsInput | number
+  processedRows?: Prisma.IntFieldUpdateOperationsInput | number
+  reusedRows?: Prisma.IntFieldUpdateOperationsInput | number
+  failedRows?: Prisma.IntFieldUpdateOperationsInput | number
+  creditsSpent?: Prisma.IntFieldUpdateOperationsInput | number
+  startedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  finishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  error?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  rows?: Prisma.ImportJobRowUncheckedUpdateManyWithoutJobNestedInput
+}
+
+export type ImportJobUncheckedUpdateManyWithoutAnalysisRunInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  datasetId?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.EnumImportJobStatusFieldUpdateOperationsInput | $Enums.ImportJobStatus
   engines?: Prisma.ImportJobUpdateenginesInput | string[]
   quality?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1097,6 +1332,7 @@ export type ImportJobCountOutputTypeCountRowsArgs<ExtArgs extends runtime.Types.
 export type ImportJobSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   datasetId?: boolean
+  analysisRunId?: boolean
   status?: boolean
   engines?: boolean
   quality?: boolean
@@ -1115,6 +1351,7 @@ export type ImportJobSelect<ExtArgs extends runtime.Types.Extensions.InternalArg
   error?: boolean
   createdAt?: boolean
   dataset?: boolean | Prisma.ScoutingDatasetDefaultArgs<ExtArgs>
+  analysisRun?: boolean | Prisma.ImportJob$analysisRunArgs<ExtArgs>
   rows?: boolean | Prisma.ImportJob$rowsArgs<ExtArgs>
   _count?: boolean | Prisma.ImportJobCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["importJob"]>
@@ -1122,6 +1359,7 @@ export type ImportJobSelect<ExtArgs extends runtime.Types.Extensions.InternalArg
 export type ImportJobSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   datasetId?: boolean
+  analysisRunId?: boolean
   status?: boolean
   engines?: boolean
   quality?: boolean
@@ -1140,11 +1378,13 @@ export type ImportJobSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Ext
   error?: boolean
   createdAt?: boolean
   dataset?: boolean | Prisma.ScoutingDatasetDefaultArgs<ExtArgs>
+  analysisRun?: boolean | Prisma.ImportJob$analysisRunArgs<ExtArgs>
 }, ExtArgs["result"]["importJob"]>
 
 export type ImportJobSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   datasetId?: boolean
+  analysisRunId?: boolean
   status?: boolean
   engines?: boolean
   quality?: boolean
@@ -1163,11 +1403,13 @@ export type ImportJobSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Ext
   error?: boolean
   createdAt?: boolean
   dataset?: boolean | Prisma.ScoutingDatasetDefaultArgs<ExtArgs>
+  analysisRun?: boolean | Prisma.ImportJob$analysisRunArgs<ExtArgs>
 }, ExtArgs["result"]["importJob"]>
 
 export type ImportJobSelectScalar = {
   id?: boolean
   datasetId?: boolean
+  analysisRunId?: boolean
   status?: boolean
   engines?: boolean
   quality?: boolean
@@ -1187,28 +1429,37 @@ export type ImportJobSelectScalar = {
   createdAt?: boolean
 }
 
-export type ImportJobOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "datasetId" | "status" | "engines" | "quality" | "candidatesPerEngine" | "finalists" | "forceFullSearch" | "aiRationale" | "mapping" | "totalRows" | "processedRows" | "reusedRows" | "failedRows" | "creditsSpent" | "startedAt" | "finishedAt" | "error" | "createdAt", ExtArgs["result"]["importJob"]>
+export type ImportJobOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "datasetId" | "analysisRunId" | "status" | "engines" | "quality" | "candidatesPerEngine" | "finalists" | "forceFullSearch" | "aiRationale" | "mapping" | "totalRows" | "processedRows" | "reusedRows" | "failedRows" | "creditsSpent" | "startedAt" | "finishedAt" | "error" | "createdAt", ExtArgs["result"]["importJob"]>
 export type ImportJobInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   dataset?: boolean | Prisma.ScoutingDatasetDefaultArgs<ExtArgs>
+  analysisRun?: boolean | Prisma.ImportJob$analysisRunArgs<ExtArgs>
   rows?: boolean | Prisma.ImportJob$rowsArgs<ExtArgs>
   _count?: boolean | Prisma.ImportJobCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type ImportJobIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   dataset?: boolean | Prisma.ScoutingDatasetDefaultArgs<ExtArgs>
+  analysisRun?: boolean | Prisma.ImportJob$analysisRunArgs<ExtArgs>
 }
 export type ImportJobIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   dataset?: boolean | Prisma.ScoutingDatasetDefaultArgs<ExtArgs>
+  analysisRun?: boolean | Prisma.ImportJob$analysisRunArgs<ExtArgs>
 }
 
 export type $ImportJobPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "ImportJob"
   objects: {
     dataset: Prisma.$ScoutingDatasetPayload<ExtArgs>
+    /**
+     * Sessione di analisi da cui nasce il job. Nullable: i job avviati senza
+     * analisi IA — compresi tutti quelli già salvati — continuano a funzionare.
+     */
+    analysisRun: Prisma.$AnalysisRunPayload<ExtArgs> | null
     rows: Prisma.$ImportJobRowPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
     datasetId: string
+    analysisRunId: string | null
     status: $Enums.ImportJobStatus
     engines: string[]
     quality: string
@@ -1628,6 +1879,7 @@ readonly fields: ImportJobFieldRefs;
 export interface Prisma__ImportJobClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
   dataset<T extends Prisma.ScoutingDatasetDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ScoutingDatasetDefaultArgs<ExtArgs>>): Prisma.Prisma__ScoutingDatasetClient<runtime.Types.Result.GetResult<Prisma.$ScoutingDatasetPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+  analysisRun<T extends Prisma.ImportJob$analysisRunArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ImportJob$analysisRunArgs<ExtArgs>>): Prisma.Prisma__AnalysisRunClient<runtime.Types.Result.GetResult<Prisma.$AnalysisRunPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   rows<T extends Prisma.ImportJob$rowsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ImportJob$rowsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ImportJobRowPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
@@ -1660,6 +1912,7 @@ export interface Prisma__ImportJobClient<T, Null = never, ExtArgs extends runtim
 export interface ImportJobFieldRefs {
   readonly id: Prisma.FieldRef<"ImportJob", 'String'>
   readonly datasetId: Prisma.FieldRef<"ImportJob", 'String'>
+  readonly analysisRunId: Prisma.FieldRef<"ImportJob", 'String'>
   readonly status: Prisma.FieldRef<"ImportJob", 'ImportJobStatus'>
   readonly engines: Prisma.FieldRef<"ImportJob", 'String[]'>
   readonly quality: Prisma.FieldRef<"ImportJob", 'String'>
@@ -2075,6 +2328,25 @@ export type ImportJobDeleteManyArgs<ExtArgs extends runtime.Types.Extensions.Int
    * Limit how many ImportJobs to delete.
    */
   limit?: number
+}
+
+/**
+ * ImportJob.analysisRun
+ */
+export type ImportJob$analysisRunArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the AnalysisRun
+   */
+  select?: Prisma.AnalysisRunSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the AnalysisRun
+   */
+  omit?: Prisma.AnalysisRunOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.AnalysisRunInclude<ExtArgs> | null
+  where?: Prisma.AnalysisRunWhereInput
 }
 
 /**

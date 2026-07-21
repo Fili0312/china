@@ -5,9 +5,11 @@ import type {
   SearchEngine,
   SearchQuality,
 } from "@china/shared";
+import { queryLanguageForEngine } from "@china/shared";
 import { SearchService } from "../search/search.service";
 import { piloterrClient } from "../search/providers/piloterr.client";
 import { persistCandidates, toCandidateData } from "./candidate-store";
+import { KnownProductService } from "./known-product.service";
 import {
   selectFinalists,
   type CandidateForSelection,
@@ -73,7 +75,10 @@ export class ScoutingRunnerService {
   /** Job che questo processo sta già guidando: evita due cicli sullo stesso. */
   private readonly driving = new Set<string>();
 
-  constructor(private readonly search: SearchService) {}
+  constructor(
+    private readonly search: SearchService,
+    private readonly known: KnownProductService
+  ) {}
 
   isDriving(jobId: string): boolean {
     return this.driving.has(jobId);
@@ -214,37 +219,67 @@ export class ScoutingRunnerService {
     }
 
     const engines = row.job.engines as SearchEngine[];
-    const reusable = await this.canReuse(row.requestId!, row.job.forceFullSearch);
 
-    if (reusable) {
-      // La richiesta è già stata elaborata: i prodotti salvati vengono riusati
-      // così com'è, senza spendere né tempo né crediti. L'aggiornamento dei
-      // loro dati è un passo separato (M6), esplicito e ordinabile.
+    // Caso A della specifica: la variante è conosciuta. Prima di rifare la
+    // ricerca si controllano i link che già abbiamo — prezzo, disponibilità,
+    // MOQ, venditore — e solo se **non** bastano si riparte da zero. È ciò che
+    // rende un secondo passaggio sullo stesso file quasi gratuito.
+    await prisma.importJobRow.update({
+      where: { id: jobRowId },
+      data: { status: "REFRESHING" },
+    });
+    const reuse = await this.known.prepareReuse(row.requestId!, {
+      forceFullSearch: row.job.forceFullSearch,
+      refreshLimit: row.job.candidatesPerEngine * engines.length,
+    });
+
+    if (reuse.reuse) {
       await prisma.importJobRowEngine.updateMany({
         where: { jobRowId },
         data: {
           status: "SKIPPED",
-          error: "Richiesta già elaborata: candidati riusati.",
+          error: reuse.reason,
           finishedAt: new Date(),
         },
       });
       // Anche una riga riusata va valutata: i finalisti appartengono alla
-      // riga, non alla richiesta, e questa riga non li ha ancora.
+      // riga, non alla richiesta, e questa riga non li ha ancora. Dopo
+      // l'aggiornamento i prezzi possono essere cambiati, quindi la classifica
+      // va rifatta comunque.
       await this.scoreRow(jobRowId, row.requestId!, row.job);
       await prisma.importJobRow.update({
         where: { id: jobRowId },
-        data: { status: "DONE", reused: true, finishedAt: new Date() },
+        data: {
+          status: "DONE",
+          reused: true,
+          reuseReason: reuse.reason,
+          finishedAt: new Date(),
+        },
       });
       await this.bumpJobCounters(jobId, { processed: 1, reused: 1 });
       return;
     }
 
+    // Casi B e C: si cerca davvero. La riga registra **perché** — «i prodotti
+    // noti non bastavano più» è un'informazione che l'utente merita di vedere
+    // accanto al risultato.
+    await prisma.importJobRow.update({
+      where: { id: jobRowId },
+      data: { status: "SEARCHING", reuseReason: reuse.reason },
+    });
+
     const outcomes = await Promise.all(
       engines.map((engine) =>
-        this.runEngine(jobRowId, row.requestId!, row.searchQuery, engine, {
-          quality: row.job.quality as SearchQuality,
-          frameSize: row.job.candidatesPerEngine,
-        })
+        this.runEngine(
+          jobRowId,
+          row.requestId!,
+          this.queryForEngine(engine, row.request, row.searchQuery),
+          engine,
+          {
+            quality: row.job.quality as SearchQuality,
+            frameSize: row.job.candidatesPerEngine,
+          }
+        )
       )
     );
 
@@ -288,24 +323,32 @@ export class ScoutingRunnerService {
   }
 
   /**
-   * Una richiesta è riusabile se ha già candidati salvati e la ricerca non è
-   * troppo vecchia. `forceFullSearch` ignora entrambe le condizioni.
+   * Query da mandare a una fonte, nella lingua che quella fonte capisce.
+   *
+   * Taobao, Tmall, Chinagoods e Yiwugo indicizzano il mercato interno e vanno
+   * interrogati in cinese; Alibaba, AliExpress e Made-in-China sono vetrine
+   * per l'export con titoli in inglese. Sbagliare lingua non produce un
+   * errore — produce zero risultati, o risultati fuori tema, che è molto più
+   * difficile da diagnosticare.
+   *
+   * Se la query nella lingua giusta manca si usa l'altra: una ricerca
+   * imperfetta vale più di una riga saltata.
    */
-  private async canReuse(
-    requestId: string,
-    forceFullSearch: boolean
-  ): Promise<boolean> {
-    if (forceFullSearch) return false;
-    const request = await prisma.scoutingRequest.findUnique({
-      where: { id: requestId },
-      select: { lastSearchedAt: true, _count: { select: { candidates: true } } },
-    });
-    if (!request || request._count.candidates === 0) return false;
-    if (!request.lastSearchedAt) return false;
-
-    const maxAgeDays = numericEnv("SCOUTING_REFRESH_AFTER_DAYS", 14);
-    const ageMs = Date.now() - request.lastSearchedAt.getTime();
-    return ageMs < maxAgeDays * 24 * 60 * 60_000;
+  private queryForEngine(
+    engine: SearchEngine,
+    request: { searchQueryChinese: string | null; searchQueryEnglish: string | null } | null,
+    fallback: string
+  ): string {
+    if (!request) return fallback;
+    const wanted =
+      queryLanguageForEngine(engine) === "zh"
+        ? request.searchQueryChinese
+        : request.searchQueryEnglish;
+    const other =
+      queryLanguageForEngine(engine) === "zh"
+        ? request.searchQueryEnglish
+        : request.searchQueryChinese;
+    return wanted?.trim() || other?.trim() || fallback;
   }
 
   /** Interroga un singolo marketplace e ne registra l'esito. */

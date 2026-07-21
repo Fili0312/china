@@ -59,6 +59,9 @@ export const ModelName = {
   ScoutingDataset: 'ScoutingDataset',
   ScoutingDatasetRow: 'ScoutingDatasetRow',
   ScoutingRequest: 'ScoutingRequest',
+  RequestAnalysis: 'RequestAnalysis',
+  AnalysisRun: 'AnalysisRun',
+  AnalysisRunRow: 'AnalysisRunRow',
   ImportJob: 'ImportJob',
   ImportJobRow: 'ImportJobRow',
   ImportJobRowEngine: 'ImportJobRowEngine',
@@ -207,6 +210,14 @@ export const ScoutingRequestScalarFieldEnum = {
   normalizedNameKey: 'normalizedNameKey',
   displayName: 'displayName',
   normalizedName: 'normalizedName',
+  familyKey: 'familyKey',
+  variantKey: 'variantKey',
+  duplicateKey: 'duplicateKey',
+  productNameChinese: 'productNameChinese',
+  productNameEnglish: 'productNameEnglish',
+  searchQueryChinese: 'searchQueryChinese',
+  searchQueryEnglish: 'searchQueryEnglish',
+  lastVerifiedAt: 'lastVerifiedAt',
   category: 'category',
   brand: 'brand',
   model: 'model',
@@ -233,9 +244,78 @@ export const ScoutingRequestScalarFieldEnum = {
 export type ScoutingRequestScalarFieldEnum = (typeof ScoutingRequestScalarFieldEnum)[keyof typeof ScoutingRequestScalarFieldEnum]
 
 
+export const RequestAnalysisScalarFieldEnum = {
+  id: 'id',
+  inputHash: 'inputHash',
+  promptVersion: 'promptVersion',
+  model: 'model',
+  submittedText: 'submittedText',
+  analysis: 'analysis',
+  ok: 'ok',
+  error: 'error',
+  familyKey: 'familyKey',
+  variantKey: 'variantKey',
+  duplicateKey: 'duplicateKey',
+  confidence: 'confidence',
+  inputTokens: 'inputTokens',
+  outputTokens: 'outputTokens',
+  costUsd: 'costUsd',
+  createdAt: 'createdAt'
+} as const
+
+export type RequestAnalysisScalarFieldEnum = (typeof RequestAnalysisScalarFieldEnum)[keyof typeof RequestAnalysisScalarFieldEnum]
+
+
+export const AnalysisRunScalarFieldEnum = {
+  id: 'id',
+  datasetId: 'datasetId',
+  mapping: 'mapping',
+  promptVersion: 'promptVersion',
+  model: 'model',
+  totalRows: 'totalRows',
+  analyzedRows: 'analyzedRows',
+  failedRows: 'failedRows',
+  apiCalls: 'apiCalls',
+  cachedRows: 'cachedRows',
+  inputTokens: 'inputTokens',
+  outputTokens: 'outputTokens',
+  costUsd: 'costUsd',
+  createdAt: 'createdAt',
+  finishedAt: 'finishedAt',
+  error: 'error'
+} as const
+
+export type AnalysisRunScalarFieldEnum = (typeof AnalysisRunScalarFieldEnum)[keyof typeof AnalysisRunScalarFieldEnum]
+
+
+export const AnalysisRunRowScalarFieldEnum = {
+  id: 'id',
+  runId: 'runId',
+  datasetRowId: 'datasetRowId',
+  analysisId: 'analysisId',
+  rowNumber: 'rowNumber',
+  state: 'state',
+  effectiveAnalysis: 'effectiveAnalysis',
+  manualEdits: 'manualEdits',
+  edited: 'edited',
+  fromCache: 'fromCache',
+  approvedByUser: 'approvedByUser',
+  familyKey: 'familyKey',
+  variantKey: 'variantKey',
+  duplicateKey: 'duplicateKey',
+  confidence: 'confidence',
+  error: 'error',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type AnalysisRunRowScalarFieldEnum = (typeof AnalysisRunRowScalarFieldEnum)[keyof typeof AnalysisRunRowScalarFieldEnum]
+
+
 export const ImportJobScalarFieldEnum = {
   id: 'id',
   datasetId: 'datasetId',
+  analysisRunId: 'analysisRunId',
   status: 'status',
   engines: 'engines',
   quality: 'quality',
@@ -263,11 +343,13 @@ export const ImportJobRowScalarFieldEnum = {
   jobId: 'jobId',
   datasetRowId: 'datasetRowId',
   requestId: 'requestId',
+  analysisRowId: 'analysisRowId',
   rowNumber: 'rowNumber',
   displayName: 'displayName',
   searchQuery: 'searchQuery',
   status: 'status',
   reused: 'reused',
+  reuseReason: 'reuseReason',
   error: 'error',
   startedAt: 'startedAt',
   finishedAt: 'finishedAt'

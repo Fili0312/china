@@ -58,6 +58,27 @@ export type ScoutingDatasetRow = Prisma.ScoutingDatasetRowModel
  */
 export type ScoutingRequest = Prisma.ScoutingRequestModel
 /**
+ * Model RequestAnalysis
+ * Analisi di una riga, riusabile fra file e sessioni diverse.
+ * 
+ * La chiave è (testo normalizzato, versione prompt, modello): cambiare il
+ * prompt o il modello produce una nuova analisi invece di sporcare quella
+ * vecchia, così si può confrontare il prima e il dopo.
+ */
+export type RequestAnalysis = Prisma.RequestAnalysisModel
+/**
+ * Model AnalysisRun
+ * Una sessione di analisi su un file: è ciò che l'utente rivede prima di
+ * avviare lo scouting.
+ */
+export type AnalysisRun = Prisma.AnalysisRunModel
+/**
+ * Model AnalysisRunRow
+ * Una riga dentro una sessione di analisi: analisi, correzioni manuali e
+ * stato rispetto al database.
+ */
+export type AnalysisRunRow = Prisma.AnalysisRunRowModel
+/**
  * Model ImportJob
  * L'elaborazione di un file: una per avvio, con la propria configurazione.
  */

@@ -433,16 +433,41 @@ export type DateTimeNullableWithAggregatesFilter<$PrismaModel = never> = {
   _max?: Prisma.NestedDateTimeNullableFilter<$PrismaModel>
 }
 
+export type BoolFilter<$PrismaModel = never> = {
+  equals?: boolean | Prisma.BooleanFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedBoolFilter<$PrismaModel> | boolean
+}
+
+export type BoolWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: boolean | Prisma.BooleanFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedBoolWithAggregatesFilter<$PrismaModel> | boolean
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedBoolFilter<$PrismaModel>
+  _max?: Prisma.NestedBoolFilter<$PrismaModel>
+}
+
+export type EnumAnalysisRowStateFilter<$PrismaModel = never> = {
+  equals?: $Enums.AnalysisRowState | Prisma.EnumAnalysisRowStateFieldRefInput<$PrismaModel>
+  in?: $Enums.AnalysisRowState[] | Prisma.ListEnumAnalysisRowStateFieldRefInput<$PrismaModel>
+  notIn?: $Enums.AnalysisRowState[] | Prisma.ListEnumAnalysisRowStateFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumAnalysisRowStateFilter<$PrismaModel> | $Enums.AnalysisRowState
+}
+
+export type EnumAnalysisRowStateWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.AnalysisRowState | Prisma.EnumAnalysisRowStateFieldRefInput<$PrismaModel>
+  in?: $Enums.AnalysisRowState[] | Prisma.ListEnumAnalysisRowStateFieldRefInput<$PrismaModel>
+  notIn?: $Enums.AnalysisRowState[] | Prisma.ListEnumAnalysisRowStateFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumAnalysisRowStateWithAggregatesFilter<$PrismaModel> | $Enums.AnalysisRowState
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumAnalysisRowStateFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumAnalysisRowStateFilter<$PrismaModel>
+}
+
 export type EnumImportJobStatusFilter<$PrismaModel = never> = {
   equals?: $Enums.ImportJobStatus | Prisma.EnumImportJobStatusFieldRefInput<$PrismaModel>
   in?: $Enums.ImportJobStatus[] | Prisma.ListEnumImportJobStatusFieldRefInput<$PrismaModel>
   notIn?: $Enums.ImportJobStatus[] | Prisma.ListEnumImportJobStatusFieldRefInput<$PrismaModel>
   not?: Prisma.NestedEnumImportJobStatusFilter<$PrismaModel> | $Enums.ImportJobStatus
-}
-
-export type BoolFilter<$PrismaModel = never> = {
-  equals?: boolean | Prisma.BooleanFieldRefInput<$PrismaModel>
-  not?: Prisma.NestedBoolFilter<$PrismaModel> | boolean
 }
 
 export type EnumImportJobStatusWithAggregatesFilter<$PrismaModel = never> = {
@@ -453,14 +478,6 @@ export type EnumImportJobStatusWithAggregatesFilter<$PrismaModel = never> = {
   _count?: Prisma.NestedIntFilter<$PrismaModel>
   _min?: Prisma.NestedEnumImportJobStatusFilter<$PrismaModel>
   _max?: Prisma.NestedEnumImportJobStatusFilter<$PrismaModel>
-}
-
-export type BoolWithAggregatesFilter<$PrismaModel = never> = {
-  equals?: boolean | Prisma.BooleanFieldRefInput<$PrismaModel>
-  not?: Prisma.NestedBoolWithAggregatesFilter<$PrismaModel> | boolean
-  _count?: Prisma.NestedIntFilter<$PrismaModel>
-  _min?: Prisma.NestedBoolFilter<$PrismaModel>
-  _max?: Prisma.NestedBoolFilter<$PrismaModel>
 }
 
 export type EnumScoutingRowStatusFilter<$PrismaModel = never> = {
@@ -870,16 +887,41 @@ export type NestedDateTimeNullableWithAggregatesFilter<$PrismaModel = never> = {
   _max?: Prisma.NestedDateTimeNullableFilter<$PrismaModel>
 }
 
+export type NestedBoolFilter<$PrismaModel = never> = {
+  equals?: boolean | Prisma.BooleanFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedBoolFilter<$PrismaModel> | boolean
+}
+
+export type NestedBoolWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: boolean | Prisma.BooleanFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedBoolWithAggregatesFilter<$PrismaModel> | boolean
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedBoolFilter<$PrismaModel>
+  _max?: Prisma.NestedBoolFilter<$PrismaModel>
+}
+
+export type NestedEnumAnalysisRowStateFilter<$PrismaModel = never> = {
+  equals?: $Enums.AnalysisRowState | Prisma.EnumAnalysisRowStateFieldRefInput<$PrismaModel>
+  in?: $Enums.AnalysisRowState[] | Prisma.ListEnumAnalysisRowStateFieldRefInput<$PrismaModel>
+  notIn?: $Enums.AnalysisRowState[] | Prisma.ListEnumAnalysisRowStateFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumAnalysisRowStateFilter<$PrismaModel> | $Enums.AnalysisRowState
+}
+
+export type NestedEnumAnalysisRowStateWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.AnalysisRowState | Prisma.EnumAnalysisRowStateFieldRefInput<$PrismaModel>
+  in?: $Enums.AnalysisRowState[] | Prisma.ListEnumAnalysisRowStateFieldRefInput<$PrismaModel>
+  notIn?: $Enums.AnalysisRowState[] | Prisma.ListEnumAnalysisRowStateFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumAnalysisRowStateWithAggregatesFilter<$PrismaModel> | $Enums.AnalysisRowState
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumAnalysisRowStateFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumAnalysisRowStateFilter<$PrismaModel>
+}
+
 export type NestedEnumImportJobStatusFilter<$PrismaModel = never> = {
   equals?: $Enums.ImportJobStatus | Prisma.EnumImportJobStatusFieldRefInput<$PrismaModel>
   in?: $Enums.ImportJobStatus[] | Prisma.ListEnumImportJobStatusFieldRefInput<$PrismaModel>
   notIn?: $Enums.ImportJobStatus[] | Prisma.ListEnumImportJobStatusFieldRefInput<$PrismaModel>
   not?: Prisma.NestedEnumImportJobStatusFilter<$PrismaModel> | $Enums.ImportJobStatus
-}
-
-export type NestedBoolFilter<$PrismaModel = never> = {
-  equals?: boolean | Prisma.BooleanFieldRefInput<$PrismaModel>
-  not?: Prisma.NestedBoolFilter<$PrismaModel> | boolean
 }
 
 export type NestedEnumImportJobStatusWithAggregatesFilter<$PrismaModel = never> = {
@@ -890,14 +932,6 @@ export type NestedEnumImportJobStatusWithAggregatesFilter<$PrismaModel = never> 
   _count?: Prisma.NestedIntFilter<$PrismaModel>
   _min?: Prisma.NestedEnumImportJobStatusFilter<$PrismaModel>
   _max?: Prisma.NestedEnumImportJobStatusFilter<$PrismaModel>
-}
-
-export type NestedBoolWithAggregatesFilter<$PrismaModel = never> = {
-  equals?: boolean | Prisma.BooleanFieldRefInput<$PrismaModel>
-  not?: Prisma.NestedBoolWithAggregatesFilter<$PrismaModel> | boolean
-  _count?: Prisma.NestedIntFilter<$PrismaModel>
-  _min?: Prisma.NestedBoolFilter<$PrismaModel>
-  _max?: Prisma.NestedBoolFilter<$PrismaModel>
 }
 
 export type NestedEnumScoutingRowStatusFilter<$PrismaModel = never> = {

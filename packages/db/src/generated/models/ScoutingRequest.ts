@@ -50,6 +50,14 @@ export type ScoutingRequestMinAggregateOutputType = {
   normalizedNameKey: string | null
   displayName: string | null
   normalizedName: string | null
+  familyKey: string | null
+  variantKey: string | null
+  duplicateKey: string | null
+  productNameChinese: string | null
+  productNameEnglish: string | null
+  searchQueryChinese: string | null
+  searchQueryEnglish: string | null
+  lastVerifiedAt: Date | null
   category: string | null
   brand: string | null
   model: string | null
@@ -75,6 +83,14 @@ export type ScoutingRequestMaxAggregateOutputType = {
   normalizedNameKey: string | null
   displayName: string | null
   normalizedName: string | null
+  familyKey: string | null
+  variantKey: string | null
+  duplicateKey: string | null
+  productNameChinese: string | null
+  productNameEnglish: string | null
+  searchQueryChinese: string | null
+  searchQueryEnglish: string | null
+  lastVerifiedAt: Date | null
   category: string | null
   brand: string | null
   model: string | null
@@ -100,6 +116,14 @@ export type ScoutingRequestCountAggregateOutputType = {
   normalizedNameKey: number
   displayName: number
   normalizedName: number
+  familyKey: number
+  variantKey: number
+  duplicateKey: number
+  productNameChinese: number
+  productNameEnglish: number
+  searchQueryChinese: number
+  searchQueryEnglish: number
+  lastVerifiedAt: number
   category: number
   brand: number
   model: number
@@ -149,6 +173,14 @@ export type ScoutingRequestMinAggregateInputType = {
   normalizedNameKey?: true
   displayName?: true
   normalizedName?: true
+  familyKey?: true
+  variantKey?: true
+  duplicateKey?: true
+  productNameChinese?: true
+  productNameEnglish?: true
+  searchQueryChinese?: true
+  searchQueryEnglish?: true
+  lastVerifiedAt?: true
   category?: true
   brand?: true
   model?: true
@@ -174,6 +206,14 @@ export type ScoutingRequestMaxAggregateInputType = {
   normalizedNameKey?: true
   displayName?: true
   normalizedName?: true
+  familyKey?: true
+  variantKey?: true
+  duplicateKey?: true
+  productNameChinese?: true
+  productNameEnglish?: true
+  searchQueryChinese?: true
+  searchQueryEnglish?: true
+  lastVerifiedAt?: true
   category?: true
   brand?: true
   model?: true
@@ -199,6 +239,14 @@ export type ScoutingRequestCountAggregateInputType = {
   normalizedNameKey?: true
   displayName?: true
   normalizedName?: true
+  familyKey?: true
+  variantKey?: true
+  duplicateKey?: true
+  productNameChinese?: true
+  productNameEnglish?: true
+  searchQueryChinese?: true
+  searchQueryEnglish?: true
+  lastVerifiedAt?: true
   category?: true
   brand?: true
   model?: true
@@ -315,6 +363,14 @@ export type ScoutingRequestGroupByOutputType = {
   normalizedNameKey: string
   displayName: string
   normalizedName: string
+  familyKey: string | null
+  variantKey: string | null
+  duplicateKey: string | null
+  productNameChinese: string | null
+  productNameEnglish: string | null
+  searchQueryChinese: string | null
+  searchQueryEnglish: string | null
+  lastVerifiedAt: Date | null
   category: string | null
   brand: string | null
   model: string | null
@@ -367,6 +423,14 @@ export type ScoutingRequestWhereInput = {
   normalizedNameKey?: Prisma.StringFilter<"ScoutingRequest"> | string
   displayName?: Prisma.StringFilter<"ScoutingRequest"> | string
   normalizedName?: Prisma.StringFilter<"ScoutingRequest"> | string
+  familyKey?: Prisma.StringNullableFilter<"ScoutingRequest"> | string | null
+  variantKey?: Prisma.StringNullableFilter<"ScoutingRequest"> | string | null
+  duplicateKey?: Prisma.StringNullableFilter<"ScoutingRequest"> | string | null
+  productNameChinese?: Prisma.StringNullableFilter<"ScoutingRequest"> | string | null
+  productNameEnglish?: Prisma.StringNullableFilter<"ScoutingRequest"> | string | null
+  searchQueryChinese?: Prisma.StringNullableFilter<"ScoutingRequest"> | string | null
+  searchQueryEnglish?: Prisma.StringNullableFilter<"ScoutingRequest"> | string | null
+  lastVerifiedAt?: Prisma.DateTimeNullableFilter<"ScoutingRequest"> | Date | string | null
   category?: Prisma.StringNullableFilter<"ScoutingRequest"> | string | null
   brand?: Prisma.StringNullableFilter<"ScoutingRequest"> | string | null
   model?: Prisma.StringNullableFilter<"ScoutingRequest"> | string | null
@@ -398,6 +462,14 @@ export type ScoutingRequestOrderByWithRelationInput = {
   normalizedNameKey?: Prisma.SortOrder
   displayName?: Prisma.SortOrder
   normalizedName?: Prisma.SortOrder
+  familyKey?: Prisma.SortOrderInput | Prisma.SortOrder
+  variantKey?: Prisma.SortOrderInput | Prisma.SortOrder
+  duplicateKey?: Prisma.SortOrderInput | Prisma.SortOrder
+  productNameChinese?: Prisma.SortOrderInput | Prisma.SortOrder
+  productNameEnglish?: Prisma.SortOrderInput | Prisma.SortOrder
+  searchQueryChinese?: Prisma.SortOrderInput | Prisma.SortOrder
+  searchQueryEnglish?: Prisma.SortOrderInput | Prisma.SortOrder
+  lastVerifiedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   category?: Prisma.SortOrderInput | Prisma.SortOrder
   brand?: Prisma.SortOrderInput | Prisma.SortOrder
   model?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -426,12 +498,20 @@ export type ScoutingRequestOrderByWithRelationInput = {
 export type ScoutingRequestWhereUniqueInput = Prisma.AtLeast<{
   id?: string
   fingerprint?: string
+  variantKey?: string
   AND?: Prisma.ScoutingRequestWhereInput | Prisma.ScoutingRequestWhereInput[]
   OR?: Prisma.ScoutingRequestWhereInput[]
   NOT?: Prisma.ScoutingRequestWhereInput | Prisma.ScoutingRequestWhereInput[]
   normalizedNameKey?: Prisma.StringFilter<"ScoutingRequest"> | string
   displayName?: Prisma.StringFilter<"ScoutingRequest"> | string
   normalizedName?: Prisma.StringFilter<"ScoutingRequest"> | string
+  familyKey?: Prisma.StringNullableFilter<"ScoutingRequest"> | string | null
+  duplicateKey?: Prisma.StringNullableFilter<"ScoutingRequest"> | string | null
+  productNameChinese?: Prisma.StringNullableFilter<"ScoutingRequest"> | string | null
+  productNameEnglish?: Prisma.StringNullableFilter<"ScoutingRequest"> | string | null
+  searchQueryChinese?: Prisma.StringNullableFilter<"ScoutingRequest"> | string | null
+  searchQueryEnglish?: Prisma.StringNullableFilter<"ScoutingRequest"> | string | null
+  lastVerifiedAt?: Prisma.DateTimeNullableFilter<"ScoutingRequest"> | Date | string | null
   category?: Prisma.StringNullableFilter<"ScoutingRequest"> | string | null
   brand?: Prisma.StringNullableFilter<"ScoutingRequest"> | string | null
   model?: Prisma.StringNullableFilter<"ScoutingRequest"> | string | null
@@ -455,7 +535,7 @@ export type ScoutingRequestWhereUniqueInput = Prisma.AtLeast<{
   searchCount?: Prisma.IntFilter<"ScoutingRequest"> | number
   candidates?: Prisma.ProductCandidateRecordListRelationFilter
   jobRows?: Prisma.ImportJobRowListRelationFilter
-}, "id" | "fingerprint">
+}, "id" | "fingerprint" | "variantKey">
 
 export type ScoutingRequestOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
@@ -463,6 +543,14 @@ export type ScoutingRequestOrderByWithAggregationInput = {
   normalizedNameKey?: Prisma.SortOrder
   displayName?: Prisma.SortOrder
   normalizedName?: Prisma.SortOrder
+  familyKey?: Prisma.SortOrderInput | Prisma.SortOrder
+  variantKey?: Prisma.SortOrderInput | Prisma.SortOrder
+  duplicateKey?: Prisma.SortOrderInput | Prisma.SortOrder
+  productNameChinese?: Prisma.SortOrderInput | Prisma.SortOrder
+  productNameEnglish?: Prisma.SortOrderInput | Prisma.SortOrder
+  searchQueryChinese?: Prisma.SortOrderInput | Prisma.SortOrder
+  searchQueryEnglish?: Prisma.SortOrderInput | Prisma.SortOrder
+  lastVerifiedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   category?: Prisma.SortOrderInput | Prisma.SortOrder
   brand?: Prisma.SortOrderInput | Prisma.SortOrder
   model?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -500,6 +588,14 @@ export type ScoutingRequestScalarWhereWithAggregatesInput = {
   normalizedNameKey?: Prisma.StringWithAggregatesFilter<"ScoutingRequest"> | string
   displayName?: Prisma.StringWithAggregatesFilter<"ScoutingRequest"> | string
   normalizedName?: Prisma.StringWithAggregatesFilter<"ScoutingRequest"> | string
+  familyKey?: Prisma.StringNullableWithAggregatesFilter<"ScoutingRequest"> | string | null
+  variantKey?: Prisma.StringNullableWithAggregatesFilter<"ScoutingRequest"> | string | null
+  duplicateKey?: Prisma.StringNullableWithAggregatesFilter<"ScoutingRequest"> | string | null
+  productNameChinese?: Prisma.StringNullableWithAggregatesFilter<"ScoutingRequest"> | string | null
+  productNameEnglish?: Prisma.StringNullableWithAggregatesFilter<"ScoutingRequest"> | string | null
+  searchQueryChinese?: Prisma.StringNullableWithAggregatesFilter<"ScoutingRequest"> | string | null
+  searchQueryEnglish?: Prisma.StringNullableWithAggregatesFilter<"ScoutingRequest"> | string | null
+  lastVerifiedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"ScoutingRequest"> | Date | string | null
   category?: Prisma.StringNullableWithAggregatesFilter<"ScoutingRequest"> | string | null
   brand?: Prisma.StringNullableWithAggregatesFilter<"ScoutingRequest"> | string | null
   model?: Prisma.StringNullableWithAggregatesFilter<"ScoutingRequest"> | string | null
@@ -529,6 +625,14 @@ export type ScoutingRequestCreateInput = {
   normalizedNameKey: string
   displayName: string
   normalizedName: string
+  familyKey?: string | null
+  variantKey?: string | null
+  duplicateKey?: string | null
+  productNameChinese?: string | null
+  productNameEnglish?: string | null
+  searchQueryChinese?: string | null
+  searchQueryEnglish?: string | null
+  lastVerifiedAt?: Date | string | null
   category?: string | null
   brand?: string | null
   model?: string | null
@@ -560,6 +664,14 @@ export type ScoutingRequestUncheckedCreateInput = {
   normalizedNameKey: string
   displayName: string
   normalizedName: string
+  familyKey?: string | null
+  variantKey?: string | null
+  duplicateKey?: string | null
+  productNameChinese?: string | null
+  productNameEnglish?: string | null
+  searchQueryChinese?: string | null
+  searchQueryEnglish?: string | null
+  lastVerifiedAt?: Date | string | null
   category?: string | null
   brand?: string | null
   model?: string | null
@@ -591,6 +703,14 @@ export type ScoutingRequestUpdateInput = {
   normalizedNameKey?: Prisma.StringFieldUpdateOperationsInput | string
   displayName?: Prisma.StringFieldUpdateOperationsInput | string
   normalizedName?: Prisma.StringFieldUpdateOperationsInput | string
+  familyKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  variantKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  duplicateKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  productNameChinese?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  productNameEnglish?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  searchQueryChinese?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  searchQueryEnglish?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   category?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   brand?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   model?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -622,6 +742,14 @@ export type ScoutingRequestUncheckedUpdateInput = {
   normalizedNameKey?: Prisma.StringFieldUpdateOperationsInput | string
   displayName?: Prisma.StringFieldUpdateOperationsInput | string
   normalizedName?: Prisma.StringFieldUpdateOperationsInput | string
+  familyKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  variantKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  duplicateKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  productNameChinese?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  productNameEnglish?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  searchQueryChinese?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  searchQueryEnglish?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   category?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   brand?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   model?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -653,6 +781,14 @@ export type ScoutingRequestCreateManyInput = {
   normalizedNameKey: string
   displayName: string
   normalizedName: string
+  familyKey?: string | null
+  variantKey?: string | null
+  duplicateKey?: string | null
+  productNameChinese?: string | null
+  productNameEnglish?: string | null
+  searchQueryChinese?: string | null
+  searchQueryEnglish?: string | null
+  lastVerifiedAt?: Date | string | null
   category?: string | null
   brand?: string | null
   model?: string | null
@@ -682,6 +818,14 @@ export type ScoutingRequestUpdateManyMutationInput = {
   normalizedNameKey?: Prisma.StringFieldUpdateOperationsInput | string
   displayName?: Prisma.StringFieldUpdateOperationsInput | string
   normalizedName?: Prisma.StringFieldUpdateOperationsInput | string
+  familyKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  variantKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  duplicateKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  productNameChinese?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  productNameEnglish?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  searchQueryChinese?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  searchQueryEnglish?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   category?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   brand?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   model?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -711,6 +855,14 @@ export type ScoutingRequestUncheckedUpdateManyInput = {
   normalizedNameKey?: Prisma.StringFieldUpdateOperationsInput | string
   displayName?: Prisma.StringFieldUpdateOperationsInput | string
   normalizedName?: Prisma.StringFieldUpdateOperationsInput | string
+  familyKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  variantKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  duplicateKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  productNameChinese?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  productNameEnglish?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  searchQueryChinese?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  searchQueryEnglish?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   category?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   brand?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   model?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -740,6 +892,14 @@ export type ScoutingRequestCountOrderByAggregateInput = {
   normalizedNameKey?: Prisma.SortOrder
   displayName?: Prisma.SortOrder
   normalizedName?: Prisma.SortOrder
+  familyKey?: Prisma.SortOrder
+  variantKey?: Prisma.SortOrder
+  duplicateKey?: Prisma.SortOrder
+  productNameChinese?: Prisma.SortOrder
+  productNameEnglish?: Prisma.SortOrder
+  searchQueryChinese?: Prisma.SortOrder
+  searchQueryEnglish?: Prisma.SortOrder
+  lastVerifiedAt?: Prisma.SortOrder
   category?: Prisma.SortOrder
   brand?: Prisma.SortOrder
   model?: Prisma.SortOrder
@@ -778,6 +938,14 @@ export type ScoutingRequestMaxOrderByAggregateInput = {
   normalizedNameKey?: Prisma.SortOrder
   displayName?: Prisma.SortOrder
   normalizedName?: Prisma.SortOrder
+  familyKey?: Prisma.SortOrder
+  variantKey?: Prisma.SortOrder
+  duplicateKey?: Prisma.SortOrder
+  productNameChinese?: Prisma.SortOrder
+  productNameEnglish?: Prisma.SortOrder
+  searchQueryChinese?: Prisma.SortOrder
+  searchQueryEnglish?: Prisma.SortOrder
+  lastVerifiedAt?: Prisma.SortOrder
   category?: Prisma.SortOrder
   brand?: Prisma.SortOrder
   model?: Prisma.SortOrder
@@ -803,6 +971,14 @@ export type ScoutingRequestMinOrderByAggregateInput = {
   normalizedNameKey?: Prisma.SortOrder
   displayName?: Prisma.SortOrder
   normalizedName?: Prisma.SortOrder
+  familyKey?: Prisma.SortOrder
+  variantKey?: Prisma.SortOrder
+  duplicateKey?: Prisma.SortOrder
+  productNameChinese?: Prisma.SortOrder
+  productNameEnglish?: Prisma.SortOrder
+  searchQueryChinese?: Prisma.SortOrder
+  searchQueryEnglish?: Prisma.SortOrder
+  lastVerifiedAt?: Prisma.SortOrder
   category?: Prisma.SortOrder
   brand?: Prisma.SortOrder
   model?: Prisma.SortOrder
@@ -845,13 +1021,13 @@ export type ScoutingRequestCreatecertificationsInput = {
   set: string[]
 }
 
+export type NullableDateTimeFieldUpdateOperationsInput = {
+  set?: Date | string | null
+}
+
 export type ScoutingRequestUpdatecertificationsInput = {
   set?: string[]
   push?: string | string[]
-}
-
-export type NullableDateTimeFieldUpdateOperationsInput = {
-  set?: Date | string | null
 }
 
 export type ScoutingRequestCreateNestedOneWithoutJobRowsInput = {
@@ -890,6 +1066,14 @@ export type ScoutingRequestCreateWithoutJobRowsInput = {
   normalizedNameKey: string
   displayName: string
   normalizedName: string
+  familyKey?: string | null
+  variantKey?: string | null
+  duplicateKey?: string | null
+  productNameChinese?: string | null
+  productNameEnglish?: string | null
+  searchQueryChinese?: string | null
+  searchQueryEnglish?: string | null
+  lastVerifiedAt?: Date | string | null
   category?: string | null
   brand?: string | null
   model?: string | null
@@ -920,6 +1104,14 @@ export type ScoutingRequestUncheckedCreateWithoutJobRowsInput = {
   normalizedNameKey: string
   displayName: string
   normalizedName: string
+  familyKey?: string | null
+  variantKey?: string | null
+  duplicateKey?: string | null
+  productNameChinese?: string | null
+  productNameEnglish?: string | null
+  searchQueryChinese?: string | null
+  searchQueryEnglish?: string | null
+  lastVerifiedAt?: Date | string | null
   category?: string | null
   brand?: string | null
   model?: string | null
@@ -966,6 +1158,14 @@ export type ScoutingRequestUpdateWithoutJobRowsInput = {
   normalizedNameKey?: Prisma.StringFieldUpdateOperationsInput | string
   displayName?: Prisma.StringFieldUpdateOperationsInput | string
   normalizedName?: Prisma.StringFieldUpdateOperationsInput | string
+  familyKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  variantKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  duplicateKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  productNameChinese?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  productNameEnglish?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  searchQueryChinese?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  searchQueryEnglish?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   category?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   brand?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   model?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -996,6 +1196,14 @@ export type ScoutingRequestUncheckedUpdateWithoutJobRowsInput = {
   normalizedNameKey?: Prisma.StringFieldUpdateOperationsInput | string
   displayName?: Prisma.StringFieldUpdateOperationsInput | string
   normalizedName?: Prisma.StringFieldUpdateOperationsInput | string
+  familyKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  variantKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  duplicateKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  productNameChinese?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  productNameEnglish?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  searchQueryChinese?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  searchQueryEnglish?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   category?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   brand?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   model?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1026,6 +1234,14 @@ export type ScoutingRequestCreateWithoutCandidatesInput = {
   normalizedNameKey: string
   displayName: string
   normalizedName: string
+  familyKey?: string | null
+  variantKey?: string | null
+  duplicateKey?: string | null
+  productNameChinese?: string | null
+  productNameEnglish?: string | null
+  searchQueryChinese?: string | null
+  searchQueryEnglish?: string | null
+  lastVerifiedAt?: Date | string | null
   category?: string | null
   brand?: string | null
   model?: string | null
@@ -1056,6 +1272,14 @@ export type ScoutingRequestUncheckedCreateWithoutCandidatesInput = {
   normalizedNameKey: string
   displayName: string
   normalizedName: string
+  familyKey?: string | null
+  variantKey?: string | null
+  duplicateKey?: string | null
+  productNameChinese?: string | null
+  productNameEnglish?: string | null
+  searchQueryChinese?: string | null
+  searchQueryEnglish?: string | null
+  lastVerifiedAt?: Date | string | null
   category?: string | null
   brand?: string | null
   model?: string | null
@@ -1102,6 +1326,14 @@ export type ScoutingRequestUpdateWithoutCandidatesInput = {
   normalizedNameKey?: Prisma.StringFieldUpdateOperationsInput | string
   displayName?: Prisma.StringFieldUpdateOperationsInput | string
   normalizedName?: Prisma.StringFieldUpdateOperationsInput | string
+  familyKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  variantKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  duplicateKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  productNameChinese?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  productNameEnglish?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  searchQueryChinese?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  searchQueryEnglish?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   category?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   brand?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   model?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1132,6 +1364,14 @@ export type ScoutingRequestUncheckedUpdateWithoutCandidatesInput = {
   normalizedNameKey?: Prisma.StringFieldUpdateOperationsInput | string
   displayName?: Prisma.StringFieldUpdateOperationsInput | string
   normalizedName?: Prisma.StringFieldUpdateOperationsInput | string
+  familyKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  variantKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  duplicateKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  productNameChinese?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  productNameEnglish?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  searchQueryChinese?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  searchQueryEnglish?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   category?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   brand?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   model?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1202,6 +1442,14 @@ export type ScoutingRequestSelect<ExtArgs extends runtime.Types.Extensions.Inter
   normalizedNameKey?: boolean
   displayName?: boolean
   normalizedName?: boolean
+  familyKey?: boolean
+  variantKey?: boolean
+  duplicateKey?: boolean
+  productNameChinese?: boolean
+  productNameEnglish?: boolean
+  searchQueryChinese?: boolean
+  searchQueryEnglish?: boolean
+  lastVerifiedAt?: boolean
   category?: boolean
   brand?: boolean
   model?: boolean
@@ -1234,6 +1482,14 @@ export type ScoutingRequestSelectCreateManyAndReturn<ExtArgs extends runtime.Typ
   normalizedNameKey?: boolean
   displayName?: boolean
   normalizedName?: boolean
+  familyKey?: boolean
+  variantKey?: boolean
+  duplicateKey?: boolean
+  productNameChinese?: boolean
+  productNameEnglish?: boolean
+  searchQueryChinese?: boolean
+  searchQueryEnglish?: boolean
+  lastVerifiedAt?: boolean
   category?: boolean
   brand?: boolean
   model?: boolean
@@ -1263,6 +1519,14 @@ export type ScoutingRequestSelectUpdateManyAndReturn<ExtArgs extends runtime.Typ
   normalizedNameKey?: boolean
   displayName?: boolean
   normalizedName?: boolean
+  familyKey?: boolean
+  variantKey?: boolean
+  duplicateKey?: boolean
+  productNameChinese?: boolean
+  productNameEnglish?: boolean
+  searchQueryChinese?: boolean
+  searchQueryEnglish?: boolean
+  lastVerifiedAt?: boolean
   category?: boolean
   brand?: boolean
   model?: boolean
@@ -1292,6 +1556,14 @@ export type ScoutingRequestSelectScalar = {
   normalizedNameKey?: boolean
   displayName?: boolean
   normalizedName?: boolean
+  familyKey?: boolean
+  variantKey?: boolean
+  duplicateKey?: boolean
+  productNameChinese?: boolean
+  productNameEnglish?: boolean
+  searchQueryChinese?: boolean
+  searchQueryEnglish?: boolean
+  lastVerifiedAt?: boolean
   category?: boolean
   brand?: boolean
   model?: boolean
@@ -1315,7 +1587,7 @@ export type ScoutingRequestSelectScalar = {
   searchCount?: boolean
 }
 
-export type ScoutingRequestOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "fingerprint" | "normalizedNameKey" | "displayName" | "normalizedName" | "category" | "brand" | "model" | "material" | "power" | "voltage" | "capacity" | "dimensions" | "requiredVariant" | "certifications" | "requirements" | "requestedQuantity" | "unit" | "targetPrice" | "notes" | "referenceUrl" | "searchQuery" | "language" | "firstSeenAt" | "lastSearchedAt" | "searchCount", ExtArgs["result"]["scoutingRequest"]>
+export type ScoutingRequestOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "fingerprint" | "normalizedNameKey" | "displayName" | "normalizedName" | "familyKey" | "variantKey" | "duplicateKey" | "productNameChinese" | "productNameEnglish" | "searchQueryChinese" | "searchQueryEnglish" | "lastVerifiedAt" | "category" | "brand" | "model" | "material" | "power" | "voltage" | "capacity" | "dimensions" | "requiredVariant" | "certifications" | "requirements" | "requestedQuantity" | "unit" | "targetPrice" | "notes" | "referenceUrl" | "searchQuery" | "language" | "firstSeenAt" | "lastSearchedAt" | "searchCount", ExtArgs["result"]["scoutingRequest"]>
 export type ScoutingRequestInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   candidates?: boolean | Prisma.ScoutingRequest$candidatesArgs<ExtArgs>
   jobRows?: boolean | Prisma.ScoutingRequest$jobRowsArgs<ExtArgs>
@@ -1334,6 +1606,10 @@ export type $ScoutingRequestPayload<ExtArgs extends runtime.Types.Extensions.Int
     id: string
     /**
      * Impronta stabile (SHA-256 troncato): identità forte della richiesta.
+     * 
+     * Resta la chiave del percorso senza analisi IA (import diretto, job già
+     * salvati). Con l'analisi attiva l'identità è `variantKey`: l'impronta
+     * continua a essere calcolata e salvata, ma non decide più il riuso.
      */
     fingerprint: string
     /**
@@ -1342,6 +1618,28 @@ export type $ScoutingRequestPayload<ExtArgs extends runtime.Types.Extensions.Int
     normalizedNameKey: string
     displayName: string
     normalizedName: string
+    /**
+     * ------------------------------------------------------------------
+     * Identità a tre livelli (dall'analisi Claude).
+     * 
+     * Nullable perché le richieste create prima dell'analisi IA non le hanno:
+     * il riuso ricade sull'impronta, come prima. `variantKey` è unica quando
+     * presente — in Postgres più `NULL` non collidono fra loro.
+     * ------------------------------------------------------------------
+     */
+    familyKey: string | null
+    variantKey: string | null
+    duplicateKey: string | null
+    productNameChinese: string | null
+    productNameEnglish: string | null
+    searchQueryChinese: string | null
+    searchQueryEnglish: string | null
+    /**
+     * Ultima volta che i prodotti di questa variante sono stati riletti alla
+     * fonte. Diverso da `lastSearchedAt`: quella è l'ultima **ricerca**, questa
+     * l'ultima **verifica** di ciò che avevamo già.
+     */
+    lastVerifiedAt: Date | null
     category: string | null
     brand: string | null
     model: string | null
@@ -1793,6 +2091,14 @@ export interface ScoutingRequestFieldRefs {
   readonly normalizedNameKey: Prisma.FieldRef<"ScoutingRequest", 'String'>
   readonly displayName: Prisma.FieldRef<"ScoutingRequest", 'String'>
   readonly normalizedName: Prisma.FieldRef<"ScoutingRequest", 'String'>
+  readonly familyKey: Prisma.FieldRef<"ScoutingRequest", 'String'>
+  readonly variantKey: Prisma.FieldRef<"ScoutingRequest", 'String'>
+  readonly duplicateKey: Prisma.FieldRef<"ScoutingRequest", 'String'>
+  readonly productNameChinese: Prisma.FieldRef<"ScoutingRequest", 'String'>
+  readonly productNameEnglish: Prisma.FieldRef<"ScoutingRequest", 'String'>
+  readonly searchQueryChinese: Prisma.FieldRef<"ScoutingRequest", 'String'>
+  readonly searchQueryEnglish: Prisma.FieldRef<"ScoutingRequest", 'String'>
+  readonly lastVerifiedAt: Prisma.FieldRef<"ScoutingRequest", 'DateTime'>
   readonly category: Prisma.FieldRef<"ScoutingRequest", 'String'>
   readonly brand: Prisma.FieldRef<"ScoutingRequest", 'String'>
   readonly model: Prisma.FieldRef<"ScoutingRequest", 'String'>

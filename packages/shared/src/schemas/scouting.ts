@@ -79,8 +79,19 @@ export const DatasetColumnSchema = z.object({
 export type DatasetColumn = z.infer<typeof DatasetColumnSchema>;
 
 export const DatasetRowSchema = z.object({
-  /** Riga del file (1-based), conservata per ritrovare la richiesta. */
+  /**
+   * Numero progressivo della riga **nel dataset** (1-based).
+   *
+   * Con più fogli importati insieme non può essere il numero di riga del
+   * foglio: due fogli hanno entrambi una riga 6. Resta l'identità della riga
+   * dentro il dataset; per dire all'utente da dove viene ci sono `sheetName` e
+   * `sheetRowNumber`.
+   */
   rowNumber: z.number().int().min(1),
+  /** Foglio di provenienza. */
+  sheetName: z.string(),
+  /** Riga nel foglio di origine (1-based): è quella che l'utente vede in Excel. */
+  sheetRowNumber: z.number().int().min(1),
   /** Tutti i valori originali della riga, indicizzati per colonna. */
   cells: z.array(z.string()),
   /** Collegamento ipertestuale trovato nella riga, se presente. */

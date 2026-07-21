@@ -180,8 +180,21 @@ export async function persistCandidates(
     };
 
     if (!existing) {
-      await prisma.productCandidateRecord.create({
-        data: {
+      // `upsert` e non `create`: fra la lettura qui sopra e questa scrittura
+      // un'altra riga può aver inserito lo stesso prodotto. Succede davvero,
+      // perché due righe con la stessa variante puntano alla **stessa**
+      // richiesta e vengono elaborate in parallelo: con `create` la seconda
+      // faceva fallire l'intera ricerca di quella fonte con un errore di
+      // vincolo univoco, buttando via anche i prodotti già trovati.
+      await prisma.productCandidateRecord.upsert({
+        where: {
+          requestId_engine_externalId: {
+            requestId,
+            engine: data.engine,
+            externalId: data.externalId,
+          },
+        },
+        create: {
           requestId,
           engine: data.engine,
           externalId: data.externalId,
@@ -189,6 +202,9 @@ export async function persistCandidates(
           changedFields: [],
           ...common,
         },
+        // Ha vinto l'altra riga: i dati sono gli stessi, si aggiorna solo
+        // quando è stato controllato.
+        update: { lastCheckedAt: new Date() },
       });
       result.created += 1;
       continue;

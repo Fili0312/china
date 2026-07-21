@@ -1282,3 +1282,25 @@ select {
   text-decoration: none;
   color: inherit;
 }
+
+/* Barra di ripresa: dice cosa è stato recuperato dopo un ricaricamento. */
+.scouting-resume {
+  align-items: center;
+  gap: 12px;
+  padding: 8px 12px;
+  border-radius: 10px;
+  background: rgba(16, 185, 129, 0.08);
+  margin-bottom: 12px;
+}
+
+/* Conferma in blocco delle righe ferme in revisione. */
+.scouting-bulk {
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: var(--warn-bg);
+  margin: 10px 0;
+  font-size: 14px;
+}

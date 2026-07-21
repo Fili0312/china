@@ -28,16 +28,20 @@ export type AggregateScoutingDatasetRow = {
 
 export type ScoutingDatasetRowAvgAggregateOutputType = {
   rowNumber: number | null
+  sheetRowNumber: number | null
 }
 
 export type ScoutingDatasetRowSumAggregateOutputType = {
   rowNumber: number | null
+  sheetRowNumber: number | null
 }
 
 export type ScoutingDatasetRowMinAggregateOutputType = {
   id: string | null
   datasetId: string | null
   rowNumber: number | null
+  sheetName: string | null
+  sheetRowNumber: number | null
   hyperlink: string | null
 }
 
@@ -45,6 +49,8 @@ export type ScoutingDatasetRowMaxAggregateOutputType = {
   id: string | null
   datasetId: string | null
   rowNumber: number | null
+  sheetName: string | null
+  sheetRowNumber: number | null
   hyperlink: string | null
 }
 
@@ -52,6 +58,8 @@ export type ScoutingDatasetRowCountAggregateOutputType = {
   id: number
   datasetId: number
   rowNumber: number
+  sheetName: number
+  sheetRowNumber: number
   cells: number
   hyperlink: number
   _all: number
@@ -60,16 +68,20 @@ export type ScoutingDatasetRowCountAggregateOutputType = {
 
 export type ScoutingDatasetRowAvgAggregateInputType = {
   rowNumber?: true
+  sheetRowNumber?: true
 }
 
 export type ScoutingDatasetRowSumAggregateInputType = {
   rowNumber?: true
+  sheetRowNumber?: true
 }
 
 export type ScoutingDatasetRowMinAggregateInputType = {
   id?: true
   datasetId?: true
   rowNumber?: true
+  sheetName?: true
+  sheetRowNumber?: true
   hyperlink?: true
 }
 
@@ -77,6 +89,8 @@ export type ScoutingDatasetRowMaxAggregateInputType = {
   id?: true
   datasetId?: true
   rowNumber?: true
+  sheetName?: true
+  sheetRowNumber?: true
   hyperlink?: true
 }
 
@@ -84,6 +98,8 @@ export type ScoutingDatasetRowCountAggregateInputType = {
   id?: true
   datasetId?: true
   rowNumber?: true
+  sheetName?: true
+  sheetRowNumber?: true
   cells?: true
   hyperlink?: true
   _all?: true
@@ -179,6 +195,8 @@ export type ScoutingDatasetRowGroupByOutputType = {
   id: string
   datasetId: string
   rowNumber: number
+  sheetName: string
+  sheetRowNumber: number
   cells: runtime.JsonValue
   hyperlink: string | null
   _count: ScoutingDatasetRowCountAggregateOutputType | null
@@ -210,6 +228,8 @@ export type ScoutingDatasetRowWhereInput = {
   id?: Prisma.StringFilter<"ScoutingDatasetRow"> | string
   datasetId?: Prisma.StringFilter<"ScoutingDatasetRow"> | string
   rowNumber?: Prisma.IntFilter<"ScoutingDatasetRow"> | number
+  sheetName?: Prisma.StringFilter<"ScoutingDatasetRow"> | string
+  sheetRowNumber?: Prisma.IntFilter<"ScoutingDatasetRow"> | number
   cells?: Prisma.JsonFilter<"ScoutingDatasetRow">
   hyperlink?: Prisma.StringNullableFilter<"ScoutingDatasetRow"> | string | null
   dataset?: Prisma.XOR<Prisma.ScoutingDatasetScalarRelationFilter, Prisma.ScoutingDatasetWhereInput>
@@ -221,6 +241,8 @@ export type ScoutingDatasetRowOrderByWithRelationInput = {
   id?: Prisma.SortOrder
   datasetId?: Prisma.SortOrder
   rowNumber?: Prisma.SortOrder
+  sheetName?: Prisma.SortOrder
+  sheetRowNumber?: Prisma.SortOrder
   cells?: Prisma.SortOrder
   hyperlink?: Prisma.SortOrderInput | Prisma.SortOrder
   dataset?: Prisma.ScoutingDatasetOrderByWithRelationInput
@@ -236,6 +258,8 @@ export type ScoutingDatasetRowWhereUniqueInput = Prisma.AtLeast<{
   NOT?: Prisma.ScoutingDatasetRowWhereInput | Prisma.ScoutingDatasetRowWhereInput[]
   datasetId?: Prisma.StringFilter<"ScoutingDatasetRow"> | string
   rowNumber?: Prisma.IntFilter<"ScoutingDatasetRow"> | number
+  sheetName?: Prisma.StringFilter<"ScoutingDatasetRow"> | string
+  sheetRowNumber?: Prisma.IntFilter<"ScoutingDatasetRow"> | number
   cells?: Prisma.JsonFilter<"ScoutingDatasetRow">
   hyperlink?: Prisma.StringNullableFilter<"ScoutingDatasetRow"> | string | null
   dataset?: Prisma.XOR<Prisma.ScoutingDatasetScalarRelationFilter, Prisma.ScoutingDatasetWhereInput>
@@ -247,6 +271,8 @@ export type ScoutingDatasetRowOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
   datasetId?: Prisma.SortOrder
   rowNumber?: Prisma.SortOrder
+  sheetName?: Prisma.SortOrder
+  sheetRowNumber?: Prisma.SortOrder
   cells?: Prisma.SortOrder
   hyperlink?: Prisma.SortOrderInput | Prisma.SortOrder
   _count?: Prisma.ScoutingDatasetRowCountOrderByAggregateInput
@@ -263,6 +289,8 @@ export type ScoutingDatasetRowScalarWhereWithAggregatesInput = {
   id?: Prisma.StringWithAggregatesFilter<"ScoutingDatasetRow"> | string
   datasetId?: Prisma.StringWithAggregatesFilter<"ScoutingDatasetRow"> | string
   rowNumber?: Prisma.IntWithAggregatesFilter<"ScoutingDatasetRow"> | number
+  sheetName?: Prisma.StringWithAggregatesFilter<"ScoutingDatasetRow"> | string
+  sheetRowNumber?: Prisma.IntWithAggregatesFilter<"ScoutingDatasetRow"> | number
   cells?: Prisma.JsonWithAggregatesFilter<"ScoutingDatasetRow">
   hyperlink?: Prisma.StringNullableWithAggregatesFilter<"ScoutingDatasetRow"> | string | null
 }
@@ -270,6 +298,8 @@ export type ScoutingDatasetRowScalarWhereWithAggregatesInput = {
 export type ScoutingDatasetRowCreateInput = {
   id?: string
   rowNumber: number
+  sheetName?: string
+  sheetRowNumber?: number
   cells: Prisma.JsonNullValueInput | runtime.InputJsonValue
   hyperlink?: string | null
   dataset: Prisma.ScoutingDatasetCreateNestedOneWithoutRowsInput
@@ -281,6 +311,8 @@ export type ScoutingDatasetRowUncheckedCreateInput = {
   id?: string
   datasetId: string
   rowNumber: number
+  sheetName?: string
+  sheetRowNumber?: number
   cells: Prisma.JsonNullValueInput | runtime.InputJsonValue
   hyperlink?: string | null
   jobRows?: Prisma.ImportJobRowUncheckedCreateNestedManyWithoutDatasetRowInput
@@ -290,6 +322,8 @@ export type ScoutingDatasetRowUncheckedCreateInput = {
 export type ScoutingDatasetRowUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   rowNumber?: Prisma.IntFieldUpdateOperationsInput | number
+  sheetName?: Prisma.StringFieldUpdateOperationsInput | string
+  sheetRowNumber?: Prisma.IntFieldUpdateOperationsInput | number
   cells?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   hyperlink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   dataset?: Prisma.ScoutingDatasetUpdateOneRequiredWithoutRowsNestedInput
@@ -301,6 +335,8 @@ export type ScoutingDatasetRowUncheckedUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   datasetId?: Prisma.StringFieldUpdateOperationsInput | string
   rowNumber?: Prisma.IntFieldUpdateOperationsInput | number
+  sheetName?: Prisma.StringFieldUpdateOperationsInput | string
+  sheetRowNumber?: Prisma.IntFieldUpdateOperationsInput | number
   cells?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   hyperlink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   jobRows?: Prisma.ImportJobRowUncheckedUpdateManyWithoutDatasetRowNestedInput
@@ -311,6 +347,8 @@ export type ScoutingDatasetRowCreateManyInput = {
   id?: string
   datasetId: string
   rowNumber: number
+  sheetName?: string
+  sheetRowNumber?: number
   cells: Prisma.JsonNullValueInput | runtime.InputJsonValue
   hyperlink?: string | null
 }
@@ -318,6 +356,8 @@ export type ScoutingDatasetRowCreateManyInput = {
 export type ScoutingDatasetRowUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   rowNumber?: Prisma.IntFieldUpdateOperationsInput | number
+  sheetName?: Prisma.StringFieldUpdateOperationsInput | string
+  sheetRowNumber?: Prisma.IntFieldUpdateOperationsInput | number
   cells?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   hyperlink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
@@ -326,6 +366,8 @@ export type ScoutingDatasetRowUncheckedUpdateManyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   datasetId?: Prisma.StringFieldUpdateOperationsInput | string
   rowNumber?: Prisma.IntFieldUpdateOperationsInput | number
+  sheetName?: Prisma.StringFieldUpdateOperationsInput | string
+  sheetRowNumber?: Prisma.IntFieldUpdateOperationsInput | number
   cells?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   hyperlink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
@@ -349,18 +391,23 @@ export type ScoutingDatasetRowCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
   datasetId?: Prisma.SortOrder
   rowNumber?: Prisma.SortOrder
+  sheetName?: Prisma.SortOrder
+  sheetRowNumber?: Prisma.SortOrder
   cells?: Prisma.SortOrder
   hyperlink?: Prisma.SortOrder
 }
 
 export type ScoutingDatasetRowAvgOrderByAggregateInput = {
   rowNumber?: Prisma.SortOrder
+  sheetRowNumber?: Prisma.SortOrder
 }
 
 export type ScoutingDatasetRowMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
   datasetId?: Prisma.SortOrder
   rowNumber?: Prisma.SortOrder
+  sheetName?: Prisma.SortOrder
+  sheetRowNumber?: Prisma.SortOrder
   hyperlink?: Prisma.SortOrder
 }
 
@@ -368,11 +415,14 @@ export type ScoutingDatasetRowMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
   datasetId?: Prisma.SortOrder
   rowNumber?: Prisma.SortOrder
+  sheetName?: Prisma.SortOrder
+  sheetRowNumber?: Prisma.SortOrder
   hyperlink?: Prisma.SortOrder
 }
 
 export type ScoutingDatasetRowSumOrderByAggregateInput = {
   rowNumber?: Prisma.SortOrder
+  sheetRowNumber?: Prisma.SortOrder
 }
 
 export type ScoutingDatasetRowScalarRelationFilter = {
@@ -453,6 +503,8 @@ export type ScoutingDatasetRowUpdateOneRequiredWithoutJobRowsNestedInput = {
 export type ScoutingDatasetRowCreateWithoutDatasetInput = {
   id?: string
   rowNumber: number
+  sheetName?: string
+  sheetRowNumber?: number
   cells: Prisma.JsonNullValueInput | runtime.InputJsonValue
   hyperlink?: string | null
   jobRows?: Prisma.ImportJobRowCreateNestedManyWithoutDatasetRowInput
@@ -462,6 +514,8 @@ export type ScoutingDatasetRowCreateWithoutDatasetInput = {
 export type ScoutingDatasetRowUncheckedCreateWithoutDatasetInput = {
   id?: string
   rowNumber: number
+  sheetName?: string
+  sheetRowNumber?: number
   cells: Prisma.JsonNullValueInput | runtime.InputJsonValue
   hyperlink?: string | null
   jobRows?: Prisma.ImportJobRowUncheckedCreateNestedManyWithoutDatasetRowInput
@@ -501,6 +555,8 @@ export type ScoutingDatasetRowScalarWhereInput = {
   id?: Prisma.StringFilter<"ScoutingDatasetRow"> | string
   datasetId?: Prisma.StringFilter<"ScoutingDatasetRow"> | string
   rowNumber?: Prisma.IntFilter<"ScoutingDatasetRow"> | number
+  sheetName?: Prisma.StringFilter<"ScoutingDatasetRow"> | string
+  sheetRowNumber?: Prisma.IntFilter<"ScoutingDatasetRow"> | number
   cells?: Prisma.JsonFilter<"ScoutingDatasetRow">
   hyperlink?: Prisma.StringNullableFilter<"ScoutingDatasetRow"> | string | null
 }
@@ -508,6 +564,8 @@ export type ScoutingDatasetRowScalarWhereInput = {
 export type ScoutingDatasetRowCreateWithoutAnalysisRowsInput = {
   id?: string
   rowNumber: number
+  sheetName?: string
+  sheetRowNumber?: number
   cells: Prisma.JsonNullValueInput | runtime.InputJsonValue
   hyperlink?: string | null
   dataset: Prisma.ScoutingDatasetCreateNestedOneWithoutRowsInput
@@ -518,6 +576,8 @@ export type ScoutingDatasetRowUncheckedCreateWithoutAnalysisRowsInput = {
   id?: string
   datasetId: string
   rowNumber: number
+  sheetName?: string
+  sheetRowNumber?: number
   cells: Prisma.JsonNullValueInput | runtime.InputJsonValue
   hyperlink?: string | null
   jobRows?: Prisma.ImportJobRowUncheckedCreateNestedManyWithoutDatasetRowInput
@@ -542,6 +602,8 @@ export type ScoutingDatasetRowUpdateToOneWithWhereWithoutAnalysisRowsInput = {
 export type ScoutingDatasetRowUpdateWithoutAnalysisRowsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   rowNumber?: Prisma.IntFieldUpdateOperationsInput | number
+  sheetName?: Prisma.StringFieldUpdateOperationsInput | string
+  sheetRowNumber?: Prisma.IntFieldUpdateOperationsInput | number
   cells?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   hyperlink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   dataset?: Prisma.ScoutingDatasetUpdateOneRequiredWithoutRowsNestedInput
@@ -552,6 +614,8 @@ export type ScoutingDatasetRowUncheckedUpdateWithoutAnalysisRowsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   datasetId?: Prisma.StringFieldUpdateOperationsInput | string
   rowNumber?: Prisma.IntFieldUpdateOperationsInput | number
+  sheetName?: Prisma.StringFieldUpdateOperationsInput | string
+  sheetRowNumber?: Prisma.IntFieldUpdateOperationsInput | number
   cells?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   hyperlink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   jobRows?: Prisma.ImportJobRowUncheckedUpdateManyWithoutDatasetRowNestedInput
@@ -560,6 +624,8 @@ export type ScoutingDatasetRowUncheckedUpdateWithoutAnalysisRowsInput = {
 export type ScoutingDatasetRowCreateWithoutJobRowsInput = {
   id?: string
   rowNumber: number
+  sheetName?: string
+  sheetRowNumber?: number
   cells: Prisma.JsonNullValueInput | runtime.InputJsonValue
   hyperlink?: string | null
   dataset: Prisma.ScoutingDatasetCreateNestedOneWithoutRowsInput
@@ -570,6 +636,8 @@ export type ScoutingDatasetRowUncheckedCreateWithoutJobRowsInput = {
   id?: string
   datasetId: string
   rowNumber: number
+  sheetName?: string
+  sheetRowNumber?: number
   cells: Prisma.JsonNullValueInput | runtime.InputJsonValue
   hyperlink?: string | null
   analysisRows?: Prisma.AnalysisRunRowUncheckedCreateNestedManyWithoutDatasetRowInput
@@ -594,6 +662,8 @@ export type ScoutingDatasetRowUpdateToOneWithWhereWithoutJobRowsInput = {
 export type ScoutingDatasetRowUpdateWithoutJobRowsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   rowNumber?: Prisma.IntFieldUpdateOperationsInput | number
+  sheetName?: Prisma.StringFieldUpdateOperationsInput | string
+  sheetRowNumber?: Prisma.IntFieldUpdateOperationsInput | number
   cells?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   hyperlink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   dataset?: Prisma.ScoutingDatasetUpdateOneRequiredWithoutRowsNestedInput
@@ -604,6 +674,8 @@ export type ScoutingDatasetRowUncheckedUpdateWithoutJobRowsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   datasetId?: Prisma.StringFieldUpdateOperationsInput | string
   rowNumber?: Prisma.IntFieldUpdateOperationsInput | number
+  sheetName?: Prisma.StringFieldUpdateOperationsInput | string
+  sheetRowNumber?: Prisma.IntFieldUpdateOperationsInput | number
   cells?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   hyperlink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   analysisRows?: Prisma.AnalysisRunRowUncheckedUpdateManyWithoutDatasetRowNestedInput
@@ -612,6 +684,8 @@ export type ScoutingDatasetRowUncheckedUpdateWithoutJobRowsInput = {
 export type ScoutingDatasetRowCreateManyDatasetInput = {
   id?: string
   rowNumber: number
+  sheetName?: string
+  sheetRowNumber?: number
   cells: Prisma.JsonNullValueInput | runtime.InputJsonValue
   hyperlink?: string | null
 }
@@ -619,6 +693,8 @@ export type ScoutingDatasetRowCreateManyDatasetInput = {
 export type ScoutingDatasetRowUpdateWithoutDatasetInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   rowNumber?: Prisma.IntFieldUpdateOperationsInput | number
+  sheetName?: Prisma.StringFieldUpdateOperationsInput | string
+  sheetRowNumber?: Prisma.IntFieldUpdateOperationsInput | number
   cells?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   hyperlink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   jobRows?: Prisma.ImportJobRowUpdateManyWithoutDatasetRowNestedInput
@@ -628,6 +704,8 @@ export type ScoutingDatasetRowUpdateWithoutDatasetInput = {
 export type ScoutingDatasetRowUncheckedUpdateWithoutDatasetInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   rowNumber?: Prisma.IntFieldUpdateOperationsInput | number
+  sheetName?: Prisma.StringFieldUpdateOperationsInput | string
+  sheetRowNumber?: Prisma.IntFieldUpdateOperationsInput | number
   cells?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   hyperlink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   jobRows?: Prisma.ImportJobRowUncheckedUpdateManyWithoutDatasetRowNestedInput
@@ -637,6 +715,8 @@ export type ScoutingDatasetRowUncheckedUpdateWithoutDatasetInput = {
 export type ScoutingDatasetRowUncheckedUpdateManyWithoutDatasetInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   rowNumber?: Prisma.IntFieldUpdateOperationsInput | number
+  sheetName?: Prisma.StringFieldUpdateOperationsInput | string
+  sheetRowNumber?: Prisma.IntFieldUpdateOperationsInput | number
   cells?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   hyperlink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
@@ -685,6 +765,8 @@ export type ScoutingDatasetRowSelect<ExtArgs extends runtime.Types.Extensions.In
   id?: boolean
   datasetId?: boolean
   rowNumber?: boolean
+  sheetName?: boolean
+  sheetRowNumber?: boolean
   cells?: boolean
   hyperlink?: boolean
   dataset?: boolean | Prisma.ScoutingDatasetDefaultArgs<ExtArgs>
@@ -697,6 +779,8 @@ export type ScoutingDatasetRowSelectCreateManyAndReturn<ExtArgs extends runtime.
   id?: boolean
   datasetId?: boolean
   rowNumber?: boolean
+  sheetName?: boolean
+  sheetRowNumber?: boolean
   cells?: boolean
   hyperlink?: boolean
   dataset?: boolean | Prisma.ScoutingDatasetDefaultArgs<ExtArgs>
@@ -706,6 +790,8 @@ export type ScoutingDatasetRowSelectUpdateManyAndReturn<ExtArgs extends runtime.
   id?: boolean
   datasetId?: boolean
   rowNumber?: boolean
+  sheetName?: boolean
+  sheetRowNumber?: boolean
   cells?: boolean
   hyperlink?: boolean
   dataset?: boolean | Prisma.ScoutingDatasetDefaultArgs<ExtArgs>
@@ -715,11 +801,13 @@ export type ScoutingDatasetRowSelectScalar = {
   id?: boolean
   datasetId?: boolean
   rowNumber?: boolean
+  sheetName?: boolean
+  sheetRowNumber?: boolean
   cells?: boolean
   hyperlink?: boolean
 }
 
-export type ScoutingDatasetRowOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "datasetId" | "rowNumber" | "cells" | "hyperlink", ExtArgs["result"]["scoutingDatasetRow"]>
+export type ScoutingDatasetRowOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "datasetId" | "rowNumber" | "sheetName" | "sheetRowNumber" | "cells" | "hyperlink", ExtArgs["result"]["scoutingDatasetRow"]>
 export type ScoutingDatasetRowInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   dataset?: boolean | Prisma.ScoutingDatasetDefaultArgs<ExtArgs>
   jobRows?: boolean | Prisma.ScoutingDatasetRow$jobRowsArgs<ExtArgs>
@@ -744,9 +832,21 @@ export type $ScoutingDatasetRowPayload<ExtArgs extends runtime.Types.Extensions.
     id: string
     datasetId: string
     /**
-     * Numero di riga nel file di origine (1-based).
+     * Numero progressivo della riga nel dataset (1-based).
+     * 
+     * Con più fogli importati insieme non può essere il numero di riga del
+     * foglio: due fogli hanno entrambi una riga 6. L'origine reale — quella
+     * che l'utente ritrova aprendo Excel — sta in `sheetName`+`sheetRowNumber`.
      */
     rowNumber: number
+    /**
+     * Foglio di provenienza.
+     */
+    sheetName: string
+    /**
+     * Riga nel foglio di origine (1-based).
+     */
+    sheetRowNumber: number
     /**
      * Valori originali, allineati a ScoutingDataset.columns.
      */
@@ -1181,6 +1281,8 @@ export interface ScoutingDatasetRowFieldRefs {
   readonly id: Prisma.FieldRef<"ScoutingDatasetRow", 'String'>
   readonly datasetId: Prisma.FieldRef<"ScoutingDatasetRow", 'String'>
   readonly rowNumber: Prisma.FieldRef<"ScoutingDatasetRow", 'Int'>
+  readonly sheetName: Prisma.FieldRef<"ScoutingDatasetRow", 'String'>
+  readonly sheetRowNumber: Prisma.FieldRef<"ScoutingDatasetRow", 'Int'>
   readonly cells: Prisma.FieldRef<"ScoutingDatasetRow", 'Json'>
   readonly hyperlink: Prisma.FieldRef<"ScoutingDatasetRow", 'String'>
 }

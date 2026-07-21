@@ -50,6 +50,12 @@ export class ImportJobController {
     return this.jobs.listJobs();
   }
 
+  /** Resa reale di ogni marketplace, sui job già eseguiti. */
+  @Get("engines/stats")
+  engineStats() {
+    return this.jobs.engineStats();
+  }
+
   /** Avanzamento per file, riga e marketplace. */
   @Get("jobs/:id")
   progress(@Param("id") jobId: string, @Query("rows") rows?: string) {

@@ -86,6 +86,19 @@ type NormalizedOtApiProduct = NormalizedProduct & {
   sourceFeatures: string[];
 };
 
+/**
+ * Sostituisce con spazi la punteggiatura che può far storcere il naso a OTAPI,
+ * lasciando lettere, cifre, ideogrammi e il punto decimale (`2.48` è una
+ * misura, non due parole).
+ */
+function flattenPunctuation(value: string): string {
+  return value
+    .normalize("NFKC")
+    .replace(/[^\p{L}\p{N}.\s]+/gu, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
 function escapeXml(value: string): string {
   return value
     .replace(/&/g, "&amp;")
@@ -155,7 +168,7 @@ export class OtApiProvider implements ProductSearchProvider {
     const current = this.inFlight.get(key);
     if (current) return current;
 
-    const request = this.fetchSearch(params)
+    const request = this.searchWithFallback(params)
       .then((result) => {
         const parsedTtl = Number(process.env.OTAPI_CACHE_TTL_MS);
         const ttl = Number.isFinite(parsedTtl) && parsedTtl >= 0
@@ -177,6 +190,36 @@ export class OtApiProvider implements ProductSearchProvider {
       });
     this.inFlight.set(key, request);
     return request;
+  }
+
+  /**
+   * Cerca, e se OTAPI rifiuta la query per «caratteri non validi» riprova una
+   * volta con la punteggiatura appiattita.
+   *
+   * OTAPI rifiuta certe combinazioni senza documentarle: `平衡泥 K-9115-7`
+   * viene respinto mentre `平衡泥 K-9115` e `K-9115-7` da soli passano. Invece
+   * di indovinare la regola — che non è pubblicata e può cambiare — si manda
+   * la query **così com'è**, che conserva i codici prodotto, e si ripiega solo
+   * quando è OTAPI stessa a dire di no.
+   *
+   * Il ripiego perde i separatori del codice (`K-9115-7` → `K 9115 7`): è una
+   * ricerca meno precisa, ma è pur sempre una ricerca. Prima quella riga
+   * falliva e basta.
+   */
+  private async searchWithFallback(
+    params: OtApiSearchParams
+  ): Promise<ProductSearchResult> {
+    try {
+      return await this.fetchSearch(params);
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "";
+      if (!/invalid chars/i.test(message)) throw error;
+
+      const simplified = flattenPunctuation(params.query);
+      if (!simplified || simplified === params.query.trim()) throw error;
+
+      return this.fetchSearch({ ...params, query: simplified });
+    }
   }
 
   private async fetchSearch(

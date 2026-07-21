@@ -16,7 +16,7 @@ import {
   SaveMappingRequestSchema,
 } from "@china/shared";
 import { readBinaryBody, type BinaryRequest } from "../common/binary-body";
-import { DatasetWorkbookError } from "./dataset-workbook";
+import { ALL_SHEETS, DatasetWorkbookError } from "./dataset-workbook";
 import { ScoutingService } from "./scouting.service";
 
 /** Traduce gli errori di lettura file in risposte con causa leggibile. */
@@ -60,7 +60,10 @@ export class ScoutingController {
       return await this.scouting.createDataset(
         content,
         parsed.data.fileName,
-        parsed.data.sheet,
+        // Senza un foglio indicato si leggono **tutti**: nei fogli di
+        // richiesta reali le righe sono divise per reparto, e importarne uno
+        // solo lascia fuori la maggior parte del lavoro senza dirlo.
+        parsed.data.sheet ?? ALL_SHEETS,
         parsed.data.previewLimit
       );
     } catch (error) {

@@ -53,8 +53,26 @@ const ENGINE_LABELS: Record<SearchEngine, string> = {
   yiwugo: "Yiwugo",
 };
 
-/** Fonti proposte di default: le due che rispondono bene a query cinesi. */
-const DEFAULT_ENGINES: SearchEngine[] = ["chinagoods", "yiwugo"];
+/**
+ * Fonti proposte di default: quelle che sul primo file vero hanno davvero
+ * restituito prodotti (Chinagoods 141, Alibaba 84, AliExpress 64).
+ * Made-in-China e Tmall restano selezionabili ma non preselezionate: la prima
+ * ha fallito tutte le ricerche, la seconda le ha completate senza trovare
+ * niente. I numeri aggiornati si vedono accanto a ogni fonte.
+ */
+const DEFAULT_ENGINES: SearchEngine[] = ["chinagoods", "alibaba", "aliexpress"];
+
+/** Resa storica di una fonte, misurata sui job già fatti. */
+interface EngineStat {
+  engine: string;
+  searches: number;
+  ok: number;
+  errors: number;
+  products: number;
+  avgDurationMs: number;
+  yield: number;
+  lastError: string | null;
+}
 
 /** Stato del servizio di analisi, senza mai esporre la chiave. */
 interface AnalysisStatus {
@@ -65,6 +83,56 @@ interface AnalysisStatus {
 }
 
 const RUNNING_STATUSES = new Set(["QUEUED", "RUNNING"]);
+
+/** Chiave del segnalibro nel browser. */
+const SESSION_KEY = "china.scouting.session";
+
+interface SavedSession {
+  datasetId: string | null;
+  analysisRunId: string | null;
+  jobId: string | null;
+}
+
+/**
+ * Nel browser si salvano **solo identificativi**, mai i dati.
+ *
+ * I risultati vivono nel database: rimetterli anche qui significherebbe avere
+ * due verità che divergono al primo aggiornamento di prezzo.
+ */
+function saveSession(session: SavedSession): void {
+  try {
+    if (!session.datasetId && !session.analysisRunId && !session.jobId) {
+      window.localStorage.removeItem(SESSION_KEY);
+      return;
+    }
+    window.localStorage.setItem(SESSION_KEY, JSON.stringify(session));
+  } catch {
+    // Spazio esaurito o modalità privata: si perde la ripresa, non il lavoro.
+  }
+}
+
+function readSavedSession(): SavedSession | null {
+  try {
+    const raw = window.localStorage.getItem(SESSION_KEY);
+    if (!raw) return null;
+    const parsed = JSON.parse(raw) as Partial<SavedSession>;
+    return {
+      datasetId: parsed.datasetId ?? null,
+      analysisRunId: parsed.analysisRunId ?? null,
+      jobId: parsed.jobId ?? null,
+    };
+  } catch {
+    return null;
+  }
+}
+
+function clearSavedSession(): void {
+  try {
+    window.localStorage.removeItem(SESSION_KEY);
+  } catch {
+    // niente da fare
+  }
+}
 
 function statusTone(status: string): string {
   if (status === "DONE" || status === "COMPLETED") return "ok";
@@ -91,8 +159,10 @@ export function ScoutingJob() {
   const [analysis, setAnalysis] = useState<AnalysisRun | null>(null);
   const [analysisStatus, setAnalysisStatus] = useState<AnalysisStatus | null>(null);
   const [ignoreAnalysisCache, setIgnoreAnalysisCache] = useState(false);
+  const [engineStats, setEngineStats] = useState<EngineStat[]>([]);
 
   const [jobId, setJobId] = useState<string | null>(null);
+  const [restoring, setRestoring] = useState(true);
   const [progress, setProgress] = useState<ImportJobProgress | null>(null);
   const [results, setResults] = useState<ImportJobResults | null>(null);
   const [busy, setBusy] = useState(false);
@@ -105,7 +175,72 @@ export function ScoutingJob() {
     void api<AnalysisStatus>("/scouting/analysis/status")
       .then(setAnalysisStatus)
       .catch(() => setAnalysisStatus(null));
+    void api<EngineStat[]>("/scouting/engines/stats")
+      .then(setEngineStats)
+      .catch(() => setEngineStats([]));
   }, []);
+
+  /**
+   * Ripresa del lavoro dopo un ricaricamento della pagina.
+   *
+   * Un'analisi costa soldi e una scansione costa mezz'ora: perderle perché il
+   * browser si è ricaricato non è accettabile. Nel browser restano solo tre
+   * identificativi — file, analisi, job — e tutto il resto viene richiesto di
+   * nuovo all'API, che è l'unica ad avere la verità.
+   */
+  useEffect(() => {
+    const saved = readSavedSession();
+    if (!saved) {
+      setRestoring(false);
+      return;
+    }
+    let annullato = false;
+    void (async () => {
+      try {
+        if (saved.datasetId) {
+          const preview = await api<DatasetPreview>(
+            `/scouting/datasets/${saved.datasetId}?previewLimit=8`
+          );
+          if (annullato) return;
+          setDataset(preview);
+          setMapping(
+            new Map(
+              preview.columns.map((column) => [
+                column.index,
+                column.suggestedField ?? "ignore",
+              ])
+            )
+          );
+        }
+        if (saved.analysisRunId) {
+          const run = await api<AnalysisRun>(`/scouting/analysis/${saved.analysisRunId}`);
+          if (!annullato) setAnalysis(run);
+        }
+        if (saved.jobId) {
+          if (!annullato) setJobId(saved.jobId);
+        }
+      } catch {
+        // Il lavoro salvato non esiste più (database ripulito, id vecchio):
+        // si riparte puliti invece di mostrare un errore che non aiuta.
+        clearSavedSession();
+      } finally {
+        if (!annullato) setRestoring(false);
+      }
+    })();
+    return () => {
+      annullato = true;
+    };
+  }, []);
+
+  // Ogni volta che uno dei tre identificativi cambia, si aggiorna il segnalibro.
+  useEffect(() => {
+    if (restoring) return;
+    saveSession({
+      datasetId: dataset?.datasetId ?? null,
+      analysisRunId: analysis?.runId ?? null,
+      jobId,
+    });
+  }, [restoring, dataset?.datasetId, analysis?.runId, jobId]);
 
   const mappingList = useMemo<DatasetMapping[]>(
     () =>
@@ -279,6 +414,35 @@ export function ScoutingJob() {
 
       {error ? <div className="error-panel">{error}</div> : null}
 
+      {restoring ? (
+        <p className="muted">Recupero il lavoro in corso…</p>
+      ) : null}
+
+      {!restoring && (dataset || analysis || jobId) ? (
+        <div className="scouting-row scouting-resume">
+          <span className="muted">
+            Lavoro ripreso: {dataset ? `file ${dataset.fileName}` : "—"}
+            {analysis ? ` · analisi ${analysis.rows.length} righe` : ""}
+            {jobId ? " · scansione in corso" : ""}
+          </span>
+          <button
+            type="button"
+            className="chip"
+            onClick={() => {
+              clearSavedSession();
+              setDataset(null);
+              setAnalysis(null);
+              setJobId(null);
+              setProgress(null);
+              setResults(null);
+              if (fileInput.current) fileInput.current.value = "";
+            }}
+          >
+            ricomincia da capo
+          </button>
+        </div>
+      ) : null}
+
       <section className="panel scouting-step">
         <h2>1. File</h2>
         <div className="scouting-row">
@@ -407,22 +571,43 @@ export function ScoutingJob() {
         <section className="panel scouting-step">
           <h2>4. Marketplace</h2>
           <div className="scouting-engines">
-            {SEARCH_ENGINES.map((engine) => (
-              <label key={engine} className="scouting-engine">
-                <input
-                  type="checkbox"
-                  checked={engines.includes(engine)}
-                  onChange={(event) => {
-                    setEngines((current) =>
-                      event.target.checked
-                        ? [...current, engine]
-                        : current.filter((name) => name !== engine)
-                    );
-                  }}
-                />
-                {ENGINE_LABELS[engine]}
-              </label>
-            ))}
+            {SEARCH_ENGINES.map((engine) => {
+              const stat = engineStats.find((entry) => entry.engine === engine);
+              const rotta = stat && stat.searches >= 5 && stat.ok === 0;
+              const sterile = stat && stat.ok >= 5 && stat.products === 0;
+              return (
+                <label key={engine} className="scouting-engine">
+                  <input
+                    type="checkbox"
+                    checked={engines.includes(engine)}
+                    onChange={(event) => {
+                      setEngines((current) =>
+                        event.target.checked
+                          ? [...current, engine]
+                          : current.filter((name) => name !== engine)
+                      );
+                    }}
+                  />
+                  {ENGINE_LABELS[engine]}
+                  {stat ? (
+                    <span
+                      className={`chip ${rotta || sterile ? "err" : ""}`}
+                      title={
+                        stat.lastError
+                          ? `Ultimo errore: ${stat.lastError}`
+                          : `${stat.ok} ricerche riuscite su ${stat.searches}`
+                      }
+                    >
+                      {rotta
+                        ? "non funziona"
+                        : sterile
+                          ? "0 prodotti"
+                          : `${stat.products} prod · ${(stat.avgDurationMs / 1000).toFixed(0)}s`}
+                    </span>
+                  ) : null}
+                </label>
+              );
+            })}
           </div>
           <div className="scouting-row scouting-options">
             <label>

@@ -270,7 +270,7 @@ export class ScoutingRunnerService {
 
     const outcomes = await Promise.all(
       engines.map((engine) =>
-        this.runEngine(
+        this.runEngineWithRetry(
           jobRowId,
           row.requestId!,
           this.queryForEngine(engine, row.request, row.searchQuery),
@@ -351,6 +351,45 @@ export class ScoutingRunnerService {
     return wanted?.trim() || other?.trim() || fallback;
   }
 
+  /**
+   * Interroga un marketplace, ritentando da sola una fonte occupata.
+   *
+   * `SOURCE_BUSY` non è un guasto: è la coda della fonte che dice «troppe
+   * richieste insieme, aspetta». Sul primo file vero sono stati 38 errori su
+   * 232 ricerche — un sesto del lavoro buttato via per una coda piena, con la
+   * riga che risultava fallita e nessuno che riprovava. Ora si aspetta e si
+   * riprova, con attese crescenti.
+   */
+  private async runEngineWithRetry(
+    jobRowId: string,
+    requestId: string,
+    query: string,
+    engine: SearchEngine,
+    options: { quality: SearchQuality; frameSize: number }
+  ): Promise<{ ok: boolean; creditsSpent: number }> {
+    const attempts = Math.max(1, Math.floor(numericEnv("SCOUTING_ENGINE_ATTEMPTS", 3)));
+    let creditsSpent = 0;
+
+    for (let attempt = 1; attempt <= attempts; attempt += 1) {
+      const outcome = await this.runEngine(jobRowId, requestId, query, engine, options);
+      creditsSpent += outcome.creditsSpent;
+      if (outcome.ok) return { ok: true, creditsSpent };
+      if (!outcome.retryable || attempt === attempts) {
+        return { ok: false, creditsSpent };
+      }
+
+      // Attesa crescente: 2s, 4s, 8s… Una coda piena si svuota da sola, ma
+      // solo se si smette di spingere.
+      const waitMs = Math.min(15_000, 2_000 * 2 ** (attempt - 1));
+      this.logger.log(
+        `${engine}: fonte occupata, nuovo tentativo fra ${waitMs / 1000}s ` +
+          `(${attempt}/${attempts - 1})`
+      );
+      await new Promise((resolve) => setTimeout(resolve, waitMs));
+    }
+    return { ok: false, creditsSpent };
+  }
+
   /** Interroga un singolo marketplace e ne registra l'esito. */
   private async runEngine(
     jobRowId: string,
@@ -358,7 +397,7 @@ export class ScoutingRunnerService {
     query: string,
     engine: SearchEngine,
     options: { quality: SearchQuality; frameSize: number }
-  ): Promise<{ ok: boolean; creditsSpent: number }> {
+  ): Promise<{ ok: boolean; creditsSpent: number; retryable: boolean }> {
     const startedAt = Date.now();
     await prisma.importJobRowEngine.updateMany({
       where: { jobRowId, engine },
@@ -408,7 +447,7 @@ export class ScoutingRunnerService {
           finishedAt: new Date(),
         },
       });
-      return { ok: true, creditsSpent };
+      return { ok: true, creditsSpent, retryable: false };
     } catch (error) {
       const described = describeError(error);
       await prisma.importJobRowEngine.updateMany({
@@ -422,7 +461,7 @@ export class ScoutingRunnerService {
           finishedAt: new Date(),
         },
       });
-      return { ok: false, creditsSpent: 0 };
+      return { ok: false, creditsSpent: 0, retryable: described.retryable };
     }
   }
 

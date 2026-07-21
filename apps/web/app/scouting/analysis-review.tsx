@@ -81,6 +81,14 @@ interface AnalysisReviewProps {
 export function AnalysisReview({ run, busy, onRunChange, onError }: AnalysisReviewProps) {
   const [openRowId, setOpenRowId] = useState<string | null>(null);
   const [savingRowId, setSavingRowId] = useState<string | null>(null);
+  const [bulkRunning, setBulkRunning] = useState(false);
+  const [bulkDone, setBulkDone] = useState(0);
+
+  /** Righe ferme che hanno comunque un'analisi utilizzabile. */
+  const toConfirm = useMemo(
+    () => run.rows.filter((row) => row.state === "NEEDS_REVIEW" && row.analysis),
+    [run.rows]
+  );
 
   const counts = useMemo(() => {
     const tally = new Map<string, number>();
@@ -119,6 +127,44 @@ export function AnalysisReview({ run, busy, onRunChange, onError }: AnalysisRevi
     [onError, onRunChange, run]
   );
 
+  /**
+   * Conferma in blocco.
+   *
+   * Le richieste partono in sequenza, non tutte insieme: sono decine di PATCH
+   * e ognuna ricalcola le chiavi e rilegge lo stato nel database. Mandarle in
+   * parallelo farebbe solo litigare le scritture fra loro.
+   */
+  const confirmAll = useCallback(async () => {
+    setBulkRunning(true);
+    setBulkDone(0);
+    const updated = new Map<string, AnalysisRow>();
+    try {
+      for (const row of toConfirm) {
+        try {
+          const result = await api<AnalysisRow>(
+            `/scouting/analysis/rows/${row.analysisRowId}`,
+            { method: "PATCH", body: JSON.stringify({ approve: true }) }
+          );
+          updated.set(result.analysisRowId, result);
+        } catch (cause) {
+          // Una riga che non passa non ferma le altre: si riporta l'errore e
+          // si continua, altrimenti una riga rotta a metà elenco bloccherebbe
+          // tutte quelle dopo.
+          onError(cause instanceof Error ? cause.message : String(cause));
+        }
+        setBulkDone((done) => done + 1);
+      }
+    } finally {
+      const rows = run.rows.map((row) => updated.get(row.analysisRowId) ?? row);
+      onRunChange({
+        ...run,
+        rows,
+        readyRows: rows.filter((row) => READY_STATES.has(row.state)).length,
+      });
+      setBulkRunning(false);
+    }
+  }, [onError, onRunChange, run, toConfirm]);
+
   return (
     <section className="panel scouting-step">
       <h2>3. Analisi richieste con IA</h2>
@@ -154,6 +200,30 @@ export function AnalysisReview({ run, busy, onRunChange, onError }: AnalysisRevi
         Le righe con confidenza sotto la soglia o con avvertimenti critici non
         partono automaticamente: aprile, correggi ciò che serve e confermale.
       </p>
+
+      {toConfirm.length > 0 ? (
+        <div className="scouting-row scouting-bulk">
+          <span>
+            <strong>{toConfirm.length} righe</strong> sono ferme in attesa di
+            conferma.
+          </span>
+          <button
+            type="button"
+            disabled={busy || bulkRunning}
+            onClick={() => void confirmAll()}
+            title="Conferma tutte le righe che hanno un'analisi valida, senza modificarne i campi"
+          >
+            {bulkRunning
+              ? `Conferma in corso… ${bulkDone}/${toConfirm.length}`
+              : `Conferma tutte e ${toConfirm.length}`}
+          </button>
+          <span className="muted">
+            Confermarle tutte è comodo quando gli avvertimenti sono ripetitivi
+            (tipico: misure senza unità). Se una riga è davvero sbagliata,
+            correggila prima: dopo la ricerca costa molto di più.
+          </span>
+        </div>
+      ) : null}
 
       <div className="scouting-table-wrap">
         <table className="scouting-table">

@@ -659,6 +659,86 @@ export class ImportJobService {
     return this.toSummary(jobId);
   }
 
+  /**
+   * Come si è comportata ogni fonte, sui job già fatti.
+   *
+   * Serve a scegliere i marketplace con i dati invece che con l'intuito: sul
+   * primo file vero Made-in-China ha fallito 38 ricerche su 38 e Tmall ne ha
+   * completate 35 senza restituire un solo prodotto, mentre Chinagoods ne
+   * portava 141. Senza questi numeri sotto gli occhi si continua a spendere
+   * dieci secondi per riga su fonti che non rendono niente.
+   */
+  async engineStats(): Promise<
+    Array<{
+      engine: string;
+      searches: number;
+      ok: number;
+      errors: number;
+      products: number;
+      avgDurationMs: number;
+      /** Prodotti per ricerca riuscita: la misura di quanto rende la fonte. */
+      yield: number;
+      lastError: string | null;
+    }>
+  > {
+    const rows = await prisma.importJobRowEngine.groupBy({
+      by: ["engine", "status"],
+      _count: { _all: true },
+      _sum: { acceptedCount: true },
+      _avg: { durationMs: true },
+    });
+
+    const byEngine = new Map<
+      string,
+      { searches: number; ok: number; errors: number; products: number; duration: number }
+    >();
+    for (const row of rows) {
+      const bucket = byEngine.get(row.engine) ?? {
+        searches: 0,
+        ok: 0,
+        errors: 0,
+        products: 0,
+        duration: 0,
+      };
+      const count = row._count._all;
+      // Le fonti saltate (riga riusata) non sono ricerche: contarle
+      // gonfierebbe il tasso di successo con lavoro mai fatto.
+      if (row.status === "DONE") {
+        bucket.ok += count;
+        bucket.searches += count;
+        bucket.products += row._sum.acceptedCount ?? 0;
+        bucket.duration = row._avg.durationMs ?? 0;
+      } else if (row.status === "ERROR") {
+        bucket.errors += count;
+        bucket.searches += count;
+      }
+      byEngine.set(row.engine, bucket);
+    }
+
+    const lastErrors = await prisma.importJobRowEngine.findMany({
+      where: { status: "ERROR", error: { not: null } },
+      orderBy: { finishedAt: "desc" },
+      distinct: ["engine"],
+      select: { engine: true, error: true },
+    });
+    const lastErrorByEngine = new Map(
+      lastErrors.map((entry) => [entry.engine, entry.error])
+    );
+
+    return [...byEngine.entries()]
+      .map(([engine, bucket]) => ({
+        engine,
+        searches: bucket.searches,
+        ok: bucket.ok,
+        errors: bucket.errors,
+        products: bucket.products,
+        avgDurationMs: Math.round(bucket.duration),
+        yield: bucket.ok > 0 ? bucket.products / bucket.ok : 0,
+        lastError: lastErrorByEngine.get(engine) ?? null,
+      }))
+      .sort((left, right) => right.products - left.products);
+  }
+
   private async requireActiveJob(jobId: string) {
     const job = await prisma.importJob.findUnique({ where: { id: jobId } });
     if (!job) throw new NotFoundException(`Job non trovato: ${jobId}`);

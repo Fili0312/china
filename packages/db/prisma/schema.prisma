@@ -207,8 +207,16 @@ model ScoutingDatasetRow {
   dataset   ScoutingDataset @relation(fields: [datasetId], references: [id], onDelete: Cascade)
   datasetId String
 
-  /// Numero di riga nel file di origine (1-based).
+  /// Numero progressivo della riga nel dataset (1-based).
+  ///
+  /// Con più fogli importati insieme non può essere il numero di riga del
+  /// foglio: due fogli hanno entrambi una riga 6. L'origine reale — quella
+  /// che l'utente ritrova aprendo Excel — sta in `sheetName`+`sheetRowNumber`.
   rowNumber Int
+  /// Foglio di provenienza.
+  sheetName      String @default("")
+  /// Riga nel foglio di origine (1-based).
+  sheetRowNumber Int    @default(0)
   /// Valori originali, allineati a ScoutingDataset.columns.
   cells     Json
   hyperlink String?

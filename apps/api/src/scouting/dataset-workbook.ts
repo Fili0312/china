@@ -297,11 +297,21 @@ function suggestFromValues(
 export interface ParseDatasetOptions {
   fileName: string;
   format: DatasetFormat;
-  /** Foglio da leggere; se assente si usa il primo del file. */
+  /**
+   * Foglio da leggere; se assente si usa il primo del file.
+   *
+   * `ALL_SHEETS` (`*`) li legge **tutti** e li unisce. È il caso normale dei
+   * fogli di richiesta reali: le richieste sono divise per reparto su fogli
+   * diversi con le stesse colonne, e importarne uno solo lascia fuori la
+   * maggior parte del lavoro senza dirlo.
+   */
   sheet?: string;
   /** Righe restituite nell'anteprima. */
   previewLimit: number;
 }
+
+/** Valore di `sheet` che chiede di leggere tutti i fogli del file. */
+export const ALL_SHEETS = "*";
 
 export interface ParsedDataset {
   sheet: string;
@@ -316,28 +326,13 @@ export interface ParsedDataset {
   warnings: string[];
 }
 
-/** Legge un file di richieste e ne descrive colonne, righe e mappatura. */
-export function parseDataset(
-  data: Buffer,
-  options: ParseDatasetOptions
+/** Legge un singolo foglio già individuato nel file. */
+function parseSheet(
+  workbook: XLSX.WorkBook,
+  sheetName: string,
+  previewLimit: number
 ): ParsedDataset {
-  let workbook: XLSX.WorkBook;
-  try {
-    workbook =
-      options.format === "csv"
-        ? readCsv(data)
-        : XLSX.read(data, { type: "buffer", cellHTML: false });
-  } catch (error) {
-    const detail = error instanceof Error ? error.message : String(error);
-    throw new DatasetWorkbookError(`File non leggibile: ${detail}`);
-  }
-
   const availableSheets = workbook.SheetNames;
-  if (availableSheets.length === 0) {
-    throw new DatasetWorkbookError("Il file non contiene fogli.");
-  }
-
-  const sheetName = options.sheet?.trim() || availableSheets[0]!;
   const sheet = workbook.Sheets[sheetName];
   if (!sheet) {
     throw new DatasetWorkbookError(
@@ -503,7 +498,13 @@ export function parseDataset(
     }
 
     if (!hasContent) continue;
-    rows.push({ rowNumber: row + 1, cells, hyperlink });
+    rows.push({
+      rowNumber: row + 1,
+      sheetName,
+      sheetRowNumber: row + 1,
+      cells,
+      hyperlink,
+    });
   }
 
   const suggestedMapping: DatasetMapping[] = columns
@@ -519,8 +520,124 @@ export function parseDataset(
     headerRowNumber: headerRow == null ? null : headerRow + 1,
     columns,
     rows,
-    previewRows: rows.slice(0, options.previewLimit),
+    previewRows: rows.slice(0, previewLimit),
     suggestedMapping,
     warnings,
+  };
+}
+
+
+/**
+ * Legge un file di richieste: un foglio, oppure tutti.
+ *
+ * Con `sheet: ALL_SHEETS` i fogli vengono uniti in un solo dataset. È il caso
+ * dei fogli di richiesta reali, dove le richieste sono divise per reparto su
+ * fogli con le stesse colonne: leggerne uno solo lasciava fuori la maggior
+ * parte del lavoro — e lo faceva in silenzio, che è la parte peggiore.
+ *
+ * L'unione richiede che i fogli condividano il **numero di colonne mappabili**.
+ * Se un foglio ha una struttura diversa non viene mescolato agli altri: entra
+ * comunque nel dataset, ma con un avvertimento, perché una colonna che slitta
+ * di una posizione produce richieste sbagliate senza sembrare un errore.
+ */
+export function parseDataset(
+  data: Buffer,
+  options: ParseDatasetOptions
+): ParsedDataset {
+  let workbook: XLSX.WorkBook;
+  try {
+    workbook =
+      options.format === "csv"
+        ? readCsv(data)
+        : XLSX.read(data, { type: "buffer", cellHTML: false });
+  } catch (error) {
+    const detail = error instanceof Error ? error.message : String(error);
+    throw new DatasetWorkbookError(`File non leggibile: ${detail}`);
+  }
+
+  const availableSheets = workbook.SheetNames;
+  if (availableSheets.length === 0) {
+    throw new DatasetWorkbookError("Il file non contiene fogli.");
+  }
+
+  const wanted = options.sheet?.trim();
+  if (wanted !== ALL_SHEETS) {
+    const sheetName = wanted || availableSheets[0]!;
+    if (!workbook.Sheets[sheetName]) {
+      throw new DatasetWorkbookError(
+        `Il foglio “${sheetName}” non esiste in questo file.`,
+        availableSheets
+      );
+    }
+    return parseSheet(workbook, sheetName, options.previewLimit);
+  }
+
+  // Tutti i fogli. Quelli vuoti o illeggibili non fermano gli altri: si
+  // annotano e si va avanti, perché in un file da quattro reparti un foglio
+  // di riepilogo vuoto è normale.
+  const parsed: ParsedDataset[] = [];
+  const warnings: string[] = [];
+  for (const sheetName of availableSheets) {
+    try {
+      const sheet = parseSheet(workbook, sheetName, options.previewLimit);
+      if (sheet.rows.length === 0) {
+        warnings.push(`Foglio “${sheetName}”: nessuna riga con dati, ignorato.`);
+        continue;
+      }
+      parsed.push(sheet);
+    } catch (error) {
+      const detail =
+        error instanceof Error ? error.message : "foglio non leggibile";
+      warnings.push(`Foglio “${sheetName}” ignorato: ${detail}`);
+    }
+  }
+
+  if (parsed.length === 0) {
+    throw new DatasetWorkbookError(
+      "Nessun foglio del file contiene righe leggibili.",
+      availableSheets
+    );
+  }
+  if (parsed.length === 1) {
+    const only = parsed[0]!;
+    return { ...only, warnings: [...only.warnings, ...warnings] };
+  }
+
+  // Le colonne le detta il foglio con più righe: è quello su cui l'euristica
+  // ha avuto più dati per decidere.
+  const reference = [...parsed].sort((a, b) => b.rows.length - a.rows.length)[0]!;
+  const referenceColumns = reference.columns.length;
+
+  const rows: DatasetRow[] = [];
+  let rowNumber = 0;
+  for (const sheet of parsed) {
+    if (sheet.columns.length !== referenceColumns) {
+      warnings.push(
+        `Foglio “${sheet.sheet}”: ${sheet.columns.length} colonne invece di ` +
+          `${referenceColumns} come “${reference.sheet}”. Le righe sono state ` +
+          "importate ugualmente: controlla la mappatura prima di avviare."
+      );
+    }
+    for (const row of sheet.rows) {
+      rowNumber += 1;
+      rows.push({ ...row, rowNumber });
+    }
+  }
+
+  warnings.push(
+    `Importati ${parsed.length} fogli (${parsed
+      .map((sheet) => `${sheet.sheet}: ${sheet.rows.length}`)
+      .join(", ")}) per un totale di ${rows.length} righe.`
+  );
+
+  return {
+    sheet: parsed.map((sheet) => sheet.sheet).join(" + "),
+    availableSheets,
+    headerRowNumber: reference.headerRowNumber,
+    columns: reference.columns,
+    rows,
+    previewRows: rows.slice(0, options.previewLimit),
+    suggestedMapping: reference.suggestedMapping,
+    warnings: [...reference.warnings, ...warnings],
   };
 }

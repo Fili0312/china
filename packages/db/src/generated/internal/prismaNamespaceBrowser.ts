@@ -197,6 +197,8 @@ export const ScoutingDatasetRowScalarFieldEnum = {
   id: 'id',
   datasetId: 'datasetId',
   rowNumber: 'rowNumber',
+  sheetName: 'sheetName',
+  sheetRowNumber: 'sheetRowNumber',
   cells: 'cells',
   hyperlink: 'hyperlink'
 } as const

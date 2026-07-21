@@ -10,6 +10,7 @@ import type {
 } from "@china/shared";
 import { basename } from "node:path";
 import {
+  ALL_SHEETS,
   DatasetWorkbookError,
   formatFromFileName,
   parseDataset,
@@ -67,6 +68,8 @@ export class ScoutingService {
         rows: {
           create: parsed.rows.map((row) => ({
             rowNumber: row.rowNumber,
+            sheetName: row.sheetName,
+            sheetRowNumber: row.sheetRowNumber,
             cells: toJson(row.cells),
             hyperlink: row.hyperlink,
           })),
@@ -118,6 +121,8 @@ export class ScoutingService {
       totalRows: dataset.rowCount,
       rows: dataset.rows.map((row) => ({
         rowNumber: row.rowNumber,
+        sheetName: row.sheetName,
+        sheetRowNumber: row.sheetRowNumber,
         cells: row.cells as unknown as string[],
         hyperlink: row.hyperlink,
       })),
@@ -194,6 +199,8 @@ export class ScoutingService {
       columnIndexes: columns.map((column) => column.index),
       rows: rows.map((row) => ({
         rowNumber: row.rowNumber,
+        sheetName: row.sheetName,
+        sheetRowNumber: row.sheetRowNumber,
         cells: row.cells as unknown as string[],
         hyperlink: row.hyperlink,
       })),
@@ -323,4 +330,4 @@ export class ScoutingService {
   }
 }
 
-export { DatasetWorkbookError };
+export { ALL_SHEETS, DatasetWorkbookError };

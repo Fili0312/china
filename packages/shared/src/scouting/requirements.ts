@@ -250,6 +250,48 @@ function findMeasure(
   return { value: round(amount * factor), source: match[0].trim() };
 }
 
+/**
+ * Grandezze fisiche riconosciute, ciascuna con la propria unità base.
+ *
+ * L'ordine conta: le tabelle vengono consultate in questa sequenza e la prima
+ * che conosce l'unità vince. Oggi non ci sono unità in comune fra due tabelle
+ * (`mw` è potenza, `mv` tensione, `m` lunghezza), ma fissare l'ordine rende la
+ * risposta stabile se un giorno ce ne fosse una.
+ */
+const MEASURE_TABLES: Array<{ base: string; units: Record<string, number> }> = [
+  { base: "mm", units: LENGTH_UNITS },
+  { base: "W", units: POWER_UNITS },
+  { base: "V", units: VOLTAGE_UNITS },
+  { base: "l", units: VOLUME_UNITS },
+  { base: "Ah", units: CHARGE_UNITS },
+  { base: "kg", units: WEIGHT_UNITS },
+];
+
+/**
+ * Converte una misura nell'unità base della sua grandezza.
+ *
+ * Restituisce `null` quando l'unità non è riconosciuta — compreso il caso in
+ * cui non ce n'è una. Chi chiama deve decidere cosa farne: per l'identità di
+ * una variante, una misura senza unità resta confrontabile con le altre misure
+ * senza unità (`60*60` contro `30*30`) ma non con quelle convertite, ed è la
+ * scelta corretta: fingere che `60` siano millimetri sarebbe un'invenzione.
+ */
+export function convertToBaseUnit(
+  value: number,
+  unit: string | null | undefined
+): { value: number; unit: string } | null {
+  if (!Number.isFinite(value)) return null;
+  const cleaned = (unit ?? "").normalize("NFKC").trim().toLowerCase();
+  if (!cleaned) return null;
+  for (const table of MEASURE_TABLES) {
+    const factor = table.units[cleaned];
+    if (factor != null) {
+      return { value: round(value * factor), unit: table.base };
+    }
+  }
+  return null;
+}
+
 /** `true` se il testo è prevalentemente in caratteri cinesi. */
 export function detectLanguage(text: string): "zh" | "en" {
   const han = text.match(/\p{Script=Han}/gu)?.length ?? 0;

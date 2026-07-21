@@ -3,6 +3,8 @@ export * from "./schemas/marketplace";
 export * from "./schemas/search";
 export * from "./schemas/inquiry";
 export * from "./schemas/scouting";
+export * from "./schemas/analysis";
 export * from "./scouting/fingerprint";
+export * from "./scouting/product-identity";
 export * from "./scouting/requirements";
 export * from "./jobs";

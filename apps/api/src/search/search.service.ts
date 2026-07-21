@@ -21,6 +21,7 @@ import type {
 import { createHash, randomUUID } from "node:crypto";
 import { aggregateProducts, selectDiverseProducts } from "./aggregate";
 import { planSearchQuery } from "./query-planner";
+import { titleMatchesProductType } from "./zh-product-terms";
 import { rankAndFilterProducts, type RankedProduct } from "./relevance";
 import { OtApiProvider } from "./providers/otapi.provider";
 import {
@@ -161,6 +162,8 @@ function typedSourceError(error: unknown): {
 interface ScoredProduct {
   ranked: RankedProduct;
   score: number;
+  /** `false` quando il titolo non è confrontabile: il punteggio non è un dato. */
+  verifiable: boolean;
   sourceConfidence: number;
   sourceWarnings: string[];
 }
@@ -258,6 +261,8 @@ function orderProducts(
 ): ScoredProduct[] {
   const copy = [...items];
   const scoreTieBreak = (left: ScoredProduct, right: ScoredProduct) =>
+    // Un risultato misurato viene prima di uno che non abbiamo potuto misurare.
+    Number(right.verifiable) - Number(left.verifiable) ||
     right.score - left.score ||
     right.sourceConfidence - left.sourceConfidence ||
     left.ranked.index - right.ranked.index;
@@ -400,6 +405,12 @@ export class SearchService implements OnModuleDestroy {
     const startedAt = Date.now();
     try {
       const plan = planSearchQuery(input.q, input.engine);
+      if (plan.untranslatable) {
+        // Meglio dirlo che mandare del cinese a un catalogo export: la fonte
+        // risponderebbe con un errore interno, e per Piloterr sarebbe anche
+        // una chiamata sprecata.
+        throw new BadGatewayException(plan.untranslatable);
+      }
       const fetchSize = sourceFetchSize(input);
       const pageIndex = Math.floor(input.framePosition / input.frameSize);
       const sourcePosition = OTAPI_ENGINES.has(input.engine)
@@ -422,39 +433,80 @@ export class SearchService implements OnModuleDestroy {
         deduplicate: true,
       });
       const threshold = relevanceThreshold(input.quality);
+
+      // Un titolo che non contiene il tipo di prodotto richiesto non è un
+      // risultato poco pertinente: è un altro prodotto. Vale anche — anzi
+      // soprattutto — quando la query è cinese e i titoli tornano in inglese,
+      // dove il confronto parola per parola non è possibile.
+      let wrongTypeCount = 0;
+      const scored: ScoredProduct[] = [];
+      for (const entry of ranked.accepted) {
+        // Il filtro vale **solo sui titoli in alfabeto latino**: i termini
+        // obbligatori sono in inglese, e applicarli a un titolo cinese li
+        // scarterebbe tutti. Quando il titolo è nella stessa lingua della
+        // richiesta ci pensa già il confronto parola per parola.
+        const latinTitle = !/\p{Script=Han}/u.test(entry.product.title);
+        const typeCheck = latinTitle
+          ? titleMatchesProductType(entry.product.title, plan.requiredTerms)
+          : { matches: true, missing: [] };
+        if (!typeCheck.matches) {
+          wrongTypeCount += 1;
+          continue;
+        }
+
+        const source = sourceQuality(entry.product);
+        // Superare il filtro sul tipo di prodotto dimostra che la categoria è
+        // giusta, non che il punteggio abbia senso: con una query cinese e un
+        // titolo inglese le parole restano inconfrontabili. In quel caso il
+        // punteggio non viene mostrato, perché sarebbe un numero inventato.
+        const verifiable = !entry.relevance.warnings.some((warning) =>
+          warning.startsWith("Titolo non in cinese")
+        );
+        scored.push({
+          ranked: entry,
+          score: entry.relevance.score,
+          verifiable,
+          sourceConfidence: Math.max(0, 100 - source.penalty),
+          sourceWarnings: source.warnings,
+        });
+      }
+
       const qualified = orderProducts(
-        ranked.accepted
-          .map<ScoredProduct>((entry) => {
-            const source = sourceQuality(entry.product);
-            return {
-              ranked: entry,
-              score: entry.relevance.score,
-              sourceConfidence: Math.max(0, 100 - source.penalty),
-              sourceWarnings: source.warnings,
-            };
-          })
-          .filter((entry) => entry.score >= threshold),
+        // Un risultato non verificabile non viene misurato contro la soglia:
+        // escluderlo per un punteggio che non abbiamo calcolato sarebbe
+        // arbitrario quanto assegnarglielo.
+        scored.filter((entry) => !entry.verifiable || entry.score >= threshold),
         input.sort
       );
       const selected = qualified.slice(0, input.frameSize);
       const items = selected.map(({
         ranked: entry,
         score,
+        verifiable,
         sourceConfidence,
         sourceWarnings,
       }) => ({
         ...entry.product,
-        relevanceScore: score,
+        relevanceScore: verifiable ? score : null,
         sourceConfidenceScore: sourceConfidence,
         matchReasons: entry.relevance.reasons,
         matchWarnings: [
-          ...new Set([...entry.relevance.warnings, ...sourceWarnings]),
+          ...new Set([
+            ...(verifiable
+              ? []
+              : [
+                  "Pertinenza non verificabile: il titolo non è confrontabile con la richiesta.",
+                ]),
+            ...entry.relevance.warnings,
+            ...sourceWarnings,
+          ]),
         ],
         canonicalKey: canonicalKey(entry.product),
       }));
       const processingMs = Date.now() - processingStartedAt;
       const hardRejectedCount = sourceResult.items.length - eligible.length;
-      const relevanceRejectedCount = ranked.accepted.length - qualified.length;
+      const relevanceRejectedCount =
+        ranked.accepted.length - wrongTypeCount - qualified.length;
       const result: ProductSearchResult = {
         provider: sourceResult.provider,
         query: plan.original,
@@ -480,7 +532,7 @@ export class SearchService implements OnModuleDestroy {
           qualifiedCount: qualified.length,
           discardedCount: Math.max(
             0,
-            hardRejectedCount + relevanceRejectedCount
+            hardRejectedCount + relevanceRejectedCount + wrongTypeCount
           ),
           duplicatesRemoved: ranked.duplicates.length,
           truncatedCount: Math.max(0, qualified.length - selected.length),
@@ -493,9 +545,13 @@ export class SearchService implements OnModuleDestroy {
           event: "marketplace_search",
           engine: input.engine,
           quality: input.quality,
+          requestedQuery: input.q,
+          sentQuery: plan.providerQuery,
+          requiredTerms: plan.requiredTerms,
           durationMs: Date.now() - startedAt,
           fetched: sourceResult.items.length,
           returned: items.length,
+          wrongProductType: wrongTypeCount,
           discarded: result.diagnostics?.discardedCount ?? 0,
           duplicates: ranked.duplicates.length,
         })
@@ -506,8 +562,10 @@ export class SearchService implements OnModuleDestroy {
         JSON.stringify({
           event: "marketplace_search_error",
           engine: input.engine,
+          requestedQuery: input.q,
           durationMs: Date.now() - startedAt,
           error: e instanceof Error ? e.name : "unknown",
+          message: e instanceof Error ? e.message.slice(0, 300) : undefined,
         })
       );
       if (e instanceof ProviderConfigError) {

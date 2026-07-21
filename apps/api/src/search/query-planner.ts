@@ -1,9 +1,29 @@
 import type { SearchEngine } from "@china/shared";
+import { translateChineseQuery } from "./zh-product-terms";
+
+/**
+ * Motori che indicizzano **solo** l'inglese: sono cataloghi export.
+ * Mandare loro una query cinese non produce «zero risultati» ma un errore
+ * della fonte (Piloterr risponde 500 su Alibaba).
+ */
+const ENGLISH_ONLY_ENGINES = new Set<SearchEngine>(["alibaba", "aliexpress"]);
 
 export interface PlannedSearchQuery {
   original: string;
   providerQuery: string;
   changed: boolean;
+  /**
+   * Parole che il titolo di un prodotto deve contenere per essere dello stesso
+   * tipo. Valorizzate quando la richiesta è cinese: servono a verificare anche
+   * i titoli inglesi delle fonti che traducono le schede (Chinagoods).
+   */
+  requiredTerms: string[];
+  /**
+   * Valorizzato quando il motore richiede l'inglese ma la richiesta cinese non
+   * è traducibile: il chiamante deve saltare la fonte con questa motivazione,
+   * invece di inviare una query che farà fallire la ricerca.
+   */
+  untranslatable: string | null;
 }
 
 const TRANSLATIONS: ReadonlyArray<[RegExp, string]> = [
@@ -60,11 +80,43 @@ export function planSearchQuery(
   // prodotto, modelli, misure, tensioni e materiali, che sono esattamente ciò
   // che rende precisa una ricerca su uno store cinese.
   if (/\p{Script=Han}/u.test(original)) {
+    const translated = translateChineseQuery(original);
+
+    if (ENGLISH_ONLY_ENGINES.has(engine)) {
+      // Alibaba e AliExpress sono cataloghi export: ricevono l'inglese.
+      // Modelli, codici e misure restano invariati, sono l'unico segnale che
+      // sopravvive intatto al cambio di lingua.
+      if (!translated.hasProductType || !translated.english) {
+        return {
+          original,
+          providerQuery: original.slice(0, 200),
+          changed: false,
+          requiredTerms: translated.requiredTerms,
+          untranslatable:
+            `Richiesta in cinese non traducibile per questo catalogo: ` +
+            `${translated.untranslated.join(", ") || original}. ` +
+            "Aggiungi il termine al dizionario prodotti oppure usa le fonti cinesi.",
+        };
+      }
+      return {
+        original,
+        providerQuery: translated.english,
+        changed: true,
+        requiredTerms: translated.requiredTerms,
+        untranslatable: null,
+      };
+    }
+
+    // Le fonti cinesi ricevono il testo originale: lo capiscono, e tradurlo
+    // perderebbe codici, modelli e misure. I termini inglesi servono comunque
+    // a verificare i titoli, che alcune di queste fonti pubblicano tradotti.
     const verbatim = original.slice(0, 200);
     return {
       original,
       providerQuery: verbatim,
       changed: verbatim !== original,
+      requiredTerms: translated.requiredTerms,
+      untranslatable: null,
     };
   }
 
@@ -106,5 +158,9 @@ export function planSearchQuery(
     original,
     providerQuery: planned,
     changed: planned.toLocaleLowerCase() !== original.toLocaleLowerCase(),
+    // Una richiesta già in inglese si confronta parola per parola: non serve
+    // un elenco di termini obbligatori separato.
+    requiredTerms: [],
+    untranslatable: null,
   };
 }

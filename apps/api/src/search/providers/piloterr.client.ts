@@ -81,6 +81,13 @@ interface CacheEntry {
   body: unknown;
 }
 
+/** Quanti risultati ha restituito la risposta, quando è una ricerca. */
+function countResults(body: unknown): number | null {
+  if (typeof body !== "object" || body === null) return null;
+  const results = (body as { results?: unknown }).results;
+  return Array.isArray(results) ? results.length : null;
+}
+
 function numericEnv(name: string, fallback: number): number {
   const parsed = Number(process.env[name]);
   return Number.isFinite(parsed) && parsed >= 0 ? parsed : fallback;
@@ -203,6 +210,7 @@ export class PiloterrClient {
     ).replace(/\/+$/, "");
     const url = `${baseUrl}${path}${query ? `?${query}` : ""}`;
     const timeoutMs = this.options.timeoutMs ?? numericEnv("PILOTERR_TIMEOUT_MS", 30_000);
+    const startedAt = Date.now();
     const controller = new AbortController();
     const timer = setTimeout(() => controller.abort(), timeoutMs);
     const doFetch: PiloterrFetch =
@@ -235,7 +243,20 @@ export class PiloterrClient {
     }
 
     const raw = await response.text().catch(() => "");
+    // Diagnostica: endpoint, query e stato bastano a capire cosa è successo.
+    // La chiave non compare perché non è fra i parametri (viaggia nell'header)
+    // e il corpo passa comunque da redactKey.
     if (!response.ok) {
+      console.warn(
+        JSON.stringify({
+          event: "piloterr_error",
+          endpoint: path,
+          query: params.query ?? null,
+          status: response.status,
+          durationMs: Date.now() - startedAt,
+          message: this.redactKey(raw).slice(0, 300),
+        })
+      );
       throw this.toTypedError(response.status, raw);
     }
 
@@ -256,6 +277,18 @@ export class PiloterrClient {
         "Piloterr ha risposto con un corpo non JSON."
       );
     }
+
+    console.info(
+      JSON.stringify({
+        event: "piloterr_call",
+        endpoint: path,
+        query: params.query ?? null,
+        status: response.status,
+        durationMs: Date.now() - startedAt,
+        credits: cost,
+        results: countResults(body),
+      })
+    );
 
     const cacheTtl = this.options.cacheTtlMs ?? numericEnv("PILOTERR_CACHE_TTL_MS", 60 * 60_000);
     if (cacheTtl > 0) {

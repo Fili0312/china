@@ -190,7 +190,12 @@ export class PiloterrSearchProvider implements ProductSearchProvider {
       frameSize: params.frameSize,
       sort: params.sort,
       totalCount: items.totalCount,
-      items: items.products.slice(0, Math.max(params.frameSize, 1)),
+      // Si restituisce **tutta** la pagina, non `frameSize` risultati: quei
+      // prodotti sono già stati pagati con la stessa chiamata, e scartarli
+      // qui significherebbe filtrare e ordinare su un campione ristretto —
+      // con un filtro severo sul tipo di prodotto è la differenza fra
+      // «nessun risultato» e la risposta giusta.
+      items: items.products,
     };
   }
 
@@ -201,7 +206,11 @@ export class PiloterrSearchProvider implements ProductSearchProvider {
     const raw = await this.client.get<unknown>("/v2/alibaba/search", {
       query,
       page,
-      subdomain: this.options.subdomain ?? process.env.PILOTERR_ALIBABA_SUBDOMAIN,
+      // `www` è il catalogo internazionale: senza questo parametro Piloterr
+      // sceglie da sé un locale, e i risultati cambiano fra una chiamata e
+      // l'altra.
+      subdomain:
+        this.options.subdomain ?? process.env.PILOTERR_ALIBABA_SUBDOMAIN ?? "www",
     });
 
     assertSearchShape(raw, "Alibaba");
@@ -388,9 +397,11 @@ export async function fetchAlibabaProduct(
   reference: string,
   client: PiloterrClient = piloterrClient
 ): Promise<PiloterrProductDetails> {
+  // Questo endpoint accetta **solo** un ID prodotto o un URL di scheda: non è
+  // un motore di ricerca. Passargli una frase produce un errore della fonte.
   const raw = await client.get<unknown>("/v2/alibaba/product", {
     query: reference,
-    subdomain: process.env.PILOTERR_ALIBABA_SUBDOMAIN,
+    subdomain: process.env.PILOTERR_ALIBABA_SUBDOMAIN ?? "www",
   });
 
   const parsed = AlibabaProductSchema.safeParse(raw);

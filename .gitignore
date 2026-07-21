@@ -3,6 +3,7 @@ dist/
 .next/
 .turbo/
 .env
+.env.local
 *.tsbuildinfo
 
 # Fogli di richiesta caricati dagli utenti: dati cliente, non codice sorgente.

@@ -2,7 +2,9 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import type { ImportJobResults, ScoutingSelection } from "@china/shared";
 import * as XLSX from "xlsx";
-import { buildExportWorkbook, exportFileName } from "./export-workbook";
+import { buildExportWorkbook, exportFileName,
+  contentDisposition,
+} from "./export-workbook";
 
 function selection(
   overrides: Partial<ScoutingSelection> = {}
@@ -172,4 +174,34 @@ test("il riepilogo riporta l'esito per marketplace", () => {
 
 test("il nome del file scaricato deriva da quello caricato", () => {
   assert.match(exportFileName("副本博工询价.xls"), /^副本博工询价-scouting-\d{4}-\d{2}-\d{2}\.xlsx$/);
+});
+
+/* -------------------------------------------------------------------------- */
+/* Nome del file scaricato                                                     */
+/* -------------------------------------------------------------------------- */
+
+test("un nome file cinese non rompe l'intestazione HTTP", () => {
+  // Un header accetta solo ASCII: prima questo caso restituiva 500, cioè
+  // l'export non funzionava proprio sui fogli per cui esiste la piattaforma.
+  const disposition = contentDisposition("副本博工询价-scouting-2026-07-21.xlsx");
+
+  assert.match(disposition, /^attachment; /);
+  // Nessun carattere fuori dall'ASCII stampabile può finire nell'header.
+  assert.ok(!/[^\x20-\x7e]/.test(disposition));
+  assert.match(disposition, /filename\*=UTF-8''/);
+  // Il nome vero resta recuperabile dal browser.
+  assert.match(disposition, new RegExp(encodeURIComponent("副本博工询价")));
+});
+
+test("un nome file latino resta leggibile", () => {
+  const disposition = contentDisposition("richieste-scouting-2026-07-21.xlsx");
+
+  assert.match(disposition, /filename="richieste-scouting-2026-07-21\.xlsx"/);
+});
+
+test("virgolette e barre non possono uscire dal nome fra apici", () => {
+  const disposition = contentDisposition('cattivo"nome\\.xlsx');
+
+  assert.ok(!/filename="[^"]*"[^;]/.test(disposition));
+  assert.match(disposition, /filename="cattivo_nome_\.xlsx"/);
 });

@@ -194,3 +194,25 @@ export function exportFileName(originalName: string): string {
   const stamp = new Date().toISOString().slice(0, 10);
   return `${base}-scouting-${stamp}.xlsx`;
 }
+
+/**
+ * Intestazione `Content-Disposition` con un nome file di qualsiasi lingua.
+ *
+ * Un header HTTP accetta solo ASCII: mettere `副本博工询价-scouting.xlsx` nel
+ * `filename=` fa fallire la risposta con `ERR_INVALID_CHAR`, ed è il motivo
+ * per cui l'export di un foglio cinese restituiva 500 — cioè non ha mai
+ * funzionato proprio sui file per cui esiste questa piattaforma.
+ *
+ * Si mandano quindi due nomi, come previsto dalla RFC 6266: `filename=` con
+ * una versione ASCII di ripiego, e `filename*=` con quello vero codificato in
+ * UTF-8. I browser usano il secondo; chi non lo capisce ha comunque un nome
+ * valido invece di un errore.
+ */
+export function contentDisposition(fileName: string): string {
+  const asciiFallback =
+    fileName.replace(/[^\x20-\x7e]/g, "_").replace(/["\\]/g, "_") || "scouting.xlsx";
+  return (
+    `attachment; filename="${asciiFallback}"; ` +
+    `filename*=UTF-8''${encodeURIComponent(fileName)}`
+  );
+}

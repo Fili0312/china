@@ -15,6 +15,7 @@ import {
 } from "@china/shared";
 import {
   buildExportWorkbook,
+  contentDisposition,
   exportFileName,
 } from "./export-workbook";
 import { CandidateRefreshService } from "./candidate-refresh.service";
@@ -91,7 +92,7 @@ export class ImportJobController {
     const results = await this.jobs.results(jobId, { limit: 5000, offset: 0 });
     const workbook = buildExportWorkbook(results);
     return new StreamableFile(workbook, {
-      disposition: `attachment; filename="${exportFileName(results.job.fileName)}"`,
+      disposition: contentDisposition(exportFileName(results.job.fileName)),
     });
   }
 

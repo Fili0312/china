@@ -62,6 +62,18 @@ const ENGINE_LABELS: Record<SearchEngine, string> = {
  */
 const DEFAULT_ENGINES: SearchEngine[] = ["chinagoods", "alibaba", "aliexpress"];
 
+/** Riga dell'elenco dei lavori già fatti. */
+interface JobSummaryRow {
+  jobId: string;
+  fileName: string;
+  status: string;
+  totalRows: number;
+  processedRows: number;
+  reusedRows: number;
+  failedRows: number;
+  createdAt: string;
+}
+
 /** Resa storica di una fonte, misurata sui job già fatti. */
 interface EngineStat {
   engine: string;
@@ -160,6 +172,7 @@ export function ScoutingJob() {
   const [analysisStatus, setAnalysisStatus] = useState<AnalysisStatus | null>(null);
   const [ignoreAnalysisCache, setIgnoreAnalysisCache] = useState(false);
   const [engineStats, setEngineStats] = useState<EngineStat[]>([]);
+  const [recentJobs, setRecentJobs] = useState<JobSummaryRow[]>([]);
 
   const [jobId, setJobId] = useState<string | null>(null);
   const [restoring, setRestoring] = useState(true);
@@ -178,6 +191,9 @@ export function ScoutingJob() {
     void api<EngineStat[]>("/scouting/engines/stats")
       .then(setEngineStats)
       .catch(() => setEngineStats([]));
+    void api<JobSummaryRow[]>("/scouting/jobs")
+      .then(setRecentJobs)
+      .catch(() => setRecentJobs([]));
   }, []);
 
   /**
@@ -441,6 +457,72 @@ export function ScoutingJob() {
             ricomincia da capo
           </button>
         </div>
+      ) : null}
+
+      {!restoring && !jobId && recentJobs.length > 0 ? (
+        <section className="panel scouting-step">
+          <h2>Scansioni precedenti</h2>
+          <p className="scouting-hint">
+            Il lavoro non si perde: ogni scansione resta salvata con i prodotti
+            che ha trovato. Riaprine una per rivedere i risultati o scaricare
+            l&apos;Excel.
+          </p>
+          <div className="scouting-table-wrap">
+            <table className="scouting-table">
+              <thead>
+                <tr>
+                  <th>Quando</th>
+                  <th>File</th>
+                  <th>Stato</th>
+                  <th>Righe</th>
+                  <th />
+                </tr>
+              </thead>
+              <tbody>
+                {recentJobs.slice(0, 8).map((job) => (
+                  <tr key={job.jobId}>
+                    <td className="muted">
+                      {new Date(job.createdAt).toLocaleString("it-IT", {
+                        day: "2-digit",
+                        month: "2-digit",
+                        hour: "2-digit",
+                        minute: "2-digit",
+                      })}
+                    </td>
+                    <td>{job.fileName}</td>
+                    <td>
+                      <span className={`badge ${statusTone(job.status)}`}>
+                        {job.status}
+                      </span>
+                    </td>
+                    <td className="muted">
+                      {job.processedRows}/{job.totalRows}
+                      {job.failedRows > 0 ? ` · ${job.failedRows} fallite` : ""}
+                    </td>
+                    <td>
+                      <button
+                        type="button"
+                        className="chip"
+                        onClick={() => {
+                          setJobId(job.jobId);
+                          setResults(null);
+                        }}
+                      >
+                        riapri
+                      </button>
+                      <a
+                        className="chip scouting-download"
+                        href={`${API_URL}/api/scouting/jobs/${job.jobId}/export`}
+                      >
+                        Excel
+                      </a>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </section>
       ) : null}
 
       <section className="panel scouting-step">

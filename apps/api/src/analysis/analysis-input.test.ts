@@ -124,3 +124,42 @@ test("i dati amministrativi del foglio non hanno un campo in cui entrare", () =>
     assert.doesNotMatch(text, new RegExp(forbidden));
   }
 });
+
+/* -------------------------------------------------------------------------- */
+/* Righe gemelle                                                               */
+/* -------------------------------------------------------------------------- */
+
+test("due righe identiche in fogli diversi hanno la stessa impronta", () => {
+  // È il caso che dimezza il costo sui fogli reali: un foglio di riepilogo che
+  // ripete i reparti. Se le impronte non coincidessero, ogni riga verrebbe
+  // pagata due volte.
+  const reparto = analysisInputHash(
+    renderRowForAnalysis(row({ rowIndex: 12, name: "陶瓷针规", spec: "10mm" }))
+  );
+  const riepilogo = analysisInputHash(
+    renderRowForAnalysis(row({ rowIndex: 340, name: "陶瓷针规", spec: "10mm" }))
+  );
+
+  assert.equal(reparto, riepilogo);
+});
+
+test("righe che differiscono solo per la quantità NON sono gemelle", () => {
+  // La quantità viaggia nel testo inviato: due richieste dello stesso prodotto
+  // con quantità diverse restano due analisi. È corretto — `requestedQuantity`
+  // fa parte del risultato — ed è il prezzo da pagare per non sbagliarla.
+  const dieci = analysisInputHash(renderRowForAnalysis(row({ quantity: "10" })));
+  const cento = analysisInputHash(renderRowForAnalysis(row({ quantity: "100" })));
+
+  assert.notEqual(dieci, cento);
+});
+
+test("l'utilizzo diverso separa due righe altrimenti uguali", () => {
+  const ufficio = analysisInputHash(
+    renderRowForAnalysis(row({ usage: "办公室平板灯更换" }))
+  );
+  const bagno = analysisInputHash(
+    renderRowForAnalysis(row({ usage: "卫生间平板灯更换" }))
+  );
+
+  assert.notEqual(ufficio, bagno);
+});

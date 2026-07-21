@@ -172,7 +172,7 @@ export class ProductAnalysisError extends Error {
  */
 export async function analyzeProductRows(
   rows: readonly AnalysisInputRow[],
-  options: { timeoutMs?: number } = {}
+  options: { timeoutMs?: number; effort?: "low" | "medium" | "high" } = {}
 ): Promise<AnalysisCallResult> {
   if (rows.length === 0) {
     return {
@@ -208,7 +208,12 @@ export async function analyzeProductRows(
               `nell'attributo della riga.\n\n${payload}`,
           },
         ],
-        output_config: { format: zodOutputFormat(ProductAnalysisBatchSchema) },
+        output_config: {
+          format: zodOutputFormat(ProductAnalysisBatchSchema),
+          // L'estrazione strutturata non ha bisogno di ragionamento profondo:
+          // è il ragionamento a costare, non lo schema.
+          effort: options.effort ?? "low",
+        },
       },
       { timeout: options.timeoutMs ?? 120_000 }
     );

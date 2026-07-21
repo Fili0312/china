@@ -36,8 +36,15 @@ import { ProductAnalysisSchema, type ProductAnalysis } from "@china/shared";
  * insieme ai risultati, e vengono salvati sulla sessione di analisi.
  */
 
-/** Righe per chiamata: piccolo abbastanza da non troncare la risposta. */
-const DEFAULT_BATCH_SIZE = 5;
+/**
+ * Righe per chiamata.
+ *
+ * Il prompt di sistema pesa ~2000 token e viene ripagato a ogni chiamata: con
+ * lotti da 5 erano 400 token di sola intestazione per riga. A 10 si dimezzano,
+ * e la risposta resta ampiamente sotto il tetto di `max_tokens`. Più su non
+ * conviene: una risposta troncata costa comunque e va rifatta.
+ */
+const DEFAULT_BATCH_SIZE = 10;
 /** Chiamate contemporanee: basso di proposito, per non saturare i limiti. */
 const DEFAULT_CONCURRENCY = 2;
 const DEFAULT_TIMEOUT_MS = 120_000;
@@ -45,6 +52,20 @@ const DEFAULT_TIMEOUT_MS = 120_000;
 function numericEnv(name: string, fallback: number): number {
   const parsed = Number(process.env[name]);
   return Number.isFinite(parsed) && parsed > 0 ? parsed : fallback;
+}
+
+/**
+ * Profondità di ragionamento chiesta al modello.
+ *
+ * `low` di default: questo è un compito di estrazione strutturata, non di
+ * ragionamento: su dieci righe reali `low` ha prodotto le stesse famiglie, le
+ * stesse varianti e gli stessi avvertimenti di `high`, con le confidenze entro
+ * 0,05 — a un terzo dei token di ragionamento. Alzarlo resta possibile
+ * (`ANALYSIS_EFFORT=high`) se un foglio particolarmente ostico lo richiede.
+ */
+function analysisEffort(): "low" | "medium" | "high" {
+  const raw = (process.env.ANALYSIS_EFFORT ?? "low").toLowerCase();
+  return raw === "high" || raw === "medium" ? raw : "low";
 }
 
 function toJson(value: unknown): Prisma.InputJsonValue {
@@ -165,7 +186,32 @@ export class ClaudeProductAnalysisService {
       }
     }
 
-    if (pending.length > 0 && !this.isConfigured) {
+    // Righe identiche nello stesso file: si analizza **una volta sola** e il
+    // risultato vale per tutte. Nei fogli reali è la metà del lavoro — un
+    // foglio di riepilogo che ripete i reparti — e senza questo passo si
+    // pagherebbe due volte la stessa identica domanda. La cache a database non
+    // basta: dentro una singola esecuzione le righe partono insieme e nessuna
+    // ha ancora scritto il proprio risultato.
+    const duplicatesByHash = new Map<string, number[]>();
+    const unique: AnalysisInputRow[] = [];
+    for (const row of pending) {
+      const hash = analysisInputHash(textByRow.get(row.rowIndex)!);
+      const seen = duplicatesByHash.get(hash);
+      if (seen) {
+        seen.push(row.rowIndex);
+        continue;
+      }
+      duplicatesByHash.set(hash, []);
+      unique.push(row);
+    }
+    const duplicateRows = pending.length - unique.length;
+    if (duplicateRows > 0) {
+      this.logger.log(
+        `${duplicateRows} righe ripetute nel file: analizzate una volta sola`
+      );
+    }
+
+    if (unique.length > 0 && !this.isConfigured) {
       // Meglio fermarsi qui che marcare tutte le righe come «analisi fallita»:
       // il problema è di configurazione, non delle righe.
       throw new ProductAnalysisError(
@@ -182,8 +228,8 @@ export class ClaudeProductAnalysisService {
     );
 
     const batches: AnalysisInputRow[][] = [];
-    for (let index = 0; index < pending.length; index += batchSize) {
-      batches.push(pending.slice(index, index + batchSize));
+    for (let index = 0; index < unique.length; index += batchSize) {
+      batches.push(unique.slice(index, index + batchSize));
     }
 
     const missed: AnalysisInputRow[] = [];
@@ -247,7 +293,35 @@ export class ClaudeProductAnalysisService {
       });
     }
 
-    // 4. I fallimenti vengono salvati anch'essi: l'errore è un dato, e senza
+    // 4. Le righe gemelle ricevono l'esito della loro capofila — successo o
+    //    fallimento che sia. Si copia anche `submittedText`, che è identico
+    //    per costruzione: è la ragione stessa per cui sono gemelle.
+    for (const [hash, gemelle] of duplicatesByHash) {
+      if (gemelle.length === 0) continue;
+      const capofila = [...outcomes.values()].find(
+        (outcome) => analysisInputHash(outcome.submittedText) === hash
+      );
+      const errore = capofila
+        ? null
+        : (failures.get(gemelle[0]!) ?? "Riga non analizzata.");
+      for (const rowIndex of gemelle) {
+        outcomes.set(
+          rowIndex,
+          capofila
+            ? { ...capofila, rowIndex }
+            : {
+                rowIndex,
+                analysisId: "",
+                analysis: null,
+                error: errore,
+                fromCache: false,
+                submittedText: textByRow.get(rowIndex) ?? "",
+              }
+        );
+      }
+    }
+
+    // 5. I fallimenti vengono salvati anch'essi: l'errore è un dato, e senza
     //    salvarlo l'interfaccia non potrebbe spiegare perché la riga è ferma.
     for (const [rowIndex, error] of failures) {
       const submittedText = textByRow.get(rowIndex)!;
@@ -297,7 +371,10 @@ export class ClaudeProductAnalysisService {
   }> {
     const timeoutMs = numericEnv("ANALYSIS_TIMEOUT_MS", DEFAULT_TIMEOUT_MS);
     try {
-      const result = await analyzeProductRows(batch, { timeoutMs });
+      const result = await analyzeProductRows(batch, {
+        timeoutMs,
+        effort: analysisEffort(),
+      });
       usage.apiCalls += 1;
       usage.inputTokens += result.inputTokens;
       usage.outputTokens += result.outputTokens;

@@ -260,7 +260,31 @@ lo stato nel database. **Le righe con confidenza sotto la soglia o con warning
 critici non partono automaticamente**: vanno confermate. Il job ammette
 esattamente ciò che la revisione mostra come pronto.
 
-### 6. Memoria del sistema
+### 6. Quanto costa, e perche costa poco
+
+Sul file reale da 498 righe l'analisi completa costa **circa $2,70** — era
+$7,90 prima delle ottimizzazioni. Le tre leve, in ordine di peso:
+
+- **Righe gemelle analizzate una volta sola.** Nei fogli reali meta delle
+  righe sono ripetute (un foglio di riepilogo che ricopia i reparti): 496
+  righe, 248 richieste uniche. La cache a database non bastava, perche dentro
+  una singola esecuzione le righe partono insieme e nessuna ha ancora scritto
+  il proprio risultato.
+- **Lotti da 10 invece che da 5.** Il prompt di sistema pesa ~2000 token e si
+  paga a ogni chiamata: erano 400 token di sola intestazione per riga.
+- **`effort: low`.** Su dieci righe reali ha prodotto le stesse famiglie, le
+  stesse varianti e gli stessi avvertimenti di `high`, con le confidenze entro
+  0,05 e un terzo dei token di ragionamento. L'estrazione strutturata non e un
+  compito di ragionamento.
+
+Il prompt di sistema (2035 token) resta **sotto la soglia di 4096** oltre la
+quale Opus 4.8 accetta la cache dei prompt: attivarla non avrebbe alcun
+effetto, e va saputo prima di provarci.
+
+Rianalizzare un file gia analizzato costa **zero**: le analisi sono in cache
+per (riga, versione prompt, modello).
+
+### 7. Memoria del sistema
 
 Sta a database, non nella conversazione. `RequestAnalysis` conserva il risultato
 strutturato, la versione del prompt, il modello, le chiavi, le query generate e
@@ -270,7 +294,7 @@ Prima di chiamare l'API si cerca la stessa riga normalizzata analizzata con la
 stessa versione del prompt e lo stesso modello: se c'è, **la chiamata non si
 fa**. Cambiare `ANALYSIS_PROMPT_VERSION` invalida la cache invece di sporcarla.
 
-### 7. Affidabilità
+### 8. Affidabilità
 
 Output solo JSON validato Zod; al massimo **un** nuovo tentativo per riga (il
 secondo giro è riga per riga, così un lotto troppo grande non blocca nessuno);

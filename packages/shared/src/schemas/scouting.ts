@@ -29,6 +29,15 @@ export type DatasetFormat = z.infer<typeof DatasetFormatSchema>;
 export const DATASET_FIELDS = [
   "name",
   "spec",
+  /**
+   * Titolo prodotto già indicato nel foglio.
+   *
+   * Nei fogli reali è la colonna in cui qualcuno ha già incollato il titolo di
+   * un prodotto trovato su un marketplace. Non è il nome della richiesta — è
+   * un indizio su cosa si stesse cercando — e per questo ha un campo suo
+   * invece di finire dentro `spec`.
+   */
+  "title",
   "category",
   "brand",
   "model",
@@ -293,6 +302,15 @@ export type ScoutingEngineStatus = z.infer<typeof ScoutingEngineStatusSchema>;
 /** POST /api/scouting/datasets/:id/jobs — avvio dell'elaborazione. */
 export const StartImportJobRequestSchema = z.object({
   mapping: z.array(DatasetMappingSchema).min(1),
+  /**
+   * Sessione di analisi da cui prendere le richieste.
+   *
+   * Con questo campo il job parte dalle righe **riviste**: identità a tre
+   * livelli, query per lingua, correzioni manuali comprese. Senza, resta il
+   * percorso storico basato sull'impronta, che continua a funzionare come
+   * prima — è ciò che rende compatibili i job già salvati.
+   */
+  analysisRunId: z.string().optional(),
   /** Marketplace scelti dall'utente. */
   engines: z.array(SearchEngineSchema).min(1),
   quality: SearchQualitySchema.default("balanced"),

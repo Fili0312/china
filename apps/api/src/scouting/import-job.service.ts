@@ -5,10 +5,13 @@ import {
 } from "@nestjs/common";
 import { prisma, Prisma } from "@china/db";
 import type {
+  AnalysisRowState,
   ImportJobProgress,
   ImportJobResults,
   ImportJobSummary,
   NormalizedRequest,
+  ProductAnalysis,
+  ProductIdentity,
   ProductRequirement,
   RetryJobRequest,
   ScoutingEngineProgress,
@@ -17,8 +20,10 @@ import type {
   StartImportJobRequest,
   SearchQuality,
 } from "@china/shared";
+import { RequestAnalysisService } from "../analysis/request-analysis.service";
 import { CandidateRefreshService } from "./candidate-refresh.service";
 import { loadCandidates } from "./candidate-store";
+import { KnownProductService } from "./known-product.service";
 import { buildNormalizedRequest } from "./normalize-request";
 import { ScoutingRunnerService } from "./scouting-runner.service";
 import { ScoutingService } from "./scouting.service";
@@ -44,7 +49,9 @@ export class ImportJobService {
   constructor(
     private readonly scouting: ScoutingService,
     private readonly runner: ScoutingRunnerService,
-    private readonly refresh: CandidateRefreshService
+    private readonly refresh: CandidateRefreshService,
+    private readonly known: KnownProductService,
+    private readonly analysis: RequestAnalysisService
   ) {}
 
   /**
@@ -78,19 +85,55 @@ export class ImportJobService {
       }),
     }));
 
-    // Una sola ScoutingRequest per impronta: è qui che le righe duplicate —
+    // Con una sessione di analisi, l'identità di ogni riga arriva dalla
+    // revisione: variante, query per lingua e correzioni manuali comprese.
+    const analysisByRowNumber = await this.loadAnalysisRows(input.analysisRunId);
+
+    // Una sola ScoutingRequest per identità. Con l'analisi l'identità è la
+    // `variantKey`; senza, resta l'impronta. È qui che le righe duplicate —
     // nello stesso file o in file caricati mesi fa — si ricongiungono.
-    const requestIdByFingerprint = new Map<string, string>();
+    const requestIdByKey = new Map<string, string>();
     for (const { request } of normalized) {
       if (request.issues.length > 0) continue;
-      if (requestIdByFingerprint.has(request.fingerprint)) continue;
+      const analysisRow = analysisByRowNumber.get(request.rowNumber);
+      const key = analysisRow?.variantKey ?? request.fingerprint;
+      if (requestIdByKey.has(key)) continue;
+
+      if (analysisRow?.analysis && analysisRow.identity) {
+        const id = await this.known.upsertVariantRequest(
+          analysisRow.analysis,
+          analysisRow.identity,
+          {
+            fingerprint: request.fingerprint,
+            normalizedNameKey: request.normalizedNameKey,
+            displayName: request.displayName,
+            normalizedName: request.normalizedName,
+            requirements: request.requirements,
+            dimensions: request.dimensions,
+            requiredVariant: request.requiredVariant,
+            certifications: request.certifications,
+            targetPrice: request.targetPrice,
+            notes: request.notes,
+            referenceUrl: request.referenceUrl,
+            searchQuery:
+              analysisRow.analysis.searchQueryChinese ||
+              analysisRow.analysis.searchQueryEnglish ||
+              request.searchQuery,
+            language: request.language,
+          }
+        );
+        requestIdByKey.set(key, id);
+        continue;
+      }
+
       const id = await this.scouting.upsertScoutingRequest(request);
-      requestIdByFingerprint.set(request.fingerprint, id);
+      requestIdByKey.set(key, id);
     }
 
     const job = await prisma.importJob.create({
       data: {
         datasetId,
+        analysisRunId: input.analysisRunId ?? null,
         status: "QUEUED",
         engines: input.engines,
         quality: input.quality,
@@ -113,19 +156,36 @@ export class ImportJobService {
       });
       if (!datasetRow) continue;
 
-      const usable = request.issues.length === 0;
+      const analysisRow = analysisByRowNumber.get(request.rowNumber);
+      // Con l'analisi attiva, una riga entra nel job solo se la revisione l'ha
+      // dichiarata pronta: le righe con warning critici o confidenza bassa
+      // restano ferme finché qualcuno non le guarda. È il punto della fase.
+      const blockedByReview =
+        input.analysisRunId != null &&
+        (!analysisRow || analysisRow.state === "ANALYSIS_FAILED" || analysisRow.state === "NEEDS_REVIEW");
+      const usable = request.issues.length === 0 && !blockedByReview;
+
+      const skipReason = blockedByReview
+        ? (analysisRow?.error ??
+          "Riga non confermata nella revisione dell'analisi IA.")
+        : request.issues.join(" ");
+
       const jobRow = await prisma.importJobRow.create({
         data: {
           jobId: job.id,
           datasetRowId: datasetRow.id,
+          analysisRowId: analysisRow?.analysisRowId ?? null,
           requestId: usable
-            ? (requestIdByFingerprint.get(request.fingerprint) ?? null)
+            ? (requestIdByKey.get(analysisRow?.variantKey ?? request.fingerprint) ?? null)
             : null,
           rowNumber: request.rowNumber,
           displayName: request.displayName,
-          searchQuery: request.searchQuery,
+          searchQuery:
+            analysisRow?.analysis?.searchQueryChinese ||
+            analysisRow?.analysis?.searchQueryEnglish ||
+            request.searchQuery,
           status: usable ? "PENDING" : "SKIPPED",
-          error: usable ? null : request.issues.join(" "),
+          error: usable ? null : skipReason,
           finishedAt: usable ? null : new Date(),
         },
         select: { id: true },
@@ -143,6 +203,50 @@ export class ImportJobService {
 
     this.runner.start(job.id);
     return this.toSummary(job.id);
+  }
+
+  /**
+   * Righe di una sessione di analisi, indicizzate per numero di riga.
+   *
+   * Passa da `RequestAnalysisService.getRun()` invece di leggere le righe a
+   * database, e non è un dettaglio: lo stato di una riga **si ricalcola** —
+   * dipende dalle correzioni manuali e da cosa il database sa in questo
+   * momento della variante. Leggere la colonna salvata darebbe la fotografia
+   * scattata al momento dell'analisi, e una riga confermata a mano subito dopo
+   * verrebbe saltata pur mostrandosi «pronta» in interfaccia.
+   *
+   * La regola che ne segue è quella che conta per chi usa il sistema: parte
+   * esattamente ciò che la revisione mostra come pronto.
+   *
+   * Torna vuota quando il job non nasce da un'analisi: è ciò che tiene in vita
+   * il percorso storico senza un ramo `if` in ogni punto del metodo.
+   */
+  private async loadAnalysisRows(analysisRunId: string | undefined) {
+    const result = new Map<
+      number,
+      {
+        analysisRowId: string;
+        state: AnalysisRowState;
+        variantKey: string | null;
+        error: string | null;
+        analysis: ProductAnalysis | null;
+        identity: ProductIdentity | null;
+      }
+    >();
+    if (!analysisRunId) return result;
+
+    const run = await this.analysis.getRun(analysisRunId);
+    for (const row of run.rows) {
+      result.set(row.rowNumber, {
+        analysisRowId: row.analysisRowId,
+        state: row.state,
+        variantKey: row.identity?.variantKey ?? null,
+        error: row.error,
+        analysis: row.analysis,
+        identity: row.identity,
+      });
+    }
+    return result;
   }
 
   async listJobs(limit = 30): Promise<ImportJobSummary[]> {

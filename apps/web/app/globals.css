@@ -1140,6 +1140,39 @@ select {
   margin: 8px 0 0;
 }
 
+/* Revisione dell'analisi IA: il pannello di correzione di una riga. */
+.scouting-analysis-editor {
+  padding: 12px;
+  border-radius: 10px;
+  background: rgba(0, 0, 0, 0.03);
+  margin: 4px 0;
+}
+
+.scouting-analysis-editor label {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 12px;
+  min-width: 180px;
+}
+
+.scouting-analysis-editor input {
+  min-width: 180px;
+}
+
+/* Il testo mandato al modello: si legge, non si modifica. */
+.scouting-submitted {
+  margin: 4px 0 0;
+  padding: 8px;
+  border-radius: 8px;
+  background: rgba(0, 0, 0, 0.05);
+  font-size: 11px;
+  white-space: pre-wrap;
+  word-break: break-word;
+  max-height: 160px;
+  overflow: auto;
+}
+
 .scouting-bar {
   height: 8px;
   border-radius: 999px;

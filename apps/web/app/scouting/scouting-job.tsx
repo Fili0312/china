@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   DATASET_FIELDS,
   SEARCH_ENGINES,
+  type AnalysisRun,
   type DatasetField,
   type DatasetMapping,
   type DatasetPreview,
@@ -13,6 +14,7 @@ import {
   type SearchQuality,
 } from "@china/shared";
 import { API_URL, api } from "../../lib/api";
+import { AnalysisReview } from "./analysis-review";
 
 /**
  * Scouting da file: caricamento, mappatura delle colonne, scelta dei
@@ -27,6 +29,7 @@ import { API_URL, api } from "../../lib/api";
 const FIELD_LABELS: Record<DatasetField, string> = {
   name: "Nome prodotto",
   spec: "Specifiche",
+  title: "Titolo già indicato",
   category: "Categoria",
   brand: "Marca",
   model: "Modello / codice",
@@ -53,6 +56,14 @@ const ENGINE_LABELS: Record<SearchEngine, string> = {
 /** Fonti proposte di default: le due che rispondono bene a query cinesi. */
 const DEFAULT_ENGINES: SearchEngine[] = ["chinagoods", "yiwugo"];
 
+/** Stato del servizio di analisi, senza mai esporre la chiave. */
+interface AnalysisStatus {
+  configured: boolean;
+  model: string;
+  promptVersion: string;
+  minConfidence: number;
+}
+
 const RUNNING_STATUSES = new Set(["QUEUED", "RUNNING"]);
 
 function statusTone(status: string): string {
@@ -77,12 +88,24 @@ export function ScoutingJob() {
   const [forceFullSearch, setForceFullSearch] = useState(false);
   const [maxRows, setMaxRows] = useState<string>("");
 
+  const [analysis, setAnalysis] = useState<AnalysisRun | null>(null);
+  const [analysisStatus, setAnalysisStatus] = useState<AnalysisStatus | null>(null);
+  const [ignoreAnalysisCache, setIgnoreAnalysisCache] = useState(false);
+
   const [jobId, setJobId] = useState<string | null>(null);
   const [progress, setProgress] = useState<ImportJobProgress | null>(null);
   const [results, setResults] = useState<ImportJobResults | null>(null);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const fileInput = useRef<HTMLInputElement>(null);
+
+  // Lo stato del servizio di analisi si legge una volta sola: serve a dire
+  // «manca la chiave» prima che l'utente carichi un file, non dopo.
+  useEffect(() => {
+    void api<AnalysisStatus>("/scouting/analysis/status")
+      .then(setAnalysisStatus)
+      .catch(() => setAnalysisStatus(null));
+  }, []);
 
   const mappingList = useMemo<DatasetMapping[]>(
     () =>
@@ -118,6 +141,7 @@ export function ScoutingJob() {
         throw new Error(payload.message || "Caricamento non riuscito.");
       }
       setDataset(payload);
+      setAnalysis(null);
       setMapping(
         new Map(
           payload.columns.map((column) => [
@@ -125,6 +149,29 @@ export function ScoutingJob() {
             column.suggestedField ?? "ignore",
           ])
         )
+      );
+    } catch (cause) {
+      setError(cause instanceof Error ? cause.message : String(cause));
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  /** Manda le righe all'analisi IA e apre la fase di revisione. */
+  async function runAnalysis() {
+    if (!dataset) return;
+    setBusy(true);
+    setError(null);
+    try {
+      setAnalysis(
+        await api<AnalysisRun>(`/scouting/datasets/${dataset.datasetId}/analysis`, {
+          method: "POST",
+          body: JSON.stringify({
+            mapping: mappingList,
+            ignoreCache: ignoreAnalysisCache,
+            ...(maxRows ? { maxRows: Number(maxRows) } : {}),
+          }),
+        })
       );
     } catch (cause) {
       setError(cause instanceof Error ? cause.message : String(cause));
@@ -148,6 +195,9 @@ export function ScoutingJob() {
             quality,
             candidatesPerEngine,
             forceFullSearch,
+            // Con una sessione di analisi il job parte dalle righe riviste;
+            // senza, resta il percorso diretto basato sull'impronta.
+            ...(analysis ? { analysisRunId: analysis.runId } : {}),
             ...(maxRows ? { maxRows: Number(maxRows) } : {}),
           }),
         }
@@ -316,12 +366,46 @@ export function ScoutingJob() {
               Serve almeno una colonna associata a «Nome prodotto».
             </p>
           ) : null}
+
+          <div className="scouting-row scouting-options">
+            <label className="scouting-check">
+              <input
+                type="checkbox"
+                checked={ignoreAnalysisCache}
+                onChange={(event) => setIgnoreAnalysisCache(event.target.checked)}
+              />
+              Rianalizza anche le righe già in cache
+            </label>
+            <button
+              type="button"
+              disabled={busy || !hasName || analysisStatus?.configured === false}
+              onClick={() => void runAnalysis()}
+            >
+              {busy ? "Analisi in corso…" : "Analizza le richieste con l'IA"}
+            </button>
+          </div>
+          {analysisStatus?.configured === false ? (
+            <p className="scouting-warning">
+              CLAUDE_API_KEY non è configurata sul server: l&apos;analisi delle
+              richieste non è disponibile. Puoi comunque avviare lo scouting
+              diretto qui sotto.
+            </p>
+          ) : null}
         </section>
+      ) : null}
+
+      {analysis ? (
+        <AnalysisReview
+          run={analysis}
+          busy={busy}
+          onRunChange={setAnalysis}
+          onError={setError}
+        />
       ) : null}
 
       {dataset ? (
         <section className="panel scouting-step">
-          <h2>3. Marketplace</h2>
+          <h2>4. Marketplace</h2>
           <div className="scouting-engines">
             {SEARCH_ENGINES.map((engine) => (
               <label key={engine} className="scouting-engine">
@@ -397,7 +481,7 @@ export function ScoutingJob() {
 
       {job ? (
         <section className="panel scouting-step">
-          <h2>4. Avanzamento</h2>
+          <h2>5. Avanzamento</h2>
           <div className="scouting-row scouting-job-head">
             <span className={`badge ${statusTone(job.status)}`}>
               {job.status}
@@ -528,7 +612,7 @@ export function ScoutingJob() {
 
       {results ? (
         <section className="panel scouting-step">
-          <h2>5. Prodotti trovati</h2>
+          <h2>6. Prodotti trovati</h2>
           {results.rows.map((row) => (
             <div key={row.jobRowId} className="scouting-result-row">
               <h3>

@@ -80,6 +80,19 @@ const HEADER_SYNONYMS: Record<Exclude<DatasetField, "ignore">, string[]> = {
     "model",
     "type",
   ],
+  // Volutamente distinti da quelli di `name`: `品名`/`名称` restano il nome
+  // della richiesta, `标题` è il titolo di un prodotto già individuato.
+  title: [
+    "标题",
+    "商品标题",
+    "产品标题",
+    "参考商品",
+    "titolo",
+    "titolo prodotto",
+    "title",
+    "product title",
+    "listing",
+  ],
   category: [
     "类别",
     "分类",

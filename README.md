@@ -143,6 +143,142 @@ Il foglio in dotazione sta in `data/inquiries/` (override con
 `INQUIRY_DATA_DIR`); dall'interfaccia si può anche caricare un altro file.
 Limite di caricamento `INQUIRY_MAX_UPLOAD_BYTES` (default 25 MB).
 
+## Scouting da Excel con analisi IA (`/scouting`, 2026-07-21)
+
+Il flusso completo di `/scouting`:
+
+```
+caricamento Excel
+  → normalizzazione iniziale (colonne, righe intatte)
+  → analisi delle richieste con Claude
+  → revisione umana delle richieste interpretate
+  → controllo nel database (variante conosciuta? famiglia conosciuta?)
+  → aggiornamento dei prodotti noti  oppure  ricerca multi-marketplace
+  → salvataggio candidati e storico prezzi
+```
+
+Il percorso precedente (job avviato senza analisi) **continua a funzionare**: senza
+`analysisRunId` il job usa l'impronta come identità, esattamente come prima.
+
+### 1. Analisi con Claude
+
+Prima di qualunque ricerca ogni riga normalizzata viene mandata a Claude, che
+restituisce JSON validato con Zod (`ProductAnalysisSchema`):
+
+| campo | contenuto |
+| --- | --- |
+| `productFamily`, `familyKey` | famiglia leggibile e sua identità in kebab-case |
+| `variantKey` | etichetta leggibile della variante (`5 mm`, `60x60 bianco`) |
+| `productNameChinese`, `productNameEnglish` | nomi nelle due lingue |
+| `model`, `material`, `color` | **termini letterali** del foglio, mai tradotti |
+| `dimensions[]` | `{axis, label, value, unit}` — unità come scritta, `null` se assente |
+| `technicalSpecifications[]` | `{key, value, unit}` — tensione, potenza, peso, capacità… |
+| `includedAccessories[]`, `hardRequirements[]`, `softRequirements[]` | vincoli e preferenze |
+| `requestedQuantity`, `unit` | quantità richiesta (non entra nell'identità) |
+| `searchQueryChinese`, `searchQueryEnglish` | query per fonti cinesi e per fonti export |
+| `confidence`, `warnings[]` | da 0 a 1, e i dubbi con codice tipizzato |
+
+Claude **non inventa**: ciò che la riga non dice torna `null`. Una misura senza
+unità (`60*60`) resta senza unità, con un warning `AMBIGUOUS_UNIT` e confidenza
+più bassa. La riga originale resta sempre integra a database.
+
+Il servizio è isolato in `apps/api/src/analysis/claude-product-analysis.service.ts`
+e nessun controller o componente React parla con Claude. La chiave sta solo nel
+backend (`CLAUDE_API_KEY`, in alternativa `ANTHROPIC_API_KEY`) e non compare mai
+in una risposta API, in un log o a database.
+
+**Cosa viene inviato**: nome, specifiche, utilizzo, quantità, unità, titolo già
+indicato, link. Richiedente (`申请人`), reparto, centro di costo, firme e prezzi
+interni non hanno un campo in cui entrare, quindi non escono dal server.
+
+### 2. Identità a tre livelli
+
+L'impronta unica non bastava: non sapeva distinguere «variante nuova di un
+prodotto che conosciamo» da «prodotto mai visto». I livelli sono tre
+(`packages/shared/src/scouting/product-identity.ts`):
+
+- **`familyKey`** — stessa famiglia. È l'unico giudizio semantico (di Claude):
+  che `陶瓷针规` e `ceramic pin gauge` siano la stessa cosa non si deduce da una
+  regola sui caratteri. Normalizzato a slug leggibile.
+- **`variantKey`** — `famiglia:hash` della configurazione tecnica: modello,
+  materiale, colore, misure, specifiche obbligatorie (tensione, potenza,
+  capacità, peso…), accessori inclusi. **Decide il riuso.**
+- **`duplicateKey`** — `variantKey:hash` con in più i vincoli obbligatori. Due
+  righe con la stessa `duplicateKey` sono la stessa domanda scritta due volte.
+
+Le ultime due sono **deterministiche**: numeri convertiti in unità base, liste
+ordinate, testi normalizzati. Quantità richiesta, unità d'acquisto, reparto e
+richiedente non entrano in nessuna delle tre.
+
+```
+陶瓷针规 5.00mm  ==  陶瓷针规 5mm      stessa variante (5.00 → 5)
+陶瓷针规 5mm     !=  陶瓷针规 6mm      stessa famiglia, varianti diverse
+平板灯 60*60     !=  平板灯 30*30      varianti diverse anche senza unità
+砝码 M1镀铬400g  !=  砝码 M1镀铬600g   400 g → 0.4 kg, 600 g → 0.6 kg
+1.5 m            ==  1500 mm           unità base
+```
+
+### 3. Controllo nel database
+
+Cercata la `variantKey`, i casi sono tre:
+
+- **A — variante esatta conosciuta.** Non si ricerca subito. Si **riaprono i
+  link già noti** e si aggiornano prezzo, valuta, disponibilità, MOQ, variante,
+  venditore e data di controllo; poi si decide (sotto).
+- **B — famiglia conosciuta, variante nuova.** Le query già usate sulla
+  famiglia tornano come punto di partenza, ma la nuova variante viene verificata
+  per conto suo: il risultato della variante precedente non si riusa mai.
+- **C — prodotto nuovo.** Ricerca multi-marketplace completa, query cinese sulle
+  fonti cinesi (Taobao, Tmall, Chinagoods, Yiwugo) e query inglese sulle fonti
+  export (Alibaba, AliExpress, Made-in-China).
+
+### 4. Quando un prodotto noto non vale più
+
+Un vecchio link non è valido per sempre. Si rifà la ricerca completa quando:
+il link non risponde, il prodotto è stato rimosso, la variante richiesta non è
+più disponibile, il prodotto non rispetta più un vincolo obbligatorio
+(`HARD_CONSTRAINT`), il prezzo non è recuperabile, la verifica è troppo vecchia,
+il prezzo supera la soglia di variazione, il venditore non c'è più, o i prodotti
+ancora validi sono meno del minimo richiesto.
+
+Soglie configurabili: `SCOUTING_PRODUCT_CACHE_HOURS` (336),
+`SCOUTING_MAX_PRICE_CHANGE_PCT` (25), `SCOUTING_MIN_VALID_CANDIDATES` (2),
+`SCOUTING_FULL_SEARCH_ON_ERROR` (1). Ogni riga registra **perché** è stata
+riusata o rifatta (`ImportJobRow.reuseReason`).
+
+### 5. Revisione: «Analisi richieste con IA»
+
+Dopo il caricamento l'interfaccia mostra, per ogni riga: testo originale,
+famiglia, variante, nome cinese e inglese, modello, misure, specifiche
+obbligatorie, query nelle due lingue, confidenza, warning e stato nel database.
+
+Stati: *Nuovo prodotto*, *Variante nuova*, *Prodotto già conosciuto*,
+*Da verificare*, *Analisi IA fallita*, *Pronto per la ricerca*.
+
+Tutti i campi sono correggibili a mano; correggere ricalcola le chiavi e rilegge
+lo stato nel database. **Le righe con confidenza sotto la soglia o con warning
+critici non partono automaticamente**: vanno confermate. Il job ammette
+esattamente ciò che la revisione mostra come pronto.
+
+### 6. Memoria del sistema
+
+Sta a database, non nella conversazione. `RequestAnalysis` conserva il risultato
+strutturato, la versione del prompt, il modello, le chiavi, le query generate e
+il consumo; `AnalysisRunRow` conserva le correzioni manuali e lo stato.
+
+Prima di chiamare l'API si cerca la stessa riga normalizzata analizzata con la
+stessa versione del prompt e lo stesso modello: se c'è, **la chiamata non si
+fa**. Cambiare `ANALYSIS_PROMPT_VERSION` invalida la cache invece di sporcarla.
+
+### 7. Affidabilità
+
+Output solo JSON validato Zod; al massimo **un** nuovo tentativo per riga (il
+secondo giro è riga per riga, così un lotto troppo grande non blocca nessuno);
+errore salvato e stato *Analisi IA fallita*, senza fermare le altre righe.
+Concorrenza limitata, timeout, cache, conteggio di chiamate, token e costo
+stimato. Le righe viaggiano a lotti ma ogni risultato torna etichettato con il
+proprio indice: l'ordine dell'array non viene mai usato per l'associazione.
+
 ## Pipeline
 
 ```
@@ -251,6 +387,12 @@ In produzione: `AI_MOCK=0`, `ANTHROPIC_API_KEY` valorizzata; configura
 | `GET` | `/api/quotes` | ultime 50 richieste |
 | `GET` | `/api/quotes/:id` | dettaglio: articoli, candidati selezionati, preventivo |
 | `GET` | `/api/quotes/:id/events` | SSE: `request_status`, `item_status`, `log`, `quote_ready` |
+| `GET` | `/api/scouting/analysis/status` | chiave configurata (mai il valore), modello, versione prompt |
+| `POST` | `/api/scouting/datasets/:id/analysis` | analizza il file con Claude e apre la revisione |
+| `GET` | `/api/scouting/datasets/:id/analysis` | sessioni di analisi gia fatte sul file |
+| `GET` | `/api/scouting/analysis/:runId` | righe, identita, stato nel database, consumo |
+| `PATCH` | `/api/scouting/analysis/rows/:rowId` | correzione manuale di una riga (`approve` per confermarla) |
+| `POST` | `/api/scouting/datasets/:id/jobs` | avvia lo scouting (`analysisRunId` per partire dalla revisione) |
 
 ## Note e limiti noti
 

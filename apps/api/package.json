@@ -8,10 +8,11 @@
     "test:search": "tsx --test src/search/*.test.ts src/inquiry/*.test.ts",
     "dev": "tsx watch src/main.ts",
     "start": "node dist/main.js",
-    "test": "tsx --test src/search/*.test.ts src/inquiry/*.test.ts src/scouting/*.test.ts"
+    "test": "tsx --test src/search/*.test.ts src/inquiry/*.test.ts src/scouting/*.test.ts src/analysis/*.test.ts"
   },
   "dependencies": {
     "@china/adapters": "workspace:*",
+    "@china/ai": "workspace:*",
     "@china/db": "workspace:*",
     "@china/shared": "workspace:*",
     "@nestjs/common": "^11.1.28",

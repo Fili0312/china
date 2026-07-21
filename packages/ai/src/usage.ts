@@ -11,10 +11,22 @@ interface UsageLike {
 const PRICE_IN_PER_M = 5;
 const PRICE_OUT_PER_M = 25;
 
+/**
+ * Costo stimato in dollari di una chiamata, ai prezzi di listino.
+ *
+ * «Stimato» è letterale: i prezzi sono una costante di questo file, non un
+ * dato restituito dall'API. Serve a dare un ordine di grandezza in interfaccia
+ * — «questo file costa qualche centesimo» — non a fare fatturazione.
+ */
+export function estimateCostUsd(inputTokens: number, outputTokens: number): number {
+  return (
+    (inputTokens / 1_000_000) * PRICE_IN_PER_M +
+    (outputTokens / 1_000_000) * PRICE_OUT_PER_M
+  );
+}
+
 export function logUsage(step: string, usage: UsageLike): void {
-  const cost =
-    (usage.input_tokens / 1_000_000) * PRICE_IN_PER_M +
-    (usage.output_tokens / 1_000_000) * PRICE_OUT_PER_M;
+  const cost = estimateCostUsd(usage.input_tokens, usage.output_tokens);
   console.log(
     `[ai] ${step}: in=${usage.input_tokens} out=${usage.output_tokens} ` +
       `≈ $${cost.toFixed(4)}`

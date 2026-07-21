@@ -29,6 +29,9 @@ importers:
       '@china/adapters':
         specifier: workspace:*
         version: link:../../packages/adapters
+      '@china/ai':
+        specifier: workspace:*
+        version: link:../../packages/ai
       '@china/db':
         specifier: workspace:*
         version: link:../../packages/db

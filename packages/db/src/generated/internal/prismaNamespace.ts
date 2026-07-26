@@ -401,7 +401,21 @@ export const ModelName = {
   ProductCandidateRecord: 'ProductCandidateRecord',
   ProductSnapshot: 'ProductSnapshot',
   ScoutingResult: 'ScoutingResult',
-  MarketplaceSession: 'MarketplaceSession'
+  MarketplaceSession: 'MarketplaceSession',
+  Client: 'Client',
+  TaobaoDataset: 'TaobaoDataset',
+  TaobaoDatasetRow: 'TaobaoDatasetRow',
+  TaobaoAnalysisRun: 'TaobaoAnalysisRun',
+  TaobaoAnalysisRow: 'TaobaoAnalysisRow',
+  TaobaoRequest: 'TaobaoRequest',
+  TaobaoProduct: 'TaobaoProduct',
+  TaobaoPriceSnapshot: 'TaobaoPriceSnapshot',
+  TaobaoJob: 'TaobaoJob',
+  TaobaoJobRow: 'TaobaoJobRow',
+  TaobaoJobResult: 'TaobaoJobResult',
+  TaobaoClarification: 'TaobaoClarification',
+  TaobaoApiCache: 'TaobaoApiCache',
+  TaobaoPipeline: 'TaobaoPipeline'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -417,7 +431,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "quoteRequest" | "requestItem" | "productCandidate" | "quote" | "quoteLine" | "scoutingDataset" | "scoutingDatasetRow" | "scoutingRequest" | "requestAnalysis" | "analysisRun" | "analysisRunRow" | "importJob" | "importJobRow" | "importJobRowEngine" | "productCandidateRecord" | "productSnapshot" | "scoutingResult" | "marketplaceSession"
+    modelProps: "quoteRequest" | "requestItem" | "productCandidate" | "quote" | "quoteLine" | "scoutingDataset" | "scoutingDatasetRow" | "scoutingRequest" | "requestAnalysis" | "analysisRun" | "analysisRunRow" | "importJob" | "importJobRow" | "importJobRowEngine" | "productCandidateRecord" | "productSnapshot" | "scoutingResult" | "marketplaceSession" | "client" | "taobaoDataset" | "taobaoDatasetRow" | "taobaoAnalysisRun" | "taobaoAnalysisRow" | "taobaoRequest" | "taobaoProduct" | "taobaoPriceSnapshot" | "taobaoJob" | "taobaoJobRow" | "taobaoJobResult" | "taobaoClarification" | "taobaoApiCache" | "taobaoPipeline"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -1753,6 +1767,1042 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    Client: {
+      payload: Prisma.$ClientPayload<ExtArgs>
+      fields: Prisma.ClientFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.ClientFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ClientPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.ClientFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ClientPayload>
+        }
+        findFirst: {
+          args: Prisma.ClientFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ClientPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.ClientFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ClientPayload>
+        }
+        findMany: {
+          args: Prisma.ClientFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ClientPayload>[]
+        }
+        create: {
+          args: Prisma.ClientCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ClientPayload>
+        }
+        createMany: {
+          args: Prisma.ClientCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.ClientCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ClientPayload>[]
+        }
+        delete: {
+          args: Prisma.ClientDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ClientPayload>
+        }
+        update: {
+          args: Prisma.ClientUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ClientPayload>
+        }
+        deleteMany: {
+          args: Prisma.ClientDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.ClientUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.ClientUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ClientPayload>[]
+        }
+        upsert: {
+          args: Prisma.ClientUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ClientPayload>
+        }
+        aggregate: {
+          args: Prisma.ClientAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateClient>
+        }
+        groupBy: {
+          args: Prisma.ClientGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ClientGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.ClientCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ClientCountAggregateOutputType> | number
+        }
+      }
+    }
+    TaobaoDataset: {
+      payload: Prisma.$TaobaoDatasetPayload<ExtArgs>
+      fields: Prisma.TaobaoDatasetFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.TaobaoDatasetFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TaobaoDatasetPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.TaobaoDatasetFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TaobaoDatasetPayload>
+        }
+        findFirst: {
+          args: Prisma.TaobaoDatasetFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TaobaoDatasetPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.TaobaoDatasetFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TaobaoDatasetPayload>
+        }
+        findMany: {
+          args: Prisma.TaobaoDatasetFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TaobaoDatasetPayload>[]
+        }
+        create: {
+          args: Prisma.TaobaoDatasetCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TaobaoDatasetPayload>
+        }
+        createMany: {
+          args: Prisma.TaobaoDatasetCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.TaobaoDatasetCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TaobaoDatasetPayload>[]
+        }
+        delete: {
+          args: Prisma.TaobaoDatasetDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TaobaoDatasetPayload>
+        }
+        update: {
+          args: Prisma.TaobaoDatasetUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TaobaoDatasetPayload>
+        }
+        deleteMany: {
+          args: Prisma.TaobaoDatasetDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.TaobaoDatasetUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.TaobaoDatasetUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TaobaoDatasetPayload>[]
+        }
+        upsert: {
+          args: Prisma.TaobaoDatasetUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TaobaoDatasetPayload>
+        }
+        aggregate: {
+          args: Prisma.TaobaoDatasetAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateTaobaoDataset>
+        }
+        groupBy: {
+          args: Prisma.TaobaoDatasetGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.TaobaoDatasetGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.TaobaoDatasetCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.TaobaoDatasetCountAggregateOutputType> | number
+        }
+      }
+    }
+    TaobaoDatasetRow: {
+      payload: Prisma.$TaobaoDatasetRowPayload<ExtArgs>
+      fields: Prisma.TaobaoDatasetRowFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.TaobaoDatasetRowFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TaobaoDatasetRowPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.TaobaoDatasetRowFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TaobaoDatasetRowPayload>
+        }
+        findFirst: {
+          args: Prisma.TaobaoDatasetRowFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TaobaoDatasetRowPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.TaobaoDatasetRowFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TaobaoDatasetRowPayload>
+        }
+        findMany: {
+          args: Prisma.TaobaoDatasetRowFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TaobaoDatasetRowPayload>[]
+        }
+        create: {
+          args: Prisma.TaobaoDatasetRowCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TaobaoDatasetRowPayload>
+        }
+        createMany: {
+          args: Prisma.TaobaoDatasetRowCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.TaobaoDatasetRowCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TaobaoDatasetRowPayload>[]
+        }
+        delete: {
+          args: Prisma.TaobaoDatasetRowDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TaobaoDatasetRowPayload>
+        }
+        update: {
+          args: Prisma.TaobaoDatasetRowUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TaobaoDatasetRowPayload>
+        }
+        deleteMany: {
+          args: Prisma.TaobaoDatasetRowDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.TaobaoDatasetRowUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.TaobaoDatasetRowUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TaobaoDatasetRowPayload>[]
+        }
+        upsert: {
+          args: Prisma.TaobaoDatasetRowUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TaobaoDatasetRowPayload>
+        }
+        aggregate: {
+          args: Prisma.TaobaoDatasetRowAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateTaobaoDatasetRow>
+        }
+        groupBy: {
+          args: Prisma.TaobaoDatasetRowGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.TaobaoDatasetRowGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.TaobaoDatasetRowCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.TaobaoDatasetRowCountAggregateOutputType> | number
+        }
+      }
+    }
+    TaobaoAnalysisRun: {
+      payload: Prisma.$TaobaoAnalysisRunPayload<ExtArgs>
+      fields: Prisma.TaobaoAnalysisRunFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.TaobaoAnalysisRunFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TaobaoAnalysisRunPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.TaobaoAnalysisRunFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TaobaoAnalysisRunPayload>
+        }
+        findFirst: {
+          args: Prisma.TaobaoAnalysisRunFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TaobaoAnalysisRunPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.TaobaoAnalysisRunFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TaobaoAnalysisRunPayload>
+        }
+        findMany: {
+          args: Prisma.TaobaoAnalysisRunFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TaobaoAnalysisRunPayload>[]
+        }
+        create: {
+          args: Prisma.TaobaoAnalysisRunCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TaobaoAnalysisRunPayload>
+        }
+        createMany: {
+          args: Prisma.TaobaoAnalysisRunCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.TaobaoAnalysisRunCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TaobaoAnalysisRunPayload>[]
+        }
+        delete: {
+          args: Prisma.TaobaoAnalysisRunDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TaobaoAnalysisRunPayload>
+        }
+        update: {
+          args: Prisma.TaobaoAnalysisRunUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TaobaoAnalysisRunPayload>
+        }
+        deleteMany: {
+          args: Prisma.TaobaoAnalysisRunDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.TaobaoAnalysisRunUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.TaobaoAnalysisRunUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TaobaoAnalysisRunPayload>[]
+        }
+        upsert: {
+          args: Prisma.TaobaoAnalysisRunUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TaobaoAnalysisRunPayload>
+        }
+        aggregate: {
+          args: Prisma.TaobaoAnalysisRunAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateTaobaoAnalysisRun>
+        }
+        groupBy: {
+          args: Prisma.TaobaoAnalysisRunGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.TaobaoAnalysisRunGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.TaobaoAnalysisRunCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.TaobaoAnalysisRunCountAggregateOutputType> | number
+        }
+      }
+    }
+    TaobaoAnalysisRow: {
+      payload: Prisma.$TaobaoAnalysisRowPayload<ExtArgs>
+      fields: Prisma.TaobaoAnalysisRowFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.TaobaoAnalysisRowFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TaobaoAnalysisRowPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.TaobaoAnalysisRowFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TaobaoAnalysisRowPayload>
+        }
+        findFirst: {
+          args: Prisma.TaobaoAnalysisRowFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TaobaoAnalysisRowPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.TaobaoAnalysisRowFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TaobaoAnalysisRowPayload>
+        }
+        findMany: {
+          args: Prisma.TaobaoAnalysisRowFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TaobaoAnalysisRowPayload>[]
+        }
+        create: {
+          args: Prisma.TaobaoAnalysisRowCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TaobaoAnalysisRowPayload>
+        }
+        createMany: {
+          args: Prisma.TaobaoAnalysisRowCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.TaobaoAnalysisRowCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TaobaoAnalysisRowPayload>[]
+        }
+        delete: {
+          args: Prisma.TaobaoAnalysisRowDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TaobaoAnalysisRowPayload>
+        }
+        update: {
+          args: Prisma.TaobaoAnalysisRowUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TaobaoAnalysisRowPayload>
+        }
+        deleteMany: {
+          args: Prisma.TaobaoAnalysisRowDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.TaobaoAnalysisRowUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.TaobaoAnalysisRowUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TaobaoAnalysisRowPayload>[]
+        }
+        upsert: {
+          args: Prisma.TaobaoAnalysisRowUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TaobaoAnalysisRowPayload>
+        }
+        aggregate: {
+          args: Prisma.TaobaoAnalysisRowAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateTaobaoAnalysisRow>
+        }
+        groupBy: {
+          args: Prisma.TaobaoAnalysisRowGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.TaobaoAnalysisRowGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.TaobaoAnalysisRowCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.TaobaoAnalysisRowCountAggregateOutputType> | number
+        }
+      }
+    }
+    TaobaoRequest: {
+      payload: Prisma.$TaobaoRequestPayload<ExtArgs>
+      fields: Prisma.TaobaoRequestFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.TaobaoRequestFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TaobaoRequestPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.TaobaoRequestFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TaobaoRequestPayload>
+        }
+        findFirst: {
+          args: Prisma.TaobaoRequestFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TaobaoRequestPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.TaobaoRequestFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TaobaoRequestPayload>
+        }
+        findMany: {
+          args: Prisma.TaobaoRequestFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TaobaoRequestPayload>[]
+        }
+        create: {
+          args: Prisma.TaobaoRequestCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TaobaoRequestPayload>
+        }
+        createMany: {
+          args: Prisma.TaobaoRequestCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.TaobaoRequestCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TaobaoRequestPayload>[]
+        }
+        delete: {
+          args: Prisma.TaobaoRequestDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TaobaoRequestPayload>
+        }
+        update: {
+          args: Prisma.TaobaoRequestUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TaobaoRequestPayload>
+        }
+        deleteMany: {
+          args: Prisma.TaobaoRequestDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.TaobaoRequestUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.TaobaoRequestUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TaobaoRequestPayload>[]
+        }
+        upsert: {
+          args: Prisma.TaobaoRequestUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TaobaoRequestPayload>
+        }
+        aggregate: {
+          args: Prisma.TaobaoRequestAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateTaobaoRequest>
+        }
+        groupBy: {
+          args: Prisma.TaobaoRequestGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.TaobaoRequestGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.TaobaoRequestCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.TaobaoRequestCountAggregateOutputType> | number
+        }
+      }
+    }
+    TaobaoProduct: {
+      payload: Prisma.$TaobaoProductPayload<ExtArgs>
+      fields: Prisma.TaobaoProductFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.TaobaoProductFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TaobaoProductPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.TaobaoProductFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TaobaoProductPayload>
+        }
+        findFirst: {
+          args: Prisma.TaobaoProductFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TaobaoProductPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.TaobaoProductFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TaobaoProductPayload>
+        }
+        findMany: {
+          args: Prisma.TaobaoProductFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TaobaoProductPayload>[]
+        }
+        create: {
+          args: Prisma.TaobaoProductCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TaobaoProductPayload>
+        }
+        createMany: {
+          args: Prisma.TaobaoProductCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.TaobaoProductCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TaobaoProductPayload>[]
+        }
+        delete: {
+          args: Prisma.TaobaoProductDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TaobaoProductPayload>
+        }
+        update: {
+          args: Prisma.TaobaoProductUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TaobaoProductPayload>
+        }
+        deleteMany: {
+          args: Prisma.TaobaoProductDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.TaobaoProductUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.TaobaoProductUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TaobaoProductPayload>[]
+        }
+        upsert: {
+          args: Prisma.TaobaoProductUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TaobaoProductPayload>
+        }
+        aggregate: {
+          args: Prisma.TaobaoProductAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateTaobaoProduct>
+        }
+        groupBy: {
+          args: Prisma.TaobaoProductGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.TaobaoProductGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.TaobaoProductCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.TaobaoProductCountAggregateOutputType> | number
+        }
+      }
+    }
+    TaobaoPriceSnapshot: {
+      payload: Prisma.$TaobaoPriceSnapshotPayload<ExtArgs>
+      fields: Prisma.TaobaoPriceSnapshotFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.TaobaoPriceSnapshotFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TaobaoPriceSnapshotPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.TaobaoPriceSnapshotFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TaobaoPriceSnapshotPayload>
+        }
+        findFirst: {
+          args: Prisma.TaobaoPriceSnapshotFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TaobaoPriceSnapshotPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.TaobaoPriceSnapshotFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TaobaoPriceSnapshotPayload>
+        }
+        findMany: {
+          args: Prisma.TaobaoPriceSnapshotFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TaobaoPriceSnapshotPayload>[]
+        }
+        create: {
+          args: Prisma.TaobaoPriceSnapshotCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TaobaoPriceSnapshotPayload>
+        }
+        createMany: {
+          args: Prisma.TaobaoPriceSnapshotCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.TaobaoPriceSnapshotCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TaobaoPriceSnapshotPayload>[]
+        }
+        delete: {
+          args: Prisma.TaobaoPriceSnapshotDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TaobaoPriceSnapshotPayload>
+        }
+        update: {
+          args: Prisma.TaobaoPriceSnapshotUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TaobaoPriceSnapshotPayload>
+        }
+        deleteMany: {
+          args: Prisma.TaobaoPriceSnapshotDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.TaobaoPriceSnapshotUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.TaobaoPriceSnapshotUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TaobaoPriceSnapshotPayload>[]
+        }
+        upsert: {
+          args: Prisma.TaobaoPriceSnapshotUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TaobaoPriceSnapshotPayload>
+        }
+        aggregate: {
+          args: Prisma.TaobaoPriceSnapshotAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateTaobaoPriceSnapshot>
+        }
+        groupBy: {
+          args: Prisma.TaobaoPriceSnapshotGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.TaobaoPriceSnapshotGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.TaobaoPriceSnapshotCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.TaobaoPriceSnapshotCountAggregateOutputType> | number
+        }
+      }
+    }
+    TaobaoJob: {
+      payload: Prisma.$TaobaoJobPayload<ExtArgs>
+      fields: Prisma.TaobaoJobFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.TaobaoJobFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TaobaoJobPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.TaobaoJobFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TaobaoJobPayload>
+        }
+        findFirst: {
+          args: Prisma.TaobaoJobFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TaobaoJobPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.TaobaoJobFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TaobaoJobPayload>
+        }
+        findMany: {
+          args: Prisma.TaobaoJobFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TaobaoJobPayload>[]
+        }
+        create: {
+          args: Prisma.TaobaoJobCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TaobaoJobPayload>
+        }
+        createMany: {
+          args: Prisma.TaobaoJobCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.TaobaoJobCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TaobaoJobPayload>[]
+        }
+        delete: {
+          args: Prisma.TaobaoJobDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TaobaoJobPayload>
+        }
+        update: {
+          args: Prisma.TaobaoJobUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TaobaoJobPayload>
+        }
+        deleteMany: {
+          args: Prisma.TaobaoJobDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.TaobaoJobUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.TaobaoJobUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TaobaoJobPayload>[]
+        }
+        upsert: {
+          args: Prisma.TaobaoJobUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TaobaoJobPayload>
+        }
+        aggregate: {
+          args: Prisma.TaobaoJobAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateTaobaoJob>
+        }
+        groupBy: {
+          args: Prisma.TaobaoJobGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.TaobaoJobGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.TaobaoJobCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.TaobaoJobCountAggregateOutputType> | number
+        }
+      }
+    }
+    TaobaoJobRow: {
+      payload: Prisma.$TaobaoJobRowPayload<ExtArgs>
+      fields: Prisma.TaobaoJobRowFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.TaobaoJobRowFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TaobaoJobRowPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.TaobaoJobRowFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TaobaoJobRowPayload>
+        }
+        findFirst: {
+          args: Prisma.TaobaoJobRowFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TaobaoJobRowPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.TaobaoJobRowFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TaobaoJobRowPayload>
+        }
+        findMany: {
+          args: Prisma.TaobaoJobRowFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TaobaoJobRowPayload>[]
+        }
+        create: {
+          args: Prisma.TaobaoJobRowCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TaobaoJobRowPayload>
+        }
+        createMany: {
+          args: Prisma.TaobaoJobRowCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.TaobaoJobRowCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TaobaoJobRowPayload>[]
+        }
+        delete: {
+          args: Prisma.TaobaoJobRowDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TaobaoJobRowPayload>
+        }
+        update: {
+          args: Prisma.TaobaoJobRowUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TaobaoJobRowPayload>
+        }
+        deleteMany: {
+          args: Prisma.TaobaoJobRowDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.TaobaoJobRowUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.TaobaoJobRowUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TaobaoJobRowPayload>[]
+        }
+        upsert: {
+          args: Prisma.TaobaoJobRowUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TaobaoJobRowPayload>
+        }
+        aggregate: {
+          args: Prisma.TaobaoJobRowAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateTaobaoJobRow>
+        }
+        groupBy: {
+          args: Prisma.TaobaoJobRowGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.TaobaoJobRowGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.TaobaoJobRowCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.TaobaoJobRowCountAggregateOutputType> | number
+        }
+      }
+    }
+    TaobaoJobResult: {
+      payload: Prisma.$TaobaoJobResultPayload<ExtArgs>
+      fields: Prisma.TaobaoJobResultFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.TaobaoJobResultFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TaobaoJobResultPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.TaobaoJobResultFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TaobaoJobResultPayload>
+        }
+        findFirst: {
+          args: Prisma.TaobaoJobResultFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TaobaoJobResultPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.TaobaoJobResultFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TaobaoJobResultPayload>
+        }
+        findMany: {
+          args: Prisma.TaobaoJobResultFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TaobaoJobResultPayload>[]
+        }
+        create: {
+          args: Prisma.TaobaoJobResultCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TaobaoJobResultPayload>
+        }
+        createMany: {
+          args: Prisma.TaobaoJobResultCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.TaobaoJobResultCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TaobaoJobResultPayload>[]
+        }
+        delete: {
+          args: Prisma.TaobaoJobResultDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TaobaoJobResultPayload>
+        }
+        update: {
+          args: Prisma.TaobaoJobResultUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TaobaoJobResultPayload>
+        }
+        deleteMany: {
+          args: Prisma.TaobaoJobResultDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.TaobaoJobResultUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.TaobaoJobResultUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TaobaoJobResultPayload>[]
+        }
+        upsert: {
+          args: Prisma.TaobaoJobResultUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TaobaoJobResultPayload>
+        }
+        aggregate: {
+          args: Prisma.TaobaoJobResultAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateTaobaoJobResult>
+        }
+        groupBy: {
+          args: Prisma.TaobaoJobResultGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.TaobaoJobResultGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.TaobaoJobResultCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.TaobaoJobResultCountAggregateOutputType> | number
+        }
+      }
+    }
+    TaobaoClarification: {
+      payload: Prisma.$TaobaoClarificationPayload<ExtArgs>
+      fields: Prisma.TaobaoClarificationFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.TaobaoClarificationFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TaobaoClarificationPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.TaobaoClarificationFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TaobaoClarificationPayload>
+        }
+        findFirst: {
+          args: Prisma.TaobaoClarificationFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TaobaoClarificationPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.TaobaoClarificationFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TaobaoClarificationPayload>
+        }
+        findMany: {
+          args: Prisma.TaobaoClarificationFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TaobaoClarificationPayload>[]
+        }
+        create: {
+          args: Prisma.TaobaoClarificationCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TaobaoClarificationPayload>
+        }
+        createMany: {
+          args: Prisma.TaobaoClarificationCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.TaobaoClarificationCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TaobaoClarificationPayload>[]
+        }
+        delete: {
+          args: Prisma.TaobaoClarificationDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TaobaoClarificationPayload>
+        }
+        update: {
+          args: Prisma.TaobaoClarificationUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TaobaoClarificationPayload>
+        }
+        deleteMany: {
+          args: Prisma.TaobaoClarificationDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.TaobaoClarificationUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.TaobaoClarificationUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TaobaoClarificationPayload>[]
+        }
+        upsert: {
+          args: Prisma.TaobaoClarificationUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TaobaoClarificationPayload>
+        }
+        aggregate: {
+          args: Prisma.TaobaoClarificationAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateTaobaoClarification>
+        }
+        groupBy: {
+          args: Prisma.TaobaoClarificationGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.TaobaoClarificationGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.TaobaoClarificationCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.TaobaoClarificationCountAggregateOutputType> | number
+        }
+      }
+    }
+    TaobaoApiCache: {
+      payload: Prisma.$TaobaoApiCachePayload<ExtArgs>
+      fields: Prisma.TaobaoApiCacheFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.TaobaoApiCacheFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TaobaoApiCachePayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.TaobaoApiCacheFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TaobaoApiCachePayload>
+        }
+        findFirst: {
+          args: Prisma.TaobaoApiCacheFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TaobaoApiCachePayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.TaobaoApiCacheFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TaobaoApiCachePayload>
+        }
+        findMany: {
+          args: Prisma.TaobaoApiCacheFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TaobaoApiCachePayload>[]
+        }
+        create: {
+          args: Prisma.TaobaoApiCacheCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TaobaoApiCachePayload>
+        }
+        createMany: {
+          args: Prisma.TaobaoApiCacheCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.TaobaoApiCacheCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TaobaoApiCachePayload>[]
+        }
+        delete: {
+          args: Prisma.TaobaoApiCacheDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TaobaoApiCachePayload>
+        }
+        update: {
+          args: Prisma.TaobaoApiCacheUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TaobaoApiCachePayload>
+        }
+        deleteMany: {
+          args: Prisma.TaobaoApiCacheDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.TaobaoApiCacheUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.TaobaoApiCacheUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TaobaoApiCachePayload>[]
+        }
+        upsert: {
+          args: Prisma.TaobaoApiCacheUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TaobaoApiCachePayload>
+        }
+        aggregate: {
+          args: Prisma.TaobaoApiCacheAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateTaobaoApiCache>
+        }
+        groupBy: {
+          args: Prisma.TaobaoApiCacheGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.TaobaoApiCacheGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.TaobaoApiCacheCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.TaobaoApiCacheCountAggregateOutputType> | number
+        }
+      }
+    }
+    TaobaoPipeline: {
+      payload: Prisma.$TaobaoPipelinePayload<ExtArgs>
+      fields: Prisma.TaobaoPipelineFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.TaobaoPipelineFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TaobaoPipelinePayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.TaobaoPipelineFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TaobaoPipelinePayload>
+        }
+        findFirst: {
+          args: Prisma.TaobaoPipelineFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TaobaoPipelinePayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.TaobaoPipelineFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TaobaoPipelinePayload>
+        }
+        findMany: {
+          args: Prisma.TaobaoPipelineFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TaobaoPipelinePayload>[]
+        }
+        create: {
+          args: Prisma.TaobaoPipelineCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TaobaoPipelinePayload>
+        }
+        createMany: {
+          args: Prisma.TaobaoPipelineCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.TaobaoPipelineCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TaobaoPipelinePayload>[]
+        }
+        delete: {
+          args: Prisma.TaobaoPipelineDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TaobaoPipelinePayload>
+        }
+        update: {
+          args: Prisma.TaobaoPipelineUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TaobaoPipelinePayload>
+        }
+        deleteMany: {
+          args: Prisma.TaobaoPipelineDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.TaobaoPipelineUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.TaobaoPipelineUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TaobaoPipelinePayload>[]
+        }
+        upsert: {
+          args: Prisma.TaobaoPipelineUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TaobaoPipelinePayload>
+        }
+        aggregate: {
+          args: Prisma.TaobaoPipelineAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateTaobaoPipeline>
+        }
+        groupBy: {
+          args: Prisma.TaobaoPipelineGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.TaobaoPipelineGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.TaobaoPipelineCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.TaobaoPipelineCountAggregateOutputType> | number
+        }
+      }
+    }
   }
 } & {
   other: {
@@ -1956,6 +3006,7 @@ export const RequestAnalysisScalarFieldEnum = {
   inputHash: 'inputHash',
   promptVersion: 'promptVersion',
   model: 'model',
+  provider: 'provider',
   submittedText: 'submittedText',
   analysis: 'analysis',
   ok: 'ok',
@@ -2176,6 +3227,339 @@ export const MarketplaceSessionScalarFieldEnum = {
 } as const
 
 export type MarketplaceSessionScalarFieldEnum = (typeof MarketplaceSessionScalarFieldEnum)[keyof typeof MarketplaceSessionScalarFieldEnum]
+
+
+export const ClientScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  slug: 'slug',
+  contact: 'contact',
+  notes: 'notes',
+  archived: 'archived',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type ClientScalarFieldEnum = (typeof ClientScalarFieldEnum)[keyof typeof ClientScalarFieldEnum]
+
+
+export const TaobaoDatasetScalarFieldEnum = {
+  id: 'id',
+  clientId: 'clientId',
+  fileName: 'fileName',
+  format: 'format',
+  sheetName: 'sheetName',
+  sizeBytes: 'sizeBytes',
+  headerRowNumber: 'headerRowNumber',
+  columns: 'columns',
+  mapping: 'mapping',
+  rowCount: 'rowCount',
+  warnings: 'warnings',
+  createdAt: 'createdAt'
+} as const
+
+export type TaobaoDatasetScalarFieldEnum = (typeof TaobaoDatasetScalarFieldEnum)[keyof typeof TaobaoDatasetScalarFieldEnum]
+
+
+export const TaobaoDatasetRowScalarFieldEnum = {
+  id: 'id',
+  datasetId: 'datasetId',
+  rowNumber: 'rowNumber',
+  sheetName: 'sheetName',
+  sheetRowNumber: 'sheetRowNumber',
+  cells: 'cells',
+  hyperlink: 'hyperlink'
+} as const
+
+export type TaobaoDatasetRowScalarFieldEnum = (typeof TaobaoDatasetRowScalarFieldEnum)[keyof typeof TaobaoDatasetRowScalarFieldEnum]
+
+
+export const TaobaoAnalysisRunScalarFieldEnum = {
+  id: 'id',
+  datasetId: 'datasetId',
+  clientId: 'clientId',
+  mapping: 'mapping',
+  promptVersion: 'promptVersion',
+  model: 'model',
+  totalRows: 'totalRows',
+  analyzedRows: 'analyzedRows',
+  failedRows: 'failedRows',
+  apiCalls: 'apiCalls',
+  cachedRows: 'cachedRows',
+  inputTokens: 'inputTokens',
+  outputTokens: 'outputTokens',
+  costUsd: 'costUsd',
+  createdAt: 'createdAt',
+  finishedAt: 'finishedAt',
+  error: 'error'
+} as const
+
+export type TaobaoAnalysisRunScalarFieldEnum = (typeof TaobaoAnalysisRunScalarFieldEnum)[keyof typeof TaobaoAnalysisRunScalarFieldEnum]
+
+
+export const TaobaoAnalysisRowScalarFieldEnum = {
+  id: 'id',
+  runId: 'runId',
+  datasetRowId: 'datasetRowId',
+  analysisId: 'analysisId',
+  rowNumber: 'rowNumber',
+  state: 'state',
+  signatureText: 'signatureText',
+  effectiveAnalysis: 'effectiveAnalysis',
+  manualEdits: 'manualEdits',
+  edited: 'edited',
+  fromCache: 'fromCache',
+  approvedByUser: 'approvedByUser',
+  familyKey: 'familyKey',
+  variantKey: 'variantKey',
+  duplicateKey: 'duplicateKey',
+  confidence: 'confidence',
+  error: 'error',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type TaobaoAnalysisRowScalarFieldEnum = (typeof TaobaoAnalysisRowScalarFieldEnum)[keyof typeof TaobaoAnalysisRowScalarFieldEnum]
+
+
+export const TaobaoRequestScalarFieldEnum = {
+  id: 'id',
+  variantKey: 'variantKey',
+  familyKey: 'familyKey',
+  duplicateKey: 'duplicateKey',
+  displayName: 'displayName',
+  productNameChinese: 'productNameChinese',
+  productNameEnglish: 'productNameEnglish',
+  model: 'model',
+  material: 'material',
+  color: 'color',
+  searchQueryChinese: 'searchQueryChinese',
+  searchQueryEnglish: 'searchQueryEnglish',
+  analysis: 'analysis',
+  hardRequirements: 'hardRequirements',
+  softRequirements: 'softRequirements',
+  firstSeenAt: 'firstSeenAt',
+  lastSearchedAt: 'lastSearchedAt',
+  lastVerifiedAt: 'lastVerifiedAt',
+  searchCount: 'searchCount'
+} as const
+
+export type TaobaoRequestScalarFieldEnum = (typeof TaobaoRequestScalarFieldEnum)[keyof typeof TaobaoRequestScalarFieldEnum]
+
+
+export const TaobaoProductScalarFieldEnum = {
+  id: 'id',
+  requestId: 'requestId',
+  platform: 'platform',
+  itemId: 'itemId',
+  url: 'url',
+  title: 'title',
+  titleEn: 'titleEn',
+  imageUrl: 'imageUrl',
+  price: 'price',
+  currency: 'currency',
+  variantPrice: 'variantPrice',
+  promotionPrice: 'promotionPrice',
+  moq: 'moq',
+  sku: 'sku',
+  shopName: 'shopName',
+  shopUrl: 'shopUrl',
+  sellerId: 'sellerId',
+  totalSales: 'totalSales',
+  reviewCount: 'reviewCount',
+  rating: 'rating',
+  specs: 'specs',
+  variants: 'variants',
+  availability: 'availability',
+  shipping: 'shipping',
+  foundQuery: 'foundQuery',
+  sources: 'sources',
+  contentHash: 'contentHash',
+  firstSeenAt: 'firstSeenAt',
+  lastCheckedAt: 'lastCheckedAt',
+  lastChangedAt: 'lastChangedAt',
+  changedFields: 'changedFields',
+  unavailable: 'unavailable',
+  detailFetchedAt: 'detailFetchedAt',
+  reviewFetchedAt: 'reviewFetchedAt',
+  raw: 'raw'
+} as const
+
+export type TaobaoProductScalarFieldEnum = (typeof TaobaoProductScalarFieldEnum)[keyof typeof TaobaoProductScalarFieldEnum]
+
+
+export const TaobaoPriceSnapshotScalarFieldEnum = {
+  id: 'id',
+  productId: 'productId',
+  capturedAt: 'capturedAt',
+  price: 'price',
+  currency: 'currency',
+  totalSales: 'totalSales',
+  reviewCount: 'reviewCount',
+  available: 'available',
+  contentHash: 'contentHash',
+  changedFields: 'changedFields'
+} as const
+
+export type TaobaoPriceSnapshotScalarFieldEnum = (typeof TaobaoPriceSnapshotScalarFieldEnum)[keyof typeof TaobaoPriceSnapshotScalarFieldEnum]
+
+
+export const TaobaoJobScalarFieldEnum = {
+  id: 'id',
+  clientId: 'clientId',
+  datasetId: 'datasetId',
+  analysisRunId: 'analysisRunId',
+  status: 'status',
+  mapping: 'mapping',
+  forceFullSearch: 'forceFullSearch',
+  useBrowser: 'useBrowser',
+  maxCandidates: 'maxCandidates',
+  detailTopN: 'detailTopN',
+  useElim: 'useElim',
+  use1688: 'use1688',
+  reviewTopN: 'reviewTopN',
+  totalRows: 'totalRows',
+  processedRows: 'processedRows',
+  reusedRows: 'reusedRows',
+  searchedRows: 'searchedRows',
+  failedRows: 'failedRows',
+  apiCalls: 'apiCalls',
+  apiCacheHits: 'apiCacheHits',
+  hwhCalls: 'hwhCalls',
+  browserCalls: 'browserCalls',
+  elimCalls: 'elimCalls',
+  reusedProducts: 'reusedProducts',
+  newProducts: 'newProducts',
+  startedAt: 'startedAt',
+  finishedAt: 'finishedAt',
+  error: 'error',
+  createdAt: 'createdAt'
+} as const
+
+export type TaobaoJobScalarFieldEnum = (typeof TaobaoJobScalarFieldEnum)[keyof typeof TaobaoJobScalarFieldEnum]
+
+
+export const TaobaoJobRowScalarFieldEnum = {
+  id: 'id',
+  jobId: 'jobId',
+  datasetRowId: 'datasetRowId',
+  analysisRowId: 'analysisRowId',
+  requestId: 'requestId',
+  rowNumber: 'rowNumber',
+  displayName: 'displayName',
+  searchQuery: 'searchQuery',
+  status: 'status',
+  reused: 'reused',
+  reuseReason: 'reuseReason',
+  hwhStatus: 'hwhStatus',
+  hwhError: 'hwhError',
+  hwhCount: 'hwhCount',
+  apiStatus: 'apiStatus',
+  apiError: 'apiError',
+  apiCount: 'apiCount',
+  elimStatus: 'elimStatus',
+  elimError: 'elimError',
+  elimCount: 'elimCount',
+  browserStatus: 'browserStatus',
+  browserError: 'browserError',
+  browserCount: 'browserCount',
+  error: 'error',
+  startedAt: 'startedAt',
+  finishedAt: 'finishedAt'
+} as const
+
+export type TaobaoJobRowScalarFieldEnum = (typeof TaobaoJobRowScalarFieldEnum)[keyof typeof TaobaoJobRowScalarFieldEnum]
+
+
+export const TaobaoJobResultScalarFieldEnum = {
+  id: 'id',
+  jobRowId: 'jobRowId',
+  productId: 'productId',
+  rank: 'rank',
+  score: 'score',
+  scoreBreakdown: 'scoreBreakdown',
+  matchedRequirements: 'matchedRequirements',
+  missingRequirements: 'missingRequirements',
+  warnings: 'warnings',
+  sources: 'sources',
+  sourceConflicts: 'sourceConflicts',
+  coherence: 'coherence',
+  coherenceCheckedAt: 'coherenceCheckedAt',
+  createdAt: 'createdAt'
+} as const
+
+export type TaobaoJobResultScalarFieldEnum = (typeof TaobaoJobResultScalarFieldEnum)[keyof typeof TaobaoJobResultScalarFieldEnum]
+
+
+export const TaobaoClarificationScalarFieldEnum = {
+  id: 'id',
+  questionKey: 'questionKey',
+  source: 'source',
+  code: 'code',
+  familyKey: 'familyKey',
+  question: 'question',
+  answer: 'answer',
+  status: 'status',
+  examples: 'examples',
+  hitCount: 'hitCount',
+  timesApplied: 'timesApplied',
+  createdAt: 'createdAt',
+  answeredAt: 'answeredAt',
+  updatedAt: 'updatedAt',
+  clientId: 'clientId',
+  pipelineId: 'pipelineId',
+  datasetId: 'datasetId',
+  analysisRunId: 'analysisRunId',
+  locale: 'locale',
+  category: 'category',
+  attributeKey: 'attributeKey',
+  priority: 'priority'
+} as const
+
+export type TaobaoClarificationScalarFieldEnum = (typeof TaobaoClarificationScalarFieldEnum)[keyof typeof TaobaoClarificationScalarFieldEnum]
+
+
+export const TaobaoApiCacheScalarFieldEnum = {
+  id: 'id',
+  cacheKey: 'cacheKey',
+  endpoint: 'endpoint',
+  payload: 'payload',
+  credits: 'credits',
+  fetchedAt: 'fetchedAt'
+} as const
+
+export type TaobaoApiCacheScalarFieldEnum = (typeof TaobaoApiCacheScalarFieldEnum)[keyof typeof TaobaoApiCacheScalarFieldEnum]
+
+
+export const TaobaoPipelineScalarFieldEnum = {
+  id: 'id',
+  clientId: 'clientId',
+  datasetId: 'datasetId',
+  status: 'status',
+  phase: 'phase',
+  progress: 'progress',
+  step: 'step',
+  stepParams: 'stepParams',
+  mapping: 'mapping',
+  markupPct: 'markupPct',
+  maxRefineRounds: 'maxRefineRounds',
+  forceFullSearch: 'forceFullSearch',
+  locale: 'locale',
+  analysisRunId: 'analysisRunId',
+  jobId: 'jobId',
+  refineRounds: 'refineRounds',
+  questionRound: 'questionRound',
+  recoveredRows: 'recoveredRows',
+  completedPhases: 'completedPhases',
+  outcome: 'outcome',
+  error: 'error',
+  startedAt: 'startedAt',
+  finishedAt: 'finishedAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type TaobaoPipelineScalarFieldEnum = (typeof TaobaoPipelineScalarFieldEnum)[keyof typeof TaobaoPipelineScalarFieldEnum]
 
 
 export const SortOrder = {
@@ -2420,6 +3804,62 @@ export type EnumScoutingOutcomeFieldRefInput<$PrismaModel> = FieldRefInputType<$
 export type ListEnumScoutingOutcomeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ScoutingOutcome[]'>
     
 
+
+/**
+ * Reference to a field of type 'TaobaoJobStatus'
+ */
+export type EnumTaobaoJobStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'TaobaoJobStatus'>
+    
+
+
+/**
+ * Reference to a field of type 'TaobaoJobStatus[]'
+ */
+export type ListEnumTaobaoJobStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'TaobaoJobStatus[]'>
+    
+
+
+/**
+ * Reference to a field of type 'TaobaoRowStatus'
+ */
+export type EnumTaobaoRowStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'TaobaoRowStatus'>
+    
+
+
+/**
+ * Reference to a field of type 'TaobaoRowStatus[]'
+ */
+export type ListEnumTaobaoRowStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'TaobaoRowStatus[]'>
+    
+
+
+/**
+ * Reference to a field of type 'TaobaoPipelineStatus'
+ */
+export type EnumTaobaoPipelineStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'TaobaoPipelineStatus'>
+    
+
+
+/**
+ * Reference to a field of type 'TaobaoPipelineStatus[]'
+ */
+export type ListEnumTaobaoPipelineStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'TaobaoPipelineStatus[]'>
+    
+
+
+/**
+ * Reference to a field of type 'TaobaoPipelinePhase'
+ */
+export type EnumTaobaoPipelinePhaseFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'TaobaoPipelinePhase'>
+    
+
+
+/**
+ * Reference to a field of type 'TaobaoPipelinePhase[]'
+ */
+export type ListEnumTaobaoPipelinePhaseFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'TaobaoPipelinePhase[]'>
+    
+
 /**
  * Batch Payload for updateMany & deleteMany & createMany
  */
@@ -2548,6 +3988,20 @@ export type GlobalOmitConfig = {
   productSnapshot?: Prisma.ProductSnapshotOmit
   scoutingResult?: Prisma.ScoutingResultOmit
   marketplaceSession?: Prisma.MarketplaceSessionOmit
+  client?: Prisma.ClientOmit
+  taobaoDataset?: Prisma.TaobaoDatasetOmit
+  taobaoDatasetRow?: Prisma.TaobaoDatasetRowOmit
+  taobaoAnalysisRun?: Prisma.TaobaoAnalysisRunOmit
+  taobaoAnalysisRow?: Prisma.TaobaoAnalysisRowOmit
+  taobaoRequest?: Prisma.TaobaoRequestOmit
+  taobaoProduct?: Prisma.TaobaoProductOmit
+  taobaoPriceSnapshot?: Prisma.TaobaoPriceSnapshotOmit
+  taobaoJob?: Prisma.TaobaoJobOmit
+  taobaoJobRow?: Prisma.TaobaoJobRowOmit
+  taobaoJobResult?: Prisma.TaobaoJobResultOmit
+  taobaoClarification?: Prisma.TaobaoClarificationOmit
+  taobaoApiCache?: Prisma.TaobaoApiCacheOmit
+  taobaoPipeline?: Prisma.TaobaoPipelineOmit
 }
 
 /* Types for Logging */

@@ -120,3 +120,87 @@ export type ScoutingResult = Prisma.ScoutingResultModel
  * espone soltanto lo stato: quale account, quando scade, quando è stata usata.
  */
 export type MarketplaceSession = Prisma.MarketplaceSessionModel
+/**
+ * Model Client
+ * Il cliente per cui si fa sourcing: tutto il lavoro gli appartiene.
+ */
+export type Client = Prisma.ClientModel
+/**
+ * Model TaobaoDataset
+ * Un file caricato per un cliente.
+ */
+export type TaobaoDataset = Prisma.TaobaoDatasetModel
+/**
+ * Model TaobaoDatasetRow
+ * Riga originale del file: le celle restano intatte.
+ */
+export type TaobaoDatasetRow = Prisma.TaobaoDatasetRowModel
+/**
+ * Model TaobaoAnalysisRun
+ * Sessione di analisi IA su un file, rivista da un umano prima della ricerca.
+ */
+export type TaobaoAnalysisRun = Prisma.TaobaoAnalysisRunModel
+/**
+ * Model TaobaoAnalysisRow
+ * Una riga analizzata: interpretazione, correzioni manuali e stato.
+ */
+export type TaobaoAnalysisRow = Prisma.TaobaoAnalysisRowModel
+/**
+ * Model TaobaoRequest
+ * Una variante di prodotto cercata su Taobao.
+ */
+export type TaobaoRequest = Prisma.TaobaoRequestModel
+/**
+ * Model TaobaoProduct
+ * Un prodotto trovato per una variante.
+ */
+export type TaobaoProduct = Prisma.TaobaoProductModel
+/**
+ * Model TaobaoPriceSnapshot
+ * Storico: una riga per ogni cambiamento reale del prodotto.
+ */
+export type TaobaoPriceSnapshot = Prisma.TaobaoPriceSnapshotModel
+/**
+ * Model TaobaoJob
+ * L'elaborazione di un file per un cliente.
+ */
+export type TaobaoJob = Prisma.TaobaoJobModel
+/**
+ * Model TaobaoJobRow
+ * Avanzamento e risultato di una riga.
+ */
+export type TaobaoJobRow = Prisma.TaobaoJobRowModel
+/**
+ * Model TaobaoJobResult
+ * Un prodotto proposto per una riga, con il perché del suo posto in classifica.
+ */
+export type TaobaoJobResult = Prisma.TaobaoJobResultModel
+/**
+ * Model TaobaoClarification
+ * Un dubbio che l'IA non ha saputo sciogliere da sola, diventato domanda.
+ * 
+ * La risposta dell'operatore non serve solo alla riga che l'ha generata:
+ * viene iniettata come conoscenza nelle analisi successive, così la stessa
+ * domanda non viene rifatta. La chiave `questionKey` è ciò che tiene il
+ * numero di domande al minimo: dieci righe con la stessa ambiguità sono
+ * UNA domanda, e una domanda già risposta non viene più posta.
+ */
+export type TaobaoClarification = Prisma.TaobaoClarificationModel
+/**
+ * Model TaobaoApiCache
+ * Cache delle chiamate RapidAPI: i crediti si pagano una volta sola.
+ */
+export type TaobaoApiCache = Prisma.TaobaoApiCacheModel
+/**
+ * Model TaobaoPipeline
+ * Un'elaborazione completa: dal foglio caricato alla quotazione.
+ * 
+ * Esiste perché lo stato di una corsa che dura minuti non può vivere nella
+ * pagina: chi chiude la scheda a metà ricerca deve ritrovare il lavoro (e i
+ * crediti) al rientro, non ricominciare. Il servizio riprende da `phase`.
+ * 
+ * Non duplica i dati delle fasi: analisi, job e risultati restano nelle loro
+ * tabelle e qui se ne tiene solo il riferimento. Questa riga risponde a una
+ * domanda sola — «a che punto siamo, e cosa succede dopo».
+ */
+export type TaobaoPipeline = Prisma.TaobaoPipelineModel

@@ -1,4 +1,5 @@
 import { z } from "zod";
+import type { Localized } from "../i18n/locale";
 
 /**
  * Contratto dell'analisi di una riga d'Excel fatta da Claude.
@@ -223,14 +224,32 @@ export const ANALYSIS_ROW_STATES = [
 export const AnalysisRowStateSchema = z.enum(ANALYSIS_ROW_STATES);
 export type AnalysisRowState = z.infer<typeof AnalysisRowStateSchema>;
 
-/** Etichette italiane degli stati, condivise fra API e interfaccia. */
-export const ANALYSIS_ROW_STATE_LABELS: Record<AnalysisRowState, string> = {
-  NEW_PRODUCT: "Nuovo prodotto",
-  NEW_VARIANT: "Variante nuova",
-  KNOWN_PRODUCT: "Prodotto già conosciuto",
-  NEEDS_REVIEW: "Da verificare",
-  ANALYSIS_FAILED: "Analisi IA fallita",
-  READY: "Pronto per la ricerca",
+/** Etichette degli stati, tradotte, condivise fra API e interfaccia. */
+export const ANALYSIS_ROW_STATE_LABELS: Localized<AnalysisRowState> = {
+  en: {
+    NEW_PRODUCT: "New product",
+    NEW_VARIANT: "New variant",
+    KNOWN_PRODUCT: "Already known product",
+    NEEDS_REVIEW: "Needs checking",
+    ANALYSIS_FAILED: "AI analysis failed",
+    READY: "Ready to search",
+  },
+  zh: {
+    NEW_PRODUCT: "新产品",
+    NEW_VARIANT: "新款式",
+    KNOWN_PRODUCT: "已知产品",
+    NEEDS_REVIEW: "待核对",
+    ANALYSIS_FAILED: "AI 分析失败",
+    READY: "可以搜索",
+  },
+  it: {
+    NEW_PRODUCT: "Nuovo prodotto",
+    NEW_VARIANT: "Variante nuova",
+    KNOWN_PRODUCT: "Prodotto già conosciuto",
+    NEEDS_REVIEW: "Da verificare",
+    ANALYSIS_FAILED: "Analisi IA fallita",
+    READY: "Pronto per la ricerca",
+  },
 };
 
 /** Cosa il database sa già della variante analizzata. */
@@ -279,6 +298,9 @@ export type AnalysisRow = z.infer<typeof AnalysisRowSchema>;
 /** Consumo di una sessione di analisi: chiamate, token, costo stimato. */
 export const AnalysisUsageSchema = z.object({
   model: z.string(),
+  /** Motore che ha prodotto l'analisi (`claude` o `deepseek`). Facoltativo
+   * perché le sessioni salvate prima dei provider multipli non lo hanno. */
+  provider: z.string().optional(),
   promptVersion: z.string(),
   apiCalls: z.number().int().min(0),
   cachedRows: z.number().int().min(0),

@@ -219,3 +219,11 @@ export function computeProductIdentity(
 
   return { familyKey, variantKey, duplicateKey };
 }
+
+/**
+ * Esposti per lo scouting v1 (`variant-identity.ts`), che calcola le stesse
+ * chiavi aggiungendo il residuo del testo originale. Deve usare lo **stesso**
+ * hash e la **stessa** normalizzazione delle liste: due implementazioni che
+ * divergono produrrebbero due memorie che non si riconoscono.
+ */
+export { digest as identityDigest, canonicalList as canonicalTextList };

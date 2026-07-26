@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
+import { useI18n } from "./i18n/context";
 
 /**
  * Sostituisce la schermata di errore predefinita di Next, che chiede solo di
@@ -15,23 +16,21 @@ export default function Error({
   error: Error & { digest?: string };
   reset: () => void;
 }) {
+  const { t } = useI18n();
+
   useEffect(() => {
     console.error(error);
   }, [error]);
 
   return (
     <div className="panel search-empty filtered">
-      <h2>Qualcosa si è interrotto in questa pagina</h2>
-      <p>
-        Se poco fa è stato pubblicato un aggiornamento, il browser sta ancora
-        usando la versione precedente: ricaricare una volta risolve. Le
-        correzioni alle query cinesi restano salvate.
-      </p>
+      <h2>{t("error.title")}</h2>
+      <p>{t("error.body")}</p>
       <p className="muted">{error.message}</p>
       <div className="bulk-toolbar">
-        <button onClick={reset}>Riprova senza ricaricare</button>
+        <button onClick={reset}>{t("error.retry")}</button>
         <button className="secondary" onClick={() => window.location.reload()}>
-          Ricarica la pagina
+          {t("error.reload")}
         </button>
       </div>
     </div>

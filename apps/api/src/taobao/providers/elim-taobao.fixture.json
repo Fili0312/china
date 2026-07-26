@@ -1,0 +1,66 @@
+{
+  "success": true,
+  "code": 200,
+  "message": "",
+  "paginate": {
+    "current": 1,
+    "size": 5
+  },
+  "items": [
+    {
+      "id": 1002567275327,
+      "mi_id": "0000oUy5n5JkgPDcO3EVGTM4-HcPrmle2HTy6Kisem3ywKk",
+      "title": "集成吊顶600x600led平板灯60x60面板灯石膏矿棉板办公室LED工程灯",
+      "titleEn": "Integrated Ceiling 600X600 Led Panel Light 60X60 Panel Light Gypsum Mineral Wool Board Office Led Project Light",
+      "price": 21.8,
+      "promotion_price": 13.8,
+      "promotion_displays": [
+        {
+          "type_name": "店铺满折",
+          "promotion_info_list": [
+            {
+              "promotion_name": "Buy 2 items 2% off",
+              "activity_code": "L6rXR6maSsXlS51oRsrlT6blRb1XSdGjCJ8sCZauDJ4oEJaoNp8uDp8oE38oCJ8rCpC"
+            }
+          ]
+        },
+        {
+          "type_name": "商品优惠券",
+          "promotion_info_list": [
+            {
+              "promotion_name": "Items coupon ¥8 off over ¥10",
+              "activity_code": "QNHbRKDlTN1lRYqnCpSnDpGpDJKoDpPVCZauCpOuCZOmCJasDoqm"
+            }
+          ]
+        }
+      ],
+      "seller_name": "祥奈尔工厂直销",
+      "seller_type": "seller",
+      "unit": null,
+      "img_url": "https://img.alicdn.com/imgextra/i2/2220949499662/O1CN01vgqmuZ2LFFuqf6YGt_!!2220949499662.jpg",
+      "link": "https://item.taobao.com/item.htm?id=1002567275327",
+      "sales_volume": null,
+      "quantity": null,
+      "retention_rate": null,
+      "level": null
+    },
+    {
+      "id": 681030697223,
+      "mi_id": "0000zbPFd78QVXGlIGAd0dkHSo1a-ZC_pPEnofJamNrzf-E",
+      "title": "集成吊顶600x600led平板灯60x60面板灯石膏矿棉板办公室LED工程灯",
+      "titleEn": "Integrated Ceiling 600X600 Led Panel Light 60X60 Panel Light Gypsum Mineral Wool Board Office Led Project Light",
+      "price": 22.8,
+      "promotion_price": null,
+      "promotion_displays": [],
+      "seller_name": "善斯顿照明",
+      "seller_type": "seller",
+      "unit": null,
+      "img_url": "https://img.alicdn.com/imgextra/i4/2212331837166/O1CN0138hf4T22o5HPmlRTt_!!2212331837166.jpg",
+      "link": "https://item.taobao.com/item.htm?id=681030697223",
+      "sales_volume": null,
+      "quantity": null,
+      "retention_rate": null,
+      "level": null
+    }
+  ]
+}

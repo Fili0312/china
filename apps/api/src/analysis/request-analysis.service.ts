@@ -21,6 +21,7 @@ import {
   type StartAnalysisRequest,
   type UpdateAnalysisRowRequest,
 } from "@china/shared";
+import { currentLocale } from "../i18n/request-locale";
 import { readMappedValues } from "../scouting/normalize-request";
 import { ScoutingService } from "../scouting/scouting.service";
 import { ClaudeProductAnalysisService } from "./claude-product-analysis.service";
@@ -473,8 +474,8 @@ export class RequestAnalysisService {
     return parsed.success ? parsed.data : null;
   }
 
-  /** Etichetta italiana di uno stato, per interfaccia ed export. */
+  /** Etichetta di uno stato nella lingua della richiesta in corso. */
   stateLabel(state: AnalysisRowState): string {
-    return ANALYSIS_ROW_STATE_LABELS[state];
+    return ANALYSIS_ROW_STATE_LABELS[currentLocale()][state];
   }
 }

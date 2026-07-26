@@ -2,16 +2,20 @@ import { Injectable, Logger } from "@nestjs/common";
 import { prisma, Prisma } from "@china/db";
 import {
   ANALYSIS_PROMPT_VERSION,
-  CLAUDE_MODEL,
+  activeAnalysisProvider,
   analysisInputHash,
   ProductAnalysisError,
-  analyzeProductRows,
   estimateCostUsd,
-  hasClaudeApiKey,
   renderRowForAnalysis,
   type AnalysisInputRow,
+  type AnalysisProvider,
 } from "@china/ai";
-import { ProductAnalysisSchema, type ProductAnalysis } from "@china/shared";
+import {
+  CRITICAL_WARNING_CODES,
+  ProductAnalysisSchema,
+  sanitizeProductAnalysis,
+  type ProductAnalysis,
+} from "@china/shared";
 
 /**
  * Analisi delle righe con Claude: cache, lotti, concorrenza e costi.
@@ -99,21 +103,80 @@ export interface AnalyzeRowsResult {
   promptVersion: string;
 }
 
+/** Stato del budget di prova DeepSeek: quanto si può ancora spendere. */
+export interface DeepSeekBudget {
+  limitUsd: number;
+  spentUsd: number;
+  remainingUsd: number;
+}
+
 @Injectable()
 export class ClaudeProductAnalysisService {
-  private readonly logger = new Logger("ClaudeProductAnalysis");
+  private readonly logger = new Logger("ProductAnalysis");
+
+  /**
+   * Il provider attivo, riletto a ogni uso.
+   *
+   * La scelta sta in `AI_ANALYSIS_PROVIDER` (`claude` di default,
+   * `deepseek` per il test). Nessun fallback automatico: se il provider
+   * scelto fallisce, le righe falliscono con il suo errore.
+   */
+  private get activeProvider(): AnalysisProvider {
+    return activeAnalysisProvider();
+  }
 
   get promptVersion(): string {
-    return ANALYSIS_PROMPT_VERSION;
+    // La versione è del provider: DeepSeek ha una pipeline propria (estrazione
+    // + revisione) e la sua cache non deve mescolarsi con analisi meno
+    // profonde. Per Claude coincide con `ANALYSIS_PROMPT_VERSION` di sempre.
+    return this.activeProvider.promptVersion;
   }
 
   get model(): string {
-    return CLAUDE_MODEL;
+    return this.activeProvider.model;
   }
 
-  /** `true` se una chiave è configurata (mai il valore). */
+  get providerName(): string {
+    return this.activeProvider.name;
+  }
+
+  /** `true` se la chiave del provider attivo è configurata (mai il valore). */
   get isConfigured(): boolean {
-    return hasClaudeApiKey();
+    return this.activeProvider.configured;
+  }
+
+  /** Tetto di spesa per il test DeepSeek, dal `.env`. */
+  private static deepSeekBudgetLimit(): number {
+    const parsed = Number(process.env.DEEPSEEK_TEST_BUDGET_USD);
+    return Number.isFinite(parsed) && parsed >= 0 ? parsed : 2;
+  }
+
+  /**
+   * Quanto è già stato speso con DeepSeek, letto dalla cache delle analisi.
+   *
+   * È il totale storico, non quello della sessione: il budget è un tetto di
+   * prova complessivo, e riavviare il processo non deve azzerarlo.
+   */
+  async deepSeekBudget(): Promise<DeepSeekBudget> {
+    const limitUsd = ClaudeProductAnalysisService.deepSeekBudgetLimit();
+    const aggregate = await prisma.requestAnalysis.aggregate({
+      where: { provider: "deepseek" },
+      _sum: { costUsd: true },
+    });
+    const spentUsd = aggregate._sum.costUsd ?? 0;
+    return { limitUsd, spentUsd, remainingUsd: Math.max(0, limitUsd - spentUsd) };
+  }
+
+  /** Stato del motore di analisi: provider, modello, budget. Mai le chiavi. */
+  async status() {
+    const provider = this.activeProvider;
+    return {
+      configured: provider.configured,
+      provider: provider.name,
+      model: provider.model,
+      promptVersion: provider.promptVersion,
+      budget: provider.name === "deepseek" ? await this.deepSeekBudget() : null,
+    };
   }
 
   /**
@@ -124,7 +187,11 @@ export class ClaudeProductAnalysisService {
    */
   async analyzeRows(
     rows: readonly AnalysisInputRow[],
-    options: { ignoreCache?: boolean } = {}
+    options: {
+      ignoreCache?: boolean;
+      /** Risposte già date dall'operatore, con la loro impronta. */
+      knowledge?: { entries: readonly string[]; digest: string };
+    } = {}
   ): Promise<AnalyzeRowsResult> {
     const usage: AnalysisUsageTotals = {
       apiCalls: 0,
@@ -133,10 +200,23 @@ export class ClaudeProductAnalysisService {
       outputTokens: 0,
       costUsd: 0,
     };
+    // Un'istantanea per tutta la sessione: se il .env cambiasse a metà file,
+    // metà righe con un modello e metà con l'altro sarebbero inconfrontabili.
+    const provider = this.activeProvider;
+    const budget = provider.name === "deepseek" ? await this.deepSeekBudget() : null;
+
     const outcomes = new Map<number, RowAnalysisOutcome>();
     if (rows.length === 0) {
-      return { outcomes: [], usage, model: this.model, promptVersion: this.promptVersion };
+      return { outcomes: [], usage, model: provider.model, promptVersion: provider.promptVersion };
     }
+
+    // La conoscenza entra nella chiave di cache: una risposta nuova produce
+    // analisi nuove. Il testo salvato resta pulito — il sale sta solo
+    // nell'impronta, così l'interfaccia continua a mostrare la riga vera.
+    const salt = options.knowledge?.digest
+      ? `\n[conoscenza:${options.knowledge.digest}]`
+      : "";
+    const hashFor = (text: string) => analysisInputHash(text + salt);
 
     // 1. Cache. Si fa in blocco: una sola interrogazione per tutto il file.
     const pending: AnalysisInputRow[] = [];
@@ -148,19 +228,49 @@ export class ClaudeProductAnalysisService {
     if (options.ignoreCache) {
       pending.push(...rows);
     } else {
-      const hashes = [...new Set([...textByRow.values()].map(analysisInputHash))];
+      const hashes = [
+        ...new Set(
+          [...textByRow.values()].flatMap((text) =>
+            salt ? [hashFor(text), analysisInputHash(text)] : [analysisInputHash(text)]
+          )
+        ),
+      ];
+      // La cache distingue provider e modello: un'analisi Claude non è mai
+      // una risposta DeepSeek. Le due convivono per la stessa riga, ed è ciò
+      // che permette di confrontarle senza rifare chiamate.
       const cached = await prisma.requestAnalysis.findMany({
         where: {
           inputHash: { in: hashes },
-          promptVersion: this.promptVersion,
-          model: this.model,
+          promptVersion: provider.promptVersion,
+          model: provider.model,
+          provider: provider.name,
         },
       });
       const byHash = new Map(cached.map((entry) => [entry.inputHash, entry]));
 
       for (const row of rows) {
         const submittedText = textByRow.get(row.rowIndex)!;
-        const hit = byHash.get(analysisInputHash(submittedText));
+        let hit = byHash.get(hashFor(submittedText));
+
+        // Conoscenza nuova, riga vecchia: la risposta di un operatore cambia
+        // solo le righe che avevano un'ambiguità critica. Una riga analizzata
+        // senza quei warning non aveva niente da chiedere — riusarla evita di
+        // ripagare l'intero file a ogni risposta data.
+        if ((!hit || !hit.ok || !hit.analysis) && salt) {
+          const unsalted = byHash.get(analysisInputHash(submittedText));
+          if (unsalted?.ok && unsalted.analysis) {
+            const parsed = ProductAnalysisSchema.safeParse(unsalted.analysis);
+            if (
+              parsed.success &&
+              !parsed.data.warnings.some((warning) =>
+                (CRITICAL_WARNING_CODES as readonly string[]).includes(warning.code)
+              )
+            ) {
+              hit = unsalted;
+            }
+          }
+        }
+
         // Un fallimento in cache non viene riusato: l'errore poteva essere
         // temporaneo, e ripetere la riga costa una chiamata, non una consegna
         // sbagliata.
@@ -195,7 +305,7 @@ export class ClaudeProductAnalysisService {
     const duplicatesByHash = new Map<string, number[]>();
     const unique: AnalysisInputRow[] = [];
     for (const row of pending) {
-      const hash = analysisInputHash(textByRow.get(row.rowIndex)!);
+      const hash = hashFor(textByRow.get(row.rowIndex)!);
       const seen = duplicatesByHash.get(hash);
       if (seen) {
         seen.push(row.rowIndex);
@@ -211,17 +321,24 @@ export class ClaudeProductAnalysisService {
       );
     }
 
-    if (unique.length > 0 && !this.isConfigured) {
+    if (unique.length > 0 && !provider.configured) {
       // Meglio fermarsi qui che marcare tutte le righe come «analisi fallita»:
       // il problema è di configurazione, non delle righe.
       throw new ProductAnalysisError(
-        "CLAUDE_API_KEY non configurata: impossibile analizzare le richieste.",
+        provider.name === "deepseek"
+          ? "DEEP_SEEK_API non configurata: impossibile analizzare con DeepSeek."
+          : "CLAUDE_API_KEY non configurata: impossibile analizzare le richieste.",
         false
       );
     }
 
     // 2. Chiamate a lotti, con un numero limitato di lotti in volo.
-    const batchSize = Math.max(1, Math.floor(numericEnv("ANALYSIS_BATCH_SIZE", DEFAULT_BATCH_SIZE)));
+    // I lotti li decide il provider (Claude 10, DeepSeek più piccoli), salvo
+    // un override esplicito dal .env che vale per tutti.
+    const batchSize = Math.max(
+      1,
+      Math.floor(numericEnv("ANALYSIS_BATCH_SIZE", provider.preferredBatchSize))
+    );
     const concurrency = Math.max(
       1,
       Math.floor(numericEnv("ANALYSIS_CONCURRENCY", DEFAULT_CONCURRENCY))
@@ -236,12 +353,14 @@ export class ClaudeProductAnalysisService {
     const failures = new Map<number, string>();
 
     await this.runBatches(batches, concurrency, async (batch) => {
-      const result = await this.callBatch(batch, usage);
+      const result = await this.callBatch(batch, usage, provider, budget, options.knowledge?.entries);
       for (const row of batch) {
         const analysis = result.analyses.get(row.rowIndex);
         if (analysis) {
           const stored = await this.remember(
+            provider,
             textByRow.get(row.rowIndex)!,
+            hashFor(textByRow.get(row.rowIndex)!),
             analysis,
             result.perRow
           );
@@ -266,12 +385,14 @@ export class ClaudeProductAnalysisService {
     if (missed.length > 0) {
       this.logger.warn(`${missed.length} righe da ritentare singolarmente`);
       await this.runBatches([...missed.map((row) => [row])], concurrency, async (batch) => {
-        const result = await this.callBatch(batch, usage);
+        const result = await this.callBatch(batch, usage, provider, budget, options.knowledge?.entries);
         for (const row of batch) {
           const analysis = result.analyses.get(row.rowIndex);
           if (analysis) {
             const stored = await this.remember(
+              provider,
               textByRow.get(row.rowIndex)!,
+              hashFor(textByRow.get(row.rowIndex)!),
               analysis,
               result.perRow
             );
@@ -299,7 +420,7 @@ export class ClaudeProductAnalysisService {
     for (const [hash, gemelle] of duplicatesByHash) {
       if (gemelle.length === 0) continue;
       const capofila = [...outcomes.values()].find(
-        (outcome) => analysisInputHash(outcome.submittedText) === hash
+        (outcome) => hashFor(outcome.submittedText) === hash
       );
       const errore = capofila
         ? null
@@ -325,7 +446,12 @@ export class ClaudeProductAnalysisService {
     //    salvarlo l'interfaccia non potrebbe spiegare perché la riga è ferma.
     for (const [rowIndex, error] of failures) {
       const submittedText = textByRow.get(rowIndex)!;
-      const stored = await this.rememberFailure(submittedText, error);
+      const stored = await this.rememberFailure(
+        provider,
+        submittedText,
+        hashFor(submittedText),
+        error
+      );
       outcomes.set(rowIndex, {
         rowIndex,
         analysisId: stored,
@@ -349,8 +475,8 @@ export class ClaudeProductAnalysisService {
           }
       ),
       usage,
-      model: this.model,
-      promptVersion: this.promptVersion,
+      model: provider.model,
+      promptVersion: provider.promptVersion,
     };
   }
 
@@ -362,19 +488,44 @@ export class ClaudeProductAnalysisService {
    */
   private async callBatch(
     batch: readonly AnalysisInputRow[],
-    usage: AnalysisUsageTotals
+    usage: AnalysisUsageTotals,
+    provider: AnalysisProvider,
+    budget: DeepSeekBudget | null,
+    knowledge?: readonly string[]
   ): Promise<{
     analyses: Map<number, ProductAnalysis>;
     perRow: { inputTokens: number; outputTokens: number; costUsd: number };
     retryable: boolean;
     error: string | null;
   }> {
+    // Il tetto di prova si controlla PRIMA di ogni lotto: quando la spesa
+    // storica più quella di questa sessione lo raggiunge, i lotti successivi
+    // non partono e le righe restano con un errore che dice quanto resta.
+    if (budget && budget.spentUsd + usage.costUsd >= budget.limitUsd) {
+      const residuo = Math.max(0, budget.limitUsd - budget.spentUsd - usage.costUsd);
+      return {
+        analyses: new Map(),
+        perRow: { inputTokens: 0, outputTokens: 0, costUsd: 0 },
+        retryable: false,
+        error:
+          `Budget di prova DeepSeek raggiunto (limite $${budget.limitUsd.toFixed(2)}, ` +
+          `residuo $${residuo.toFixed(2)}): analisi interrotta senza nuove chiamate. ` +
+          `Alza DEEPSEEK_TEST_BUDGET_USD per continuare.`,
+      };
+    }
+
     const timeoutMs = numericEnv("ANALYSIS_TIMEOUT_MS", DEFAULT_TIMEOUT_MS);
     try {
-      const result = await analyzeProductRows(batch, {
+      const result = await provider.analyzeBatch(batch, {
         timeoutMs,
         effort: analysisEffort(),
+        knowledge,
       });
+      // Le pulizie deterministiche valgono per ogni provider: le regole che i
+      // prompt possono violare (quantità nella query) qui diventano codice.
+      for (const [rowIndex, analysis] of result.analyses) {
+        result.analyses.set(rowIndex, sanitizeProductAnalysis(analysis));
+      }
       usage.apiCalls += 1;
       usage.inputTokens += result.inputTokens;
       usage.outputTokens += result.outputTokens;
@@ -424,9 +575,17 @@ export class ClaudeProductAnalysisService {
     await Promise.all(workers);
   }
 
-  /** Salva un'analisi riuscita nella memoria del sistema. */
+  /**
+   * Salva un'analisi riuscita nella memoria del sistema.
+   *
+   * `cacheHash` è l'impronta **con** l'eventuale sale della conoscenza: il
+   * testo salvato resta quello vero, la chiave riflette le condizioni in cui
+   * l'analisi è stata prodotta.
+   */
   private async remember(
+    provider: AnalysisProvider,
     submittedText: string,
+    cacheHash: string,
     analysis: ProductAnalysis,
     perRow: { inputTokens: number; outputTokens: number; costUsd: number }
   ): Promise<string> {
@@ -442,16 +601,18 @@ export class ClaudeProductAnalysisService {
     };
     const record = await prisma.requestAnalysis.upsert({
       where: {
-        inputHash_promptVersion_model: {
-          inputHash: analysisInputHash(submittedText),
-          promptVersion: this.promptVersion,
-          model: this.model,
+        inputHash_promptVersion_model_provider: {
+          inputHash: cacheHash,
+          promptVersion: provider.promptVersion,
+          model: provider.model,
+          provider: provider.name,
         },
       },
       create: {
-        inputHash: analysisInputHash(submittedText),
-        promptVersion: this.promptVersion,
-        model: this.model,
+        inputHash: cacheHash,
+        promptVersion: provider.promptVersion,
+        model: provider.model,
+        provider: provider.name,
         ...data,
       },
       update: data,
@@ -460,7 +621,12 @@ export class ClaudeProductAnalysisService {
     return record.id;
   }
 
-  private async rememberFailure(submittedText: string, error: string): Promise<string> {
+  private async rememberFailure(
+    provider: AnalysisProvider,
+    submittedText: string,
+    cacheHash: string,
+    error: string
+  ): Promise<string> {
     const data = {
       submittedText,
       analysis: Prisma.DbNull,
@@ -469,16 +635,18 @@ export class ClaudeProductAnalysisService {
     };
     const record = await prisma.requestAnalysis.upsert({
       where: {
-        inputHash_promptVersion_model: {
-          inputHash: analysisInputHash(submittedText),
-          promptVersion: this.promptVersion,
-          model: this.model,
+        inputHash_promptVersion_model_provider: {
+          inputHash: cacheHash,
+          promptVersion: provider.promptVersion,
+          model: provider.model,
+          provider: provider.name,
         },
       },
       create: {
-        inputHash: analysisInputHash(submittedText),
-        promptVersion: this.promptVersion,
-        model: this.model,
+        inputHash: cacheHash,
+        promptVersion: provider.promptVersion,
+        model: provider.model,
+        provider: provider.name,
         ...data,
       },
       update: data,

@@ -2,7 +2,13 @@
   "extends": "../../tsconfig.base.json",
   "compilerOptions": {
     "rootDir": "src",
-    "outDir": "dist"
+    "outDir": "dist",
+    // Questo pacchetto guida un browser: le funzioni passate a `page.evaluate`
+    // girano dentro la pagina e usano `document`, `Element`,
+    // `HTMLAnchorElement`. Senza `DOM` non compilano, pur essendo corrette.
+    // Il resto resta codice Node: i tipi Playwright (`Page`, `Response`) sono
+    // importati esplicitamente e non vengono oscurati dagli omonimi globali.
+    "lib": ["ES2022", "DOM"]
   },
   "include": ["src"]
 }

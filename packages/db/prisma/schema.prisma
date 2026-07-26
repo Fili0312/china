@@ -331,6 +331,12 @@ model RequestAnalysis {
   promptVersion String
   model         String
 
+  /// Chi ha prodotto l'analisi: `claude` o `deepseek`. Fa parte della chiave
+  /// di cache: un'analisi Claude non è mai una risposta DeepSeek — le due
+  /// convivono per la stessa riga, ed è ciò che permette di confrontarle
+  /// senza rifare chiamate.
+  provider String @default("claude")
+
   /// Testo effettivamente inviato a Claude, conservato per poter rispiegare
   /// **su cosa** è stata fatta l'analisi (e per riprodurla).
   submittedText String
@@ -355,8 +361,12 @@ model RequestAnalysis {
   createdAt DateTime @default(now())
 
   rows AnalysisRunRow[]
+  /// Righe dello scouting v1 (solo Taobao) che riusano la stessa analisi: la
+  /// cache è condivisa fra i due flussi, ed è il motivo per cui rianalizzare
+  /// un file già visto non costa nulla anche cambiando pagina.
+  taobaoRows TaobaoAnalysisRow[]
 
-  @@unique([inputHash, promptVersion, model])
+  @@unique([inputHash, promptVersion, model, provider])
   @@index([variantKey])
 }
 
@@ -689,4 +699,644 @@ model MarketplaceSession {
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+}
+
+/// ---------------------------------------------------------------------------
+/// Scouting v1: solo Taobao, per cliente.
+///
+/// Blocco **additivo**: nessun modello preesistente cambia comportamento. Lo
+/// scouting multi-marketplace (ScoutingDataset/ImportJob/...) resta intatto e
+/// continua a servire la pagina `/scouting`.
+///
+/// Due livelli, e la distinzione è il cuore della privacy fra clienti:
+///
+/// - **visibile al cliente** — `Client`, `TaobaoDataset`, `TaobaoAnalysisRun`,
+///   `TaobaoJob` e le loro righe. Ogni lettura passa da `clientId`.
+/// - **memoria interna condivisa** — `TaobaoRequest` (la variante) e
+///   `TaobaoProduct` (il prodotto trovato). Servono a non ricercare due volte
+///   lo stesso prodotto, e non sono mai esposti se non attraverso le righe di
+///   job del cliente che li ha richiesti.
+/// ---------------------------------------------------------------------------
+
+/// Il cliente per cui si fa sourcing: tutto il lavoro gli appartiene.
+model Client {
+  id   String @id @default(cuid())
+  name String
+  /// Identificativo leggibile e stabile, usato negli URL e nell'export.
+  slug String @unique
+
+  contact  String?
+  notes    String?
+  archived Boolean @default(false)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  datasets     TaobaoDataset[]
+  analysisRuns TaobaoAnalysisRun[]
+  jobs         TaobaoJob[]
+  pipelines    TaobaoPipeline[]
+}
+
+/// Un file caricato per un cliente.
+model TaobaoDataset {
+  id       String @id @default(cuid())
+  client   Client @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  clientId String
+
+  fileName  String
+  format    String
+  sheetName String
+  sizeBytes Int
+
+  headerRowNumber Int?
+  columns         Json
+  mapping         Json?
+  rowCount        Int
+  warnings        String[]
+
+  createdAt DateTime @default(now())
+
+  rows         TaobaoDatasetRow[]
+  analysisRuns TaobaoAnalysisRun[]
+  jobs         TaobaoJob[]
+
+  @@index([clientId, createdAt])
+  pipelines    TaobaoPipeline[]
+}
+
+/// Riga originale del file: le celle restano intatte.
+model TaobaoDatasetRow {
+  id        String        @id @default(cuid())
+  dataset   TaobaoDataset @relation(fields: [datasetId], references: [id], onDelete: Cascade)
+  datasetId String
+
+  rowNumber      Int
+  sheetName      String @default("")
+  sheetRowNumber Int    @default(0)
+  cells          Json
+  /// Link prodotto già presente nel foglio: è una fonte di candidati.
+  hyperlink      String?
+
+  analysisRows TaobaoAnalysisRow[]
+  jobRows      TaobaoJobRow[]
+
+  @@unique([datasetId, rowNumber])
+  @@index([datasetId])
+}
+
+/// Sessione di analisi IA su un file, rivista da un umano prima della ricerca.
+model TaobaoAnalysisRun {
+  id        String        @id @default(cuid())
+  dataset   TaobaoDataset @relation(fields: [datasetId], references: [id], onDelete: Cascade)
+  datasetId String
+  client    Client        @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  clientId  String
+
+  mapping       Json
+  promptVersion String
+  model         String
+
+  totalRows    Int @default(0)
+  analyzedRows Int @default(0)
+  failedRows   Int @default(0)
+
+  apiCalls     Int   @default(0)
+  cachedRows   Int   @default(0)
+  inputTokens  Int   @default(0)
+  outputTokens Int   @default(0)
+  costUsd      Float @default(0)
+
+  createdAt  DateTime  @default(now())
+  finishedAt DateTime?
+  error      String?
+
+  rows TaobaoAnalysisRow[]
+  jobs TaobaoJob[]
+
+  @@index([datasetId])
+  @@index([clientId])
+  pipelines TaobaoPipeline[]
+}
+
+/// Una riga analizzata: interpretazione, correzioni manuali e stato.
+model TaobaoAnalysisRow {
+  id    String            @id @default(cuid())
+  run   TaobaoAnalysisRun @relation(fields: [runId], references: [id], onDelete: Cascade)
+  runId String
+
+  datasetRow   TaobaoDatasetRow @relation(fields: [datasetRowId], references: [id], onDelete: Cascade)
+  datasetRowId String
+
+  /// Analisi di provenienza nella cache condivisa. `SetNull`: svuotare la
+  /// cache non deve cancellare la revisione fatta da un umano.
+  analysis   RequestAnalysis? @relation(fields: [analysisId], references: [id], onDelete: SetNull)
+  analysisId String?
+
+  rowNumber Int
+  state     AnalysisRowState @default(NEEDS_REVIEW)
+
+  /// Testo che descrive la merce (nome, specifiche, utilizzo, titolo), senza
+  /// quantità né link. È la sorgente della firma residua che tiene separate
+  /// le varianti quando l'analisi non estrae una misura: va conservato perché
+  /// una correzione manuale deve poter ricalcolare le stesse chiavi.
+  signatureText String?
+
+  effectiveAnalysis Json?
+  manualEdits       Json?
+  edited            Boolean @default(false)
+  fromCache         Boolean @default(false)
+  approvedByUser    Boolean @default(false)
+
+  familyKey    String?
+  variantKey   String?
+  duplicateKey String?
+  confidence   Float?
+
+  error String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  jobRows TaobaoJobRow[]
+
+  @@unique([runId, datasetRowId])
+  @@index([runId, state])
+  @@index([variantKey])
+}
+
+/// ---------------------------------------------------------------------------
+/// Memoria interna: variante richiesta e prodotti trovati su Taobao.
+/// Condivisa fra clienti per non ripetere ricerche già pagate.
+/// ---------------------------------------------------------------------------
+
+/// Una variante di prodotto cercata su Taobao.
+model TaobaoRequest {
+  id String @id @default(cuid())
+
+  /// Identità che decide il riuso.
+  variantKey   String  @unique
+  familyKey    String
+  duplicateKey String?
+
+  displayName        String
+  productNameChinese String?
+  productNameEnglish String?
+  model              String?
+  material           String?
+  color              String?
+
+  /// Query cinese: è quella che si usa davvero su Taobao.
+  searchQueryChinese String?
+  searchQueryEnglish String?
+
+  /// Analisi effettiva che ha generato la variante: serve a rivalutare i
+  /// prodotti (requisiti, misure) senza ricostruirla dalla riga.
+  analysis Json?
+
+  hardRequirements String[]
+  softRequirements String[]
+
+  firstSeenAt    DateTime  @default(now())
+  lastSearchedAt DateTime?
+  lastVerifiedAt DateTime?
+  searchCount    Int       @default(0)
+
+  products TaobaoProduct[]
+  jobRows  TaobaoJobRow[]
+
+  @@index([familyKey])
+}
+
+/// Un prodotto trovato per una variante.
+model TaobaoProduct {
+  id        String        @id @default(cuid())
+  request   TaobaoRequest @relation(fields: [requestId], references: [id], onDelete: Cascade)
+  requestId String
+
+  /// Marketplace di provenienza: `taobao` oppure `1688`.
+  ///
+  /// Entra nella chiave di unicità perché gli identificativi sono numerici su
+  /// entrambi e nulla garantisce che non collidano: senza, un'offerta 1688 e
+  /// un prodotto Taobao con lo stesso numero si sovrascriverebbero a vicenda.
+  platform String @default("taobao")
+
+  /// Identità del prodotto sul suo marketplace.
+  itemId String
+  url    String?
+  title  String
+  /// Titolo tradotto, quando la fonte lo espone (ElimAPI con `lang=en`).
+  titleEn String?
+
+  imageUrl String?
+
+  price         Decimal? @db.Decimal(14, 4)
+  currency      String?
+  /// Prezzo della variante specifica, quando la scheda lo espone separato.
+  variantPrice  Decimal? @db.Decimal(14, 4)
+  /// Prezzo promozionale: è quello che si paga oggi, se c'è una promozione.
+  promotionPrice Decimal? @db.Decimal(14, 4)
+  /// Quantità minima d'ordine (1688 la usa quasi sempre).
+  moq           Int?
+  /// SKU/variante identificata dalla fonte, quando ne espone una.
+  sku           String?
+
+  shopName String?
+  shopUrl  String?
+  sellerId String?
+
+  totalSales  Int?
+  reviewCount Int?
+  rating      Float?
+
+  specs        Json?
+  variants     Json?
+  availability String?
+  /// Spedizione interna in Cina, quando la fonte la espone.
+  shipping     Json?
+
+  /// Query che l'ha fatto emergere.
+  foundQuery String
+  /// Provenienze che hanno visto questo prodotto: api, playwright, excel, memory.
+  sources    String[]
+
+  contentHash   String
+  firstSeenAt   DateTime  @default(now())
+  lastCheckedAt DateTime  @default(now())
+  lastChangedAt DateTime?
+  changedFields String[]
+  unavailable   Boolean   @default(false)
+
+  detailFetchedAt DateTime?
+  reviewFetchedAt DateTime?
+
+  /// Risposta grezza della fonte, così com'è arrivata.
+  ///
+  /// Le fonti espongono campi che oggi non normalizziamo (fasce di prezzo,
+  /// promozioni, tassi di riacquisto): conservarli costa poco e evita di
+  /// dover rifare — e ripagare — la chiamata quando servono.
+  raw Json?
+
+  snapshots TaobaoPriceSnapshot[]
+  results   TaobaoJobResult[]
+
+  @@unique([requestId, platform, itemId])
+  @@index([requestId])
+  @@index([requestId, platform])
+}
+
+/// Storico: una riga per ogni cambiamento reale del prodotto.
+model TaobaoPriceSnapshot {
+  id        String        @id @default(cuid())
+  product   TaobaoProduct @relation(fields: [productId], references: [id], onDelete: Cascade)
+  productId String
+
+  capturedAt DateTime @default(now())
+
+  price       Decimal? @db.Decimal(14, 4)
+  currency    String?
+  totalSales  Int?
+  reviewCount Int?
+  available   Boolean  @default(true)
+
+  contentHash   String
+  changedFields String[]
+
+  @@index([productId, capturedAt])
+}
+
+/// ---------------------------------------------------------------------------
+/// Esecuzione della ricerca.
+/// ---------------------------------------------------------------------------
+
+enum TaobaoJobStatus {
+  QUEUED
+  RUNNING
+  COMPLETED
+  COMPLETED_WITH_ERRORS
+  FAILED
+  CANCELLED
+}
+
+enum TaobaoRowStatus {
+  PENDING
+  REFRESHING
+  SEARCHING_API
+  SEARCHING_BROWSER
+  DONE
+  SKIPPED
+  FAILED
+}
+
+/// L'elaborazione di un file per un cliente.
+model TaobaoJob {
+  id       String @id @default(cuid())
+  client   Client @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  clientId String
+
+  dataset   TaobaoDataset @relation(fields: [datasetId], references: [id], onDelete: Cascade)
+  datasetId String
+
+  analysisRun   TaobaoAnalysisRun? @relation(fields: [analysisRunId], references: [id], onDelete: SetNull)
+  analysisRunId String?
+
+  status  TaobaoJobStatus @default(QUEUED)
+  mapping Json
+
+  /// Ricerca completa anche per le varianti già conosciute.
+  forceFullSearch Boolean @default(false)
+  /// Usa anche Playwright se l'account Taobao è collegato.
+  useBrowser      Boolean @default(true)
+  maxCandidates   Int     @default(10)
+  /// Dettaglio prodotto (1 chiamata) sui primi N candidati di ogni riga.
+  detailTopN      Int     @default(3)
+  /// Usa ElimAPI come riserva quando DataHub non basta.
+  useElim         Boolean @default(true)
+  /// Cerca anche su 1688 tramite ElimAPI (facoltativo).
+  use1688         Boolean @default(false)
+  /// Recensioni (1 chiamata) sui primi N finalisti di ogni riga.
+  reviewTopN      Int     @default(0)
+
+  totalRows     Int @default(0)
+  processedRows Int @default(0)
+  reusedRows    Int @default(0)
+  searchedRows  Int @default(0)
+  failedRows    Int @default(0)
+
+  /// Consumo RapidAPI di questo job, per endpoint e in totale.
+  apiCalls      Int  @default(0)
+  apiCacheHits  Int  @default(0)
+  /// Chiamate «Taobao API by H-W-H»: piano RapidAPI separato da DataHub.
+  hwhCalls      Int  @default(0)
+  browserCalls  Int  @default(0)
+  /// Richieste ElimAPI consumate: il piano le conta a parte da DataHub.
+  elimCalls     Int  @default(0)
+  /// Prodotti riusati dalla memoria e prodotti trovati da zero.
+  reusedProducts Int @default(0)
+  newProducts    Int @default(0)
+
+  startedAt  DateTime?
+  finishedAt DateTime?
+  error      String?
+  createdAt  DateTime  @default(now())
+
+  rows TaobaoJobRow[]
+
+  @@index([clientId, createdAt])
+  @@index([datasetId])
+  @@index([status])
+  pipelines TaobaoPipeline[]
+}
+
+/// Avanzamento e risultato di una riga.
+model TaobaoJobRow {
+  id    String    @id @default(cuid())
+  job   TaobaoJob @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  jobId String
+
+  datasetRow   TaobaoDatasetRow @relation(fields: [datasetRowId], references: [id], onDelete: Cascade)
+  datasetRowId String
+
+  analysisRow   TaobaoAnalysisRow? @relation(fields: [analysisRowId], references: [id], onDelete: SetNull)
+  analysisRowId String?
+
+  request   TaobaoRequest? @relation(fields: [requestId], references: [id], onDelete: SetNull)
+  requestId String?
+
+  rowNumber   Int
+  displayName String
+  searchQuery String
+  status      TaobaoRowStatus @default(PENDING)
+
+  /// true quando i prodotti arrivano dalla memoria invece che da una ricerca.
+  reused      Boolean @default(false)
+  /// Perché è stata riusata o rifatta: è la risposta a «perché non l'hai cercato?».
+  reuseReason String?
+
+  /// Esito separato per trasporto: un captcha su Playwright non deve
+  /// cancellare i risultati dell'API.
+  /// H-W-H è la ricerca primaria; DataHub interviene come fallback.
+  hwhStatus     String?
+  hwhError      String?
+  hwhCount      Int     @default(0)
+  apiStatus     String?
+  apiError      String?
+  apiCount      Int     @default(0)
+  /// Esito della seconda fonte (ElimAPI), separato da quello della prima.
+  elimStatus    String?
+  elimError     String?
+  elimCount     Int     @default(0)
+  browserStatus String?
+  browserError  String?
+  browserCount  Int     @default(0)
+
+  error String?
+
+  startedAt  DateTime?
+  finishedAt DateTime?
+
+  results TaobaoJobResult[]
+
+  @@unique([jobId, datasetRowId])
+  @@index([jobId, status])
+  @@index([requestId])
+}
+
+/// Un prodotto proposto per una riga, con il perché del suo posto in classifica.
+model TaobaoJobResult {
+  id       String       @id @default(cuid())
+  jobRow   TaobaoJobRow @relation(fields: [jobRowId], references: [id], onDelete: Cascade)
+  jobRowId String
+
+  product   TaobaoProduct @relation(fields: [productId], references: [id], onDelete: Cascade)
+  productId String
+
+  rank  Int
+  score Float @default(0)
+  /// Contributo di ogni criterio: compatibilità, prezzo, vendite, recensioni.
+  scoreBreakdown Json?
+
+  matchedRequirements String[]
+  missingRequirements String[]
+  warnings            String[]
+  /// Provenienze che hanno contribuito a questo candidato.
+  sources             String[]
+  /// Differenze rilevate fra le fonti (prezzo o disponibilità discordanti).
+  sourceConflicts     String[]
+
+  /// Verdetto della seconda passata IA: il prodotto è coerente con la riga
+  /// del foglio? `{ verdict, issues, confidence, model }`. `null` finché la
+  /// verifica non è stata chiesta: l'assenza è un dato, non un errore.
+  coherence          Json?
+  coherenceCheckedAt DateTime?
+
+  createdAt DateTime @default(now())
+
+  @@unique([jobRowId, productId])
+  @@index([jobRowId])
+}
+
+/// ---------------------------------------------------------------------------
+/// Domande di chiarimento e conoscenza accumulata.
+/// ---------------------------------------------------------------------------
+
+/// Un dubbio che l'IA non ha saputo sciogliere da sola, diventato domanda.
+///
+/// La risposta dell'operatore non serve solo alla riga che l'ha generata:
+/// viene iniettata come conoscenza nelle analisi successive, così la stessa
+/// domanda non viene rifatta. La chiave `questionKey` è ciò che tiene il
+/// numero di domande al minimo: dieci righe con la stessa ambiguità sono
+/// UNA domanda, e una domanda già risposta non viene più posta.
+model TaobaoClarification {
+  id String @id @default(cuid())
+
+  /// Identità del dubbio: codice + famiglia + soggetto normalizzati.
+  questionKey String @unique
+
+  /// Da dove nasce: `analysis` (lettura del foglio) o `verify` (coerenza).
+  source String @default("analysis")
+  /// Codice del warning che l'ha originata, se c'è.
+  code      String?
+  familyKey String?
+
+  question String
+  answer   String?
+  /// OPEN → ANSWERED (risposta data) oppure DISMISSED (non serve rispondere).
+  status String @default("OPEN")
+
+  /// Esempi di testo che hanno sollevato il dubbio (max qualche riga).
+  examples String[]
+  /// Quante righe hanno incontrato questo dubbio: dà priorità alle domande.
+  hitCount Int @default(1)
+  /// Quante analisi hanno riusato la risposta come conoscenza.
+  timesApplied Int @default(0)
+
+  createdAt  DateTime  @default(now())
+  answeredAt DateTime?
+  updatedAt  DateTime  @updatedAt
+
+  /// Scope opzionale usato esclusivamente dalla v2. Le righe storiche e la
+  /// v1 restano globali come prima; una domanda v2 appartiene sempre a una
+  /// singola pipeline e al relativo cliente/file/analisi.
+  clientId      String?
+  pipelineId    String?
+  datasetId     String?
+  analysisRunId String?
+  locale        String?
+  category      String?
+  attributeKey  String?
+  priority      Int     @default(0)
+
+  pipeline TaobaoPipeline? @relation(fields: [pipelineId], references: [id], onDelete: Cascade)
+
+  @@index([status, updatedAt])
+  @@index([familyKey])
+  @@index([clientId, pipelineId, status])
+  @@index([pipelineId, questionKey])
+}
+
+/// Cache delle chiamate RapidAPI: i crediti si pagano una volta sola.
+model TaobaoApiCache {
+  id       String @id @default(cuid())
+  /// Hash di endpoint + parametri normalizzati.
+  cacheKey String @unique
+
+  endpoint String
+  payload  Json
+  /// Crediti spesi dalla chiamata che ha riempito questa voce.
+  credits  Int    @default(1)
+
+  fetchedAt DateTime @default(now())
+
+  @@index([endpoint, fetchedAt])
+}
+
+/* -------------------------------------------------------------------------- */
+/* Scouting v2: l'elaborazione che si guida da sola                            */
+/* -------------------------------------------------------------------------- */
+
+enum TaobaoPipelineStatus {
+  RUNNING
+  /// In pausa: l'IA ha domande e senza risposta proseguirebbe alla cieca.
+  WAITING_ANSWERS
+  COMPLETED
+  FAILED
+  CANCELLED
+}
+
+enum TaobaoPipelinePhase {
+  QUEUED
+  ANALYSIS
+  QUESTIONS
+  REVIEW
+  SEARCH
+  VERIFY
+  REFINE
+  REPORT
+}
+
+/// Un'elaborazione completa: dal foglio caricato alla quotazione.
+///
+/// Esiste perché lo stato di una corsa che dura minuti non può vivere nella
+/// pagina: chi chiude la scheda a metà ricerca deve ritrovare il lavoro (e i
+/// crediti) al rientro, non ricominciare. Il servizio riprende da `phase`.
+///
+/// Non duplica i dati delle fasi: analisi, job e risultati restano nelle loro
+/// tabelle e qui se ne tiene solo il riferimento. Questa riga risponde a una
+/// domanda sola — «a che punto siamo, e cosa succede dopo».
+model TaobaoPipeline {
+  id       String @id @default(cuid())
+  client   Client @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  clientId String
+
+  dataset   TaobaoDataset @relation(fields: [datasetId], references: [id], onDelete: Cascade)
+  datasetId String
+
+  status TaobaoPipelineStatus @default(RUNNING)
+  phase  TaobaoPipelinePhase  @default(QUEUED)
+
+  /// 0-100. Monotono: non torna indietro nemmeno fra un giro di ri-ricerca e l'altro.
+  progress Int @default(0)
+  /// Chiave del dizionario che descrive il passo in corso (mai una frase).
+  step     String @default("step.queued")
+  /// Valori da inserire nella frase di `step`.
+  stepParams Json?
+
+  mapping    Json
+  markupPct  Float @default(15)
+  /// Quante volte insistere sulle righe senza un prodotto coerente.
+  maxRefineRounds Int     @default(2)
+  forceFullSearch Boolean @default(false)
+  /// Lingua esplicita della corsa: le domande non dipendono dal contesto
+  /// della richiesta HTTP che ha avviato il lavoro in background.
+  locale String @default("it")
+
+  analysisRun   TaobaoAnalysisRun? @relation(fields: [analysisRunId], references: [id], onDelete: SetNull)
+  analysisRunId String?
+  job           TaobaoJob?         @relation(fields: [jobId], references: [id], onDelete: SetNull)
+  jobId         String?
+
+  /// Giri di ri-ricerca già fatti e quante volte l'IA ha già chiesto.
+  refineRounds  Int @default(0)
+  questionRound Int @default(0)
+  /// Righe recuperate dalle ri-ricerche: entra nel riepilogo finale.
+  recoveredRows Int @default(0)
+
+  /// Fasi concluse, in ordine: la pagina le spunta senza doverlo dedurre.
+  completedPhases TaobaoPipelinePhase[]
+
+  /// Riepilogo finale, nella forma di `TaobaoPipelineOutcome`.
+  outcome Json?
+
+  error      String?
+  startedAt  DateTime?
+  finishedAt DateTime?
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+
+  clarifications TaobaoClarification[]
+
+  @@index([clientId, createdAt])
+  @@index([datasetId])
+  @@index([status])
 }

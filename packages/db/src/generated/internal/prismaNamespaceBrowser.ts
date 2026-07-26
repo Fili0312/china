@@ -68,7 +68,21 @@ export const ModelName = {
   ProductCandidateRecord: 'ProductCandidateRecord',
   ProductSnapshot: 'ProductSnapshot',
   ScoutingResult: 'ScoutingResult',
-  MarketplaceSession: 'MarketplaceSession'
+  MarketplaceSession: 'MarketplaceSession',
+  Client: 'Client',
+  TaobaoDataset: 'TaobaoDataset',
+  TaobaoDatasetRow: 'TaobaoDatasetRow',
+  TaobaoAnalysisRun: 'TaobaoAnalysisRun',
+  TaobaoAnalysisRow: 'TaobaoAnalysisRow',
+  TaobaoRequest: 'TaobaoRequest',
+  TaobaoProduct: 'TaobaoProduct',
+  TaobaoPriceSnapshot: 'TaobaoPriceSnapshot',
+  TaobaoJob: 'TaobaoJob',
+  TaobaoJobRow: 'TaobaoJobRow',
+  TaobaoJobResult: 'TaobaoJobResult',
+  TaobaoClarification: 'TaobaoClarification',
+  TaobaoApiCache: 'TaobaoApiCache',
+  TaobaoPipeline: 'TaobaoPipeline'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -251,6 +265,7 @@ export const RequestAnalysisScalarFieldEnum = {
   inputHash: 'inputHash',
   promptVersion: 'promptVersion',
   model: 'model',
+  provider: 'provider',
   submittedText: 'submittedText',
   analysis: 'analysis',
   ok: 'ok',
@@ -471,6 +486,339 @@ export const MarketplaceSessionScalarFieldEnum = {
 } as const
 
 export type MarketplaceSessionScalarFieldEnum = (typeof MarketplaceSessionScalarFieldEnum)[keyof typeof MarketplaceSessionScalarFieldEnum]
+
+
+export const ClientScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  slug: 'slug',
+  contact: 'contact',
+  notes: 'notes',
+  archived: 'archived',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type ClientScalarFieldEnum = (typeof ClientScalarFieldEnum)[keyof typeof ClientScalarFieldEnum]
+
+
+export const TaobaoDatasetScalarFieldEnum = {
+  id: 'id',
+  clientId: 'clientId',
+  fileName: 'fileName',
+  format: 'format',
+  sheetName: 'sheetName',
+  sizeBytes: 'sizeBytes',
+  headerRowNumber: 'headerRowNumber',
+  columns: 'columns',
+  mapping: 'mapping',
+  rowCount: 'rowCount',
+  warnings: 'warnings',
+  createdAt: 'createdAt'
+} as const
+
+export type TaobaoDatasetScalarFieldEnum = (typeof TaobaoDatasetScalarFieldEnum)[keyof typeof TaobaoDatasetScalarFieldEnum]
+
+
+export const TaobaoDatasetRowScalarFieldEnum = {
+  id: 'id',
+  datasetId: 'datasetId',
+  rowNumber: 'rowNumber',
+  sheetName: 'sheetName',
+  sheetRowNumber: 'sheetRowNumber',
+  cells: 'cells',
+  hyperlink: 'hyperlink'
+} as const
+
+export type TaobaoDatasetRowScalarFieldEnum = (typeof TaobaoDatasetRowScalarFieldEnum)[keyof typeof TaobaoDatasetRowScalarFieldEnum]
+
+
+export const TaobaoAnalysisRunScalarFieldEnum = {
+  id: 'id',
+  datasetId: 'datasetId',
+  clientId: 'clientId',
+  mapping: 'mapping',
+  promptVersion: 'promptVersion',
+  model: 'model',
+  totalRows: 'totalRows',
+  analyzedRows: 'analyzedRows',
+  failedRows: 'failedRows',
+  apiCalls: 'apiCalls',
+  cachedRows: 'cachedRows',
+  inputTokens: 'inputTokens',
+  outputTokens: 'outputTokens',
+  costUsd: 'costUsd',
+  createdAt: 'createdAt',
+  finishedAt: 'finishedAt',
+  error: 'error'
+} as const
+
+export type TaobaoAnalysisRunScalarFieldEnum = (typeof TaobaoAnalysisRunScalarFieldEnum)[keyof typeof TaobaoAnalysisRunScalarFieldEnum]
+
+
+export const TaobaoAnalysisRowScalarFieldEnum = {
+  id: 'id',
+  runId: 'runId',
+  datasetRowId: 'datasetRowId',
+  analysisId: 'analysisId',
+  rowNumber: 'rowNumber',
+  state: 'state',
+  signatureText: 'signatureText',
+  effectiveAnalysis: 'effectiveAnalysis',
+  manualEdits: 'manualEdits',
+  edited: 'edited',
+  fromCache: 'fromCache',
+  approvedByUser: 'approvedByUser',
+  familyKey: 'familyKey',
+  variantKey: 'variantKey',
+  duplicateKey: 'duplicateKey',
+  confidence: 'confidence',
+  error: 'error',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type TaobaoAnalysisRowScalarFieldEnum = (typeof TaobaoAnalysisRowScalarFieldEnum)[keyof typeof TaobaoAnalysisRowScalarFieldEnum]
+
+
+export const TaobaoRequestScalarFieldEnum = {
+  id: 'id',
+  variantKey: 'variantKey',
+  familyKey: 'familyKey',
+  duplicateKey: 'duplicateKey',
+  displayName: 'displayName',
+  productNameChinese: 'productNameChinese',
+  productNameEnglish: 'productNameEnglish',
+  model: 'model',
+  material: 'material',
+  color: 'color',
+  searchQueryChinese: 'searchQueryChinese',
+  searchQueryEnglish: 'searchQueryEnglish',
+  analysis: 'analysis',
+  hardRequirements: 'hardRequirements',
+  softRequirements: 'softRequirements',
+  firstSeenAt: 'firstSeenAt',
+  lastSearchedAt: 'lastSearchedAt',
+  lastVerifiedAt: 'lastVerifiedAt',
+  searchCount: 'searchCount'
+} as const
+
+export type TaobaoRequestScalarFieldEnum = (typeof TaobaoRequestScalarFieldEnum)[keyof typeof TaobaoRequestScalarFieldEnum]
+
+
+export const TaobaoProductScalarFieldEnum = {
+  id: 'id',
+  requestId: 'requestId',
+  platform: 'platform',
+  itemId: 'itemId',
+  url: 'url',
+  title: 'title',
+  titleEn: 'titleEn',
+  imageUrl: 'imageUrl',
+  price: 'price',
+  currency: 'currency',
+  variantPrice: 'variantPrice',
+  promotionPrice: 'promotionPrice',
+  moq: 'moq',
+  sku: 'sku',
+  shopName: 'shopName',
+  shopUrl: 'shopUrl',
+  sellerId: 'sellerId',
+  totalSales: 'totalSales',
+  reviewCount: 'reviewCount',
+  rating: 'rating',
+  specs: 'specs',
+  variants: 'variants',
+  availability: 'availability',
+  shipping: 'shipping',
+  foundQuery: 'foundQuery',
+  sources: 'sources',
+  contentHash: 'contentHash',
+  firstSeenAt: 'firstSeenAt',
+  lastCheckedAt: 'lastCheckedAt',
+  lastChangedAt: 'lastChangedAt',
+  changedFields: 'changedFields',
+  unavailable: 'unavailable',
+  detailFetchedAt: 'detailFetchedAt',
+  reviewFetchedAt: 'reviewFetchedAt',
+  raw: 'raw'
+} as const
+
+export type TaobaoProductScalarFieldEnum = (typeof TaobaoProductScalarFieldEnum)[keyof typeof TaobaoProductScalarFieldEnum]
+
+
+export const TaobaoPriceSnapshotScalarFieldEnum = {
+  id: 'id',
+  productId: 'productId',
+  capturedAt: 'capturedAt',
+  price: 'price',
+  currency: 'currency',
+  totalSales: 'totalSales',
+  reviewCount: 'reviewCount',
+  available: 'available',
+  contentHash: 'contentHash',
+  changedFields: 'changedFields'
+} as const
+
+export type TaobaoPriceSnapshotScalarFieldEnum = (typeof TaobaoPriceSnapshotScalarFieldEnum)[keyof typeof TaobaoPriceSnapshotScalarFieldEnum]
+
+
+export const TaobaoJobScalarFieldEnum = {
+  id: 'id',
+  clientId: 'clientId',
+  datasetId: 'datasetId',
+  analysisRunId: 'analysisRunId',
+  status: 'status',
+  mapping: 'mapping',
+  forceFullSearch: 'forceFullSearch',
+  useBrowser: 'useBrowser',
+  maxCandidates: 'maxCandidates',
+  detailTopN: 'detailTopN',
+  useElim: 'useElim',
+  use1688: 'use1688',
+  reviewTopN: 'reviewTopN',
+  totalRows: 'totalRows',
+  processedRows: 'processedRows',
+  reusedRows: 'reusedRows',
+  searchedRows: 'searchedRows',
+  failedRows: 'failedRows',
+  apiCalls: 'apiCalls',
+  apiCacheHits: 'apiCacheHits',
+  hwhCalls: 'hwhCalls',
+  browserCalls: 'browserCalls',
+  elimCalls: 'elimCalls',
+  reusedProducts: 'reusedProducts',
+  newProducts: 'newProducts',
+  startedAt: 'startedAt',
+  finishedAt: 'finishedAt',
+  error: 'error',
+  createdAt: 'createdAt'
+} as const
+
+export type TaobaoJobScalarFieldEnum = (typeof TaobaoJobScalarFieldEnum)[keyof typeof TaobaoJobScalarFieldEnum]
+
+
+export const TaobaoJobRowScalarFieldEnum = {
+  id: 'id',
+  jobId: 'jobId',
+  datasetRowId: 'datasetRowId',
+  analysisRowId: 'analysisRowId',
+  requestId: 'requestId',
+  rowNumber: 'rowNumber',
+  displayName: 'displayName',
+  searchQuery: 'searchQuery',
+  status: 'status',
+  reused: 'reused',
+  reuseReason: 'reuseReason',
+  hwhStatus: 'hwhStatus',
+  hwhError: 'hwhError',
+  hwhCount: 'hwhCount',
+  apiStatus: 'apiStatus',
+  apiError: 'apiError',
+  apiCount: 'apiCount',
+  elimStatus: 'elimStatus',
+  elimError: 'elimError',
+  elimCount: 'elimCount',
+  browserStatus: 'browserStatus',
+  browserError: 'browserError',
+  browserCount: 'browserCount',
+  error: 'error',
+  startedAt: 'startedAt',
+  finishedAt: 'finishedAt'
+} as const
+
+export type TaobaoJobRowScalarFieldEnum = (typeof TaobaoJobRowScalarFieldEnum)[keyof typeof TaobaoJobRowScalarFieldEnum]
+
+
+export const TaobaoJobResultScalarFieldEnum = {
+  id: 'id',
+  jobRowId: 'jobRowId',
+  productId: 'productId',
+  rank: 'rank',
+  score: 'score',
+  scoreBreakdown: 'scoreBreakdown',
+  matchedRequirements: 'matchedRequirements',
+  missingRequirements: 'missingRequirements',
+  warnings: 'warnings',
+  sources: 'sources',
+  sourceConflicts: 'sourceConflicts',
+  coherence: 'coherence',
+  coherenceCheckedAt: 'coherenceCheckedAt',
+  createdAt: 'createdAt'
+} as const
+
+export type TaobaoJobResultScalarFieldEnum = (typeof TaobaoJobResultScalarFieldEnum)[keyof typeof TaobaoJobResultScalarFieldEnum]
+
+
+export const TaobaoClarificationScalarFieldEnum = {
+  id: 'id',
+  questionKey: 'questionKey',
+  source: 'source',
+  code: 'code',
+  familyKey: 'familyKey',
+  question: 'question',
+  answer: 'answer',
+  status: 'status',
+  examples: 'examples',
+  hitCount: 'hitCount',
+  timesApplied: 'timesApplied',
+  createdAt: 'createdAt',
+  answeredAt: 'answeredAt',
+  updatedAt: 'updatedAt',
+  clientId: 'clientId',
+  pipelineId: 'pipelineId',
+  datasetId: 'datasetId',
+  analysisRunId: 'analysisRunId',
+  locale: 'locale',
+  category: 'category',
+  attributeKey: 'attributeKey',
+  priority: 'priority'
+} as const
+
+export type TaobaoClarificationScalarFieldEnum = (typeof TaobaoClarificationScalarFieldEnum)[keyof typeof TaobaoClarificationScalarFieldEnum]
+
+
+export const TaobaoApiCacheScalarFieldEnum = {
+  id: 'id',
+  cacheKey: 'cacheKey',
+  endpoint: 'endpoint',
+  payload: 'payload',
+  credits: 'credits',
+  fetchedAt: 'fetchedAt'
+} as const
+
+export type TaobaoApiCacheScalarFieldEnum = (typeof TaobaoApiCacheScalarFieldEnum)[keyof typeof TaobaoApiCacheScalarFieldEnum]
+
+
+export const TaobaoPipelineScalarFieldEnum = {
+  id: 'id',
+  clientId: 'clientId',
+  datasetId: 'datasetId',
+  status: 'status',
+  phase: 'phase',
+  progress: 'progress',
+  step: 'step',
+  stepParams: 'stepParams',
+  mapping: 'mapping',
+  markupPct: 'markupPct',
+  maxRefineRounds: 'maxRefineRounds',
+  forceFullSearch: 'forceFullSearch',
+  locale: 'locale',
+  analysisRunId: 'analysisRunId',
+  jobId: 'jobId',
+  refineRounds: 'refineRounds',
+  questionRound: 'questionRound',
+  recoveredRows: 'recoveredRows',
+  completedPhases: 'completedPhases',
+  outcome: 'outcome',
+  error: 'error',
+  startedAt: 'startedAt',
+  finishedAt: 'finishedAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type TaobaoPipelineScalarFieldEnum = (typeof TaobaoPipelineScalarFieldEnum)[keyof typeof TaobaoPipelineScalarFieldEnum]
 
 
 export const SortOrder = {

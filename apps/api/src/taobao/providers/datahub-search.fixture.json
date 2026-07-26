@@ -1,0 +1,119 @@
+{
+  "result": {
+    "status": {
+      "code": 200,
+      "attempt": 1,
+      "data": "success",
+      "debug": {
+        "id_processing": {
+          "executionTime": "1.08"
+        }
+      },
+      "executionTime": "1.79",
+      "requestTime": "2026-07-22 22:13:04",
+      "requestId": "cd5cf705db4f5bad5724fdd9c5a626b7",
+      "endpoint": "item_search",
+      "apiVersion": "4.0.5",
+      "functionsVersion": "4.0.7",
+      "la": "0.00",
+      "pmu": 4389464,
+      "mu": 863608
+    },
+    "settings": {
+      "q": "平板灯 60*60",
+      "catId": "",
+      "switches": "",
+      "sort": "default",
+      "page": "1",
+      "pageSize": "20",
+      "startPrice": "",
+      "endPrice": "",
+      "region": "CN",
+      "locale": "zh_CN",
+      "currency": "CNY"
+    },
+    "base": {
+      "totalResults": 1003,
+      "pageSize": "20",
+      "page": "1",
+      "sortValues": [
+        "default",
+        "salesAsc",
+        "salesDesc",
+        "priceAsc",
+        "priceDesc"
+      ],
+      "switchesValues": [
+        "freeShipping",
+        "overseas",
+        "tmall"
+      ]
+    },
+    "resultList": [
+      {
+        "item": {
+          "itemId": "1002567275327",
+          "itemIdStr": "ejlGVDEraEFzeGx0YU5abTJPMHRBQU5yQWdPUUhzaVl3aEh3eisvUC90R1JiNUlZQk12YlpLZVJRaGlPdTh1QWUrVjVob0l6RmhLdUlHYjBLRGhOZHpiM2NZUkp1cFVGQlRpb21MTWNXUVQxcmNIa29scVNJVmZ0RXRYYmVsQWtGbVZHeWxBYUtJVWQxUTZIVGpuZVZpM1IyUmZIVXhDU3dGc2RyYzQzMm9nTXRCL0hCSXpoQnBOSkpad3NVdDRsM3kvSnhPcER3Z3hCcjBkQnlTT09zTTEvZ2tSbkUxYTRpcjNhODhUNVVVY2tDUDJZR0JkN0FtbjdLWWpNUENaRmNVSk1ocHZ3SGlTUHZQbjVHTkNhWTN1SkpIWS85UmJISndCRnYvNDM1T0lpek9aS1QvZW53ei9sUm5wKysreng4aDlGVEFTaDIyd2d6bUkxRmFpUHZrMHJsVHZKdFZqZjBJMC9oaHhMUHlHV1Jka3JoK00vYzM4ZEpPQnZjbkVwZThUYnRhdTZOTlVxamNzUUl5eHVnR1FibzhTbVRkQkdyVGtQd3BrQ0cxSjZhcTE2R1htWEhnYnZkalRoSjZUZzExK29nMUttaTlneDJTclhaTDQxZzhFRXF4TmR4bm81RlYremRVRmJycXZnWkpSaUQ4ZVY4dDd6cGxSZlFNdEdRZjdlSDN2cnQrSUpLYTNzNlRaMTJySHdmQlAxQVYyeWx0MXJ4WFZEcXY2VFc5MGxrREcyRWZaaVljaTdrM3RBaUVPcTgvY1IrZEdKcWVnQlhmMGovQW5xd25mTXJkcGpCWEU5MTVOZXg5eGQ5ZzlvekVPalc0SG5EM21lV3UwRWQ4QjV0d2tFdFRNM1hRQzVyZ3lZKzE2aUxEb1FXR21zOEtlUVNwdjlrZGsvSTZ2SkFqMkNjdGQ0UTVvTWpxOWorNCtJd2NXb3JlQ056aHdwV014dkd3PT0=",
+          "title": "集成吊顶600x600led平板灯60x60面板灯石膏矿棉板办公室LED工程灯",
+          "sales": "0",
+          "itemUrl": "//item.taobao.com/item.htm?id=1002567275327",
+          "image": "//img.alicdn.com/bao/uploaded/i2/2220949499662/O1CN01vgqmuZ2LFFuqf6YGt_!!2220949499662.jpg",
+          "images": {
+            "string": [
+              "//img.alicdn.com/i3/2220949499662/O1CN01PN0DAe2LFFuqrfltV_!!2220949499662.jpg",
+              "//img.alicdn.com/i4/2220949499662/O1CN01kVZ7bt2LFFurfoJCj_!!2220949499662.jpg",
+              "//img.alicdn.com/i2/2220949499662/O1CN01l3yXBs2LFFuqUPscQ_!!2220949499662.jpg",
+              "//img.alicdn.com/i4/2220949499662/O1CN01YY2jM02LFFto7LvFi_!!2220949499662.jpg"
+            ]
+          },
+          "sku": {
+            "def": {
+              "price": "35.00",
+              "promotionPrice": "13.80"
+            }
+          }
+        },
+        "delivery": {
+          "shippingFrom": "广东 中山",
+          "deliveryFee": "0.00"
+        },
+        "seller": {
+          "storeTitle": "祥奈尔工厂直销",
+          "storeType": "taobao"
+        }
+      },
+      {
+        "item": {
+          "itemId": "748676019895",
+          "itemIdStr": "blpjYndiTE1BN0dyTXNYNllLb1BCMUk1bUZDdWxGL2NEa1BJZnFrMUhzWjlXNmpOY3hyOWNpU1FSZkVxY1lRdGNxOFlYTWFpVXhZbk1TbTBtS3orb2dtRXVKem12THlWOGZxQXN3eFF4Uk1CQ1dtLzRUM2pPd3VoNkhDdkFvdzdYNlZyZUl3bmo1ajFSN2w4WnpCMU5xMGttWUNEWmpOTkkrVFptc29oNTlEZzI3N09GTEtCVVJpOUUwNzZvcWwwcE9BcDBRUVRoMVlDV1pvTzVsVU9xVVByK0pob3J0WFFWaER0VHpKanA1QjRnVmhpYUM0VTZsM2hKbTJ0eE5COEh6cjh6cmErWk9OZUJFWVVYQjlwa2U2VTc0Q0JzVVBhb0RBMU1zazZubFFvTW5SUnhzZjFOdmJ6aS9TN0MrNm5KL3FQWlI4dHN6ZnkybkZUMGNSNVpqSGdyU1AvM2NQQml3SE1jVVZXR2ppcEJmUldlS0YyRm1EZVcra3J0eFlaclhMUlpWQnJxbG50ZEp3VTNwTTA4akhyNE15TWMvOWU0dS9KdFk3MTNZaGZvQTMzM2ZzN3NZN3lHeTVuKzNRVWtZekI4T0puV29EdDBvTitQTzhRWkZVVUx2WXdDczBIZlZCb1dyODdEa1JlMi90bnkwSC9LY3E1TjdGMlhCdzlYZVREdTVRb01qbU9XWWNCUk9RUXdBWFZ0QzNOM1lRR3kwUG8wSkFGU0pmaFVGWThpZE1IOG14U3IwSTg4RGhrNk00UUJKd0dwNUR4UEgxR0FzRlorMVovbEJKMjZ6SSsweCtPN0ZSaGZRRWRFclhEbTJ1UGk2MGhsa3lQT1JPL1k1S3M2OTFPbmRqM3FNOW5tVlVsUTBlMXNBeWpELzhpQStPOVM1VVZOOGdWQzVSTFc2ZHBDK2dpcHd3QWMrUlQ=",
+          "title": "集成吊顶600x600led平板灯60x60LED面板灯石膏矿棉板天花工程灯盘",
+          "sales": "0",
+          "itemUrl": "//item.taobao.com/item.htm?id=748676019895",
+          "image": "//img.alicdn.com/bao/uploaded/i2/2209402575344/O1CN01rtmYLk1pLbTQArs7r_!!2209402575344.jpg",
+          "images": {
+            "string": [
+              "//img.alicdn.com/i3/2209402575344/O1CN01yFAkyN1pLbXMSZ8Q9_!!2209402575344.jpg",
+              "//img.alicdn.com/i2/2209402575344/O1CN01904PEc1pLbXLvi9BO_!!2209402575344.jpg",
+              "//img.alicdn.com/i3/2209402575344/O1CN01NZnp5o1pLbTNeA2D4_!!2209402575344.jpg",
+              "//img.alicdn.com/i3/2209402575344/O1CN014rP9WY1pLbTP0XUQ0_!!2209402575344.jpg"
+            ]
+          },
+          "sku": {
+            "def": {
+              "price": "22.00",
+              "promotionPrice": "13.80"
+            }
+          }
+        },
+        "delivery": {
+          "shippingFrom": "广东 中山",
+          "deliveryFee": "0.00"
+        },
+        "seller": {
+          "storeTitle": "刺狼照明",
+          "storeType": "taobao"
+        }
+      }
+    ]
+  }
+}

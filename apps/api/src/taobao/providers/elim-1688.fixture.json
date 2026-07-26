@@ -1,0 +1,50 @@
+{
+  "success": true,
+  "code": "200",
+  "message": "",
+  "paginate": {
+    "current": 1,
+    "size": 5,
+    "total": 2000
+  },
+  "items": [
+    {
+      "id": 998180612776,
+      "title": "集成吊顶600x600led平板灯60x60LED面板灯石膏矿棉板天花工程灯盘",
+      "titleEn": "Integrated Ceiling 600X600Led Flat Panel Light 60X60Led Panel Light Gypsum Mineral Wool Board Ceiling Engineering Light Panel",
+      "price": 22,
+      "promotion_price": null,
+      "retail_price": null,
+      "wholesale_price": null,
+      "dropship_price": 22,
+      "seller_type": "seller",
+      "unit": null,
+      "img_url": "https://cbu01.alicdn.com/img/ibank/O1CN010lfVFK2JYNCB3RE6Z_!!2221242589433-0-cib.jpg",
+      "link": "https://detail.1688.com/offer/998180612776.html",
+      "promotion_url": "https://detail.1688.com/offer/998180612776.html?fromkv=refer:HVCVUVCNJ5FFOR2VGRDDMT2KLJEECWKUKFGUEV2HIVNEIT2OLJLUYNKRLBATESZXI5CTGVCRJZBFSR2FGRKEWTS2K5DTIWKEIFMDGM2QKU6T2PJ5HVDQ1111&kjSource=pc",
+      "sales_volume": 4742,
+      "quantity": null,
+      "retention_rate": "18%",
+      "level": 4.9
+    },
+    {
+      "id": 951615179561,
+      "title": "厨房集成吊顶led灯平板吸顶灯卫生间浴室铝扣板300x600无边框LED",
+      "titleEn": "Kitchen Integrated Ceiling Led Light Panel Ceiling Light Bathroom Aluminum Ceiling Tile 300X600 Frameless Led",
+      "price": 37.8,
+      "promotion_price": 35.91,
+      "retail_price": null,
+      "wholesale_price": null,
+      "dropship_price": 37.8,
+      "seller_type": "merchant",
+      "unit": null,
+      "img_url": "https://cbu01.alicdn.com/img/ibank/O1CN01RJIwA21XyO6uoqxMJ_!!2214876312992-0-cib.jpg",
+      "link": "https://detail.1688.com/offer/951615179561.html",
+      "promotion_url": "https://detail.1688.com/offer/951615179561.html?fromkv=refer:HVCVUVCNJ5FFOR2VGRDDMT2KKZDUKM2EINHEUUSHGQ2FIS2OKJJEYNKRLBATESZXI5CTGVCRJZBFSR2FGRKEWTS2K5DTIWKEIFMDGM2QKU6T2PJ5HVDQ1111&kjSource=pc",
+      "sales_volume": 172,
+      "quantity": null,
+      "retention_rate": "0%",
+      "level": 4.8
+    }
+  ]
+}

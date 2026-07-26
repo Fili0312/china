@@ -90,3 +90,53 @@ export const AnalysisRowState = {
 } as const
 
 export type AnalysisRowState = (typeof AnalysisRowState)[keyof typeof AnalysisRowState]
+
+
+export const TaobaoJobStatus = {
+  QUEUED: 'QUEUED',
+  RUNNING: 'RUNNING',
+  COMPLETED: 'COMPLETED',
+  COMPLETED_WITH_ERRORS: 'COMPLETED_WITH_ERRORS',
+  FAILED: 'FAILED',
+  CANCELLED: 'CANCELLED'
+} as const
+
+export type TaobaoJobStatus = (typeof TaobaoJobStatus)[keyof typeof TaobaoJobStatus]
+
+
+export const TaobaoRowStatus = {
+  PENDING: 'PENDING',
+  REFRESHING: 'REFRESHING',
+  SEARCHING_API: 'SEARCHING_API',
+  SEARCHING_BROWSER: 'SEARCHING_BROWSER',
+  DONE: 'DONE',
+  SKIPPED: 'SKIPPED',
+  FAILED: 'FAILED'
+} as const
+
+export type TaobaoRowStatus = (typeof TaobaoRowStatus)[keyof typeof TaobaoRowStatus]
+
+
+export const TaobaoPipelineStatus = {
+  RUNNING: 'RUNNING',
+  WAITING_ANSWERS: 'WAITING_ANSWERS',
+  COMPLETED: 'COMPLETED',
+  FAILED: 'FAILED',
+  CANCELLED: 'CANCELLED'
+} as const
+
+export type TaobaoPipelineStatus = (typeof TaobaoPipelineStatus)[keyof typeof TaobaoPipelineStatus]
+
+
+export const TaobaoPipelinePhase = {
+  QUEUED: 'QUEUED',
+  ANALYSIS: 'ANALYSIS',
+  QUESTIONS: 'QUESTIONS',
+  REVIEW: 'REVIEW',
+  SEARCH: 'SEARCH',
+  VERIFY: 'VERIFY',
+  REFINE: 'REFINE',
+  REPORT: 'REPORT'
+} as const
+
+export type TaobaoPipelinePhase = (typeof TaobaoPipelinePhase)[keyof typeof TaobaoPipelinePhase]

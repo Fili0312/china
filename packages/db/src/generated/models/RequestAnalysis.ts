@@ -49,6 +49,7 @@ export type RequestAnalysisMinAggregateOutputType = {
   inputHash: string | null
   promptVersion: string | null
   model: string | null
+  provider: string | null
   submittedText: string | null
   ok: boolean | null
   error: string | null
@@ -67,6 +68,7 @@ export type RequestAnalysisMaxAggregateOutputType = {
   inputHash: string | null
   promptVersion: string | null
   model: string | null
+  provider: string | null
   submittedText: string | null
   ok: boolean | null
   error: string | null
@@ -85,6 +87,7 @@ export type RequestAnalysisCountAggregateOutputType = {
   inputHash: number
   promptVersion: number
   model: number
+  provider: number
   submittedText: number
   analysis: number
   ok: number
@@ -120,6 +123,7 @@ export type RequestAnalysisMinAggregateInputType = {
   inputHash?: true
   promptVersion?: true
   model?: true
+  provider?: true
   submittedText?: true
   ok?: true
   error?: true
@@ -138,6 +142,7 @@ export type RequestAnalysisMaxAggregateInputType = {
   inputHash?: true
   promptVersion?: true
   model?: true
+  provider?: true
   submittedText?: true
   ok?: true
   error?: true
@@ -156,6 +161,7 @@ export type RequestAnalysisCountAggregateInputType = {
   inputHash?: true
   promptVersion?: true
   model?: true
+  provider?: true
   submittedText?: true
   analysis?: true
   ok?: true
@@ -262,6 +268,7 @@ export type RequestAnalysisGroupByOutputType = {
   inputHash: string
   promptVersion: string
   model: string
+  provider: string
   submittedText: string
   analysis: runtime.JsonValue | null
   ok: boolean
@@ -304,6 +311,7 @@ export type RequestAnalysisWhereInput = {
   inputHash?: Prisma.StringFilter<"RequestAnalysis"> | string
   promptVersion?: Prisma.StringFilter<"RequestAnalysis"> | string
   model?: Prisma.StringFilter<"RequestAnalysis"> | string
+  provider?: Prisma.StringFilter<"RequestAnalysis"> | string
   submittedText?: Prisma.StringFilter<"RequestAnalysis"> | string
   analysis?: Prisma.JsonNullableFilter<"RequestAnalysis">
   ok?: Prisma.BoolFilter<"RequestAnalysis"> | boolean
@@ -317,6 +325,7 @@ export type RequestAnalysisWhereInput = {
   costUsd?: Prisma.FloatFilter<"RequestAnalysis"> | number
   createdAt?: Prisma.DateTimeFilter<"RequestAnalysis"> | Date | string
   rows?: Prisma.AnalysisRunRowListRelationFilter
+  taobaoRows?: Prisma.TaobaoAnalysisRowListRelationFilter
 }
 
 export type RequestAnalysisOrderByWithRelationInput = {
@@ -324,6 +333,7 @@ export type RequestAnalysisOrderByWithRelationInput = {
   inputHash?: Prisma.SortOrder
   promptVersion?: Prisma.SortOrder
   model?: Prisma.SortOrder
+  provider?: Prisma.SortOrder
   submittedText?: Prisma.SortOrder
   analysis?: Prisma.SortOrderInput | Prisma.SortOrder
   ok?: Prisma.SortOrder
@@ -337,17 +347,19 @@ export type RequestAnalysisOrderByWithRelationInput = {
   costUsd?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   rows?: Prisma.AnalysisRunRowOrderByRelationAggregateInput
+  taobaoRows?: Prisma.TaobaoAnalysisRowOrderByRelationAggregateInput
 }
 
 export type RequestAnalysisWhereUniqueInput = Prisma.AtLeast<{
   id?: string
-  inputHash_promptVersion_model?: Prisma.RequestAnalysisInputHashPromptVersionModelCompoundUniqueInput
+  inputHash_promptVersion_model_provider?: Prisma.RequestAnalysisInputHashPromptVersionModelProviderCompoundUniqueInput
   AND?: Prisma.RequestAnalysisWhereInput | Prisma.RequestAnalysisWhereInput[]
   OR?: Prisma.RequestAnalysisWhereInput[]
   NOT?: Prisma.RequestAnalysisWhereInput | Prisma.RequestAnalysisWhereInput[]
   inputHash?: Prisma.StringFilter<"RequestAnalysis"> | string
   promptVersion?: Prisma.StringFilter<"RequestAnalysis"> | string
   model?: Prisma.StringFilter<"RequestAnalysis"> | string
+  provider?: Prisma.StringFilter<"RequestAnalysis"> | string
   submittedText?: Prisma.StringFilter<"RequestAnalysis"> | string
   analysis?: Prisma.JsonNullableFilter<"RequestAnalysis">
   ok?: Prisma.BoolFilter<"RequestAnalysis"> | boolean
@@ -361,13 +373,15 @@ export type RequestAnalysisWhereUniqueInput = Prisma.AtLeast<{
   costUsd?: Prisma.FloatFilter<"RequestAnalysis"> | number
   createdAt?: Prisma.DateTimeFilter<"RequestAnalysis"> | Date | string
   rows?: Prisma.AnalysisRunRowListRelationFilter
-}, "id" | "inputHash_promptVersion_model">
+  taobaoRows?: Prisma.TaobaoAnalysisRowListRelationFilter
+}, "id" | "inputHash_promptVersion_model_provider">
 
 export type RequestAnalysisOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
   inputHash?: Prisma.SortOrder
   promptVersion?: Prisma.SortOrder
   model?: Prisma.SortOrder
+  provider?: Prisma.SortOrder
   submittedText?: Prisma.SortOrder
   analysis?: Prisma.SortOrderInput | Prisma.SortOrder
   ok?: Prisma.SortOrder
@@ -395,6 +409,7 @@ export type RequestAnalysisScalarWhereWithAggregatesInput = {
   inputHash?: Prisma.StringWithAggregatesFilter<"RequestAnalysis"> | string
   promptVersion?: Prisma.StringWithAggregatesFilter<"RequestAnalysis"> | string
   model?: Prisma.StringWithAggregatesFilter<"RequestAnalysis"> | string
+  provider?: Prisma.StringWithAggregatesFilter<"RequestAnalysis"> | string
   submittedText?: Prisma.StringWithAggregatesFilter<"RequestAnalysis"> | string
   analysis?: Prisma.JsonNullableWithAggregatesFilter<"RequestAnalysis">
   ok?: Prisma.BoolWithAggregatesFilter<"RequestAnalysis"> | boolean
@@ -414,6 +429,7 @@ export type RequestAnalysisCreateInput = {
   inputHash: string
   promptVersion: string
   model: string
+  provider?: string
   submittedText: string
   analysis?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   ok?: boolean
@@ -427,6 +443,7 @@ export type RequestAnalysisCreateInput = {
   costUsd?: number
   createdAt?: Date | string
   rows?: Prisma.AnalysisRunRowCreateNestedManyWithoutAnalysisInput
+  taobaoRows?: Prisma.TaobaoAnalysisRowCreateNestedManyWithoutAnalysisInput
 }
 
 export type RequestAnalysisUncheckedCreateInput = {
@@ -434,6 +451,7 @@ export type RequestAnalysisUncheckedCreateInput = {
   inputHash: string
   promptVersion: string
   model: string
+  provider?: string
   submittedText: string
   analysis?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   ok?: boolean
@@ -447,6 +465,7 @@ export type RequestAnalysisUncheckedCreateInput = {
   costUsd?: number
   createdAt?: Date | string
   rows?: Prisma.AnalysisRunRowUncheckedCreateNestedManyWithoutAnalysisInput
+  taobaoRows?: Prisma.TaobaoAnalysisRowUncheckedCreateNestedManyWithoutAnalysisInput
 }
 
 export type RequestAnalysisUpdateInput = {
@@ -454,6 +473,7 @@ export type RequestAnalysisUpdateInput = {
   inputHash?: Prisma.StringFieldUpdateOperationsInput | string
   promptVersion?: Prisma.StringFieldUpdateOperationsInput | string
   model?: Prisma.StringFieldUpdateOperationsInput | string
+  provider?: Prisma.StringFieldUpdateOperationsInput | string
   submittedText?: Prisma.StringFieldUpdateOperationsInput | string
   analysis?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   ok?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -467,6 +487,7 @@ export type RequestAnalysisUpdateInput = {
   costUsd?: Prisma.FloatFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   rows?: Prisma.AnalysisRunRowUpdateManyWithoutAnalysisNestedInput
+  taobaoRows?: Prisma.TaobaoAnalysisRowUpdateManyWithoutAnalysisNestedInput
 }
 
 export type RequestAnalysisUncheckedUpdateInput = {
@@ -474,6 +495,7 @@ export type RequestAnalysisUncheckedUpdateInput = {
   inputHash?: Prisma.StringFieldUpdateOperationsInput | string
   promptVersion?: Prisma.StringFieldUpdateOperationsInput | string
   model?: Prisma.StringFieldUpdateOperationsInput | string
+  provider?: Prisma.StringFieldUpdateOperationsInput | string
   submittedText?: Prisma.StringFieldUpdateOperationsInput | string
   analysis?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   ok?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -487,6 +509,7 @@ export type RequestAnalysisUncheckedUpdateInput = {
   costUsd?: Prisma.FloatFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   rows?: Prisma.AnalysisRunRowUncheckedUpdateManyWithoutAnalysisNestedInput
+  taobaoRows?: Prisma.TaobaoAnalysisRowUncheckedUpdateManyWithoutAnalysisNestedInput
 }
 
 export type RequestAnalysisCreateManyInput = {
@@ -494,6 +517,7 @@ export type RequestAnalysisCreateManyInput = {
   inputHash: string
   promptVersion: string
   model: string
+  provider?: string
   submittedText: string
   analysis?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   ok?: boolean
@@ -513,6 +537,7 @@ export type RequestAnalysisUpdateManyMutationInput = {
   inputHash?: Prisma.StringFieldUpdateOperationsInput | string
   promptVersion?: Prisma.StringFieldUpdateOperationsInput | string
   model?: Prisma.StringFieldUpdateOperationsInput | string
+  provider?: Prisma.StringFieldUpdateOperationsInput | string
   submittedText?: Prisma.StringFieldUpdateOperationsInput | string
   analysis?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   ok?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -532,6 +557,7 @@ export type RequestAnalysisUncheckedUpdateManyInput = {
   inputHash?: Prisma.StringFieldUpdateOperationsInput | string
   promptVersion?: Prisma.StringFieldUpdateOperationsInput | string
   model?: Prisma.StringFieldUpdateOperationsInput | string
+  provider?: Prisma.StringFieldUpdateOperationsInput | string
   submittedText?: Prisma.StringFieldUpdateOperationsInput | string
   analysis?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   ok?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -546,10 +572,11 @@ export type RequestAnalysisUncheckedUpdateManyInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
-export type RequestAnalysisInputHashPromptVersionModelCompoundUniqueInput = {
+export type RequestAnalysisInputHashPromptVersionModelProviderCompoundUniqueInput = {
   inputHash: string
   promptVersion: string
   model: string
+  provider: string
 }
 
 export type RequestAnalysisCountOrderByAggregateInput = {
@@ -557,6 +584,7 @@ export type RequestAnalysisCountOrderByAggregateInput = {
   inputHash?: Prisma.SortOrder
   promptVersion?: Prisma.SortOrder
   model?: Prisma.SortOrder
+  provider?: Prisma.SortOrder
   submittedText?: Prisma.SortOrder
   analysis?: Prisma.SortOrder
   ok?: Prisma.SortOrder
@@ -583,6 +611,7 @@ export type RequestAnalysisMaxOrderByAggregateInput = {
   inputHash?: Prisma.SortOrder
   promptVersion?: Prisma.SortOrder
   model?: Prisma.SortOrder
+  provider?: Prisma.SortOrder
   submittedText?: Prisma.SortOrder
   ok?: Prisma.SortOrder
   error?: Prisma.SortOrder
@@ -601,6 +630,7 @@ export type RequestAnalysisMinOrderByAggregateInput = {
   inputHash?: Prisma.SortOrder
   promptVersion?: Prisma.SortOrder
   model?: Prisma.SortOrder
+  provider?: Prisma.SortOrder
   submittedText?: Prisma.SortOrder
   ok?: Prisma.SortOrder
   error?: Prisma.SortOrder
@@ -646,11 +676,28 @@ export type RequestAnalysisUpdateOneWithoutRowsNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.RequestAnalysisUpdateToOneWithWhereWithoutRowsInput, Prisma.RequestAnalysisUpdateWithoutRowsInput>, Prisma.RequestAnalysisUncheckedUpdateWithoutRowsInput>
 }
 
+export type RequestAnalysisCreateNestedOneWithoutTaobaoRowsInput = {
+  create?: Prisma.XOR<Prisma.RequestAnalysisCreateWithoutTaobaoRowsInput, Prisma.RequestAnalysisUncheckedCreateWithoutTaobaoRowsInput>
+  connectOrCreate?: Prisma.RequestAnalysisCreateOrConnectWithoutTaobaoRowsInput
+  connect?: Prisma.RequestAnalysisWhereUniqueInput
+}
+
+export type RequestAnalysisUpdateOneWithoutTaobaoRowsNestedInput = {
+  create?: Prisma.XOR<Prisma.RequestAnalysisCreateWithoutTaobaoRowsInput, Prisma.RequestAnalysisUncheckedCreateWithoutTaobaoRowsInput>
+  connectOrCreate?: Prisma.RequestAnalysisCreateOrConnectWithoutTaobaoRowsInput
+  upsert?: Prisma.RequestAnalysisUpsertWithoutTaobaoRowsInput
+  disconnect?: Prisma.RequestAnalysisWhereInput | boolean
+  delete?: Prisma.RequestAnalysisWhereInput | boolean
+  connect?: Prisma.RequestAnalysisWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.RequestAnalysisUpdateToOneWithWhereWithoutTaobaoRowsInput, Prisma.RequestAnalysisUpdateWithoutTaobaoRowsInput>, Prisma.RequestAnalysisUncheckedUpdateWithoutTaobaoRowsInput>
+}
+
 export type RequestAnalysisCreateWithoutRowsInput = {
   id?: string
   inputHash: string
   promptVersion: string
   model: string
+  provider?: string
   submittedText: string
   analysis?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   ok?: boolean
@@ -663,6 +710,7 @@ export type RequestAnalysisCreateWithoutRowsInput = {
   outputTokens?: number
   costUsd?: number
   createdAt?: Date | string
+  taobaoRows?: Prisma.TaobaoAnalysisRowCreateNestedManyWithoutAnalysisInput
 }
 
 export type RequestAnalysisUncheckedCreateWithoutRowsInput = {
@@ -670,6 +718,7 @@ export type RequestAnalysisUncheckedCreateWithoutRowsInput = {
   inputHash: string
   promptVersion: string
   model: string
+  provider?: string
   submittedText: string
   analysis?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   ok?: boolean
@@ -682,6 +731,7 @@ export type RequestAnalysisUncheckedCreateWithoutRowsInput = {
   outputTokens?: number
   costUsd?: number
   createdAt?: Date | string
+  taobaoRows?: Prisma.TaobaoAnalysisRowUncheckedCreateNestedManyWithoutAnalysisInput
 }
 
 export type RequestAnalysisCreateOrConnectWithoutRowsInput = {
@@ -705,6 +755,7 @@ export type RequestAnalysisUpdateWithoutRowsInput = {
   inputHash?: Prisma.StringFieldUpdateOperationsInput | string
   promptVersion?: Prisma.StringFieldUpdateOperationsInput | string
   model?: Prisma.StringFieldUpdateOperationsInput | string
+  provider?: Prisma.StringFieldUpdateOperationsInput | string
   submittedText?: Prisma.StringFieldUpdateOperationsInput | string
   analysis?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   ok?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -717,6 +768,7 @@ export type RequestAnalysisUpdateWithoutRowsInput = {
   outputTokens?: Prisma.IntFieldUpdateOperationsInput | number
   costUsd?: Prisma.FloatFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  taobaoRows?: Prisma.TaobaoAnalysisRowUpdateManyWithoutAnalysisNestedInput
 }
 
 export type RequestAnalysisUncheckedUpdateWithoutRowsInput = {
@@ -724,6 +776,7 @@ export type RequestAnalysisUncheckedUpdateWithoutRowsInput = {
   inputHash?: Prisma.StringFieldUpdateOperationsInput | string
   promptVersion?: Prisma.StringFieldUpdateOperationsInput | string
   model?: Prisma.StringFieldUpdateOperationsInput | string
+  provider?: Prisma.StringFieldUpdateOperationsInput | string
   submittedText?: Prisma.StringFieldUpdateOperationsInput | string
   analysis?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   ok?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -736,6 +789,107 @@ export type RequestAnalysisUncheckedUpdateWithoutRowsInput = {
   outputTokens?: Prisma.IntFieldUpdateOperationsInput | number
   costUsd?: Prisma.FloatFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  taobaoRows?: Prisma.TaobaoAnalysisRowUncheckedUpdateManyWithoutAnalysisNestedInput
+}
+
+export type RequestAnalysisCreateWithoutTaobaoRowsInput = {
+  id?: string
+  inputHash: string
+  promptVersion: string
+  model: string
+  provider?: string
+  submittedText: string
+  analysis?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  ok?: boolean
+  error?: string | null
+  familyKey?: string | null
+  variantKey?: string | null
+  duplicateKey?: string | null
+  confidence?: number | null
+  inputTokens?: number
+  outputTokens?: number
+  costUsd?: number
+  createdAt?: Date | string
+  rows?: Prisma.AnalysisRunRowCreateNestedManyWithoutAnalysisInput
+}
+
+export type RequestAnalysisUncheckedCreateWithoutTaobaoRowsInput = {
+  id?: string
+  inputHash: string
+  promptVersion: string
+  model: string
+  provider?: string
+  submittedText: string
+  analysis?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  ok?: boolean
+  error?: string | null
+  familyKey?: string | null
+  variantKey?: string | null
+  duplicateKey?: string | null
+  confidence?: number | null
+  inputTokens?: number
+  outputTokens?: number
+  costUsd?: number
+  createdAt?: Date | string
+  rows?: Prisma.AnalysisRunRowUncheckedCreateNestedManyWithoutAnalysisInput
+}
+
+export type RequestAnalysisCreateOrConnectWithoutTaobaoRowsInput = {
+  where: Prisma.RequestAnalysisWhereUniqueInput
+  create: Prisma.XOR<Prisma.RequestAnalysisCreateWithoutTaobaoRowsInput, Prisma.RequestAnalysisUncheckedCreateWithoutTaobaoRowsInput>
+}
+
+export type RequestAnalysisUpsertWithoutTaobaoRowsInput = {
+  update: Prisma.XOR<Prisma.RequestAnalysisUpdateWithoutTaobaoRowsInput, Prisma.RequestAnalysisUncheckedUpdateWithoutTaobaoRowsInput>
+  create: Prisma.XOR<Prisma.RequestAnalysisCreateWithoutTaobaoRowsInput, Prisma.RequestAnalysisUncheckedCreateWithoutTaobaoRowsInput>
+  where?: Prisma.RequestAnalysisWhereInput
+}
+
+export type RequestAnalysisUpdateToOneWithWhereWithoutTaobaoRowsInput = {
+  where?: Prisma.RequestAnalysisWhereInput
+  data: Prisma.XOR<Prisma.RequestAnalysisUpdateWithoutTaobaoRowsInput, Prisma.RequestAnalysisUncheckedUpdateWithoutTaobaoRowsInput>
+}
+
+export type RequestAnalysisUpdateWithoutTaobaoRowsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  inputHash?: Prisma.StringFieldUpdateOperationsInput | string
+  promptVersion?: Prisma.StringFieldUpdateOperationsInput | string
+  model?: Prisma.StringFieldUpdateOperationsInput | string
+  provider?: Prisma.StringFieldUpdateOperationsInput | string
+  submittedText?: Prisma.StringFieldUpdateOperationsInput | string
+  analysis?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  ok?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  error?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  familyKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  variantKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  duplicateKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  confidence?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  inputTokens?: Prisma.IntFieldUpdateOperationsInput | number
+  outputTokens?: Prisma.IntFieldUpdateOperationsInput | number
+  costUsd?: Prisma.FloatFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  rows?: Prisma.AnalysisRunRowUpdateManyWithoutAnalysisNestedInput
+}
+
+export type RequestAnalysisUncheckedUpdateWithoutTaobaoRowsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  inputHash?: Prisma.StringFieldUpdateOperationsInput | string
+  promptVersion?: Prisma.StringFieldUpdateOperationsInput | string
+  model?: Prisma.StringFieldUpdateOperationsInput | string
+  provider?: Prisma.StringFieldUpdateOperationsInput | string
+  submittedText?: Prisma.StringFieldUpdateOperationsInput | string
+  analysis?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  ok?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  error?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  familyKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  variantKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  duplicateKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  confidence?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  inputTokens?: Prisma.IntFieldUpdateOperationsInput | number
+  outputTokens?: Prisma.IntFieldUpdateOperationsInput | number
+  costUsd?: Prisma.FloatFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  rows?: Prisma.AnalysisRunRowUncheckedUpdateManyWithoutAnalysisNestedInput
 }
 
 
@@ -745,10 +899,12 @@ export type RequestAnalysisUncheckedUpdateWithoutRowsInput = {
 
 export type RequestAnalysisCountOutputType = {
   rows: number
+  taobaoRows: number
 }
 
 export type RequestAnalysisCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   rows?: boolean | RequestAnalysisCountOutputTypeCountRowsArgs
+  taobaoRows?: boolean | RequestAnalysisCountOutputTypeCountTaobaoRowsArgs
 }
 
 /**
@@ -768,12 +924,20 @@ export type RequestAnalysisCountOutputTypeCountRowsArgs<ExtArgs extends runtime.
   where?: Prisma.AnalysisRunRowWhereInput
 }
 
+/**
+ * RequestAnalysisCountOutputType without action
+ */
+export type RequestAnalysisCountOutputTypeCountTaobaoRowsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.TaobaoAnalysisRowWhereInput
+}
+
 
 export type RequestAnalysisSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   inputHash?: boolean
   promptVersion?: boolean
   model?: boolean
+  provider?: boolean
   submittedText?: boolean
   analysis?: boolean
   ok?: boolean
@@ -787,6 +951,7 @@ export type RequestAnalysisSelect<ExtArgs extends runtime.Types.Extensions.Inter
   costUsd?: boolean
   createdAt?: boolean
   rows?: boolean | Prisma.RequestAnalysis$rowsArgs<ExtArgs>
+  taobaoRows?: boolean | Prisma.RequestAnalysis$taobaoRowsArgs<ExtArgs>
   _count?: boolean | Prisma.RequestAnalysisCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["requestAnalysis"]>
 
@@ -795,6 +960,7 @@ export type RequestAnalysisSelectCreateManyAndReturn<ExtArgs extends runtime.Typ
   inputHash?: boolean
   promptVersion?: boolean
   model?: boolean
+  provider?: boolean
   submittedText?: boolean
   analysis?: boolean
   ok?: boolean
@@ -814,6 +980,7 @@ export type RequestAnalysisSelectUpdateManyAndReturn<ExtArgs extends runtime.Typ
   inputHash?: boolean
   promptVersion?: boolean
   model?: boolean
+  provider?: boolean
   submittedText?: boolean
   analysis?: boolean
   ok?: boolean
@@ -833,6 +1000,7 @@ export type RequestAnalysisSelectScalar = {
   inputHash?: boolean
   promptVersion?: boolean
   model?: boolean
+  provider?: boolean
   submittedText?: boolean
   analysis?: boolean
   ok?: boolean
@@ -847,9 +1015,10 @@ export type RequestAnalysisSelectScalar = {
   createdAt?: boolean
 }
 
-export type RequestAnalysisOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "inputHash" | "promptVersion" | "model" | "submittedText" | "analysis" | "ok" | "error" | "familyKey" | "variantKey" | "duplicateKey" | "confidence" | "inputTokens" | "outputTokens" | "costUsd" | "createdAt", ExtArgs["result"]["requestAnalysis"]>
+export type RequestAnalysisOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "inputHash" | "promptVersion" | "model" | "provider" | "submittedText" | "analysis" | "ok" | "error" | "familyKey" | "variantKey" | "duplicateKey" | "confidence" | "inputTokens" | "outputTokens" | "costUsd" | "createdAt", ExtArgs["result"]["requestAnalysis"]>
 export type RequestAnalysisInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   rows?: boolean | Prisma.RequestAnalysis$rowsArgs<ExtArgs>
+  taobaoRows?: boolean | Prisma.RequestAnalysis$taobaoRowsArgs<ExtArgs>
   _count?: boolean | Prisma.RequestAnalysisCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type RequestAnalysisIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {}
@@ -859,6 +1028,12 @@ export type $RequestAnalysisPayload<ExtArgs extends runtime.Types.Extensions.Int
   name: "RequestAnalysis"
   objects: {
     rows: Prisma.$AnalysisRunRowPayload<ExtArgs>[]
+    /**
+     * Righe dello scouting v1 (solo Taobao) che riusano la stessa analisi: la
+     * cache è condivisa fra i due flussi, ed è il motivo per cui rianalizzare
+     * un file già visto non costa nulla anche cambiando pagina.
+     */
+    taobaoRows: Prisma.$TaobaoAnalysisRowPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -869,6 +1044,13 @@ export type $RequestAnalysisPayload<ExtArgs extends runtime.Types.Extensions.Int
     inputHash: string
     promptVersion: string
     model: string
+    /**
+     * Chi ha prodotto l'analisi: `claude` o `deepseek`. Fa parte della chiave
+     * di cache: un'analisi Claude non è mai una risposta DeepSeek — le due
+     * convivono per la stessa riga, ed è ciò che permette di confrontarle
+     * senza rifare chiamate.
+     */
+    provider: string
     /**
      * Testo effettivamente inviato a Claude, conservato per poter rispiegare
      * **su cosa** è stata fatta l'analisi (e per riprodurla).
@@ -1288,6 +1470,7 @@ readonly fields: RequestAnalysisFieldRefs;
 export interface Prisma__RequestAnalysisClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
   rows<T extends Prisma.RequestAnalysis$rowsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.RequestAnalysis$rowsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$AnalysisRunRowPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  taobaoRows<T extends Prisma.RequestAnalysis$taobaoRowsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.RequestAnalysis$taobaoRowsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$TaobaoAnalysisRowPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1321,6 +1504,7 @@ export interface RequestAnalysisFieldRefs {
   readonly inputHash: Prisma.FieldRef<"RequestAnalysis", 'String'>
   readonly promptVersion: Prisma.FieldRef<"RequestAnalysis", 'String'>
   readonly model: Prisma.FieldRef<"RequestAnalysis", 'String'>
+  readonly provider: Prisma.FieldRef<"RequestAnalysis", 'String'>
   readonly submittedText: Prisma.FieldRef<"RequestAnalysis", 'String'>
   readonly analysis: Prisma.FieldRef<"RequestAnalysis", 'Json'>
   readonly ok: Prisma.FieldRef<"RequestAnalysis", 'Boolean'>
@@ -1747,6 +1931,30 @@ export type RequestAnalysis$rowsArgs<ExtArgs extends runtime.Types.Extensions.In
   take?: number
   skip?: number
   distinct?: Prisma.AnalysisRunRowScalarFieldEnum | Prisma.AnalysisRunRowScalarFieldEnum[]
+}
+
+/**
+ * RequestAnalysis.taobaoRows
+ */
+export type RequestAnalysis$taobaoRowsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the TaobaoAnalysisRow
+   */
+  select?: Prisma.TaobaoAnalysisRowSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the TaobaoAnalysisRow
+   */
+  omit?: Prisma.TaobaoAnalysisRowOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.TaobaoAnalysisRowInclude<ExtArgs> | null
+  where?: Prisma.TaobaoAnalysisRowWhereInput
+  orderBy?: Prisma.TaobaoAnalysisRowOrderByWithRelationInput | Prisma.TaobaoAnalysisRowOrderByWithRelationInput[]
+  cursor?: Prisma.TaobaoAnalysisRowWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.TaobaoAnalysisRowScalarFieldEnum | Prisma.TaobaoAnalysisRowScalarFieldEnum[]
 }
 
 /**

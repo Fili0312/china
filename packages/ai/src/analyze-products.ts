@@ -37,7 +37,12 @@ import { estimateCostUsd } from "./usage";
  */
 export const ANALYSIS_PROMPT_VERSION = "2026-07-21.2";
 
-const SYSTEM = `Sei un tecnico d'acquisti che prepara la ricerca di prodotti industriali sui marketplace cinesi (Taobao, 1688, Alibaba, Yiwugo, Chinagoods, Made-in-China).
+/**
+ * Prompt di sistema dell'analisi. Esportato perché è **il** prompt, unico per
+ * tutti i provider: DeepSeek riceve lo stesso testo di Claude, così un
+ * confronto fra i due misura il modello e non le istruzioni.
+ */
+export const ANALYSIS_SYSTEM_PROMPT = `Sei un tecnico d'acquisti che prepara la ricerca di prodotti industriali sui marketplace cinesi (Taobao, 1688, Alibaba, Yiwugo, Chinagoods, Made-in-China).
 
 Ricevi righe di un foglio di richiesta d'acquisto, spesso in cinese, a volte in inglese o italiano. Per ogni riga produci l'analisi strutturata che permetterà di cercare ESATTAMENTE quel prodotto.
 
@@ -92,6 +97,22 @@ Scala di "confidence": 0.9-1.0 riga chiara e completa; 0.7-0.9 chiara ma con det
 ## Quantità
 
 "requestedQuantity" e "unit" sono la quantità richiesta e la sua unità, se indicate. Non influenzano famiglia e variante: servono solo a valutare minimi d'ordine e prezzi a scaglioni.`;
+
+/**
+ * Blocco di conoscenza aggiunto al prompt quando l'operatore ha già risposto a
+ * domande di chiarimento. Le risposte valgono come istruzioni: un'ambiguità
+ * risolta da una risposta NON deve più produrre il warning né abbassare la
+ * confidenza — è il meccanismo con cui il sistema «chiede una volta sola».
+ */
+export function knowledgeBlock(entries: readonly string[]): string {
+  return (
+    `\n\n## Conoscenza acquisita dall'operatore\n\n` +
+    `Le risposte qui sotto sono state date dall'operatore a dubbi emersi in analisi precedenti. Applicale:\n` +
+    `- se una risposta risolve un'ambiguità (unità di misura, modello, interpretazione), usa quel valore, NON emettere il warning corrispondente e non abbassare "confidence";\n` +
+    `- se una risposta contraddice il testo della riga, vince il testo della riga: la risposta descrive la convenzione abituale, non questa riga specifica.\n\n` +
+    entries.map((entry) => `- ${entry}`).join("\n")
+  );
+}
 
 /** Una riga da analizzare, già ripulita dai dati amministrativi. */
 export interface AnalysisInputRow {
@@ -172,7 +193,12 @@ export class ProductAnalysisError extends Error {
  */
 export async function analyzeProductRows(
   rows: readonly AnalysisInputRow[],
-  options: { timeoutMs?: number; effort?: "low" | "medium" | "high" } = {}
+  options: {
+    timeoutMs?: number;
+    effort?: "low" | "medium" | "high";
+    /** Risposte già date dall'operatore, iniettate come istruzioni. */
+    knowledge?: readonly string[];
+  } = {}
 ): Promise<AnalysisCallResult> {
   if (rows.length === 0) {
     return {
@@ -198,7 +224,9 @@ export async function analyzeProductRows(
         // di attesa HTTP dell'SDK senza dover passare allo streaming.
         max_tokens: 16000,
         thinking: { type: "adaptive" },
-        system: SYSTEM,
+        system: options.knowledge?.length
+          ? ANALYSIS_SYSTEM_PROMPT + knowledgeBlock(options.knowledge)
+          : ANALYSIS_SYSTEM_PROMPT,
         messages: [
           {
             role: "user",

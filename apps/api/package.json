@@ -8,7 +8,7 @@
     "test:search": "tsx --test src/search/*.test.ts src/inquiry/*.test.ts",
     "dev": "tsx watch src/main.ts",
     "start": "node dist/main.js",
-    "test": "tsx --test src/search/*.test.ts src/inquiry/*.test.ts src/scouting/*.test.ts src/analysis/*.test.ts"
+    "test": "tsx --test ../../packages/shared/src/schemas/*.test.ts src/i18n/*.test.ts src/search/*.test.ts src/inquiry/*.test.ts src/scouting/*.test.ts src/analysis/*.test.ts src/taobao/*.test.ts src/taobao/providers/*.test.ts"
   },
   "dependencies": {
     "@china/adapters": "workspace:*",

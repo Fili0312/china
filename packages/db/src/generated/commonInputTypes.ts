@@ -531,6 +531,74 @@ export type EnumScoutingOutcomeWithAggregatesFilter<$PrismaModel = never> = {
   _max?: Prisma.NestedEnumScoutingOutcomeFilter<$PrismaModel>
 }
 
+export type EnumTaobaoJobStatusFilter<$PrismaModel = never> = {
+  equals?: $Enums.TaobaoJobStatus | Prisma.EnumTaobaoJobStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.TaobaoJobStatus[] | Prisma.ListEnumTaobaoJobStatusFieldRefInput<$PrismaModel>
+  notIn?: $Enums.TaobaoJobStatus[] | Prisma.ListEnumTaobaoJobStatusFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumTaobaoJobStatusFilter<$PrismaModel> | $Enums.TaobaoJobStatus
+}
+
+export type EnumTaobaoJobStatusWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.TaobaoJobStatus | Prisma.EnumTaobaoJobStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.TaobaoJobStatus[] | Prisma.ListEnumTaobaoJobStatusFieldRefInput<$PrismaModel>
+  notIn?: $Enums.TaobaoJobStatus[] | Prisma.ListEnumTaobaoJobStatusFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumTaobaoJobStatusWithAggregatesFilter<$PrismaModel> | $Enums.TaobaoJobStatus
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumTaobaoJobStatusFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumTaobaoJobStatusFilter<$PrismaModel>
+}
+
+export type EnumTaobaoRowStatusFilter<$PrismaModel = never> = {
+  equals?: $Enums.TaobaoRowStatus | Prisma.EnumTaobaoRowStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.TaobaoRowStatus[] | Prisma.ListEnumTaobaoRowStatusFieldRefInput<$PrismaModel>
+  notIn?: $Enums.TaobaoRowStatus[] | Prisma.ListEnumTaobaoRowStatusFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumTaobaoRowStatusFilter<$PrismaModel> | $Enums.TaobaoRowStatus
+}
+
+export type EnumTaobaoRowStatusWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.TaobaoRowStatus | Prisma.EnumTaobaoRowStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.TaobaoRowStatus[] | Prisma.ListEnumTaobaoRowStatusFieldRefInput<$PrismaModel>
+  notIn?: $Enums.TaobaoRowStatus[] | Prisma.ListEnumTaobaoRowStatusFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumTaobaoRowStatusWithAggregatesFilter<$PrismaModel> | $Enums.TaobaoRowStatus
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumTaobaoRowStatusFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumTaobaoRowStatusFilter<$PrismaModel>
+}
+
+export type EnumTaobaoPipelineStatusFilter<$PrismaModel = never> = {
+  equals?: $Enums.TaobaoPipelineStatus | Prisma.EnumTaobaoPipelineStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.TaobaoPipelineStatus[] | Prisma.ListEnumTaobaoPipelineStatusFieldRefInput<$PrismaModel>
+  notIn?: $Enums.TaobaoPipelineStatus[] | Prisma.ListEnumTaobaoPipelineStatusFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumTaobaoPipelineStatusFilter<$PrismaModel> | $Enums.TaobaoPipelineStatus
+}
+
+export type EnumTaobaoPipelinePhaseFilter<$PrismaModel = never> = {
+  equals?: $Enums.TaobaoPipelinePhase | Prisma.EnumTaobaoPipelinePhaseFieldRefInput<$PrismaModel>
+  in?: $Enums.TaobaoPipelinePhase[] | Prisma.ListEnumTaobaoPipelinePhaseFieldRefInput<$PrismaModel>
+  notIn?: $Enums.TaobaoPipelinePhase[] | Prisma.ListEnumTaobaoPipelinePhaseFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumTaobaoPipelinePhaseFilter<$PrismaModel> | $Enums.TaobaoPipelinePhase
+}
+
+export type EnumTaobaoPipelineStatusWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.TaobaoPipelineStatus | Prisma.EnumTaobaoPipelineStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.TaobaoPipelineStatus[] | Prisma.ListEnumTaobaoPipelineStatusFieldRefInput<$PrismaModel>
+  notIn?: $Enums.TaobaoPipelineStatus[] | Prisma.ListEnumTaobaoPipelineStatusFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumTaobaoPipelineStatusWithAggregatesFilter<$PrismaModel> | $Enums.TaobaoPipelineStatus
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumTaobaoPipelineStatusFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumTaobaoPipelineStatusFilter<$PrismaModel>
+}
+
+export type EnumTaobaoPipelinePhaseWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.TaobaoPipelinePhase | Prisma.EnumTaobaoPipelinePhaseFieldRefInput<$PrismaModel>
+  in?: $Enums.TaobaoPipelinePhase[] | Prisma.ListEnumTaobaoPipelinePhaseFieldRefInput<$PrismaModel>
+  notIn?: $Enums.TaobaoPipelinePhase[] | Prisma.ListEnumTaobaoPipelinePhaseFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumTaobaoPipelinePhaseWithAggregatesFilter<$PrismaModel> | $Enums.TaobaoPipelinePhase
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumTaobaoPipelinePhaseFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumTaobaoPipelinePhaseFilter<$PrismaModel>
+}
+
 export type NestedStringFilter<$PrismaModel = never> = {
   equals?: string | Prisma.StringFieldRefInput<$PrismaModel>
   in?: string[] | Prisma.ListStringFieldRefInput<$PrismaModel>
@@ -983,6 +1051,74 @@ export type NestedEnumScoutingOutcomeWithAggregatesFilter<$PrismaModel = never> 
   _count?: Prisma.NestedIntFilter<$PrismaModel>
   _min?: Prisma.NestedEnumScoutingOutcomeFilter<$PrismaModel>
   _max?: Prisma.NestedEnumScoutingOutcomeFilter<$PrismaModel>
+}
+
+export type NestedEnumTaobaoJobStatusFilter<$PrismaModel = never> = {
+  equals?: $Enums.TaobaoJobStatus | Prisma.EnumTaobaoJobStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.TaobaoJobStatus[] | Prisma.ListEnumTaobaoJobStatusFieldRefInput<$PrismaModel>
+  notIn?: $Enums.TaobaoJobStatus[] | Prisma.ListEnumTaobaoJobStatusFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumTaobaoJobStatusFilter<$PrismaModel> | $Enums.TaobaoJobStatus
+}
+
+export type NestedEnumTaobaoJobStatusWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.TaobaoJobStatus | Prisma.EnumTaobaoJobStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.TaobaoJobStatus[] | Prisma.ListEnumTaobaoJobStatusFieldRefInput<$PrismaModel>
+  notIn?: $Enums.TaobaoJobStatus[] | Prisma.ListEnumTaobaoJobStatusFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumTaobaoJobStatusWithAggregatesFilter<$PrismaModel> | $Enums.TaobaoJobStatus
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumTaobaoJobStatusFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumTaobaoJobStatusFilter<$PrismaModel>
+}
+
+export type NestedEnumTaobaoRowStatusFilter<$PrismaModel = never> = {
+  equals?: $Enums.TaobaoRowStatus | Prisma.EnumTaobaoRowStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.TaobaoRowStatus[] | Prisma.ListEnumTaobaoRowStatusFieldRefInput<$PrismaModel>
+  notIn?: $Enums.TaobaoRowStatus[] | Prisma.ListEnumTaobaoRowStatusFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumTaobaoRowStatusFilter<$PrismaModel> | $Enums.TaobaoRowStatus
+}
+
+export type NestedEnumTaobaoRowStatusWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.TaobaoRowStatus | Prisma.EnumTaobaoRowStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.TaobaoRowStatus[] | Prisma.ListEnumTaobaoRowStatusFieldRefInput<$PrismaModel>
+  notIn?: $Enums.TaobaoRowStatus[] | Prisma.ListEnumTaobaoRowStatusFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumTaobaoRowStatusWithAggregatesFilter<$PrismaModel> | $Enums.TaobaoRowStatus
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumTaobaoRowStatusFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumTaobaoRowStatusFilter<$PrismaModel>
+}
+
+export type NestedEnumTaobaoPipelineStatusFilter<$PrismaModel = never> = {
+  equals?: $Enums.TaobaoPipelineStatus | Prisma.EnumTaobaoPipelineStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.TaobaoPipelineStatus[] | Prisma.ListEnumTaobaoPipelineStatusFieldRefInput<$PrismaModel>
+  notIn?: $Enums.TaobaoPipelineStatus[] | Prisma.ListEnumTaobaoPipelineStatusFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumTaobaoPipelineStatusFilter<$PrismaModel> | $Enums.TaobaoPipelineStatus
+}
+
+export type NestedEnumTaobaoPipelinePhaseFilter<$PrismaModel = never> = {
+  equals?: $Enums.TaobaoPipelinePhase | Prisma.EnumTaobaoPipelinePhaseFieldRefInput<$PrismaModel>
+  in?: $Enums.TaobaoPipelinePhase[] | Prisma.ListEnumTaobaoPipelinePhaseFieldRefInput<$PrismaModel>
+  notIn?: $Enums.TaobaoPipelinePhase[] | Prisma.ListEnumTaobaoPipelinePhaseFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumTaobaoPipelinePhaseFilter<$PrismaModel> | $Enums.TaobaoPipelinePhase
+}
+
+export type NestedEnumTaobaoPipelineStatusWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.TaobaoPipelineStatus | Prisma.EnumTaobaoPipelineStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.TaobaoPipelineStatus[] | Prisma.ListEnumTaobaoPipelineStatusFieldRefInput<$PrismaModel>
+  notIn?: $Enums.TaobaoPipelineStatus[] | Prisma.ListEnumTaobaoPipelineStatusFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumTaobaoPipelineStatusWithAggregatesFilter<$PrismaModel> | $Enums.TaobaoPipelineStatus
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumTaobaoPipelineStatusFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumTaobaoPipelineStatusFilter<$PrismaModel>
+}
+
+export type NestedEnumTaobaoPipelinePhaseWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.TaobaoPipelinePhase | Prisma.EnumTaobaoPipelinePhaseFieldRefInput<$PrismaModel>
+  in?: $Enums.TaobaoPipelinePhase[] | Prisma.ListEnumTaobaoPipelinePhaseFieldRefInput<$PrismaModel>
+  notIn?: $Enums.TaobaoPipelinePhase[] | Prisma.ListEnumTaobaoPipelinePhaseFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumTaobaoPipelinePhaseWithAggregatesFilter<$PrismaModel> | $Enums.TaobaoPipelinePhase
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumTaobaoPipelinePhaseFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumTaobaoPipelinePhaseFilter<$PrismaModel>
 }
 
 

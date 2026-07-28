@@ -73,9 +73,10 @@ test("i prodotti H-W-H arrivano normalizzati con la provenienza giusta", () => {
   assert.equal(product.source, "hwh");
   assert.equal(product.platform, "taobao");
   assert.equal(product.itemId, "672412580162");
-  // Semantica del mapper condiviso: `price` è il prezzo che si paga oggi
-  // (la promozione, se c'è), e la promozione resta indicata a parte.
-  assert.equal(product.price, 9.9);
+  // Semantica del mapper condiviso: `price` è il **listino**, `promotionPrice`
+  // lo scontato. Il prezzo che si paga oggi lo compone chi mostra il dato,
+  // così il listino resta disponibile per riconciliare la cifra con la pagina.
+  assert.equal(product.price, 12.8);
   assert.equal(product.promotionPrice, 9.9);
   assert.equal(product.totalSales, 356);
   assert.match(product.url ?? "", /672412580162/);

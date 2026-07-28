@@ -367,7 +367,15 @@ export function mapRawProduct(raw: Json, source: TaobaoSource): RawTaobaoProduct
     titleEn: null,
     url: rawUrl ? absoluteUrl(rawUrl) : canonicalItemUrl(itemId),
     imageUrl: image ? absoluteUrl(image) : null,
-    price: parseLooseNumber(pick(entry, PRICE_KEYS)),
+    // `price` è il **listino**, non il prezzo scontato.
+    //
+    // `PRICE_KEYS` mette `promotion_price` per prima, quindi qui finiva lo
+    // stesso numero che va in `promotionPrice`: i due campi risultavano
+    // identici e il listino andava perso. Restava una sola cifra, quella
+    // promozionale, che sulla pagina Taobao spesso non è quella esposta — di
+    // qui i prezzi che «non corrispondono». Tenendoli separati la differenza
+    // resta spiegabile invece che invisibile.
+    price: listPrice ?? parseLooseNumber(pick(entry, PRICE_KEYS)),
     // Taobao quota in yuan: la valuta non arriva dal payload, e inventarne una
     // diversa sarebbe peggio che dichiarare quella vera del marketplace.
     currency: "CNY",

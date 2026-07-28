@@ -78,6 +78,8 @@ export interface V2ResultRow {
   candidateCount: number;
   confidence: number | null;
   price: number | null;
+  /** Listino, presente solo quando il prezzo effettivo è scontato. */
+  listPrice: number | null;
   currency: string | null;
   /** Unità di vendita del marketplace, mai l'unità richiesta nel foglio. */
   salesUnit: string | null;
@@ -179,6 +181,12 @@ export function buildV2ResultRows(
       });
       const price =
         candidate?.product.promotionPrice ?? candidate?.product.price ?? null;
+      // Il listino resta accanto al prezzo effettivo quando i due differiscono:
+      // è ciò che permette di riconciliare la cifra con la pagina Taobao.
+      const listPrice =
+        candidate?.product.promotionPrice != null
+          ? (candidate?.product.price ?? null)
+          : null;
       const salesUnit = salesUnitFromCandidate(candidate);
       const imageUrl = normalizeImageUrl(candidate?.product.imageUrl ?? null);
       const searchQuery = source?.searchQuery || gap?.searchQuery || null;
@@ -223,6 +231,7 @@ export function buildV2ResultRows(
         candidateCount: candidates.length,
         confidence: coherence?.confidence ?? null,
         price,
+        listPrice,
         currency: candidate?.product.currency ?? null,
         salesUnit,
         imageUrl,

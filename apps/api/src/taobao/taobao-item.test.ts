@@ -222,11 +222,16 @@ test("la risposta reale di /item_search produce prodotti completi", () => {
   assert.ok(first.shipping?.includes("广东"), "spedizione da delivery.shippingFrom");
 });
 
-test("il prezzo promozionale batte quello pieno", () => {
-  // `sku.def` espone `price` (35.00) e `promotionPrice` (13.80): quello che
-  // pagherebbe chi compra oggi è il secondo.
+test("listino e prezzo scontato restano due numeri distinti", () => {
+  // `sku.def` espone `price` (35.00) e `promotionPrice` (13.80). Chi compra
+  // oggi paga il secondo, ma il primo non va perso: è la cifra che spesso si
+  // legge sulla pagina, e senza di essa la differenza sembra un errore.
   const products = mapSearchPayload(REAL_SEARCH);
-  assert.equal(products[0]!.price, 13.8);
+  assert.equal(products[0]!.price, 35);
+  assert.equal(products[0]!.promotionPrice, 13.8);
+  // Il prezzo effettivo resta lo scontato: lo compone chi mostra il dato.
+  const effective = products[0]!.promotionPrice ?? products[0]!.price;
+  assert.equal(effective, 13.8);
 });
 
 test("l'identità non è mai il token cifrato itemIdStr", () => {
@@ -317,4 +322,24 @@ test("un link già pulito non viene toccato", () => {
   assert.equal(decodeLinkEntities(clean), clean);
   assert.equal(decodeLinkEntities(null), null);
   assert.equal(decodeLinkEntities("   "), null);
+});
+
+test("listino e prezzo scontato restano due numeri distinti", () => {
+  // La risposta reale di DataHub: il listino sta in `price`, lo scontato in
+  // `promotion_price`. Prima finivano entrambi sullo stesso campo e il listino
+  // andava perso, così la cifra mostrata non si riconciliava con la pagina.
+  const [mapped] = mapSearchPayload({
+    items: [
+      {
+        itemId: "123456789012",
+        title: "测试商品",
+        price: "19.90",
+        promotion_price: "6.68",
+        image: "//img.alicdn.com/test.jpg",
+      },
+    ],
+  });
+
+  assert.equal(mapped?.price, 19.9);
+  assert.equal(mapped?.promotionPrice, 6.68);
 });

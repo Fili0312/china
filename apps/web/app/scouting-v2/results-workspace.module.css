@@ -1172,3 +1172,16 @@
 .reportRowWarn {
   box-shadow: inset 3px 0 0 var(--s-warn, #9a6700);
 }
+
+.figureList {
+  color: var(--s-faint, #86868b);
+  font-size: 0.68rem;
+  text-decoration: line-through;
+}
+
+.dialogNote {
+  margin: 0;
+  color: var(--s-muted, #6e6e73);
+  font-size: 0.72rem;
+  line-height: 1.45;
+}

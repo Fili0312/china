@@ -89,6 +89,10 @@ const COPY = {
     candidateMissing: "Nessun prodotto",
     imageMissing: "Immagine non disponibile",
     notVerified: "Non verificato",
+    listLabel: "listino",
+    readAt: "letto il",
+    priceNote:
+      "Il prezzo è quello della variante predefinita: sulla pagina può differire se scegli un'altra variante o se è attiva una promozione diversa.",
     confirmedTitle: "Confermati",
     toConfirmTitle: "Da confermare",
     costLabel: "Costo",
@@ -171,6 +175,10 @@ const COPY = {
     candidateMissing: "No product",
     imageMissing: "Image unavailable",
     notVerified: "Not verified",
+    listLabel: "list",
+    readAt: "read on",
+    priceNote:
+      "This is the default variant price: the page may differ if you pick another variant or a different promotion is running.",
     confirmedTitle: "Confirmed",
     toConfirmTitle: "To confirm",
     costLabel: "Cost",
@@ -253,6 +261,9 @@ const COPY = {
     candidateMissing: "没有产品",
     imageMissing: "图片不可用",
     notVerified: "未验证",
+    listLabel: "原价",
+    readAt: "读取于",
+    priceNote: "此价格为默认规格价：选择其他规格或遇到不同促销时，页面价格可能不同。",
     confirmedTitle: "已确认",
     toConfirmTitle: "待确认",
     costLabel: "成本",
@@ -823,6 +834,14 @@ function ProductDialog({
               <strong className={styles.figureCost}>
                 {formatPrice(row.price, row.currency, intlLocale)}
               </strong>
+              {/* Il listino accanto allo scontato: senza, la cifra sembra
+                  semplicemente sbagliata rispetto alla pagina Taobao. */}
+              {row.listPrice != null && row.listPrice !== row.price ? (
+                <span className={styles.figureList}>
+                  {copy.listLabel}{" "}
+                  {formatPrice(row.listPrice, row.currency, intlLocale)}
+                </span>
+              ) : null}
             </div>
             <div>
               <span className={styles.figureLabel}>{copy.sellLabel}</span>
@@ -835,6 +854,17 @@ function ProductDialog({
               </strong>
             </div>
           </div>
+
+          {candidate?.product.lastCheckedAt ? (
+            <p className={styles.dialogNote}>
+              {copy.priceNote}
+              {" · "}
+              {copy.readAt}{" "}
+              {new Date(candidate.product.lastCheckedAt).toLocaleString(
+                intlLocale
+              )}
+            </p>
+          ) : null}
 
           {candidate?.product.url ? (
             <a

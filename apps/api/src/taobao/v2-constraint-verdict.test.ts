@@ -450,3 +450,51 @@ test("una misura senza zeri superflui resta com'è", () => {
 
   assert.equal(repairV2SearchQuery("针规 2.48mm", a, context), "针规 2.48mm");
 });
+
+test("un descrittore attaccato alla misura non entra nella ricerca", () => {
+  const a = analysis({
+    productFamily: "nastro alta temperatura",
+    familyKey: "tape",
+    productNameChinese: "高温纸胶带",
+    searchQueryChinese: "高温纸胶带 50mm宽",
+  });
+  const context = deriveV2RequirementContext(
+    a,
+    "Nome: Nastro\nSpecifiche: 50MM宽*50米长"
+  );
+
+  // `50mm宽` non compare in nessun titolo: là si legge `50mm`.
+  assert.equal(
+    repairV2SearchQuery("高温纸胶带 50mm宽", a, context),
+    "高温纸胶带 50mm"
+  );
+});
+
+test("più quote diventano un gruppo, come le scrivono i venditori", () => {
+  const a = analysis({
+    productFamily: "magnete anulare",
+    familyKey: "ring-magnet",
+    productNameChinese: "环形磁铁",
+    searchQueryChinese: "环形磁铁 外径14mm 内径8.1mm 厚7mm",
+    dimensions: [
+      { axis: "outer", label: "esterno", value: 14, unit: "mm" },
+      { axis: "inner", label: "interno", value: 8.1, unit: "mm" },
+      { axis: "thickness", label: "spessore", value: 7, unit: "mm" },
+    ] as never,
+  });
+  const context = deriveV2RequirementContext(
+    a,
+    "Nome: Magnete\nSpecifiche: 外径14mm*厚7mm/孔内径8.1mm"
+  );
+
+  const queries = buildV2RetryQueries({
+    analysis: a,
+    context,
+    previousQuery: "环形磁铁 外径14mm 内径8.1mm 厚7mm",
+  });
+
+  assert.ok(
+    queries.some((query) => query.includes("14x8.1x7")),
+    `nessun tentativo con la taglia raggruppata: ${queries.join(" | ")}`
+  );
+});

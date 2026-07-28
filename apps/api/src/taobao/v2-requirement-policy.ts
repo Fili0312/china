@@ -671,6 +671,45 @@ export function repairV2SearchQuery(
   );
 }
 
+/**
+ * Descrittori che il foglio attacca alle misure e i venditori non scrivono.
+ *
+ * `50mm宽` («50mm di larghezza») non compare in nessun titolo: là si legge
+ * `50mm`. Sono i caratteri che qualificano una quota — larghezza, lunghezza,
+ * spessore, diametro interno ed esterno — e vivono nella richiesta, non
+ * nell'inserzione. Toglierli non perde informazione: il vincolo resta nel
+ * contesto e lo verifica il gate.
+ */
+const MEASURE_DESCRIPTORS = [
+  "内径",
+  "外径",
+  "壁厚",
+  "直径",
+  "宽度",
+  "长度",
+  "高度",
+  "厚度",
+  "宽",
+  "长",
+  "高",
+  "厚",
+];
+
+/** Stacca il descrittore da una misura: `内径80mm` → `80mm`, `50mm宽` → `50mm`. */
+function stripMeasureDescriptor(token: string): string {
+  let result = token;
+  for (const descriptor of MEASURE_DESCRIPTORS) {
+    // Solo se ciò che resta è ancora una misura: `厚度` da solo non è un numero.
+    const asPrefix = new RegExp(`^${descriptor}(?=\\d)`, "u");
+    const asSuffix = new RegExp(`(?<=[\\d\\p{L}])${descriptor}$`, "u");
+    if (asPrefix.test(result)) result = result.replace(asPrefix, "");
+    if (/\d/u.test(result) && asSuffix.test(result)) {
+      result = result.replace(asSuffix, "");
+    }
+  }
+  return result || token;
+}
+
 /** `5.00mm` e `5mm` sono la stessa misura, ma solo una la scrivono i venditori. */
 function trimTrailingZeros(token: string): string {
   return token.replace(
@@ -707,7 +746,7 @@ function tidySearchQuery(
 
   const kept = normalizeSpace(query)
     .split(/\s+/u)
-    .map(trimTrailingZeros)
+    .map((token) => trimTrailingZeros(stripMeasureDescriptor(token)))
     .filter((token) => token && !droppable.has(compact(token)));
 
   const tidied = normalizeSpace(kept.join(" "));
@@ -1076,12 +1115,25 @@ export function buildV2RetryQueries(input: {
   const withSynonyms = unique(
     synonyms.map((alias) => repairV2SearchQuery(alias, analysis, context))
   );
+  // La taglia come la scrivono i venditori: un gruppo unico.
+  //
+  // Il foglio elenca le quote una per una — «外径14mm 内径8.1mm 厚7mm» — e in
+  // AND non trovano niente; il negozio scrive `14x8x7`. Misurato il 28/07/2026:
+  // la forma estesa dava 0 risultati, il gruppo venti.
+  const dimensionValues = (analysis.dimensions ?? [])
+    .map((dimension) => dimension.value)
+    .filter((value): value is number => value != null);
+  const grouped =
+    dimensionValues.length >= 2
+      ? normalizeSpace(`${preferred} ${dimensionValues.join("x")}`)
+      : "";
+
   // Il tentativo più largo: prodotto e, se esiste, modello. Nessuna misura.
   const broad = normalizeSpace(
     [preferred, ...context.modelTokens.slice(0, 1)].filter(Boolean).join(" ")
   );
 
-  const ladder = unique([...precise, ...withSynonyms]).slice(
+  const ladder = unique([...precise, grouped, ...withSynonyms].filter(Boolean)).slice(
     0,
     Math.max(0, V2_MAX_RETRY_QUERIES - 1)
   );

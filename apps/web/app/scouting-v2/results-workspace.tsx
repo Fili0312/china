@@ -19,7 +19,6 @@ import {
   calculateVirtualWindow,
   filterAndSortV2ResultRows,
   groupV2ResultRows,
-  type V2HumanAction,
   type V2HumanActionType,
   type V2ResultPlatformFilter,
   type V2ResultRow,
@@ -122,11 +121,7 @@ const COPY = {
     automaticChecks: "Controlli risolti automaticamente",
     alternatives: "Alternative salvate",
     openProduct: "Apri il prodotto",
-    actionsTitle: "Interventi richiesti",
-    actionsHint: "Solo decisioni che il sistema non può prendere in autonomia.",
-    closeActions: "Chiudi interventi",
     bell: "{count} interventi umani richiesti",
-    actionFor: "Riga #{row} · {name}",
     actionTypes: {
       APPROVE_EQUIVALENT: "Approva equivalente",
       CHOOSE_VARIANT: "Scegli variante",
@@ -212,11 +207,7 @@ const COPY = {
     automaticChecks: "Automatically resolved checks",
     alternatives: "Saved alternatives",
     openProduct: "Open product",
-    actionsTitle: "Required interventions",
-    actionsHint: "Only decisions the system cannot safely make on its own.",
-    closeActions: "Close interventions",
     bell: "{count} human interventions required",
-    actionFor: "Row #{row} · {name}",
     actionTypes: {
       APPROVE_EQUIVALENT: "Approve equivalent",
       CHOOSE_VARIANT: "Choose variant",
@@ -301,11 +292,7 @@ const COPY = {
     automaticChecks: "自动解决的检查",
     alternatives: "已保存的备选项",
     openProduct: "打开产品",
-    actionsTitle: "需要处理",
-    actionsHint: "仅显示系统无法安全自动决定的事项。",
-    closeActions: "关闭处理面板",
     bell: "需要 {count} 项人工处理",
-    actionFor: "第 {row} 行 · {name}",
     actionTypes: {
       APPROVE_EQUIVALENT: "批准等效产品",
       CHOOSE_VARIANT: "选择规格",
@@ -364,7 +351,8 @@ export function ResultsWorkspace({
       }
     : undefined;
   const [selectedId, setSelectedId] = useState<string | null>(null);
-  const [actionsOpen, setActionsOpen] = useState(false);
+  /** Dove porta il campanello: l'intestazione delle decisioni aperte. */
+  const decisionsRef = useRef<HTMLHeadingElement | null>(null);
   const [openSections, setOpenSections] = useState<
     Record<V2ResultSection, boolean>
   >({
@@ -435,16 +423,24 @@ export function ResultsWorkspace({
     }
   }, [modeledRows, selectedId]);
 
-  function showAction(action: V2HumanAction) {
-    const row = modeledRows.find((entry) => entry.id === action.rowId);
+  /**
+   * Il campanello conta e accompagna: non contiene.
+   *
+   * Prima apriva un pannello con dentro l'elenco delle decisioni, e quel
+   * pannello era una seconda copia della sezione «Da confermare» — le stesse
+   * righe in due posti, con due modi di aprirle e nessuno dei due completo.
+   * Ora porta all'unico posto dove quelle righe vivono: filtra la workspace
+   * sulle decisioni aperte e ci scorre sopra.
+   */
+  function goToOpenDecisions() {
     setQuery("");
     setPlatformFilter("all");
-    setSectionFilter("all");
-    setSelectedId(action.rowId);
-    setActionsOpen(false);
-    if (row) {
-      setOpenSections((current) => ({ ...current, [row.section]: true }));
-    }
+    setSectionFilter("review");
+    setOpenSections((current) => ({ ...current, review: true }));
+    // Dopo il render del filtro, altrimenti si scorre sulla lista vecchia.
+    requestAnimationFrame(() => {
+      decisionsRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+    });
   }
 
   function selectSection(value: V2ResultSectionFilter) {
@@ -534,57 +530,22 @@ export function ResultsWorkspace({
           </button>
         )}
 
+        {/* Un contatore con un collegamento, non un contenitore: porta alla
+            sezione dove le decisioni si prendono per davvero. */}
         {actions.length > 0 ? (
           <button
             type="button"
             className={styles.bell}
-            aria-expanded={actionsOpen}
-            aria-controls="v2-human-actions"
+            aria-controls="v2-open-decisions"
             aria-label={interpolate(copy.bell, { count: actions.length })}
-            onClick={() => setActionsOpen((current) => !current)}
+            title={interpolate(copy.bell, { count: actions.length })}
+            onClick={goToOpenDecisions}
           >
             <span aria-hidden="true">🔔</span>
             <span className={styles.bellCount}>{actions.length}</span>
           </button>
         ) : null}
       </div>
-
-      {actionsOpen && actions.length > 0 ? (
-        <aside id="v2-human-actions" className={styles.actionsPanel}>
-          <div className={styles.panelHeading}>
-            <div>
-              <h3>{copy.actionsTitle}</h3>
-              <p>{copy.actionsHint}</p>
-            </div>
-            <button
-              type="button"
-              className={styles.iconButton}
-              aria-label={copy.closeActions}
-              onClick={() => setActionsOpen(false)}
-            >
-              ×
-            </button>
-          </div>
-          <ol className={styles.actionList}>
-            {actions.map((action) => (
-              <li key={action.id}>
-                <button type="button" onClick={() => showAction(action)}>
-                  <span className={styles.actionType}>
-                    {copy.actionTypes[action.type]}
-                  </span>
-                  <strong>
-                    {interpolate(copy.actionFor, {
-                      row: action.rowNumber,
-                      name: action.displayName,
-                    })}
-                  </strong>
-                  {action.detail ? <span>{action.detail}</span> : null}
-                </button>
-              </li>
-            ))}
-          </ol>
-        </aside>
-      ) : null}
 
       {loading ? <p className={styles.stateMessage}>{copy.loading}</p> : null}
       {loadError ? (
@@ -626,7 +587,12 @@ export function ResultsWorkspace({
           una decisione commerciale. Se questo blocco è lungo, è un difetto. */}
       {toConfirm.length > 0 ? (
         <>
-          <h4 className={styles.groupHeading}>
+          <h4
+            className={styles.groupHeading}
+            id="v2-open-decisions"
+            ref={decisionsRef}
+            tabIndex={-1}
+          >
             {copy.toConfirmTitle}
             <span className={`${styles.groupCount} ${styles.groupCountWarn}`}>
               {toConfirm.length}
@@ -780,6 +746,18 @@ function ReportRow({
           <span className={styles.rowNumber}>#{row.rowNumber}</span>
           {row.displayName}
         </p>
+        {/* Quale decisione serve, scritto sulla riga. Prima viveva dentro il
+            pannello del campanello: si sapeva che c'era una decisione da
+            prendere, ma non su quale riga finché non la si apriva. */}
+        {row.actions.length > 0 ? (
+          <p className={styles.reportDecisions}>
+            {row.actions.map((action) => (
+              <span key={action.id} className={styles.actionType}>
+                {copy.actionTypes[action.type]}
+              </span>
+            ))}
+          </p>
+        ) : null}
       </div>
 
       <div className={styles.reportFigure}>

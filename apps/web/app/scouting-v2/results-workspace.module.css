@@ -494,7 +494,6 @@
   color: var(--s-muted, #6e6e73);
 }
 
-.actionsPanel,
 .detailsPanel {
   display: flex;
   flex-direction: column;
@@ -504,88 +503,17 @@
   border-radius: 0;
   background: transparent;
   box-shadow: none;
+  scroll-margin-top: 5rem;
 }
 
-.actionsPanel {
-  position: sticky;
-  top: 4.8rem;
-  z-index: 18;
-  max-height: min(34rem, 70vh);
-  overflow: auto;
-  border-color: #f59e0b;
-}
-
-.panelHeading {
+.reportDecisions {
   display: flex;
-  align-items: start;
-  justify-content: space-between;
-  gap: 1rem;
-  padding: 0.9rem 1rem;
-  border-bottom: 1px solid var(--s-border, #d8dee8);
+  flex-wrap: wrap;
+  gap: 0.25rem;
+  margin: 0.25rem 0 0;
 }
 
-.panelHeading h3,
-.panelHeading p {
-  margin: 0;
-}
-
-.panelHeading h3 {
-  font-size: 1rem;
-}
-
-.panelHeading p {
-  margin-top: 0.15rem;
-  color: var(--s-muted, #64748b);
-  font-size: 0.8rem;
-}
-
-.iconButton {
-  display: inline-grid;
-  place-items: center;
-  flex: none;
-  width: 2rem;
-  height: 2rem;
-  padding: 0;
-  border: 1px solid var(--s-border, #d8dee8);
-  border-radius: 999px;
-  background: transparent;
-  color: var(--s-text, #172033);
-  font-size: 1.2rem;
-}
-
-.actionList {
-  display: grid;
-  gap: 0;
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
-
-.actionList li + li {
-  border-top: 1px solid var(--s-border, #d8dee8);
-}
-
-.actionList button {
-  display: grid;
-  gap: 0.2rem;
-  width: 100%;
-  padding: 0.75rem 1rem;
-  border: 0;
-  border-radius: 0;
-  background: transparent;
-  color: var(--s-text, #172033);
-  text-align: left;
-}
-
-.actionList button:hover {
-  background: #fffbeb;
-}
-
-.actionList button > span:last-child {
-  color: var(--s-muted, #64748b);
-  font-size: 0.78rem;
-}
-
+/* L'etichetta della decisione: vive sulla riga, dove la decisione si prende. */
 .actionType {
   width: fit-content;
   padding: 0.16rem 0.38rem;
@@ -594,10 +522,6 @@
   color: var(--s-warn, #9a6700);
   font-size: 0.68rem;
   font-weight: 600;
-}
-
-.detailsPanel {
-  scroll-margin-top: 5rem;
 }
 
 .detailGrid {
@@ -716,10 +640,6 @@
 
   .visibleCount {
     margin-left: 0;
-  }
-
-  .actionsPanel {
-    top: 0.5rem;
   }
 
   .detailGrid {

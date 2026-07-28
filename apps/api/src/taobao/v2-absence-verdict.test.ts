@@ -30,3 +30,18 @@ test("«incerto» resta «incerto» qualunque sia il tipo di conflitto", () => {
     assert.equal(settleVerdict("unsure", conflict), "unsure");
   }
 });
+
+/**
+ * Il modello descriveva la contraddizione a parole e poi votava «silenzio»:
+ * un nastro da 50 metri dove ne servivano 10 tornava valutabile. Se riesce a
+ * citare il valore letto nell'inserzione, quel dato è dichiarato — e
+ * «non dichiarato» diventa una contraddizione in termini.
+ */
+test("se cita un valore letto nell'inserzione, il rifiuto non viene ammorbidito", () => {
+  assert.equal(settleVerdict("incoherent", "unstated", "长50米"), "incoherent");
+});
+
+test("una citazione vuota o assente non impedisce l'ammorbidimento", () => {
+  assert.equal(settleVerdict("incoherent", "unstated", null), "unsure");
+  assert.equal(settleVerdict("incoherent", "unstated", "   "), "unsure");
+});

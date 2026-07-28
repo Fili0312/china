@@ -25,7 +25,7 @@ import { estimateCostUsd, estimateDeepSeekCostUsd } from "./usage";
  */
 
 /** Va cambiata a ogni modifica del prompt: è parte dell'identità del verdetto. */
-export const COHERENCE_PROMPT_VERSION = "2026-07-28.2";
+export const COHERENCE_PROMPT_VERSION = "2026-07-28.3";
 
 const SYSTEM = `Sei il controllo qualità di uno scouting di prodotti su Taobao/1688.
 
@@ -60,6 +60,12 @@ Queste NON sono assenze. Se ricadi in uno di questi casi il tipo è "explicit":
 Non scrivere mai un dubbio nelle "issues" ("contraddetto?"): decidi. Se hai citato due valori diversi, è "explicit".
 
 Usa "unstated" solo quando dell'attributo richiesto l'inserzione **non dice nulla**: nessun valore da confrontare, nessun elenco in cui cercarlo.
+
+### Il campo "citedListingValue"
+
+Se hai trovato nell'inserzione un valore che differisce da quello richiesto, **riportalo lì testualmente**, come compare: "长50米", "30x60", "8/10/12寸".
+
+Se invece l'inserzione di quell'attributo non parla, "citedListingValue" è null. Non inventarlo e non riportarci il valore *richiesto*: va scritto solo ciò che hai letto nell'inserzione.
 
 ## Come giudicare
 
@@ -120,6 +126,16 @@ const CoherenceBatchSchema = z.object({
        * invece di fonderle in un unico «non torna».
        */
       conflictType: z.enum(["explicit", "unstated", "none"]),
+      /**
+       * Il valore **letto nell'inserzione** che differisce da quello richiesto.
+       *
+       * Se il modello riesce a citarlo, l'inserzione quel dato lo dichiara — e
+       * allora non è un silenzio, qualunque cosa abbia scritto in
+       * `conflictType`. Serve a chiudere il caso in cui descriveva la
+       * contraddizione a parole («il titolo dice 50 metri ma ne servono 10»)
+       * e poi votava «non dichiarato».
+       */
+      citedListingValue: z.string().nullable(),
       /** Cosa non torna, in italiano; vuoto se coerente. */
       issues: z.array(z.string()),
       /** Domanda per l'operatore; null se non serve. */
@@ -196,8 +212,15 @@ function buildPayload(rows: readonly CoherenceInputRow[]): string {
  */
 export function settleVerdict(
   verdict: "coherent" | "incoherent" | "unsure",
-  conflictType: "explicit" | "unstated" | "none"
+  conflictType: "explicit" | "unstated" | "none",
+  citedListingValue: string | null = null
 ): "coherent" | "incoherent" | "unsure" {
+  // Il modello ha citato un valore letto nell'inserzione: allora quel dato
+  // l'inserzione lo dichiara, e «non dichiarato» è una contraddizione in
+  // termini. Capitava che descrivesse il conflitto a parole e poi votasse
+  // silenzio — un nastro da 50 metri dove ne servivano 10 tornava valutabile.
+  const cited = citedListingValue?.trim();
+  if (cited && conflictType === "unstated") return verdict;
   if (verdict === "incoherent" && conflictType === "unstated") return "unsure";
   return verdict;
 }
@@ -217,7 +240,7 @@ function extractVerdicts(
     const key = `${entry.rowIndex}:${entry.candidateIndex}`;
     if (!requested.has(key)) continue; // indice non richiesto = allucinazione
     verdicts.set(key, {
-      verdict: settleVerdict(entry.verdict, entry.conflictType),
+      verdict: settleVerdict(entry.verdict, entry.conflictType, entry.citedListingValue),
       issues: entry.issues,
       question: entry.question,
       confidence: Math.min(1, Math.max(0, entry.confidence)),
@@ -423,6 +446,10 @@ async function verifyWithDeepSeek(
       candidateIndex,
       verdict,
       conflictType,
+      citedListingValue:
+        typeof raw.citedListingValue === "string" && raw.citedListingValue.trim()
+          ? raw.citedListingValue
+          : null,
       issues: Array.isArray(raw.issues)
         ? raw.issues.filter((x): x is string => typeof x === "string")
         : [],

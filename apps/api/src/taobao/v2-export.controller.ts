@@ -6,6 +6,8 @@ import {
   Query,
   StreamableFile,
 } from "@nestjs/common";
+import { prisma } from "@china/db";
+import { TaobaoPipelineOutcomeSchema } from "@china/shared";
 import { TaobaoJobService } from "./taobao-job.service";
 import {
   buildV2ClientReport,
@@ -16,6 +18,30 @@ import {
 
 function contentDisposition(fileName: string): string {
   return `attachment; filename="${fileName}"`;
+}
+
+/**
+ * Le righe che, nell'esito della corsa, aspettano ancora una persona.
+ *
+ * Il file scaricato e la schermata devono raccontare la stessa cosa: una riga
+ * che in pagina chiede una decisione non può arrivare al cliente marcata come
+ * «prodotto corretto». L'informazione vive nell'esito della pipeline, quindi
+ * si va a prenderla lì. Se il job non appartiene a una pipeline v2 — o
+ * l'esito non c'è ancora — l'insieme è vuoto e il file resta come prima.
+ */
+async function rowsNeedingPerson(jobId: string): Promise<ReadonlySet<number>> {
+  const pipeline = await prisma.taobaoPipeline.findFirst({
+    where: { jobId },
+    select: { outcome: true },
+    orderBy: { createdAt: "desc" },
+  });
+  const parsed = TaobaoPipelineOutcomeSchema.safeParse(pipeline?.outcome);
+  if (!parsed.success) return new Set<number>();
+  return new Set(
+    parsed.data.reviewIssues
+      .filter((issue) => !issue.resolvedAutomatically)
+      .map((issue) => issue.rowNumber)
+  );
 }
 
 /**
@@ -41,11 +67,14 @@ export class V2ExportController {
       limit: 1000,
       offset: 0,
     });
-    return new StreamableFile(buildV2TaobaoExport(results), {
-      disposition: contentDisposition(
-        v2ExportFileName(results.job.clientName, results.job.fileName)
-      ),
-    });
+    return new StreamableFile(
+      buildV2TaobaoExport(results, { needsPerson: await rowsNeedingPerson(jobId) }),
+      {
+        disposition: contentDisposition(
+          v2ExportFileName(results.job.clientName, results.job.fileName)
+        ),
+      }
+    );
   }
 
   @Get("clients/:clientId/jobs/:jobId/v2-report")
@@ -67,7 +96,10 @@ export class V2ExportController {
       offset: 0,
     });
     return new StreamableFile(
-      buildV2ClientReport(results, { markupPct }),
+      buildV2ClientReport(results, {
+        markupPct,
+        needsPerson: await rowsNeedingPerson(jobId),
+      }),
       {
         disposition: contentDisposition(
           v2ReportFileName(results.job.clientName, results.job.fileName)

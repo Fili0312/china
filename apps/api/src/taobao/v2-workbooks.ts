@@ -3,7 +3,6 @@ import * as XLSX from "xlsx";
 import { currentLocale } from "../i18n/request-locale";
 import { exportFileName } from "./export-workbook";
 import { effectivePrice, markedUpPrice, reportCandidates, reportFileName } from "./report-workbook";
-import { isV2NoCompatibleReason } from "./v2-requirement-policy";
 import { v2CandidateCoherence } from "./v2-review-contract";
 
 /**
@@ -105,30 +104,54 @@ const labels: Record<
 
 export type V2ReviewStatus = "correct" | "check" | "none";
 
-/** Stato sintetico: un candidato incompatibile non diventa lavoro manuale. */
-export function v2ReviewStatus(row: TaobaoRowResults): V2ReviewStatus {
-  if (isV2NoCompatibleReason(row.reuseReason)) return "none";
+/**
+ * Ciò che i workbook sanno oltre ai risultati della ricerca.
+ *
+ * Le righe su cui l'esito ha lasciato una decisione umana — una variante da
+ * scegliere, un prezzo da leggere, un dubbio che nessun prodotto ha sciolto —
+ * non possono comparire nel file del cliente come «prodotto corretto». Il
+ * dato vive nell'esito della pipeline, non nella riga di job, e per questo
+ * arriva da fuori.
+ */
+export interface V2WorkbookOptions {
+  needsPerson?: ReadonlySet<number>;
+}
+
+/**
+ * Stato sintetico della riga nel report.
+ *
+ * Decide **il verdetto**, non il motivo scritto sulla riga di job.
+ * `reuseReason` è una nota lasciata da un giro di ri-ricerca («nessun
+ * risultato compatibile»), e la verifica successiva può smentirla: su una
+ * corsa da 498 righe il report dichiarava «nessun risultato compatibile» su
+ * 206 righe, di cui centosessantacinque avevano un prodotto che la pagina
+ * mostrava fra i confermati. Un report che contraddice la schermata da cui
+ * nasce è peggio di un report mancante — e quello è il file che arriva al
+ * cliente.
+ *
+ * Le tre categorie qui corrispondono una a una a quelle dell'esito:
+ * confermata, da controllare, scoperta. Un «incerto» conta come accettato,
+ * esattamente come nella workspace: è il giudice che non riesce a verificare
+ * un dettaglio leggendo il solo titolo, non un rifiuto.
+ */
+export function v2ReviewStatus(
+  row: TaobaoRowResults,
+  /** `true` se l'esito ha lasciato su questa riga una decisione umana. */
+  needsPerson = false
+): V2ReviewStatus {
   const available = row.candidates.filter((candidate) => !candidate.product.unavailable);
-  if (
-    available.some(
-      (candidate) => {
-        const coherence = v2CandidateCoherence(candidate);
-        return (
-          coherence?.verdict === "coherent" &&
-          coherence.variantSelectionRequired !== true
-        );
-      }
-    )
-  ) {
-    return "correct";
-  }
-  if (
-    available.length === 0 ||
-    available.every((candidate) => candidate.coherence?.verdict === "incoherent")
-  ) {
-    return "none";
-  }
-  return "check";
+  const accepted = available.filter((candidate) => {
+    const verdict = candidate.coherence?.verdict;
+    return verdict === "coherent" || verdict === "unsure";
+  });
+  const ready = accepted.find(
+    (candidate) =>
+      v2CandidateCoherence(candidate)?.variantSelectionRequired !== true
+  );
+  if (ready) return needsPerson ? "check" : "correct";
+  // Accettato ma con una variante da scegliere: la decisione è di una persona.
+  if (accepted.length > 0) return "check";
+  return "none";
 }
 
 /** Candidati utilizzabili: gli incompatibili sono esclusi, non segnalati. */
@@ -145,7 +168,6 @@ export function v2UsableCandidates(
 export function selectedCandidate(
   row: TaobaoRowResults
 ): TaobaoCandidate | undefined {
-  if (isV2NoCompatibleReason(row.reuseReason)) return undefined;
   const usable = v2UsableCandidates(row.candidates);
   return (
     usable.find(
@@ -197,9 +219,12 @@ export function selectedVariantOrSku(candidate: TaobaoCandidate): string | null 
   );
 }
 
-function statusLabel(row: TaobaoRowResults, locale: Locale): string {
-  const status = v2ReviewStatus(row);
-  return labels[locale][status];
+function statusLabel(
+  row: TaobaoRowResults,
+  locale: Locale,
+  needsPerson: boolean
+): string {
+  return labels[locale][v2ReviewStatus(row, needsPerson)];
 }
 
 function linkCell(
@@ -217,7 +242,11 @@ function widthSheet(sheet: XLSX.WorkSheet, widths: number[]): void {
   sheet["!cols"] = widths.map((wch) => ({ wch }));
 }
 
-export function buildV2TaobaoExport(results: TaobaoJobResults): Buffer {
+export function buildV2TaobaoExport(
+  results: TaobaoJobResults,
+  options: V2WorkbookOptions = {}
+): Buffer {
+  const needsPerson = options.needsPerson ?? new Set<number>();
   const locale = currentLocale();
   const l = labels[locale];
   const workbook = XLSX.utils.book_new();
@@ -240,7 +269,7 @@ export function buildV2TaobaoExport(results: TaobaoJobResults): Buffer {
     return [
       row.rowNumber,
       row.displayName,
-      statusLabel(row, locale),
+      statusLabel(row, locale, needsPerson.has(row.rowNumber)),
       candidate?.product.title ?? "",
       candidate ? (selectedVariantOrSku(candidate) ?? "") : "",
       candidate ? (productSaleUnit(candidate) ?? "") : "",
@@ -274,10 +303,7 @@ export function buildV2TaobaoExport(results: TaobaoJobResults): Buffer {
     l.productLink,
   ];
   const productRows = results.rows.flatMap((row) =>
-    (isV2NoCompatibleReason(row.reuseReason)
-      ? []
-      : v2UsableCandidates(row.candidates)
-    ).map((candidate) => ({
+    v2UsableCandidates(row.candidates).map((candidate) => ({
       candidate,
       values: [
         row.rowNumber,
@@ -310,8 +336,9 @@ export function buildV2TaobaoExport(results: TaobaoJobResults): Buffer {
 
 export function buildV2ClientReport(
   results: TaobaoJobResults,
-  options: { markupPct: number }
+  options: { markupPct: number } & V2WorkbookOptions
 ): Buffer {
+  const needsPerson = options.needsPerson ?? new Set<number>();
   const locale = currentLocale();
   const l = labels[locale];
   const workbook = XLSX.utils.book_new();
@@ -334,9 +361,7 @@ export function buildV2ClientReport(
   ];
 
   const rows = results.rows.map((row) => {
-    const candidates = isV2NoCompatibleReason(row.reuseReason)
-      ? []
-      : reportCandidates(v2UsableCandidates(row.candidates));
+    const candidates = reportCandidates(v2UsableCandidates(row.candidates));
     const cells = (candidate: TaobaoCandidate | undefined) => {
       if (!candidate) return ["", "", "", "", "", "", ""];
       const price = effectivePrice(candidate);
@@ -353,7 +378,7 @@ export function buildV2ClientReport(
     return [
       row.rowNumber,
       row.displayName,
-      statusLabel(row, locale),
+      statusLabel(row, locale, needsPerson.has(row.rowNumber)),
       ...cells(candidates[0]),
       ...cells(candidates[1]),
       ...cells(candidates[2]),
@@ -362,9 +387,7 @@ export function buildV2ClientReport(
 
   const report = XLSX.utils.aoa_to_sheet([headers, ...rows]);
   results.rows.forEach((row, rowIndex) => {
-    const candidates = isV2NoCompatibleReason(row.reuseReason)
-      ? []
-      : reportCandidates(v2UsableCandidates(row.candidates));
+    const candidates = reportCandidates(v2UsableCandidates(row.candidates));
     candidates.slice(0, 3).forEach((candidate, candidateIndex) => {
       const start = 3 + candidateIndex * 7;
       linkCell(report, rowIndex + 1, start + 5, candidate.product.imageUrl);

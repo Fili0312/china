@@ -140,9 +140,14 @@ function results(rows: TaobaoRowResults[]): TaobaoJobResults {
   };
 }
 
-test("la v2 separa prodotti corretti, azioni umane e nessun risultato", () => {
+test("il report classifica le righe come la pagina, non diversamente", () => {
   assert.equal(v2ReviewStatus(row(1, [candidate("coherent")])), "correct");
-  assert.equal(v2ReviewStatus(row(2, [candidate("unsure")])), "check");
+  // «Incerto» conta come accettato, esattamente come nella workspace: è il
+  // giudice che non riesce a verificare un dettaglio leggendo il solo titolo,
+  // non un rifiuto. Le due viste devono dire la stessa cosa della stessa
+  // riga — altrimenti il file che arriva al cliente smentisce lo schermo da
+  // cui è nato.
+  assert.equal(v2ReviewStatus(row(2, [candidate("unsure")])), "correct");
   assert.equal(v2ReviewStatus(row(3, [candidate("incoherent")])), "none");
   assert.equal(v2ReviewStatus(row(4, [])), "none");
   assert.equal(
@@ -247,15 +252,21 @@ test("il report v2 scarta incompatibili e include URL immagine e prodotto", () =
   );
 });
 
-test("un esito V2_NO_COMPATIBLE non riespone i candidati conservati per audit", () => {
-  const stale = candidate("unsure", { itemId: "audit" });
+// `V2_NO_COMPATIBLE` è una nota lasciata da un giro di ri-ricerca — «qui non
+// ho trovato niente di coerente» — e la verifica successiva può smentirla: la
+// seconda passata giudica i candidati già comprati e ne promuove alcuni.
+// Finché il report si fidava di quella nota, dichiarava «nessun risultato
+// compatibile» su 206 righe della corsa da 498, e centosessantacinque di
+// quelle la pagina le mostrava fra i confermati. Adesso comanda il verdetto.
+test("il motivo scritto sulla riga non nasconde un prodotto che il giudice accetta", () => {
+  const accepted = candidate("unsure", { itemId: "audit" });
   const noCompatible = row(
     1,
-    [stale],
+    [accepted],
     "V2_NO_COMPATIBLE: nessun risultato compatibile dopo 3 tentativi."
   );
 
-  assert.equal(v2ReviewStatus(noCompatible), "none");
+  assert.equal(v2ReviewStatus(noCompatible), "correct");
   const buffer = runWithLocale("it", () =>
     buildV2TaobaoExport(results([noCompatible]))
   );
@@ -267,9 +278,32 @@ test("un esito V2_NO_COMPATIBLE non riespone i candidati conservati per audit", 
     workbook.Sheets["Prodotti"]!
   );
 
-  assert.equal(requests[0]?.["Stato"], "Nessun risultato compatibile");
-  assert.equal(requests[0]?.["Titolo trovato"] ?? "", "");
-  assert.deepEqual(products, []);
+  assert.equal(requests[0]?.["Titolo trovato"], accepted.product.title);
+  assert.equal(products.length, 1);
+
+  // Il rifiuto esplicito invece resta un rifiuto, nota o non nota.
+  const rejected = row(
+    2,
+    [candidate("incoherent", { itemId: "scartato" })],
+    "V2_NO_COMPATIBLE: nessun risultato compatibile dopo 3 tentativi."
+  );
+  assert.equal(v2ReviewStatus(rejected), "none");
+  const rejectedBuffer = runWithLocale("it", () =>
+    buildV2TaobaoExport(results([rejected]))
+  );
+  const rejectedWorkbook = XLSX.read(rejectedBuffer, { type: "buffer" });
+  assert.deepEqual(
+    XLSX.utils.sheet_to_json<Record<string, unknown>>(
+      rejectedWorkbook.Sheets["Prodotti"]!
+    ),
+    []
+  );
+  assert.equal(
+    XLSX.utils.sheet_to_json<Record<string, unknown>>(
+      rejectedWorkbook.Sheets["Richieste"]!
+    )[0]?.["Titolo trovato"] ?? "",
+    ""
+  );
 });
 
 test("un verdetto incerto non diventa una domanda all'operatore", () => {

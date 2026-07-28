@@ -271,6 +271,28 @@ function questionFor(code: string, productFamily: string, message: string): stri
   }
 }
 
+/**
+ * Con che gesto si risponde a questo dubbio.
+ *
+ * Le opzioni non si inventano: derivano dal tipo di dubbio, che il sistema
+ * conosce già. «Quale unità?» ha un insieme chiuso di risposte sensate e
+ * merita dei pulsanti; «come vanno lette queste misure?» no, ed è giusto che
+ * resti un campo di testo. Proporre opzioni dove non ce ne sono di vere
+ * spingerebbe l'operatore a scegliere la meno sbagliata invece di scrivere
+ * quella giusta.
+ */
+export function answerShapeFor(code: string): {
+  options: string[];
+  answerMode: "single" | "multi" | "text";
+} {
+  switch (code) {
+    case "AMBIGUOUS_UNIT":
+      return { options: ["mm", "cm", "m", "pollici"], answerMode: "single" };
+    default:
+      return { options: [], answerMode: "text" };
+  }
+}
+
 export function localizedQuestion(
   locale: string,
   code: string,
@@ -503,6 +525,7 @@ export class ClarificationService {
           familyKey: entry.familyKey,
           question: entry.question,
           examples: entry.examples.slice(0, MAX_EXAMPLES),
+          ...answerShapeFor(entry.code),
           hitCount: entry.hits,
         },
       });

@@ -271,3 +271,16 @@ test("un esito V2_NO_COMPATIBLE non riespone i candidati conservati per audit", 
   assert.equal(requests[0]?.["Titolo trovato"] ?? "", "");
   assert.deepEqual(products, []);
 });
+
+test("un verdetto incerto non diventa una domanda all'operatore", () => {
+  // «Incerto» è il giudice senza obiezioni ma con evidenza incompleta: la
+  // scheda che gliela darebbe la fonte non la serve, quindi rimandarlo
+  // all'operatore significa solo spostargli addosso il lavoro.
+  const accepted = (verdict: string | null) =>
+    verdict === "coherent" || verdict === "unsure";
+
+  assert.equal(accepted("coherent"), true);
+  assert.equal(accepted("unsure"), true);
+  assert.equal(accepted("incoherent"), false);
+  assert.equal(accepted(null), false);
+});

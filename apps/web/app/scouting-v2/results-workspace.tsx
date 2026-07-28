@@ -89,6 +89,8 @@ const COPY = {
     candidateMissing: "Nessun prodotto",
     imageMissing: "Immagine non disponibile",
     notVerified: "Non verificato",
+    confirmedTitle: "Confermati",
+    toConfirmTitle: "Da confermare",
     costLabel: "Costo",
     sellLabel: "Prezzo di vendita",
     showDetail: "Dettaglio",
@@ -169,6 +171,8 @@ const COPY = {
     candidateMissing: "No product",
     imageMissing: "Image unavailable",
     notVerified: "Not verified",
+    confirmedTitle: "Confirmed",
+    toConfirmTitle: "To confirm",
     costLabel: "Cost",
     sellLabel: "Selling price",
     showDetail: "Details",
@@ -249,6 +253,8 @@ const COPY = {
     candidateMissing: "没有产品",
     imageMissing: "图片不可用",
     notVerified: "未验证",
+    confirmedTitle: "已确认",
+    toConfirmTitle: "待确认",
     costLabel: "成本",
     sellLabel: "售价",
     showDetail: "详情",
@@ -358,8 +364,11 @@ export function ResultsWorkspace({
       }),
     [modeledRows, platformFilter, query, sectionFilter, sort]
   );
-  // Il report mostra i prodotti trovati; le righe scoperte stanno in fondo.
-  const found = filteredRows.filter((row) => row.candidate != null);
+  // Tre gruppi, in quest'ordine: quello che è a posto, quello che chiede una
+  // decisione, quello che non ha trovato nulla.
+  const withProduct = filteredRows.filter((row) => row.candidate != null);
+  const confirmed = withProduct.filter((row) => row.section !== "review");
+  const toConfirm = withProduct.filter((row) => row.section === "review");
   const missing = filteredRows.filter((row) => row.candidate == null);
   const allGrouped = useMemo(() => groupV2ResultRows(modeledRows), [modeledRows]);
   const filteredGrouped = useMemo(
@@ -545,19 +554,51 @@ export function ResultsWorkspace({
 
       {/* Il report: una riga per prodotto trovato, e nient'altro.
           Foto, titolo, quanto ordinare, quanto costa, quanto si rivende. */}
-      {found.length > 0 ? (
-        <div className={styles.report} role="list">
-          {found.map((row) => (
-            <ReportRow
-              key={row.id}
-              row={row}
-              markupPct={markupPct}
-              intlLocale={intlLocale}
-              copy={copy}
-              onOpen={() => setSelectedId(row.id)}
-            />
-          ))}
-        </div>
+      {confirmed.length > 0 ? (
+        <>
+          <h4 className={styles.groupHeading}>
+            {copy.confirmedTitle}
+            <span className={styles.groupCount}>{confirmed.length}</span>
+          </h4>
+          <div className={styles.report} role="list">
+            {confirmed.map((row) => (
+              <ReportRow
+                key={row.id}
+                row={row}
+                markupPct={markupPct}
+                intlLocale={intlLocale}
+                copy={copy}
+                onOpen={() => setSelectedId(row.id)}
+              />
+            ))}
+          </div>
+        </>
+      ) : null}
+
+      {/* Solo ciò che l'IA non può chiudere da sola: una scelta di variante o
+          una decisione commerciale. Se questo blocco è lungo, è un difetto. */}
+      {toConfirm.length > 0 ? (
+        <>
+          <h4 className={styles.groupHeading}>
+            {copy.toConfirmTitle}
+            <span className={`${styles.groupCount} ${styles.groupCountWarn}`}>
+              {toConfirm.length}
+            </span>
+          </h4>
+          <div className={styles.report} role="list">
+            {toConfirm.map((row) => (
+              <ReportRow
+                key={row.id}
+                row={row}
+                markupPct={markupPct}
+                intlLocale={intlLocale}
+                copy={copy}
+                onOpen={() => setSelectedId(row.id)}
+                needsDecision
+              />
+            ))}
+          </div>
+        </>
       ) : null}
 
       {/* Le righe scoperte stanno in fondo, senza rubare spazio al report. */}
@@ -622,18 +663,23 @@ function ReportRow({
   intlLocale,
   copy,
   onOpen,
+  needsDecision = false,
 }: {
   row: V2ResultRow;
   markupPct: number;
   intlLocale: string;
   copy: (typeof COPY)[keyof typeof COPY];
   onOpen: () => void;
+  needsDecision?: boolean;
 }) {
   const candidate = row.candidate;
   const title = candidate?.product.title ?? row.displayName;
 
   return (
-    <article className={styles.reportRow} role="listitem">
+    <article
+      className={`${styles.reportRow} ${needsDecision ? styles.reportRowWarn : ""}`}
+      role="listitem"
+    >
       <Thumbnail src={row.imageUrl} alt={title} fallback={copy.imageMissing} />
 
       <div className={styles.reportMain}>

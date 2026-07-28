@@ -1015,9 +1015,18 @@ export class PipelineService {
       const usableCandidates = row.candidates.filter(
         (candidate) => !candidate.product.unavailable
       );
-      const coherentCandidates = usableCandidates.filter(
-        (candidate) => candidate.coherence?.verdict === "coherent"
-      );
+      // Accettati dall'IA: promossi, oppure non contestati.
+      //
+      // «Incerto» non è un rifiuto: è il giudice che non riesce a confermare
+      // un dettaglio leggendo il solo titolo — e altra evidenza non ne
+      // arriverà, perché la scheda prodotto la fonte non la serve. Trattarlo
+      // come una domanda all'operatore significa mandargli a mano metà del
+      // foglio: su 500 righe ne tornavano indietro 250. Chi decide resta l'IA;
+      // all'operatore restano i rifiuti espliciti e le scelte commerciali.
+      const coherentCandidates = usableCandidates.filter((candidate) => {
+        const verdict = candidate.coherence?.verdict;
+        return verdict === "coherent" || verdict === "unsure";
+      });
       const readyCoherent = coherentCandidates.find(
         (candidate) =>
           v2CandidateCoherence(candidate)?.variantSelectionRequired !== true

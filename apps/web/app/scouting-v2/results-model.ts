@@ -400,6 +400,18 @@ function usableCandidates(
   return candidates.filter((candidate) => !candidate.product.unavailable);
 }
 
+/**
+ * Il prodotto ha superato il giudizio dell'IA?
+ *
+ * «Incerto» conta come superato: il giudice non ha obiezioni, solo evidenza
+ * incompleta — e la scheda che gliela darebbe la fonte non la serve. Un
+ * rifiuto esplicito invece resta un rifiuto.
+ */
+function acceptedByAi(candidate: TaobaoCandidate | null): boolean {
+  const verdict = v2CandidateCoherence(candidate)?.verdict;
+  return verdict === "coherent" || verdict === "unsure";
+}
+
 function classifyRow({
   source,
   gap,

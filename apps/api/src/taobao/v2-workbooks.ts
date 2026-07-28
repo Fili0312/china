@@ -22,6 +22,7 @@ const labels: Record<
     correct: string;
     check: string;
     none: string;
+    not_procurable: string;
     title: string;
     sku: string;
     saleUnit: string;
@@ -44,6 +45,7 @@ const labels: Record<
     correct: "Correct product",
     check: "Needs checking",
     none: "No compatible result",
+    not_procurable: "Not sold online",
     title: "Found title",
     sku: "Selected variant / SKU",
     saleUnit: "Sale unit",
@@ -65,6 +67,7 @@ const labels: Record<
     correct: "产品正确",
     check: "需要检查",
     none: "无兼容结果",
+    not_procurable: "网购买不到",
     title: "找到的标题",
     sku: "所选款式 / SKU",
     saleUnit: "销售单位",
@@ -86,6 +89,7 @@ const labels: Record<
     correct: "Prodotto corretto",
     check: "Da controllare",
     none: "Nessun risultato compatibile",
+    not_procurable: "Non acquistabile online",
     title: "Titolo trovato",
     sku: "Variante / SKU selezionata",
     saleUnit: "Unità di vendita",
@@ -102,7 +106,7 @@ const labels: Record<
   },
 };
 
-export type V2ReviewStatus = "correct" | "check" | "none";
+export type V2ReviewStatus = "correct" | "check" | "none" | "not_procurable";
 
 /**
  * Ciò che i workbook sanno oltre ai risultati della ricerca.
@@ -115,6 +119,13 @@ export type V2ReviewStatus = "correct" | "check" | "none";
  */
 export interface V2WorkbookOptions {
   needsPerson?: ReadonlySet<number>;
+  /**
+   * Righe che nessun marketplace vende: moduli da stampare, codici di
+   * costruttore, servizi. Non sono un fallimento della ricerca e non vanno
+   * confuse con esso nemmeno nel file: chi lo riceve deve capire che quella
+   * riga si risolve altrove, non insistendo su Taobao.
+   */
+  notProcurable?: ReadonlySet<number>;
 }
 
 /**
@@ -137,7 +148,9 @@ export interface V2WorkbookOptions {
 export function v2ReviewStatus(
   row: TaobaoRowResults,
   /** `true` se l'esito ha lasciato su questa riga una decisione umana. */
-  needsPerson = false
+  needsPerson = false,
+  /** `true` se la riga non è un articolo da marketplace. */
+  notProcurable = false
 ): V2ReviewStatus {
   const available = row.candidates.filter((candidate) => !candidate.product.unavailable);
   const accepted = available.filter((candidate) => {
@@ -151,7 +164,7 @@ export function v2ReviewStatus(
   if (ready) return needsPerson ? "check" : "correct";
   // Accettato ma con una variante da scegliere: la decisione è di una persona.
   if (accepted.length > 0) return "check";
-  return "none";
+  return notProcurable ? "not_procurable" : "none";
 }
 
 /** Candidati utilizzabili: gli incompatibili sono esclusi, non segnalati. */
@@ -222,9 +235,10 @@ export function selectedVariantOrSku(candidate: TaobaoCandidate): string | null 
 function statusLabel(
   row: TaobaoRowResults,
   locale: Locale,
-  needsPerson: boolean
+  needsPerson: boolean,
+  notProcurable: boolean
 ): string {
-  return labels[locale][v2ReviewStatus(row, needsPerson)];
+  return labels[locale][v2ReviewStatus(row, needsPerson, notProcurable)];
 }
 
 function linkCell(
@@ -247,6 +261,7 @@ export function buildV2TaobaoExport(
   options: V2WorkbookOptions = {}
 ): Buffer {
   const needsPerson = options.needsPerson ?? new Set<number>();
+  const notProcurable = options.notProcurable ?? new Set<number>();
   const locale = currentLocale();
   const l = labels[locale];
   const workbook = XLSX.utils.book_new();
@@ -269,7 +284,12 @@ export function buildV2TaobaoExport(
     return [
       row.rowNumber,
       row.displayName,
-      statusLabel(row, locale, needsPerson.has(row.rowNumber)),
+      statusLabel(
+        row,
+        locale,
+        needsPerson.has(row.rowNumber),
+        notProcurable.has(row.rowNumber)
+      ),
       candidate?.product.title ?? "",
       candidate ? (selectedVariantOrSku(candidate) ?? "") : "",
       candidate ? (productSaleUnit(candidate) ?? "") : "",
@@ -339,6 +359,7 @@ export function buildV2ClientReport(
   options: { markupPct: number } & V2WorkbookOptions
 ): Buffer {
   const needsPerson = options.needsPerson ?? new Set<number>();
+  const notProcurable = options.notProcurable ?? new Set<number>();
   const locale = currentLocale();
   const l = labels[locale];
   const workbook = XLSX.utils.book_new();
@@ -378,7 +399,12 @@ export function buildV2ClientReport(
     return [
       row.rowNumber,
       row.displayName,
-      statusLabel(row, locale, needsPerson.has(row.rowNumber)),
+      statusLabel(
+        row,
+        locale,
+        needsPerson.has(row.rowNumber),
+        notProcurable.has(row.rowNumber)
+      ),
       ...cells(candidates[0]),
       ...cells(candidates[1]),
       ...cells(candidates[2]),

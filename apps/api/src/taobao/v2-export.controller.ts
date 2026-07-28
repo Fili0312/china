@@ -29,19 +29,31 @@ function contentDisposition(fileName: string): string {
  * si va a prenderla lì. Se il job non appartiene a una pipeline v2 — o
  * l'esito non c'è ancora — l'insieme è vuoto e il file resta come prima.
  */
-async function rowsNeedingPerson(jobId: string): Promise<ReadonlySet<number>> {
+async function outcomeContext(jobId: string): Promise<{
+  needsPerson: ReadonlySet<number>;
+  notProcurable: ReadonlySet<number>;
+}> {
   const pipeline = await prisma.taobaoPipeline.findFirst({
     where: { jobId },
     select: { outcome: true },
     orderBy: { createdAt: "desc" },
   });
   const parsed = TaobaoPipelineOutcomeSchema.safeParse(pipeline?.outcome);
-  if (!parsed.success) return new Set<number>();
-  return new Set(
-    parsed.data.reviewIssues
-      .filter((issue) => !issue.resolvedAutomatically)
-      .map((issue) => issue.rowNumber)
-  );
+  if (!parsed.success) {
+    return { needsPerson: new Set<number>(), notProcurable: new Set<number>() };
+  }
+  return {
+    needsPerson: new Set(
+      parsed.data.reviewIssues
+        .filter((issue) => !issue.resolvedAutomatically)
+        .map((issue) => issue.rowNumber)
+    ),
+    notProcurable: new Set(
+      parsed.data.gaps
+        .filter((gap) => gap.reason === "not_procurable")
+        .map((gap) => gap.rowNumber)
+    ),
+  };
 }
 
 /**
@@ -68,7 +80,7 @@ export class V2ExportController {
       offset: 0,
     });
     return new StreamableFile(
-      buildV2TaobaoExport(results, { needsPerson: await rowsNeedingPerson(jobId) }),
+      buildV2TaobaoExport(results, await outcomeContext(jobId)),
       {
         disposition: contentDisposition(
           v2ExportFileName(results.job.clientName, results.job.fileName)
@@ -98,7 +110,7 @@ export class V2ExportController {
     return new StreamableFile(
       buildV2ClientReport(results, {
         markupPct,
-        needsPerson: await rowsNeedingPerson(jobId),
+        ...(await outcomeContext(jobId)),
       }),
       {
         disposition: contentDisposition(

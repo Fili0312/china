@@ -318,3 +318,24 @@ test("un verdetto incerto non diventa una domanda all'operatore", () => {
   assert.equal(accepted("incoherent"), false);
   assert.equal(accepted(null), false);
 });
+
+// Una riga che nessun marketplace vende non è una ricerca fallita, e il file
+// che arriva al cliente deve dirlo: su quella riga non si insiste, si va da
+// un'altra parte.
+test("il file distingue chi non si è trovato da chi non si vende online", () => {
+  const empty = row(1, []);
+  assert.equal(v2ReviewStatus(empty), "none");
+  assert.equal(v2ReviewStatus(empty, false, true), "not_procurable");
+
+  const buffer = runWithLocale("it", () =>
+    buildV2ClientReport(results([empty]), {
+      markupPct: 0,
+      notProcurable: new Set([1]),
+    })
+  );
+  const workbook = XLSX.read(buffer, { type: "buffer" });
+  const report = XLSX.utils.sheet_to_json<Record<string, unknown>>(
+    workbook.Sheets["Report"]!
+  );
+  assert.equal(report[0]?.["Stato"], "Non acquistabile online");
+});

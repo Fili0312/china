@@ -524,3 +524,84 @@ test("una rilettura vuota non conferma il prezzo", () => {
   const canReuse = !(known > 0 && verifiedCount === 0);
   assert.equal(canReuse, false);
 });
+
+/**
+ * Unità dedotte: gli avvisi arrivavano all'operatore già contenendo la
+ * risposta — «presumibilmente cm» per uno scaffale, «presumibilmente mm» per
+ * un calibro — e chiedevano comunque una conferma inutile.
+ */
+
+test("l'unità dichiarata nell'avviso viene applicata e l'avviso sparisce", () => {
+  const a = analysis({
+    productFamily: "scaffalatura metallica",
+    familyKey: "shelf",
+    productNameChinese: "货架",
+    dimensions: [
+      { axis: "length", label: null, value: 200, unit: null },
+      { axis: "width", label: null, value: 40, unit: null },
+      { axis: "height", label: null, value: 140, unit: null },
+    ] as never,
+    warnings: [
+      {
+        code: "AMBIGUOUS_UNIT",
+        field: "dimensions",
+        message:
+          "Le dimensioni non hanno unità di misura specificata, presumibilmente cm",
+      },
+    ] as never,
+  });
+
+  const { analysis: grounded } = normalizeV2Analysis(
+    a,
+    "Nome: Scaffale\nSpecifiche: 200x40x140"
+  );
+
+  assert.ok(grounded.dimensions.every((dimension) => dimension.unit === "cm"));
+  assert.equal(
+    grounded.warnings.some((warning) => warning.code === "AMBIGUOUS_UNIT"),
+    false
+  );
+});
+
+test("un calibro prende i millimetri, non i centimetri", () => {
+  const a = analysis({
+    productFamily: "calibro a spina",
+    familyKey: "pin-gauge",
+    productNameChinese: "针规",
+    dimensions: [{ axis: "diameter", label: null, value: 2.48, unit: null }] as never,
+    warnings: [
+      {
+        code: "AMBIGUOUS_UNIT",
+        field: "dimensions",
+        message: "Il diametro 2.48 non ha unità di misura, presumibilmente mm",
+      },
+    ] as never,
+  });
+
+  const { analysis: grounded } = normalizeV2Analysis(
+    a,
+    "Nome: Calibro\nSpecifiche: diametro 2.48"
+  );
+
+  assert.equal(grounded.dimensions[0]?.unit, "mm");
+  assert.equal(grounded.warnings.length, 0);
+});
+
+test("un'ambiguità senza unità dichiarata resta un avviso", () => {
+  const a = analysis({
+    productNameChinese: "产品",
+    dimensions: [{ axis: "length", label: null, value: 12, unit: null }] as never,
+    warnings: [
+      {
+        code: "AMBIGUOUS_UNIT",
+        field: "dimensions",
+        message: "Unità non specificata per le dimensioni",
+      },
+    ] as never,
+  });
+
+  const { analysis: grounded } = normalizeV2Analysis(a, "Nome: Prodotto\nSpecifiche: 12");
+
+  // Senza una deduzione dichiarata non si indovina: la quota resta scoperta.
+  assert.equal(grounded.dimensions[0]?.unit, null);
+});

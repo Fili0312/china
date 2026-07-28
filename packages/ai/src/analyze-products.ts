@@ -61,6 +61,19 @@ In "model", "material", "color", "includedAccessories" e nei valori di "technica
 Scrivi "陶瓷", non "陶瓷 (ceramica)" né "ceramica". Scrivi "珍珠白", non "珍珠白 (bianco perla)".
 Questi campi identificano la variante tecnica: due modi diversi di scrivere lo stesso materiale diventano due prodotti diversi, e la richiesta viene cercata due volte. Le traduzioni vanno in "productNameEnglish" e "searchQueryEnglish", che esistono per quello.
 
+## Unità di misura: si deducono, non si chiedono
+
+Una quota senza unità non è quasi mai ambigua: lo dice il prodotto.
+Un pannello a controsoffitto «60*60» è in centimetri, un calibro «2.48» è in
+millimetri, uno scaffale «200x40x140» è in centimetri. Deduci l'unità da che
+cosa è l'oggetto e scrivila in "unit": non è un'invenzione, è la sola lettura
+sensata di quel numero.
+
+Segnala "AMBIGUOUS_UNIT" **solo** quando due unità sono entrambe plausibili per
+quell'oggetto e la scelta cambia cosa si compra. Se stai per scrivere
+«presumibilmente mm» o «probabilmente cm», allora non è ambiguo: compila
+"unit" e non mettere il warning.
+
 ## Ambiguità
 
 Quando una misura, un modello, un'unità o la quantità sono ambigui:

@@ -492,6 +492,60 @@ function hasExplicitOptionalField(
  * Un warning su un attributo opzionale mai richiesto è un falso warning.
  * I warning generali e `MULTIPLE_PRODUCTS` restano intatti.
  */
+/**
+ * L'unità che l'analisi ha dedotto ma non ha scritto.
+ *
+ * Il modello sa quasi sempre di cosa si parla — «presumibilmente cm» per uno
+ * scaffale, «presumibilmente mm» per un calibro — e poi alza comunque un
+ * avviso, che arriva all'operatore come una domanda senza risposta utile: la
+ * risposta era nel messaggio stesso. Qui la si prende e la si applica.
+ */
+const PRESUMED_UNIT_RE = new RegExp(
+  String.raw`(?:presumibilmente|probabilmente|presumably|probably|verosimilmente)\s*[:,]?\s*(${UNIT_PATTERN})\b`,
+  "iu"
+);
+
+function presumedUnit(warning: AnalysisWarning): string | null {
+  const match = warning.message.normalize("NFKC").match(PRESUMED_UNIT_RE);
+  return match?.[1]?.toLowerCase() ?? null;
+}
+
+/**
+ * Completa le quote senza unità e toglie l'avviso che le riguardava.
+ *
+ * Si interviene solo quando l'unità è **dichiarata nel messaggio**: dedurla
+ * per conto nostro dal solo ordine di grandezza sarebbe indovinare, e su una
+ * quota indovinare significa comprare il pezzo sbagliato.
+ */
+function applyPresumedUnits(
+  dimensions: ProductAnalysis["dimensions"],
+  warnings: readonly AnalysisWarning[]
+): {
+  dimensions: ProductAnalysis["dimensions"];
+  warnings: AnalysisWarning[];
+  applied: string | null;
+} {
+  const missing = dimensions.filter((dimension) => !dimension.unit);
+  if (missing.length === 0) {
+    return { dimensions, warnings: [...warnings], applied: null };
+  }
+
+  const source = warnings.find(
+    (warning) => warning.code === "AMBIGUOUS_UNIT" && presumedUnit(warning)
+  );
+  const unit = source ? presumedUnit(source) : null;
+  if (!unit) return { dimensions, warnings: [...warnings], applied: null };
+
+  return {
+    dimensions: dimensions.map((dimension) =>
+      dimension.unit ? dimension : { ...dimension, unit }
+    ),
+    // Con l'unità scritta l'ambiguità non c'è più: l'avviso sparisce.
+    warnings: warnings.filter((warning) => warning.code !== "AMBIGUOUS_UNIT"),
+    applied: unit,
+  };
+}
+
 export function isV2WarningRelevant(
   warning: AnalysisWarning,
   sourceText: string,
@@ -1043,20 +1097,26 @@ export function normalizeV2Analysis(
     normalized.push(`unit:${analysis.unit ?? "null"}→${unit ?? "null"}`);
   }
 
+  const relevantWarnings = analysis.warnings.filter((warning) =>
+    isV2WarningRelevant(warning, sourceText, analysis)
+  );
+  const withUnits = applyPresumedUnits(dimensions, relevantWarnings);
+  if (withUnits.applied) {
+    normalized.push(`dimensionUnit:null→${withUnits.applied}`);
+  }
+
   const grounded: ProductAnalysis = {
     ...analysis,
     model,
     material,
     color,
-    dimensions,
+    dimensions: withUnits.dimensions,
     technicalSpecifications,
     hardRequirements,
     softRequirements,
     requestedQuantity,
     unit,
-    warnings: analysis.warnings.filter((warning) =>
-      isV2WarningRelevant(warning, sourceText, analysis)
-    ),
+    warnings: withUnits.warnings,
   };
 
   const query = repairV2SearchQuery(

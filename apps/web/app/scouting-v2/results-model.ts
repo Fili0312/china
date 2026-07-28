@@ -132,12 +132,20 @@ export function buildV2ResultRows(
       const automaticIssues = allIssues.filter(
         (issue) => issue.resolvedAutomatically
       );
-      // Un gap è l'esito finale della pipeline dopo i retry. I candidati
-      // precedenti restano a database come audit, ma non sono proposte
-      // utilizzabili e non devono riapparire nella vista "Nessun risultato".
-      const candidates = gap
-        ? []
-        : usableCandidates(source?.candidates ?? []);
+      // Un gap è l'esito finale della pipeline dopo i retry, ma «scoperta» ha
+      // due sensi diversi e vanno trattati diversamente.
+      //
+      // `no_results` / `failed`: non è stato trovato nulla, non c'è niente da
+      // mostrare. `no_coherent`: prodotti la ricerca li ha trovati, è il
+      // giudice ad averli respinti tutti — e quelli vanno lasciati visibili.
+      // Nasconderli toglie all'operatore l'unica cosa che gli permette di
+      // ribaltare un rifiuto sbagliato, e fa sembrare vuota una riga che
+      // vuota non è: su una corsa da 498 righe erano 38 righe con 380
+      // prodotti dietro, spariti dalla vista.
+      const candidates =
+        gap && gap.reason !== "no_coherent"
+          ? []
+          : usableCandidates(source?.candidates ?? []);
       const candidate = bestCandidate(candidates);
       const coherence = v2CandidateCoherence(candidate);
       const displayName =

@@ -391,6 +391,11 @@ export function ResultsWorkspace({
   const missing = filteredRows.filter(
     (row) => row.section === "no_result" || row.candidate == null
   );
+  // «Scoperta» ha due sensi: la ricerca non ha trovato nulla, oppure ha
+  // trovato prodotti che il giudice ha respinto tutti. I secondi si mostrano,
+  // i primi sono solo un nome e un pulsante per riprovare.
+  const missingWithProduct = missing.filter((row) => row.candidate != null);
+  const missingEmpty = missing.filter((row) => row.candidate == null);
   const allGrouped = useMemo(() => groupV2ResultRows(modeledRows), [modeledRows]);
   const filteredGrouped = useMemo(
     () => groupV2ResultRows(filteredRows),
@@ -629,8 +634,26 @@ export function ResultsWorkspace({
             {copy.sections.no_result.title}
             <span className={styles.missingCount}>{missing.length}</span>
           </summary>
+          {/* Le righe dove un prodotto è stato trovato ma respinto restano
+              guardabili: è l'unico modo per ribaltare un rifiuto sbagliato,
+              e nasconderle faceva sembrare vuota una riga che non lo era. */}
+          {missingWithProduct.length > 0 ? (
+            <div className={styles.report} role="list">
+              {missingWithProduct.map((row) => (
+                <ReportRow
+                  key={row.id}
+                  row={row}
+                  markupPct={markupPct}
+                  intlLocale={intlLocale}
+                  copy={copy}
+                  onOpen={() => setSelectedId(row.id)}
+                  needsDecision
+                />
+              ))}
+            </div>
+          ) : null}
           <ul className={styles.missingList}>
-            {missing.map((row) => (
+            {missingEmpty.map((row) => (
               <li key={row.id}>
                 <span className={styles.rowNumber}>#{row.rowNumber}</span>
                 <span className={styles.missingName}>{row.displayName}</span>

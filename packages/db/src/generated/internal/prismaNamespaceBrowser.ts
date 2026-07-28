@@ -761,6 +761,8 @@ export const TaobaoClarificationScalarFieldEnum = {
   answer: 'answer',
   status: 'status',
   examples: 'examples',
+  options: 'options',
+  answerMode: 'answerMode',
   hitCount: 'hitCount',
   timesApplied: 'timesApplied',
   createdAt: 'createdAt',

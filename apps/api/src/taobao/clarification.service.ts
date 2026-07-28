@@ -838,6 +838,8 @@ export class ClarificationService {
     answer: string | null;
     status: string;
     examples: string[];
+    options?: string[] | null;
+    answerMode?: string | null;
     hitCount: number;
     timesApplied: number;
     createdAt: Date;
@@ -853,6 +855,9 @@ export class ClarificationService {
       status:
         row.status === "ANSWERED" || row.status === "DISMISSED" ? row.status : "OPEN",
       examples: row.examples,
+      options: row.options ?? [],
+      answerMode:
+        row.answerMode === "single" || row.answerMode === "multi" ? row.answerMode : "text",
       hitCount: row.hitCount,
       timesApplied: row.timesApplied,
       createdAt: row.createdAt.toISOString(),

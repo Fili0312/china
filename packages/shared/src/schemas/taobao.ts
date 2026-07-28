@@ -664,6 +664,15 @@ export const TaobaoClarificationSchema = z.object({
   status: TaobaoClarificationStatusSchema,
   /** Esempi di testo che hanno sollevato il dubbio. */
   examples: z.array(z.string()),
+  /**
+   * Risposte già pronte, quando il dubbio è una scelta e non un tema.
+   *
+   * Vuoto quando la risposta è davvero libera: allora il pannello mostra un
+   * campo di testo, altrimenti pulsanti o caselle secondo `answerMode`.
+   */
+  options: z.array(z.string()).default([]),
+  /** Come si risponde: una opzione, più opzioni, o testo libero. */
+  answerMode: z.enum(["single", "multi", "text"]).default("text"),
   /** Quante righe hanno incontrato questo dubbio. */
   hitCount: z.number().int().min(0),
   /** Quante analisi hanno già riusato la risposta. */

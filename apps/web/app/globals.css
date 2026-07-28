@@ -1348,6 +1348,34 @@ select {
   min-width: 240px;
 }
 
+/* Le risposte pronte: pastiglie premibili, non una lista di radio nude.
+   Il quadratino resta visibile perché distingue «una sola» da «più di una»
+   prima ancora di leggere la domanda. */
+.v2-ask-choices {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  flex: 1;
+}
+
+.v2-ask-choices label {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  cursor: pointer;
+  user-select: none;
+}
+
+.v2-ask-choices label:has(input:disabled) {
+  cursor: default;
+  opacity: 0.55;
+}
+
+.v2-ask-choices input {
+  margin: 0;
+  accent-color: currentColor;
+}
+
 .v2 .chip.active {
   background: var(--warn-bg);
   border-color: #e4c78f;

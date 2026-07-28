@@ -53,6 +53,7 @@ export type TaobaoClarificationMinAggregateOutputType = {
   question: string | null
   answer: string | null
   status: string | null
+  answerMode: string | null
   hitCount: number | null
   timesApplied: number | null
   createdAt: Date | null
@@ -77,6 +78,7 @@ export type TaobaoClarificationMaxAggregateOutputType = {
   question: string | null
   answer: string | null
   status: string | null
+  answerMode: string | null
   hitCount: number | null
   timesApplied: number | null
   createdAt: Date | null
@@ -102,6 +104,8 @@ export type TaobaoClarificationCountAggregateOutputType = {
   answer: number
   status: number
   examples: number
+  options: number
+  answerMode: number
   hitCount: number
   timesApplied: number
   createdAt: number
@@ -140,6 +144,7 @@ export type TaobaoClarificationMinAggregateInputType = {
   question?: true
   answer?: true
   status?: true
+  answerMode?: true
   hitCount?: true
   timesApplied?: true
   createdAt?: true
@@ -164,6 +169,7 @@ export type TaobaoClarificationMaxAggregateInputType = {
   question?: true
   answer?: true
   status?: true
+  answerMode?: true
   hitCount?: true
   timesApplied?: true
   createdAt?: true
@@ -189,6 +195,8 @@ export type TaobaoClarificationCountAggregateInputType = {
   answer?: true
   status?: true
   examples?: true
+  options?: true
+  answerMode?: true
   hitCount?: true
   timesApplied?: true
   createdAt?: true
@@ -301,6 +309,8 @@ export type TaobaoClarificationGroupByOutputType = {
   answer: string | null
   status: string
   examples: string[]
+  options: string[]
+  answerMode: string
   hitCount: number
   timesApplied: number
   createdAt: Date
@@ -349,6 +359,8 @@ export type TaobaoClarificationWhereInput = {
   answer?: Prisma.StringNullableFilter<"TaobaoClarification"> | string | null
   status?: Prisma.StringFilter<"TaobaoClarification"> | string
   examples?: Prisma.StringNullableListFilter<"TaobaoClarification">
+  options?: Prisma.StringNullableListFilter<"TaobaoClarification">
+  answerMode?: Prisma.StringFilter<"TaobaoClarification"> | string
   hitCount?: Prisma.IntFilter<"TaobaoClarification"> | number
   timesApplied?: Prisma.IntFilter<"TaobaoClarification"> | number
   createdAt?: Prisma.DateTimeFilter<"TaobaoClarification"> | Date | string
@@ -375,6 +387,8 @@ export type TaobaoClarificationOrderByWithRelationInput = {
   answer?: Prisma.SortOrderInput | Prisma.SortOrder
   status?: Prisma.SortOrder
   examples?: Prisma.SortOrder
+  options?: Prisma.SortOrder
+  answerMode?: Prisma.SortOrder
   hitCount?: Prisma.SortOrder
   timesApplied?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -404,6 +418,8 @@ export type TaobaoClarificationWhereUniqueInput = Prisma.AtLeast<{
   answer?: Prisma.StringNullableFilter<"TaobaoClarification"> | string | null
   status?: Prisma.StringFilter<"TaobaoClarification"> | string
   examples?: Prisma.StringNullableListFilter<"TaobaoClarification">
+  options?: Prisma.StringNullableListFilter<"TaobaoClarification">
+  answerMode?: Prisma.StringFilter<"TaobaoClarification"> | string
   hitCount?: Prisma.IntFilter<"TaobaoClarification"> | number
   timesApplied?: Prisma.IntFilter<"TaobaoClarification"> | number
   createdAt?: Prisma.DateTimeFilter<"TaobaoClarification"> | Date | string
@@ -430,6 +446,8 @@ export type TaobaoClarificationOrderByWithAggregationInput = {
   answer?: Prisma.SortOrderInput | Prisma.SortOrder
   status?: Prisma.SortOrder
   examples?: Prisma.SortOrder
+  options?: Prisma.SortOrder
+  answerMode?: Prisma.SortOrder
   hitCount?: Prisma.SortOrder
   timesApplied?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -463,6 +481,8 @@ export type TaobaoClarificationScalarWhereWithAggregatesInput = {
   answer?: Prisma.StringNullableWithAggregatesFilter<"TaobaoClarification"> | string | null
   status?: Prisma.StringWithAggregatesFilter<"TaobaoClarification"> | string
   examples?: Prisma.StringNullableListFilter<"TaobaoClarification">
+  options?: Prisma.StringNullableListFilter<"TaobaoClarification">
+  answerMode?: Prisma.StringWithAggregatesFilter<"TaobaoClarification"> | string
   hitCount?: Prisma.IntWithAggregatesFilter<"TaobaoClarification"> | number
   timesApplied?: Prisma.IntWithAggregatesFilter<"TaobaoClarification"> | number
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"TaobaoClarification"> | Date | string
@@ -488,6 +508,8 @@ export type TaobaoClarificationCreateInput = {
   answer?: string | null
   status?: string
   examples?: Prisma.TaobaoClarificationCreateexamplesInput | string[]
+  options?: Prisma.TaobaoClarificationCreateoptionsInput | string[]
+  answerMode?: string
   hitCount?: number
   timesApplied?: number
   createdAt?: Date | string
@@ -513,6 +535,8 @@ export type TaobaoClarificationUncheckedCreateInput = {
   answer?: string | null
   status?: string
   examples?: Prisma.TaobaoClarificationCreateexamplesInput | string[]
+  options?: Prisma.TaobaoClarificationCreateoptionsInput | string[]
+  answerMode?: string
   hitCount?: number
   timesApplied?: number
   createdAt?: Date | string
@@ -538,6 +562,8 @@ export type TaobaoClarificationUpdateInput = {
   answer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.StringFieldUpdateOperationsInput | string
   examples?: Prisma.TaobaoClarificationUpdateexamplesInput | string[]
+  options?: Prisma.TaobaoClarificationUpdateoptionsInput | string[]
+  answerMode?: Prisma.StringFieldUpdateOperationsInput | string
   hitCount?: Prisma.IntFieldUpdateOperationsInput | number
   timesApplied?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -563,6 +589,8 @@ export type TaobaoClarificationUncheckedUpdateInput = {
   answer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.StringFieldUpdateOperationsInput | string
   examples?: Prisma.TaobaoClarificationUpdateexamplesInput | string[]
+  options?: Prisma.TaobaoClarificationUpdateoptionsInput | string[]
+  answerMode?: Prisma.StringFieldUpdateOperationsInput | string
   hitCount?: Prisma.IntFieldUpdateOperationsInput | number
   timesApplied?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -588,6 +616,8 @@ export type TaobaoClarificationCreateManyInput = {
   answer?: string | null
   status?: string
   examples?: Prisma.TaobaoClarificationCreateexamplesInput | string[]
+  options?: Prisma.TaobaoClarificationCreateoptionsInput | string[]
+  answerMode?: string
   hitCount?: number
   timesApplied?: number
   createdAt?: Date | string
@@ -613,6 +643,8 @@ export type TaobaoClarificationUpdateManyMutationInput = {
   answer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.StringFieldUpdateOperationsInput | string
   examples?: Prisma.TaobaoClarificationUpdateexamplesInput | string[]
+  options?: Prisma.TaobaoClarificationUpdateoptionsInput | string[]
+  answerMode?: Prisma.StringFieldUpdateOperationsInput | string
   hitCount?: Prisma.IntFieldUpdateOperationsInput | number
   timesApplied?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -637,6 +669,8 @@ export type TaobaoClarificationUncheckedUpdateManyInput = {
   answer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.StringFieldUpdateOperationsInput | string
   examples?: Prisma.TaobaoClarificationUpdateexamplesInput | string[]
+  options?: Prisma.TaobaoClarificationUpdateoptionsInput | string[]
+  answerMode?: Prisma.StringFieldUpdateOperationsInput | string
   hitCount?: Prisma.IntFieldUpdateOperationsInput | number
   timesApplied?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -662,6 +696,8 @@ export type TaobaoClarificationCountOrderByAggregateInput = {
   answer?: Prisma.SortOrder
   status?: Prisma.SortOrder
   examples?: Prisma.SortOrder
+  options?: Prisma.SortOrder
+  answerMode?: Prisma.SortOrder
   hitCount?: Prisma.SortOrder
   timesApplied?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -692,6 +728,7 @@ export type TaobaoClarificationMaxOrderByAggregateInput = {
   question?: Prisma.SortOrder
   answer?: Prisma.SortOrder
   status?: Prisma.SortOrder
+  answerMode?: Prisma.SortOrder
   hitCount?: Prisma.SortOrder
   timesApplied?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -716,6 +753,7 @@ export type TaobaoClarificationMinOrderByAggregateInput = {
   question?: Prisma.SortOrder
   answer?: Prisma.SortOrder
   status?: Prisma.SortOrder
+  answerMode?: Prisma.SortOrder
   hitCount?: Prisma.SortOrder
   timesApplied?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -751,7 +789,16 @@ export type TaobaoClarificationCreateexamplesInput = {
   set: string[]
 }
 
+export type TaobaoClarificationCreateoptionsInput = {
+  set: string[]
+}
+
 export type TaobaoClarificationUpdateexamplesInput = {
+  set?: string[]
+  push?: string | string[]
+}
+
+export type TaobaoClarificationUpdateoptionsInput = {
   set?: string[]
   push?: string | string[]
 }
@@ -808,6 +855,8 @@ export type TaobaoClarificationCreateWithoutPipelineInput = {
   answer?: string | null
   status?: string
   examples?: Prisma.TaobaoClarificationCreateexamplesInput | string[]
+  options?: Prisma.TaobaoClarificationCreateoptionsInput | string[]
+  answerMode?: string
   hitCount?: number
   timesApplied?: number
   createdAt?: Date | string
@@ -832,6 +881,8 @@ export type TaobaoClarificationUncheckedCreateWithoutPipelineInput = {
   answer?: string | null
   status?: string
   examples?: Prisma.TaobaoClarificationCreateexamplesInput | string[]
+  options?: Prisma.TaobaoClarificationCreateoptionsInput | string[]
+  answerMode?: string
   hitCount?: number
   timesApplied?: number
   createdAt?: Date | string
@@ -885,6 +936,8 @@ export type TaobaoClarificationScalarWhereInput = {
   answer?: Prisma.StringNullableFilter<"TaobaoClarification"> | string | null
   status?: Prisma.StringFilter<"TaobaoClarification"> | string
   examples?: Prisma.StringNullableListFilter<"TaobaoClarification">
+  options?: Prisma.StringNullableListFilter<"TaobaoClarification">
+  answerMode?: Prisma.StringFilter<"TaobaoClarification"> | string
   hitCount?: Prisma.IntFilter<"TaobaoClarification"> | number
   timesApplied?: Prisma.IntFilter<"TaobaoClarification"> | number
   createdAt?: Prisma.DateTimeFilter<"TaobaoClarification"> | Date | string
@@ -910,6 +963,8 @@ export type TaobaoClarificationCreateManyPipelineInput = {
   answer?: string | null
   status?: string
   examples?: Prisma.TaobaoClarificationCreateexamplesInput | string[]
+  options?: Prisma.TaobaoClarificationCreateoptionsInput | string[]
+  answerMode?: string
   hitCount?: number
   timesApplied?: number
   createdAt?: Date | string
@@ -934,6 +989,8 @@ export type TaobaoClarificationUpdateWithoutPipelineInput = {
   answer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.StringFieldUpdateOperationsInput | string
   examples?: Prisma.TaobaoClarificationUpdateexamplesInput | string[]
+  options?: Prisma.TaobaoClarificationUpdateoptionsInput | string[]
+  answerMode?: Prisma.StringFieldUpdateOperationsInput | string
   hitCount?: Prisma.IntFieldUpdateOperationsInput | number
   timesApplied?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -958,6 +1015,8 @@ export type TaobaoClarificationUncheckedUpdateWithoutPipelineInput = {
   answer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.StringFieldUpdateOperationsInput | string
   examples?: Prisma.TaobaoClarificationUpdateexamplesInput | string[]
+  options?: Prisma.TaobaoClarificationUpdateoptionsInput | string[]
+  answerMode?: Prisma.StringFieldUpdateOperationsInput | string
   hitCount?: Prisma.IntFieldUpdateOperationsInput | number
   timesApplied?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -982,6 +1041,8 @@ export type TaobaoClarificationUncheckedUpdateManyWithoutPipelineInput = {
   answer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.StringFieldUpdateOperationsInput | string
   examples?: Prisma.TaobaoClarificationUpdateexamplesInput | string[]
+  options?: Prisma.TaobaoClarificationUpdateoptionsInput | string[]
+  answerMode?: Prisma.StringFieldUpdateOperationsInput | string
   hitCount?: Prisma.IntFieldUpdateOperationsInput | number
   timesApplied?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1008,6 +1069,8 @@ export type TaobaoClarificationSelect<ExtArgs extends runtime.Types.Extensions.I
   answer?: boolean
   status?: boolean
   examples?: boolean
+  options?: boolean
+  answerMode?: boolean
   hitCount?: boolean
   timesApplied?: boolean
   createdAt?: boolean
@@ -1034,6 +1097,8 @@ export type TaobaoClarificationSelectCreateManyAndReturn<ExtArgs extends runtime
   answer?: boolean
   status?: boolean
   examples?: boolean
+  options?: boolean
+  answerMode?: boolean
   hitCount?: boolean
   timesApplied?: boolean
   createdAt?: boolean
@@ -1060,6 +1125,8 @@ export type TaobaoClarificationSelectUpdateManyAndReturn<ExtArgs extends runtime
   answer?: boolean
   status?: boolean
   examples?: boolean
+  options?: boolean
+  answerMode?: boolean
   hitCount?: boolean
   timesApplied?: boolean
   createdAt?: boolean
@@ -1086,6 +1153,8 @@ export type TaobaoClarificationSelectScalar = {
   answer?: boolean
   status?: boolean
   examples?: boolean
+  options?: boolean
+  answerMode?: boolean
   hitCount?: boolean
   timesApplied?: boolean
   createdAt?: boolean
@@ -1101,7 +1170,7 @@ export type TaobaoClarificationSelectScalar = {
   priority?: boolean
 }
 
-export type TaobaoClarificationOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "questionKey" | "source" | "code" | "familyKey" | "question" | "answer" | "status" | "examples" | "hitCount" | "timesApplied" | "createdAt" | "answeredAt" | "updatedAt" | "clientId" | "pipelineId" | "datasetId" | "analysisRunId" | "locale" | "category" | "attributeKey" | "priority", ExtArgs["result"]["taobaoClarification"]>
+export type TaobaoClarificationOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "questionKey" | "source" | "code" | "familyKey" | "question" | "answer" | "status" | "examples" | "options" | "answerMode" | "hitCount" | "timesApplied" | "createdAt" | "answeredAt" | "updatedAt" | "clientId" | "pipelineId" | "datasetId" | "analysisRunId" | "locale" | "category" | "attributeKey" | "priority", ExtArgs["result"]["taobaoClarification"]>
 export type TaobaoClarificationInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   pipeline?: boolean | Prisma.TaobaoClarification$pipelineArgs<ExtArgs>
 }
@@ -1142,6 +1211,18 @@ export type $TaobaoClarificationPayload<ExtArgs extends runtime.Types.Extensions
      * Esempi di testo che hanno sollevato il dubbio (max qualche riga).
      */
     examples: string[]
+    /**
+     * Risposte già pronte, quando il dubbio è una scelta e non un tema.
+     * 
+     * Chiedere «quale unità?» con un campo di testo scarica sull'operatore un
+     * lavoro che il sistema può fare: proporre mm, cm o m e farne scegliere
+     * una. Vuoto quando la risposta è davvero libera.
+     */
+    options: string[]
+    /**
+     * Come si risponde: `single` (una opzione), `multi` (più), `text` (libero).
+     */
+    answerMode: string
     /**
      * Quante righe hanno incontrato questo dubbio: dà priorità alle domande.
      */
@@ -1599,6 +1680,8 @@ export interface TaobaoClarificationFieldRefs {
   readonly answer: Prisma.FieldRef<"TaobaoClarification", 'String'>
   readonly status: Prisma.FieldRef<"TaobaoClarification", 'String'>
   readonly examples: Prisma.FieldRef<"TaobaoClarification", 'String[]'>
+  readonly options: Prisma.FieldRef<"TaobaoClarification", 'String[]'>
+  readonly answerMode: Prisma.FieldRef<"TaobaoClarification", 'String'>
   readonly hitCount: Prisma.FieldRef<"TaobaoClarification", 'Int'>
   readonly timesApplied: Prisma.FieldRef<"TaobaoClarification", 'Int'>
   readonly createdAt: Prisma.FieldRef<"TaobaoClarification", 'DateTime'>

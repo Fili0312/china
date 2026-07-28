@@ -1210,6 +1210,16 @@ model TaobaoClarification {
 
   /// Esempi di testo che hanno sollevato il dubbio (max qualche riga).
   examples String[]
+
+  /// Risposte già pronte, quando il dubbio è una scelta e non un tema.
+  ///
+  /// Chiedere «quale unità?» con un campo di testo scarica sull'operatore un
+  /// lavoro che il sistema può fare: proporre mm, cm o m e farne scegliere
+  /// una. Vuoto quando la risposta è davvero libera.
+  options String[]
+
+  /// Come si risponde: `single` (una opzione), `multi` (più), `text` (libero).
+  answerMode String @default("text")
   /// Quante righe hanno incontrato questo dubbio: dà priorità alle domande.
   hitCount Int @default(1)
   /// Quante analisi hanno riusato la risposta come conoscenza.

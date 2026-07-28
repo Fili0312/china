@@ -26,6 +26,65 @@ interface QuestionsPanelProps {
   onSubmit: (answers: Array<{ clarificationId: string; answer: string; skip: boolean }>) => void;
 }
 
+/** Separatore delle risposte multiple: la risposta resta una stringa sola. */
+const MULTI_SEPARATOR = ", ";
+
+/**
+ * La domanda posta con il gesto giusto.
+ *
+ * Una scelta fra tre unità non è un tema da scrivere: è un pulsante da
+ * premere. Chiedere «quale unità?» con un campo di testo scarica
+ * sull'operatore un lavoro che il sistema ha già fatto — sa quali sono le
+ * risposte possibili — e per giunta ne accetta una scritta a modo suo, che
+ * poi va interpretata di nuovo.
+ */
+function AnswerChoices({
+  item,
+  value,
+  disabled,
+  onChange,
+}: {
+  item: TaobaoClarification;
+  value: string;
+  disabled: boolean;
+  onChange: (value: string) => void;
+}) {
+  const multi = item.answerMode === "multi";
+  const selected = new Set(
+    value
+      .split(MULTI_SEPARATOR)
+      .map((entry) => entry.trim())
+      .filter(Boolean)
+  );
+
+  function toggle(option: string) {
+    if (!multi) return onChange(option);
+    const next = new Set(selected);
+    if (next.has(option)) next.delete(option);
+    else next.add(option);
+    // L'ordine è quello proposto, non quello dei clic: due operatori che
+    // scelgono le stesse opzioni devono produrre la stessa risposta.
+    onChange(item.options.filter((entry) => next.has(entry)).join(MULTI_SEPARATOR));
+  }
+
+  return (
+    <div className="v2-ask-choices" role={multi ? "group" : "radiogroup"}>
+      {item.options.map((option) => (
+        <label key={option} className={selected.has(option) ? "chip active" : "chip"}>
+          <input
+            type={multi ? "checkbox" : "radio"}
+            name={item.clarificationId}
+            checked={selected.has(option)}
+            disabled={disabled}
+            onChange={() => toggle(option)}
+          />
+          {option}
+        </label>
+      ))}
+    </div>
+  );
+}
+
 export function QuestionsPanel({ questions, round, busy, onSubmit }: QuestionsPanelProps) {
   const { t } = useI18n();
   const [drafts, setDrafts] = useState<Record<string, string>>({});
@@ -81,15 +140,26 @@ export function QuestionsPanel({ questions, round, busy, onSubmit }: QuestionsPa
                 ) : null}
               </div>
               <div className="v2-ask-answer">
-                <input
-                  type="text"
-                  placeholder={t("v2.ask.placeholder")}
-                  value={drafts[item.clarificationId] ?? ""}
-                  disabled={busy || isSkipped}
-                  onChange={(event) =>
-                    setDrafts({ ...drafts, [item.clarificationId]: event.target.value })
-                  }
-                />
+                {item.options.length > 0 && item.answerMode !== "text" ? (
+                  <AnswerChoices
+                    item={item}
+                    value={drafts[item.clarificationId] ?? ""}
+                    disabled={busy || isSkipped}
+                    onChange={(value) =>
+                      setDrafts({ ...drafts, [item.clarificationId]: value })
+                    }
+                  />
+                ) : (
+                  <input
+                    type="text"
+                    placeholder={t("v2.ask.placeholder")}
+                    value={drafts[item.clarificationId] ?? ""}
+                    disabled={busy || isSkipped}
+                    onChange={(event) =>
+                      setDrafts({ ...drafts, [item.clarificationId]: event.target.value })
+                    }
+                  />
+                )}
                 <button
                   type="button"
                   className={`chip${isSkipped ? " active" : ""}`}

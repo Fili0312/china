@@ -751,9 +751,81 @@
   }
 }
 
-/* -------------------------------------------------------------------------- */
-/* Lista compatta: una riga per richiesta, sette informazioni.                 */
-/* -------------------------------------------------------------------------- */
+
+/* ==========================================================================
+   Area di revisione: sintesi in alto, lista a sinistra, confronto a destra.
+   Il gesto che si ripete è «scorro la lista senza perdere di vista il
+   prodotto»: per questo il confronto è accanto e non sopra.
+   ========================================================================== */
+
+.kpiStrip {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.kpi {
+  display: flex;
+  gap: 0.45rem;
+  align-items: baseline;
+  padding: 0.55rem 0.85rem;
+  border: 1px solid var(--s-border, #e5e5ea);
+  border-radius: 14px;
+  background: var(--s-surface, #fff);
+  cursor: pointer;
+  transition: border-color 0.15s ease, background-color 0.15s ease;
+}
+
+.kpi strong {
+  font-size: 1.15rem;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+
+.kpi span {
+  color: var(--s-muted, #6e6e73);
+  font-size: 0.76rem;
+}
+
+.kpi:hover {
+  border-color: var(--s-border-strong, #d2d2d7);
+}
+
+.kpiActive {
+  border-color: var(--s-text, #1d1d1f);
+  background: var(--s-surface-2, #f5f5f7);
+}
+
+.kpi.corrected strong { color: var(--s-ok, #1d7a4c); }
+.kpi.review strong { color: var(--s-warn, #9a6700); }
+.kpi.no_result strong { color: var(--s-err, #b3261e); }
+
+/* Due colonne: la lista tiene una misura fissa e leggibile, il confronto
+   prende lo spazio che resta. */
+.split {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.05fr);
+  gap: 1rem;
+  align-items: start;
+}
+
+.detailColumn {
+  position: sticky;
+  /* Sotto la barra degli strumenti, che è già sticky. */
+  top: 4.6rem;
+}
+
+.detailPlaceholder {
+  margin: 0;
+  padding: 2.5rem 1rem;
+  border: 1px dashed var(--s-border-strong, #d2d2d7);
+  border-radius: var(--s-r-card, 18px);
+  color: var(--s-muted, #6e6e73);
+  font-size: 0.85rem;
+  text-align: center;
+}
+
+/* --- La riga della lista: due livelli, non otto colonne ------------------- */
 
 .lineList {
   display: flex;
@@ -762,24 +834,20 @@
 
 .line {
   display: grid;
-  grid-template-columns:
-    40px minmax(6.5rem, 1.05fr) minmax(8rem, 1.5fr)
-    minmax(3.2rem, auto) minmax(4.2rem, auto) minmax(3.8rem, 0.55fr)
-    minmax(5rem, auto) auto;
+  grid-template-columns: 44px minmax(0, 1fr) auto auto 10px auto;
   align-items: center;
-  gap: 0.6rem;
+  gap: 0.7rem;
   /* Altezza fissa: la virtualizzazione la calcola, non la misura. */
-  height: 52px;
-  padding: 0 0.7rem;
-  border-bottom: 1px solid color-mix(in srgb, var(--s-border, #e5e5ea) 70%, transparent);
+  height: 64px;
+  padding: 0 0.8rem;
+  border-bottom: 1px solid color-mix(in srgb, var(--s-border, #e5e5ea) 65%, transparent);
   background: var(--s-surface, #fff);
   cursor: pointer;
   outline: 0;
   transition: background-color 0.12s ease;
 }
 
-.line:hover,
-.line:focus-visible {
+.line:hover {
   background: var(--s-surface-2, #f5f5f7);
 }
 
@@ -789,17 +857,17 @@
 
 .lineSelected {
   background: var(--s-surface-2, #f5f5f7);
-  box-shadow: inset 2px 0 0 var(--s-accent, #1d1d1f);
+  box-shadow: inset 3px 0 0 var(--s-accent, #1d1d1f);
 }
 
 .lineThumb {
   display: grid;
   place-items: center;
-  width: 40px;
-  height: 40px;
+  width: 44px;
+  height: 44px;
   overflow: hidden;
   border: 1px solid var(--s-border, #e5e5ea);
-  border-radius: 8px;
+  border-radius: 10px;
   background: var(--s-surface-2, #f5f5f7);
 }
 
@@ -812,81 +880,91 @@
   object-fit: contain;
 }
 
-.lineQty {
-  color: var(--s-text, #1d1d1f);
-  font-size: 0.76rem;
-  text-align: right;
-  white-space: nowrap;
+.lineMain {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+  min-width: 0;
+}
+
+.lineTop,
+.lineBottom {
+  display: flex;
+  gap: 0.35rem;
+  align-items: baseline;
+  min-width: 0;
 }
 
 .lineRequested,
-.lineFound,
-.lineVariant {
+.lineFound {
   overflow: hidden;
-  font-size: 0.8rem;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
+/* Sopra cosa è stato chiesto, sotto cosa è stato trovato: il confronto si
+   legge in verticale, senza spostare gli occhi lungo la riga. */
 .lineRequested {
-  color: var(--s-muted, #6e6e73);
-}
-
-.lineFound {
   color: var(--s-text, #1d1d1f);
+  font-size: 0.82rem;
   font-weight: 500;
 }
 
-.lineMissing {
-  color: var(--s-muted, #6e6e73);
-  font-style: italic;
-}
-
-.linePrice {
-  color: var(--s-text, #1d1d1f);
-  font-size: 0.82rem;
-  font-weight: 600;
-  text-align: right;
-  white-space: nowrap;
-}
-
-.lineVariant {
+.lineFound {
   color: var(--s-muted, #6e6e73);
   font-size: 0.74rem;
 }
 
-.lineStatus {
-  display: inline-flex;
-  gap: 0.25rem;
-  align-items: center;
-  justify-self: start;
-  padding: 0.12rem 0.45rem;
-  border-radius: 999px;
+.lineMissing {
+  color: var(--s-err, #b3261e);
+  font-size: 0.74rem;
+}
+
+/* La quantità è un riquadro, non una colonna fra le altre. */
+.lineQty {
+  display: flex;
+  gap: 0.15rem;
+  align-items: baseline;
+  justify-content: center;
+  min-width: 3.4rem;
+  padding: 0.2rem 0.5rem;
+  border-radius: 9px;
   background: var(--s-surface-2, #f5f5f7);
+  color: var(--s-text, #1d1d1f);
+}
+
+.lineQty strong {
+  font-size: 0.95rem;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+
+.lineQty em {
   color: var(--s-muted, #6e6e73);
-  font-size: 0.68rem;
+  font-size: 0.66rem;
+  font-style: normal;
+}
+
+.linePrice {
+  color: var(--s-text, #1d1d1f);
+  font-size: 0.85rem;
   font-weight: 500;
+  text-align: right;
   white-space: nowrap;
 }
 
-.lineStatus.corrected {
-  background: var(--s-ok-bg, #f2f8f4);
-  color: var(--s-ok, #1d7a4c);
+/* Lo stato è un punto: il colore basta, la parola sta nel titolo e per i
+   lettori di schermo. */
+.lineDot {
+  width: 8px;
+  height: 8px;
+  border-radius: 999px;
+  background: var(--s-border-strong, #d2d2d7);
 }
 
-.lineStatus.review {
-  background: var(--s-warn-bg, #fdf8ee);
-  color: var(--s-warn, #9a6700);
-}
-
-.lineStatus.no_result {
-  background: var(--s-err-bg, #fdf2f1);
-  color: var(--s-err, #b3261e);
-}
-
-.lineAlert {
-  font-weight: 700;
-}
+.lineDot.corrected { background: var(--s-ok, #1d7a4c); }
+.lineDot.review { background: var(--s-warn, #9a6700); }
+.lineDot.no_result { background: var(--s-err, #b3261e); }
 
 .lineActions {
   display: flex;
@@ -896,7 +974,8 @@
 }
 
 .retryButton {
-  padding: 0.22rem 0.55rem;
+  min-height: 32px;
+  padding: 0.25rem 0.6rem;
   border: 1px solid var(--s-border-strong, #d2d2d7);
   border-radius: 999px;
   background: var(--s-surface, #fff);
@@ -915,48 +994,80 @@
   cursor: default;
 }
 
-/* Le query provate, nel dettaglio di una riga senza risultato. */
-.triedQueries {
+/* --- Il blocco d'ordine nel dettaglio ------------------------------------- */
+
+.orderBlock {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.3rem;
-  margin: 0.3rem 0 0;
-  padding: 0;
-  list-style: none;
-}
-
-.triedQueries li {
-  padding: 0.12rem 0.45rem;
+  gap: 1.4rem;
+  align-items: flex-end;
+  padding: 0.9rem 1rem;
   border: 1px solid var(--s-border, #e5e5ea);
-  border-radius: 999px;
+  border-radius: 14px;
   background: var(--s-surface-2, #f5f5f7);
-  font-size: 0.7rem;
 }
 
-/* Sotto i 720px il prezzo e la variante cedono il posto: restano immagine,
-   richiesta, trovato e stato, che sono le colonne che si leggono davvero. */
-@media (max-width: 720px) {
-  .line {
-    grid-template-columns: 36px minmax(0, 1fr) minmax(0, 1.15fr) auto auto;
-  }
-
-  .linePrice,
-  .lineQty,
-  .lineVariant {
-    display: none;
-  }
+.orderFigure {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
 }
 
-@media (prefers-reduced-motion: reduce) {
-  .line {
-    transition: none;
-  }
+.orderLabel {
+  color: var(--s-muted, #6e6e73);
+  font-size: 0.68rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.orderQty,
+.orderTotal,
+.orderPrice {
+  display: flex;
+  gap: 0.25rem;
+  align-items: baseline;
+  font-weight: 600;
+  letter-spacing: -0.03em;
+}
+
+/* La cifra da ordinare è la più grande della pagina: è quella che si copia
+   nell'ordine, e cercarla era la lamentela. */
+.orderQty {
+  font-size: 2rem;
+  line-height: 1.05;
+}
+
+.orderPrice {
+  font-size: 1.1rem;
+}
+
+.orderTotal {
+  font-size: 1.35rem;
+}
+
+.orderUnit {
+  color: var(--s-muted, #6e6e73);
+  font-size: 0.72rem;
+  font-style: normal;
+  font-weight: 500;
+}
+
+.orderLink {
+  margin-left: auto;
+  padding: 0.5rem 0.95rem;
+  border-radius: 999px;
+  background: var(--s-accent, #1d1d1f);
+  color: #fff;
+  font-size: 0.78rem;
+  font-weight: 500;
+  text-decoration: none;
+  white-space: nowrap;
 }
 
 .detailNoResult {
-  padding: 0.6rem 0.75rem;
+  padding: 0.7rem 0.85rem;
   border: 1px solid var(--s-border, #e5e5ea);
-  border-radius: 10px;
+  border-radius: 12px;
   background: var(--s-surface-2, #f5f5f7);
   font-size: 0.78rem;
 }
@@ -964,4 +1075,75 @@
 .detailNoResult p {
   margin: 0.4rem 0 0;
   color: var(--s-muted, #6e6e73);
+}
+
+.triedQueries {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem;
+  margin: 0.35rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.triedQueries li {
+  padding: 0.14rem 0.5rem;
+  border: 1px solid var(--s-border, #e5e5ea);
+  border-radius: 999px;
+  background: var(--s-surface, #fff);
+  font-size: 0.7rem;
+}
+
+/* --- Telefono e tablet ---------------------------------------------------- */
+
+/* Sotto i 1024px il confronto non sta accanto: torna sotto la lista, a tutta
+   larghezza, e smette di essere appiccicato. */
+@media (max-width: 1024px) {
+  .split {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .detailColumn {
+    position: static;
+  }
+
+  .detailPlaceholder {
+    display: none;
+  }
+}
+
+@media (max-width: 640px) {
+  .line {
+    grid-template-columns: 40px minmax(0, 1fr) auto 8px;
+    height: 60px;
+    gap: 0.55rem;
+    padding: 0 0.6rem;
+  }
+
+  .lineThumb {
+    width: 40px;
+    height: 40px;
+  }
+
+  /* Sul telefono il prezzo cede il posto alla quantità: il prezzo si legge
+     nel dettaglio, la quantità serve mentre si scorre. */
+  .linePrice,
+  .lineActions {
+    display: none;
+  }
+
+  .orderBlock {
+    gap: 1rem;
+  }
+
+  .orderQty {
+    font-size: 1.7rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .line,
+  .kpi {
+    transition: none;
+  }
 }

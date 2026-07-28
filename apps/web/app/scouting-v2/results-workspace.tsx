@@ -35,7 +35,7 @@ import styles from "./results-workspace.module.css";
  * lascerebbe buchi durante lo scorrimento.
  */
 /** Altezza di una riga: fissa, perché la virtualizzazione la calcola. */
-const LINE_HEIGHT = 52;
+const LINE_HEIGHT = 64;
 const SECTION_ORDER: readonly V2ResultSection[] = [
   "corrected",
   "review",
@@ -88,8 +88,11 @@ const COPY = {
     },
     candidateMissing: "Nessun prodotto",
     imageMissing: "Immagine non disponibile",
-    unitMissing: "unità non indicata",
     notVerified: "Non verificato",
+    pickRow: "Scegli una riga per vedere il confronto",
+    qtyLabel: "Da ordinare",
+    priceLabel: "Prezzo",
+    totalLabel: "Totale",
     retryRow: "Riprova",
     retrying: "In corso…",
     triedQueries: "Query provate",
@@ -163,8 +166,11 @@ const COPY = {
     },
     candidateMissing: "No product",
     imageMissing: "Image unavailable",
-    unitMissing: "unit not specified",
     notVerified: "Not verified",
+    pickRow: "Pick a row to see the comparison",
+    qtyLabel: "To order",
+    priceLabel: "Price",
+    totalLabel: "Total",
     retryRow: "Retry",
     retrying: "Running…",
     triedQueries: "Queries tried",
@@ -238,8 +244,11 @@ const COPY = {
     },
     candidateMissing: "没有产品",
     imageMissing: "图片不可用",
-    unitMissing: "未注明销售单位",
     notVerified: "未验证",
+    pickRow: "选择一行查看对比",
+    qtyLabel: "订购数量",
+    priceLabel: "单价",
+    totalLabel: "合计",
     retryRow: "重试",
     retrying: "进行中…",
     triedQueries: "已尝试的搜索词",
@@ -521,7 +530,37 @@ export function ResultsWorkspace({
         <p className={styles.stateMessage}>{copy.empty}</p>
       ) : null}
 
-      <div className={styles.sections}>
+      {/* Striscia di sintesi: la prima domanda è «va tutto bene?», e la
+          risposta deve stare in una riga sola. */}
+      {modeledRows.length > 0 ? (
+        <div className={styles.kpiStrip}>
+          {SECTION_ORDER.map((section) => {
+            const count = allGrouped[section].length;
+            if (count === 0) return null;
+            return (
+              <button
+                key={section}
+                type="button"
+                className={`${styles.kpi} ${styles[section]} ${
+                  sectionFilter === section ? styles.kpiActive : ""
+                }`}
+                aria-pressed={sectionFilter === section}
+                onClick={() =>
+                  setSectionFilter((current) =>
+                    current === section ? "all" : section
+                  )
+                }
+              >
+                <strong>{count}</strong>
+                <span>{copy.sections[section].title}</span>
+              </button>
+            );
+          })}
+        </div>
+      ) : null}
+
+      <div className={styles.split}>
+        <div className={styles.sections}>
         {SECTION_ORDER.filter(
           (section) => sectionFilter === "all" || sectionFilter === section
         ).map((section) => {
@@ -577,16 +616,25 @@ export function ResultsWorkspace({
             </section>
           );
         })}
+        </div>
+
+        {/* Il confronto sta accanto alla lista, non sopra: scorrere la lista
+            senza perdere di vista il prodotto è il gesto che si ripete di più.
+            Sotto i 1024px torna un pannello a tutta larghezza. */}
+        <div className={styles.detailColumn}>
+          {selected ? (
+            <ResultDetails
+              row={selected}
+              intlLocale={intlLocale}
+              copy={copy}
+              onClose={() => setSelectedId(null)}
+            />
+          ) : (
+            <p className={styles.detailPlaceholder}>{copy.pickRow}</p>
+          )}
+        </div>
       </div>
 
-      {selected ? (
-        <ResultDetails
-          row={selected}
-          intlLocale={intlLocale}
-          copy={copy}
-          onClose={() => setSelectedId(null)}
-        />
-      ) : null}
     </section>
   );
 }
@@ -705,7 +753,7 @@ function ResultLine({
     row.status === "UNKNOWN"
       ? copy.notVerified
       : TAOBAO_ROW_STATUS_LABELS[locale][row.status];
-  const variant = row.sku ?? copy.unitMissing;
+  const variant = row.sku;
 
   function onKeyDown(event: KeyboardEvent<HTMLElement>) {
     if (event.key === "Enter" || event.key === " ") {
@@ -732,59 +780,49 @@ function ResultLine({
         />
       </span>
 
-      <span className={styles.lineRequested} title={row.displayName}>
-        <span className={styles.rowNumber}>#{row.rowNumber}</span>
-        {row.displayName}
-      </span>
-
-      <span className={styles.lineFound}>
-        {candidate ? (
-          <span title={candidate.product.title}>{candidate.product.title}</span>
-        ) : (
-          // Senza prodotto la riga deve dire perché, non restare muta.
-          <span className={styles.lineMissing}>
-            {row.gap?.detail ?? copy.candidateMissing}
+      <span className={styles.lineMain}>
+        <span className={styles.lineTop}>
+          <span className={styles.rowNumber}>#{row.rowNumber}</span>
+          <span className={styles.lineRequested} title={row.displayName}>
+            {row.displayName}
           </span>
-        )}
+        </span>
+        <span className={styles.lineBottom}>
+          {candidate ? (
+            <span className={styles.lineFound} title={candidate.product.title}>
+              {candidate.product.title}
+            </span>
+          ) : (
+            <span className={styles.lineMissing}>
+              {row.gap?.detail ?? copy.candidateMissing}
+            </span>
+          )}
+        </span>
       </span>
 
-      {/* Quanto ordinare: viene dal foglio, ed è il dato con cui si compila
-          l'ordine. Senza questo il prezzo unitario non basta. */}
+      {/* La quantità da ordinare è il dato con cui si compila l'ordine:
+          sta in un riquadro suo, leggibile senza cercarla. */}
       <span className={styles.lineQty}>
-        {row.requestedQuantity != null
-          ? `${row.requestedQuantity}${row.requestedUnit ? ` ${row.requestedUnit}` : ""}`
-          : "—"}
+        {row.requestedQuantity != null ? (
+          <>
+            <strong>{row.requestedQuantity}</strong>
+            {row.requestedUnit ? <em>{row.requestedUnit}</em> : null}
+          </>
+        ) : (
+          <span aria-hidden="true">—</span>
+        )}
       </span>
 
       <span className={styles.linePrice}>
         {formatPrice(row.price, row.currency, intlLocale)}
       </span>
 
-      <span className={styles.lineVariant} title={variant}>
-        {variant}
-      </span>
-
-      <span className={`${styles.lineStatus} ${styles[row.section]}`}>
-        {status}
-        {row.actions.length > 0 ? (
-          <span className={styles.lineAlert} title={copy.sections.review.title}>
-            !
-          </span>
-        ) : null}
+      <span className={`${styles.lineDot} ${styles[row.section]}`} title={status}>
+        <span className={styles.srOnly}>{status}</span>
       </span>
 
       <span className={styles.lineActions}>
-        {candidate?.product.url ? (
-          <a
-            className={styles.cardLink}
-            href={candidate.product.url}
-            target="_blank"
-            rel="noreferrer"
-            onClick={(event) => event.stopPropagation()}
-          >
-            {copy.openProduct}
-          </a>
-        ) : onRetryRow ? (
+        {!candidate && onRetryRow ? (
           <button
             type="button"
             className={styles.retryButton}
@@ -845,6 +883,52 @@ function ResultDetails({
         </div>
       ) : null}
 
+      {/* Il blocco d'ordine: quanto ordinare, a che prezzo, quanto viene in
+          totale. Sono le tre cifre che servono per comprare, quindi stanno
+          insieme e in grande — non sparse fra le specifiche. */}
+      <div className={styles.orderBlock}>
+        <div className={styles.orderFigure}>
+          <span className={styles.orderLabel}>{copy.qtyLabel}</span>
+          <strong className={styles.orderQty}>
+            {row.requestedQuantity != null ? row.requestedQuantity : "—"}
+            {row.requestedUnit ? (
+              <em className={styles.orderUnit}>{row.requestedUnit}</em>
+            ) : null}
+          </strong>
+        </div>
+        <div className={styles.orderFigure}>
+          <span className={styles.orderLabel}>{copy.priceLabel}</span>
+          <strong className={styles.orderPrice}>
+            {formatPrice(row.price, row.currency, intlLocale)}
+            {row.salesUnit ? (
+              <em className={styles.orderUnit}>/ {row.salesUnit}</em>
+            ) : null}
+          </strong>
+        </div>
+        {row.requestedQuantity != null && row.price != null ? (
+          <div className={styles.orderFigure}>
+            <span className={styles.orderLabel}>{copy.totalLabel}</span>
+            <strong className={styles.orderTotal}>
+              {formatPrice(
+                row.price * row.requestedQuantity,
+                row.currency,
+                intlLocale
+              )}
+            </strong>
+          </div>
+        ) : null}
+        {candidate?.product.url ? (
+          <a
+            className={styles.orderLink}
+            href={candidate.product.url}
+            target="_blank"
+            rel="noreferrer"
+          >
+            {copy.openProduct}
+          </a>
+        ) : null}
+      </div>
+
       <div className={styles.detailGrid}>
         <div className={styles.detailProduct}>
           <Thumbnail
@@ -871,7 +955,7 @@ function ResultDetails({
             {candidate ? (
               <p>
                 {formatPrice(row.price, row.currency, intlLocale)} /{" "}
-                {row.salesUnit ?? copy.unitMissing}
+                {row.salesUnit}
                 {candidate.product.moq != null
                   ? ` · MOQ ${candidate.product.moq}`
                   : ""}

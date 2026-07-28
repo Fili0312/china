@@ -127,6 +127,8 @@ interface OutcomeRow {
    * pertinente solo se le misure sono davvero scritte nella riga.
    */
   submittedText?: string;
+  /** Prezzo del candidato: `null` è il caso dei link presi dal foglio. */
+  price?: number | null;
 }
 
 /**
@@ -179,7 +181,11 @@ async function outcomeFor(rows: readonly OutcomeRow[]) {
                 rank: 1,
                 score: 1,
                 coherence: { verdict: row.verdict, issues: row.issues ?? [] },
-                product: { unavailable: false },
+                product: {
+                  unavailable: false,
+                  price: row.price === undefined ? 12.5 : row.price,
+                  url: "https://item.taobao.com/item.htm?id=1",
+                },
               },
             ]
           : [],
@@ -343,6 +349,27 @@ test("il verdetto senza riserve chiude il dubbio; l'incerto no", async () => {
   ]);
   assert.equal(withReservations.uncertainRows, 1);
   assert.equal(withReservations.confirmedRows, 0);
+});
+
+test("un prodotto senza prezzo non è una riga di quotazione", async () => {
+  const withPrice = await outcomeFor([
+    { rowNumber: 1, analysis: analysis(), verdict: "coherent", price: 42 },
+  ]);
+  assert.equal(withPrice.confirmedRows, 1);
+
+  // Stesso prodotto, stesso verdetto, prezzo assente: la riga non può essere
+  // esportata come confermata, perché la cella del prezzo sarebbe vuota.
+  const withoutPrice = await outcomeFor([
+    { rowNumber: 1, analysis: analysis(), verdict: "coherent", price: null },
+  ]);
+  assert.equal(withoutPrice.confirmedRows, 0);
+  assert.equal(withoutPrice.uncertainRows, 1);
+  const issue = withoutPrice.reviewIssues.find(
+    (entry) => entry.code === "MISSING_PRICE"
+  );
+  assert.equal(issue?.resolvedAutomatically, false);
+  // Il link resta accanto alla riga: è dove il prezzo si legge.
+  assert.match(issue?.detail ?? "", /item\.taobao\.com/u);
 });
 
 test("i quattro conteggi continuano a sommare al totale delle righe", async () => {

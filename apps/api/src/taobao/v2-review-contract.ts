@@ -16,6 +16,16 @@ export const V2_PIPELINE_HUMAN_ACTIONS = [
   "CLARIFY_REQUIREMENT",
   "CHANGE_TOLERANCE",
   "MARK_UNAVAILABLE",
+  /**
+   * Il prodotto va bene ma il prezzo non c'è: qualcuno deve leggerlo.
+   *
+   * Capita sui prodotti che arrivano dal link del foglio del cliente: la
+   * fonte ci dà titolo e indirizzo, non prezzo né foto, e l'endpoint di
+   * dettaglio che li avrebbe non risponde. Una riga di quotazione senza
+   * prezzo non è una riga di quotazione: meglio dirlo che esportare una
+   * cella vuota.
+   */
+  "CONFIRM_PRICE",
 ] as const;
 
 export type V2PipelineHumanAction =

@@ -19,6 +19,8 @@ export const V2_HUMAN_ACTION_TYPES = [
   "CLARIFY_REQUIREMENT",
   "CHANGE_TOLERANCE",
   "MARK_UNAVAILABLE",
+  /** Prodotto giusto, prezzo assente: va letto sulla pagina. */
+  "CONFIRM_PRICE",
 ] as const;
 
 export type V2HumanActionType = (typeof V2_HUMAN_ACTION_TYPES)[number];

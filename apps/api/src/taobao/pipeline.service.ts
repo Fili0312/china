@@ -244,6 +244,13 @@ function procurementGap(
   };
 }
 
+/** Il prezzo che vale per la quotazione: promozione se c'è, altrimenti listino. */
+function effectiveCandidatePrice(candidate: {
+  product: { price?: number | null; promotionPrice?: number | null };
+}): number | null {
+  return candidate.product.promotionPrice ?? candidate.product.price ?? null;
+}
+
 /**
  * `true` se questo candidato risponde da solo ai dubbi dell'analisi.
  *
@@ -1379,6 +1386,28 @@ export class PipelineService {
           !usableCandidates.some(isSettledByEvidence)
         ) {
           uncertain += 1;
+          continue;
+        }
+        // Un prodotto senza prezzo non è una riga di quotazione.
+        //
+        // Succede sui prodotti che arrivano dal link del foglio del cliente:
+        // la fonte dà titolo e indirizzo, non prezzo né foto, e l'endpoint di
+        // dettaglio che li avrebbe non risponde (1016 richieste, 1016 codici
+        // 205). Su 495 righe erano 8. Esportarle come confermate significa
+        // consegnare una quotazione con celle vuote: meglio dire che manca il
+        // prezzo e chi lo sa lo legga sulla pagina.
+        if (effectiveCandidatePrice(readyCoherent) == null) {
+          uncertain += 1;
+          variantReviewIssues.push({
+            rowNumber: row.rowNumber,
+            displayName: row.displayName,
+            category: "ROW_REVIEW",
+            code: "MISSING_PRICE",
+            attributeKey: "price",
+            detail: readyCoherent.product.url ?? null,
+            resolvedAutomatically: false,
+            humanAction: "CONFIRM_PRICE",
+          });
           continue;
         }
         confirmed += 1;

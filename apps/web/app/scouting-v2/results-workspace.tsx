@@ -151,6 +151,7 @@ const COPY = {
       CLARIFY_REQUIREMENT: "Chiarisci requisito",
       CHANGE_TOLERANCE: "Modifica tolleranza",
       MARK_UNAVAILABLE: "Segna non disponibile",
+      CONFIRM_PRICE: "Leggi il prezzo sulla pagina",
     },
   },
   en: {
@@ -257,6 +258,7 @@ const COPY = {
       CLARIFY_REQUIREMENT: "Clarify requirement",
       CHANGE_TOLERANCE: "Change tolerance",
       MARK_UNAVAILABLE: "Mark unavailable",
+      CONFIRM_PRICE: "Read the price on the page",
     },
   },
   zh: {
@@ -362,6 +364,7 @@ const COPY = {
       CLARIFY_REQUIREMENT: "澄清需求",
       CHANGE_TOLERANCE: "调整容差",
       MARK_UNAVAILABLE: "标记为不可用",
+      CONFIRM_PRICE: "到页面上读取价格",
     },
   },
 } as const;

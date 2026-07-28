@@ -480,13 +480,17 @@ test("a coherent candidate stays selected ahead of an unsure resolved variant", 
   ]);
 });
 
-test("the v2 action vocabulary is closed to the five supported decisions", () => {
+// Il vocabolario resta chiuso: ogni voce in più è una casella che qualcuno
+// dovrà svuotare a mano. `CONFIRM_PRICE` è entrata perché senza prezzo la
+// riga non è esportabile, e nessuna delle altre cinque lo dice.
+test("the v2 action vocabulary stays closed to the supported decisions", () => {
   assert.deepEqual(V2_HUMAN_ACTION_TYPES, [
     "APPROVE_EQUIVALENT",
     "CHOOSE_VARIANT",
     "CLARIFY_REQUIREMENT",
     "CHANGE_TOLERANCE",
     "MARK_UNAVAILABLE",
+    "CONFIRM_PRICE",
   ]);
 });
 

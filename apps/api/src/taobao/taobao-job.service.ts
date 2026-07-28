@@ -6,8 +6,11 @@ import {
 import { prisma, Prisma } from "@china/db";
 import {
   ProductAnalysisSchema,
+  PROCUREMENT_KIND_LABELS,
   TAOBAO_SOURCES,
   computeVariantIdentity,
+  isSearchableProcurement,
+  procurementOf,
   type ProductAnalysis,
   type RerunTaobaoJobRequest,
   type StartTaobaoJobRequest,
@@ -61,6 +64,20 @@ export function isTaobaoJobRowReady(
     (READY_STATES.has(state) ||
       (options.allowReviewRows === true && state === "NEEDS_REVIEW"))
   );
+}
+
+/**
+ * `true` quando la riga non è merce e la ricerca va risparmiata.
+ *
+ * Non è il cancello della revisione: quello decide se **si sa** cosa cercare,
+ * questo se **esiste** qualcosa da cercare. Un modulo di collaudo da stampare
+ * è una richiesta perfettamente chiara — semplicemente nessun venditore la
+ * mette a catalogo, e ogni chiamata spesa su di essa è persa per costruzione.
+ */
+export function isTaobaoJobRowProcurable(
+  analysis: ProductAnalysis | null
+): boolean {
+  return analysis == null || isSearchableProcurement(procurementOf(analysis));
 }
 
 function toJson(value: unknown): Prisma.InputJsonValue {
@@ -271,7 +288,12 @@ export class TaobaoJobService {
     let created = 0;
     for (const row of analysisRows) {
       const analysis = this.readAnalysis(row.effectiveAnalysis);
-      const ready = isTaobaoJobRowReady(row.state, analysis != null, options);
+      // Due cancelli diversi, in quest'ordine: prima «si sa cosa cercare?»,
+      // poi «c'è qualcosa da cercare?». Una riga che non è merce non entra in
+      // ricerca nemmeno da pronta — è l'unico modo di non pagarla.
+      const procurable = isTaobaoJobRowProcurable(analysis);
+      const ready =
+        isTaobaoJobRowReady(row.state, analysis != null, options) && procurable;
 
       let requestId: string | null = null;
       if (ready && analysis) {
@@ -306,8 +328,12 @@ export class TaobaoJobService {
             ? query
               ? null
               : t("reason.noChineseQuery")
-            : (row.error ??
-              t("reason.notConfirmed")),
+            : !procurable && analysis
+              ? t("reason.notProcurable", {
+                  kind: PROCUREMENT_KIND_LABELS.en[procurementOf(analysis)],
+                  why: analysis.procurement.reason ?? "—",
+                })
+              : (row.error ?? t("reason.notConfirmed")),
         },
       });
       created += 1;

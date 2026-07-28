@@ -13,4 +13,5 @@ export * from "./scouting/variant-identity";
 export * from "./scouting/variant-signature";
 export * from "./scouting/requirements";
 export * from "./scouting/sanitize-analysis";
+export * from "./scouting/procurement";
 export * from "./jobs";

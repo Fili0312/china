@@ -122,10 +122,63 @@ export const AnalysisWarningSchema = z.object({
 export type AnalysisWarning = z.infer<typeof AnalysisWarningSchema>;
 
 /* -------------------------------------------------------------------------- */
+/* Acquistabilità                                                              */
+/* -------------------------------------------------------------------------- */
+
+/**
+ * Che cos'è la riga, in termini d'acquisto.
+ *
+ * Un foglio di richiesta industriale non contiene solo articoli di catalogo:
+ * su una corsa da 498 righe, delle 41 rimaste scoperte una quindicina non era
+ * mai stata comprabile su un marketplace — moduli di collaudo che il cliente
+ * stampa, codici interni che solo il costruttore risolve. Cercarle è denaro
+ * speso per forza, e presentarle come «non trovate» racconta un fallimento
+ * della ricerca dove c'è invece una richiesta di natura diversa.
+ *
+ * Questo giudizio appartiene all'**analisi**, non alla ricerca: è una lettura
+ * del testo, la stessa cosa che l'analisi già fa per famiglia e variante, e
+ * costa zero perché viaggia nella chiamata che c'è comunque.
+ */
+export const PROCUREMENT_KINDS = [
+  /** Articolo di catalogo, comprabile a listino. È il valore predefinito. */
+  "MARKETPLACE_ITEM",
+  /** Solo un codice interno o di costruttore: lo risolve il ricambista. */
+  "PROPRIETARY_PART",
+  /** Pezzo su disegno o su misura del cliente. */
+  "CUSTOM_MADE",
+  /** Modulistica, registri, schede da stampare: carta, non merce. */
+  "PRINTED_DOCUMENT",
+  /** Lavorazione, taratura, trasporto, manodopera. */
+  "SERVICE",
+  /** Intestazione, nota o totale del foglio: non è una richiesta. */
+  "NOT_A_PRODUCT",
+] as const;
+export const ProcurementKindSchema = z.enum(PROCUREMENT_KINDS);
+export type ProcurementKind = z.infer<typeof ProcurementKindSchema>;
+
+export const ProcurementSchema = z.object({
+  kind: ProcurementKindSchema,
+  /** Perché non è un articolo di marketplace; `null` quando lo è. */
+  reason: z.string().nullable(),
+});
+export type Procurement = z.infer<typeof ProcurementSchema>;
+
+/**
+ * Il valore predefinito, usato in due punti diversi con lo stesso scopo:
+ * quando il modello non si esprime, e quando si rilegge un'analisi salvata
+ * prima che questo campo esistesse. In entrambi i casi la riga resta un
+ * prodotto normale — l'unica ipotesi che non toglie niente a nessuno.
+ */
+export const DEFAULT_PROCUREMENT: Procurement = {
+  kind: "MARKETPLACE_ITEM",
+  reason: null,
+};
+
+/* -------------------------------------------------------------------------- */
 /* Analisi di una riga                                                         */
 /* -------------------------------------------------------------------------- */
 
-export const ProductAnalysisSchema = z.object({
+const ProductAnalysisFieldsSchema = z.object({
   /** Famiglia leggibile, in italiano (`calibri a spillo in ceramica`). */
   productFamily: z.string(),
   /**
@@ -167,7 +220,32 @@ export const ProductAnalysisSchema = z.object({
   confidence: z.number(),
   warnings: z.array(AnalysisWarningSchema),
 });
+
+/**
+ * L'analisi **come si legge**: `procurement` ha un valore di ripiego.
+ *
+ * Serve perché questo schema rilegge anche ciò che è già a database, scritto
+ * prima che il campo esistesse. Senza il default, aggiungere un campo
+ * obbligatorio avrebbe reso illeggibili tutte le analisi salvate — e una riga
+ * illeggibile diventa una riga fallita, che è il modo peggiore di introdurre
+ * un miglioramento.
+ */
+export const ProductAnalysisSchema = ProductAnalysisFieldsSchema.extend({
+  procurement: ProcurementSchema.prefault(DEFAULT_PROCUREMENT),
+});
 export type ProductAnalysis = z.infer<typeof ProductAnalysisSchema>;
+
+/**
+ * L'analisi **come la si chiede al modello**: `procurement` è obbligatorio.
+ *
+ * Il modello deve pronunciarsi sempre, anche per dire «prodotto normale»: un
+ * campo facoltativo verrebbe omesso proprio nelle righe difficili, che sono
+ * quelle per cui esiste. Gli output strutturati vogliono inoltre che ogni
+ * proprietà sia dichiarata obbligatoria, e un default qui li romperebbe.
+ */
+export const ProductAnalysisModelSchema = ProductAnalysisFieldsSchema.extend({
+  procurement: ProcurementSchema,
+});
 
 /**
  * Risposta di un batch: le righe tornano etichettate con il proprio indice.
@@ -182,7 +260,7 @@ export const ProductAnalysisBatchSchema = z.object({
     z.object({
       /** Indice della riga **come inviato** nella richiesta. */
       rowIndex: z.number(),
-      analysis: ProductAnalysisSchema,
+      analysis: ProductAnalysisModelSchema,
     })
   ),
 });
@@ -369,6 +447,12 @@ export const UpdateAnalysisRowRequestSchema = z.object({
   unit: z.string().nullable().optional(),
   searchQueryChinese: z.string().nullable().optional(),
   searchQueryEnglish: z.string().nullable().optional(),
+  /**
+   * Correzione dell'acquistabilità dedotta dal modello. È l'unica via per
+   * rimettere in ricerca una riga classificata per sbaglio come non
+   * acquistabile — e per toglierne una che il modello ha creduto un prodotto.
+   */
+  procurement: ProcurementSchema.optional(),
   /**
    * Conferma esplicita dell'operatore: la riga passa a «pronta» anche con
    * confidenza bassa o warning critici. È l'unico modo per superarli, e resta

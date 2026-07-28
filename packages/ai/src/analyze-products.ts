@@ -35,7 +35,7 @@ import { estimateCostUsd } from "./usage";
  * fa parte della chiave della cache, quindi un prompt nuovo produce analisi
  * nuove invece di riusare quelle vecchie chiedendo domande diverse.
  */
-export const ANALYSIS_PROMPT_VERSION = "2026-07-21.2";
+export const ANALYSIS_PROMPT_VERSION = "2026-07-28.1";
 
 /**
  * Prompt di sistema dell'analisi. Esportato perché è **il** prompt, unico per
@@ -73,6 +73,21 @@ Segnala "AMBIGUOUS_UNIT" **solo** quando due unità sono entrambe plausibili per
 quell'oggetto e la scelta cambia cosa si compra. Se stai per scrivere
 «presumibilmente mm» o «probabilmente cm», allora non è ambiguo: compila
 "unit" e non mettere il warning.
+
+## Acquistabilità: che cosa è questa riga
+
+Un foglio di richiesta non contiene solo articoli di catalogo. Dichiara in "procurement.kind" che cosa hai davanti, e in "procurement.reason" una motivazione breve (null quando è un articolo normale):
+
+- "MARKETPLACE_ITEM": articolo di catalogo, che un venditore può avere in vendita. **È il valore predefinito**: usalo ogni volta che il dubbio è possibile.
+- "PROPRIETARY_PART": la riga identifica il pezzo SOLO con un codice interno o di un costruttore — nessun nome merceologico, nessuna misura, nessun materiale — e quel codice lo risolve il fabbricante, non un catalogo.
+- "CUSTOM_MADE": pezzo su disegno o su misura del richiedente (riferimento a un disegno, a una tavola, a un campione, a una quota da rispettare in collaudo).
+- "PRINTED_DOCUMENT": modulistica, registri, schede, verbali, etichette da compilare o stampare. È carta, non merce.
+- "SERVICE": lavorazione, taratura, riparazione, trasporto, manodopera.
+- "NOT_A_PRODUCT": intestazione, nota, totale o altra riga amministrativa del foglio.
+
+Il criterio è una domanda sola: **un venditore potrebbe metterlo a catalogo e spedirlo a chiunque?** Se sì è "MARKETPLACE_ITEM", anche quando il testo è povero, la misura manca o il nome è scritto male. Un prodotto normale descritto male resta un prodotto: classificarlo altrimenti lo toglie dalla ricerca, ed è l'errore più costoso che puoi fare qui.
+
+Un codice di catalogo accompagnato da un nome merceologico ("cuscinetto 6204 2RS") è "MARKETPLACE_ITEM": il codice lì è una misura, non un'identità privata.
 
 ## Ambiguità
 

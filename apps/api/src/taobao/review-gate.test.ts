@@ -1,6 +1,10 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import type { AnalysisWarningCode, ProductAnalysis } from "@china/shared";
+import {
+  DEFAULT_PROCUREMENT,
+  type AnalysisWarningCode,
+  type ProductAnalysis,
+} from "@china/shared";
 import { gateReason, hasReviewableWarning, resolveAnalysisState } from "./review-gate";
 
 /**
@@ -33,6 +37,7 @@ function analysis(overrides: Partial<ProductAnalysis> = {}): ProductAnalysis {
     searchQueryChinese: "平板灯 60*60",
     searchQueryEnglish: "led panel light 60x60",
     confidence: 0.7,
+    procurement: DEFAULT_PROCUREMENT,
     warnings: [],
     ...overrides,
   };

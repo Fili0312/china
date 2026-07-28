@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import { prisma } from "@china/db";
-import type { ProductAnalysis } from "@china/shared";
+import { DEFAULT_PROCUREMENT, type ProductAnalysis } from "@china/shared";
 import {
   aggregateV2DoubtCategories,
   classifyV2Doubt,
@@ -354,6 +354,7 @@ test("the legacy open-question cap counts only legacy questions", async () => {
     searchQueryChinese: "工业泵",
     searchQueryEnglish: "industrial pump",
     confidence: 0.6,
+    procurement: DEFAULT_PROCUREMENT,
     warnings: [{ code: "AMBIGUOUS_MODEL", field: "model", message: "modello ambiguo" }],
   };
 

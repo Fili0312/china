@@ -2,7 +2,10 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import { prisma } from "@china/db";
 import type { ProductAnalysis } from "@china/shared";
-import { TaobaoPipelineOutcomeSchema } from "@china/shared";
+import {
+  DEFAULT_PROCUREMENT,
+  TaobaoPipelineOutcomeSchema,
+} from "@china/shared";
 import {
   buildPipelineReviewIssues,
   canOpenPipelineQuestions,
@@ -38,6 +41,7 @@ function analysis(
     searchQueryChinese: "工业泵",
     searchQueryEnglish: "industrial pump",
     confidence: 0.9,
+    procurement: DEFAULT_PROCUREMENT,
     warnings: [],
     ...patch,
   };

@@ -1,6 +1,10 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { sanitizeProductAnalysis, type ProductAnalysis } from "@china/shared";
+import {
+  DEFAULT_PROCUREMENT,
+  sanitizeProductAnalysis,
+  type ProductAnalysis,
+} from "@china/shared";
 
 /**
  * La pulizia delle query è deterministica e stretta: toglie SOLO la coppia
@@ -29,6 +33,7 @@ function analysis(overrides: Partial<ProductAnalysis>): ProductAnalysis {
     searchQueryChinese: "打标测试板 0.21银色 86*54 100张",
     searchQueryEnglish: null,
     confidence: 0.9,
+    procurement: DEFAULT_PROCUREMENT,
     warnings: [],
     ...overrides,
   };

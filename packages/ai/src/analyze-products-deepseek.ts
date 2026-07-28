@@ -52,7 +52,7 @@ const DEFAULT_BATCH_SIZE = 6;
  * Va cambiata a ogni modifica dell'addendum o della checklist di revisione —
  * è ciò che impedisce di spacciare un'analisi vecchia per una nuova.
  */
-const PIPELINE_SUFFIX = "ds.2";
+const PIPELINE_SUFFIX = "ds.3";
 
 export function deepSeekPipelineVersion(): string {
   return `${ANALYSIS_PROMPT_VERSION}+${PIPELINE_SUFFIX}`;
@@ -129,6 +129,7 @@ function jsonInstructions(): string {
     `"technicalSpecifications":[{"key":"accuracyClass","value":"M1","unit":null}],` +
     `"includedAccessories":[],"hardRequirements":[],"softRequirements":[],` +
     `"requestedQuantity":2,"unit":"个","searchQueryChinese":"砝码 M1 400g","searchQueryEnglish":"calibration weight M1 400g",` +
+    `"procurement":{"kind":"MARKETPLACE_ITEM","reason":null},` +
     `"confidence":0.95,"warnings":[]}}]}\n\n` +
     `Includi in "results" una voce per OGNI riga ricevuta, con lo stesso "rowIndex".`
   );
@@ -152,6 +153,7 @@ Ricevi coppie: il testo ORIGINALE di una riga e l'analisi PROPOSTA (json). Il tu
 5. QUERY PULITE E COMPLETE. Le query non contengono quantità, unità di conteggio (个/张/支/件/套/pcs), reparto o parole amministrative; contengono TUTTE le caratteristiche distintive (misura, modello, materiale, finiture, predisposizioni); i codici restano identici nelle due lingue.
 6. WARNING GIUSTI. Un warning per ogni ambiguità reale (codici: AMBIGUOUS_MEASURE, AMBIGUOUS_MODEL, AMBIGUOUS_UNIT, AMBIGUOUS_QUANTITY, MULTIPLE_PRODUCTS, MISSING_INFO, UNCLEAR_TEXT, OTHER); nessun warning se non c'è ambiguità. "AMBIGUOUS_UNIT" solo se due unità sono entrambe plausibili per quell'oggetto e la scelta cambia cosa si compra: se stai per scrivere «presumibilmente mm», allora non è ambiguo — compila "unit" e togli il warning.
 7. CONFIDENZA ONESTA. Scala: 0.9-1.0 riga chiara e completa; 0.7-0.9 chiara con dettagli non essenziali mancanti; 0.4-0.7 un elemento importante è ambiguo; sotto 0.4 prodotto incerto. Se hai corretto errori o ci sono warning, la confidenza deve rifletterlo.
+8. ACQUISTABILITÀ PRUDENTE. "procurement" va sempre riportato. Vale "MARKETPLACE_ITEM" ogni volta che un venditore potrebbe avere quell'oggetto a catalogo, anche se il testo è povero: correggilo in "PROPRIETARY_PART", "CUSTOM_MADE", "PRINTED_DOCUMENT", "SERVICE" o "NOT_A_PRODUCT" solo con un'evidenza esplicita nel testo, e scrivi quell'evidenza in "procurement.reason". Nel dubbio, riportalo a "MARKETPLACE_ITEM": una riga classificata male esce dalla ricerca.
 
 Non cambiare "rowIndex". Non aggiungere righe. Non togliere righe.`;
 

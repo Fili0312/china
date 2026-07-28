@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import { prisma } from "@china/db";
 import { renderRowForAnalysis, type AnalysisInputRow } from "@china/ai";
-import type { ProductAnalysis } from "@china/shared";
+import { DEFAULT_PROCUREMENT, type ProductAnalysis } from "@china/shared";
 import { TaobaoAnalysisService } from "./taobao-analysis.service";
 
 test("v2 applies client knowledge before analysis and harvests questions afterwards", async () => {
@@ -182,6 +182,7 @@ test("v2 sends mapped fields plus every original cell and persists provenance ou
     searchQueryChinese: "工业传感器 ZX-7 24V",
     searchQueryEnglish: "industrial sensor ZX-7 24V",
     confidence: 0.9,
+    procurement: DEFAULT_PROCUREMENT,
     warnings: [],
   };
 

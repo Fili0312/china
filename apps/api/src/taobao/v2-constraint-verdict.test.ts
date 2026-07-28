@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import type { ProductAnalysis } from "@china/shared";
+import { DEFAULT_PROCUREMENT, type ProductAnalysis } from "@china/shared";
 import {
   buildV2RetryQueries,
   deriveV2RequirementContext,
@@ -37,6 +37,7 @@ function analysis(overrides: Partial<ProductAnalysis> = {}): ProductAnalysis {
     searchQueryChinese: "产品",
     searchQueryEnglish: "product",
     confidence: 0.9,
+    procurement: DEFAULT_PROCUREMENT,
     warnings: [],
     ...overrides,
   };

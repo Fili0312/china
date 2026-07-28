@@ -40,6 +40,7 @@ const SECTION_ORDER: readonly V2ResultSection[] = [
   "corrected",
   "review",
   "no_result",
+  "not_procurable",
   "auto_resolved",
 ];
 
@@ -80,6 +81,10 @@ const COPY = {
       no_result: {
         title: "Nessun risultato",
         hint: "Righe senza un prodotto utilizzabile.",
+      },
+      not_procurable: {
+        title: "Non acquistabili online",
+        hint: "Moduli da stampare, servizi, codici del costruttore: nessun marketplace li vende.",
       },
       auto_resolved: {
         title: "Controlli auto-risolti",
@@ -167,6 +172,10 @@ const COPY = {
         title: "No result",
         hint: "Rows without a usable product.",
       },
+      not_procurable: {
+        title: "Not sold online",
+        hint: "Forms to print, services, manufacturer codes: no marketplace lists them.",
+      },
       auto_resolved: {
         title: "Automatically resolved checks",
         hint: "Checks handled automatically; collapsed by default.",
@@ -252,6 +261,10 @@ const COPY = {
       no_result: {
         title: "无结果",
         hint: "没有可用产品的行。",
+      },
+      not_procurable: {
+        title: "网购买不到",
+        hint: "需打印的表单、服务、厂家专用编码：任何平台都不出售。",
       },
       auto_resolved: {
         title: "自动解决的检查",
@@ -358,6 +371,7 @@ export function ResultsWorkspace({
     corrected: true,
     review: true,
     no_result: true,
+    not_procurable: false,
     auto_resolved: false,
   });
 
@@ -388,8 +402,15 @@ export function ResultsWorkspace({
       (row.section === "corrected" || row.section === "auto_resolved")
   );
   const toConfirm = filteredRows.filter((row) => row.section === "review");
+  // Le righe non acquistabili hanno anch'esse zero prodotti, ma non sono
+  // «scoperte»: hanno una sezione propria e non devono comparire due volte.
+  const notProcurable = filteredRows.filter(
+    (row) => row.section === "not_procurable"
+  );
   const missing = filteredRows.filter(
-    (row) => row.section === "no_result" || row.candidate == null
+    (row) =>
+      row.section !== "not_procurable" &&
+      (row.section === "no_result" || row.candidate == null)
   );
   // «Scoperta» ha due sensi: la ricerca non ha trovato nulla, oppure ha
   // trovato prodotti che il giudice ha respinto tutti. I secondi si mostrano,
@@ -669,6 +690,31 @@ export function ResultsWorkspace({
                       : copy.retryRow}
                   </button>
                 ) : null}
+              </li>
+            ))}
+          </ul>
+        </details>
+      ) : null}
+
+      {/* Non è un fallimento della ricerca: è una richiesta che il
+          marketplace non può evadere. Sta sotto le righe scoperte, chiusa,
+          con il motivo accanto a ogni riga — e senza pulsante «riprova»,
+          perché non c'è niente da riprovare. */}
+      {notProcurable.length > 0 ? (
+        <details className={styles.missingBlock}>
+          <summary>
+            {copy.sections.not_procurable.title}
+            <span className={styles.missingCount}>{notProcurable.length}</span>
+          </summary>
+          <p className={styles.stateMessage}>
+            {copy.sections.not_procurable.hint}
+          </p>
+          <ul className={styles.missingList}>
+            {notProcurable.map((row) => (
+              <li key={row.id}>
+                <span className={styles.rowNumber}>#{row.rowNumber}</span>
+                <span className={styles.missingName}>{row.displayName}</span>
+                {row.gap?.detail ? <span>{row.gap.detail}</span> : null}
               </li>
             ))}
           </ul>

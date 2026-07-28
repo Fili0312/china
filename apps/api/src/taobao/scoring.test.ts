@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import type { ProductAnalysis } from "@china/shared";
+import { DEFAULT_PROCUREMENT, type ProductAnalysis } from "@china/shared";
 import type { MergedProduct } from "./merge";
 import { checkRequirements, dimensionMatches, rankCandidates } from "./scoring";
 import type { ScoredProduct } from "./scoring";
@@ -35,6 +35,7 @@ function analysis(overrides: Partial<ProductAnalysis> = {}): ProductAnalysis {
     searchQueryChinese: "陶瓷针规 5mm",
     searchQueryEnglish: "ceramic pin gauge 5mm",
     confidence: 0.9,
+    procurement: DEFAULT_PROCUREMENT,
     warnings: [],
     ...overrides,
   };

@@ -158,6 +158,8 @@ const en = {
   "reason.knownUnverifiable":
     "Known products present but not verifiable: RAPIDAPI_KEY is not configured.",
   "reason.nothingFound": "No product found on Taobao for this query.",
+  "reason.notProcurable":
+    "Not a marketplace item ({kind}): {why}. No search was spent on it.",
   "reason.refined": "Guided re-search: query rewritten from «{previous}».",
   "reason.fullSearchRequested": "Full search explicitly requested.",
   "reason.noStoredProducts": "No product stored for this variant.",
@@ -291,6 +293,7 @@ const zh: Record<MessageKey, string> = {
   "reason.notConfirmed": "该行在核对阶段未确认：确认后才会搜索。",
   "reason.knownUnverifiable": "存在已知产品但无法核验：未配置 RAPIDAPI_KEY。",
   "reason.nothingFound": "按此搜索词在淘宝未找到任何产品。",
+  "reason.notProcurable": "非市场在售商品（{kind}）：{why}。未为其花费任何搜索。",
   "reason.refined": "引导式重新搜索：搜索词由「{previous}」重写而来。",
   "reason.fullSearchRequested": "已明确要求执行完整搜索。",
   "reason.noStoredProducts": "该款式没有已保存的产品。",
@@ -431,6 +434,8 @@ const it: Record<MessageKey, string> = {
   "reason.knownUnverifiable":
     "Prodotti noti presenti ma non verificabili: RAPIDAPI_KEY non configurata.",
   "reason.nothingFound": "Nessun prodotto trovato su Taobao per questa query.",
+  "reason.notProcurable":
+    "Non è un articolo da marketplace ({kind}): {why}. Nessuna ricerca spesa.",
   "reason.refined": "Ri-ricerca guidata: query riscritta da «{previous}».",
   "reason.fullSearchRequested": "Ricerca completa richiesta esplicitamente.",
   "reason.noStoredProducts": "Nessun prodotto salvato per questa variante.",

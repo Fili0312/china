@@ -101,6 +101,15 @@ export function OutcomePanel({ state, onRestart }: OutcomePanelProps) {
         <Tile value={outcome.confirmedRows} label={t("v2.done.confirmed")} tone="ok" />
         <Tile value={outcome.uncertainRows} label={t("v2.done.uncertain")} tone="warn" />
         <Tile value={outcome.uncoveredRows} label={t("v2.done.uncovered")} tone="err" />
+        {/* Compare solo quando c'è: un riquadro a zero fisso su ogni corsa
+            insegnerebbe a non leggerlo. */}
+        {outcome.notProcurableRows > 0 ? (
+          <Tile
+            value={outcome.notProcurableRows}
+            label={t("v2.done.notProcurable")}
+            tone=""
+          />
+        ) : null}
         <Tile value={outcome.reusedRows} label={t("v2.done.reused")} tone="" />
       </div>
 

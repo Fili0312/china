@@ -1,8 +1,12 @@
 import { Injectable, Logger, NotFoundException, BadRequestException } from "@nestjs/common";
 import { prisma, Prisma } from "@china/db";
 import {
+  PROCUREMENT_KIND_LABELS,
   ProductAnalysisSchema,
+  isMarketplaceProcurement,
+  isSearchableProcurement,
   pipelineProgress,
+  procurementOf,
   TAOBAO_PIPELINE_PHASE_WEIGHTS,
   type AnalysisWarning,
   type AnswerTaobaoPipelineRequest,
@@ -204,6 +208,38 @@ export interface PipelineReviewSourceRow {
   error: string | null;
 }
 
+/**
+ * Il buco di una riga che non è un articolo da marketplace.
+ *
+ * Restituisce `null` quando la riga è merce normale — così chi chiama scrive
+ * `?? altro` e la regola resta in un punto solo. Il nome del prodotto e la
+ * query si prendono dall'analisi perché queste righe spesso non hanno mai
+ * avuto una riga di job: la ricerca non è stata nemmeno tentata.
+ */
+function procurementGap(
+  source: PipelineReviewSourceRow | undefined,
+  fallback: { displayName?: string | null; searchQuery?: string | null } = {}
+): TaobaoPipelineGap | null {
+  const analysis = source?.analysis;
+  if (!analysis) return null;
+  const kind = procurementOf(analysis);
+  if (isMarketplaceProcurement(kind)) return null;
+  const label = PROCUREMENT_KIND_LABELS.en[kind];
+  const why = analysis.procurement.reason?.trim();
+  return {
+    rowNumber: source!.rowNumber,
+    displayName:
+      fallback.displayName ||
+      analysis.productNameEnglish ||
+      analysis.productNameChinese ||
+      analysis.productFamily ||
+      `#${source!.rowNumber}`,
+    searchQuery: fallback.searchQuery ?? analysis.searchQueryChinese ?? null,
+    reason: "not_procurable",
+    detail: why ? `${label} · ${why}` : label,
+  };
+}
+
 /** Solo una decisione USER_INPUT resta un'azione umana irrisolta. */
 export function hasPendingPipelineDecision(
   row: PipelineReviewSourceRow
@@ -258,6 +294,11 @@ export function buildPipelineReviewIssues(
       });
       continue;
     }
+
+    // Una riga che non verrà cercata non ha dubbi da sciogliere: chiedere
+    // l'unità di misura di un modulo da stampare è tempo di una persona
+    // speso su una riga che non diventerà mai un acquisto.
+    if (!isSearchableProcurement(procurementOf(analysis))) continue;
 
     for (const warning of analysis.warnings) {
       if (
@@ -995,28 +1036,36 @@ export class PipelineService {
         };
       }) ?? [];
 
+    const emptyGaps: TaobaoPipelineGap[] = reviewSourceRows.map(
+      (row) =>
+        procurementGap(row) ?? {
+          rowNumber: row.rowNumber,
+          displayName:
+            row.analysis?.productNameEnglish ??
+            row.analysis?.productNameChinese ??
+            row.analysis?.productFamily ??
+            `#${row.rowNumber}`,
+          searchQuery: row.analysis?.searchQueryChinese ?? null,
+          reason: row.analysis ? "no_results" : "failed",
+          detail: row.error,
+        }
+    );
+    const emptyNotProcurable = emptyGaps.filter(
+      (gap) => gap.reason === "not_procurable"
+    ).length;
     const empty: TaobaoPipelineOutcome = {
       totalRows: analysisRun?.totalRows ?? 0,
       confirmedRows: 0,
       uncertainRows: 0,
-      uncoveredRows: reviewSourceRows.length,
+      uncoveredRows: emptyGaps.length - emptyNotProcurable,
+      notProcurableRows: emptyNotProcurable,
       reusedRows: 0,
       totalCostUsd: analysisRun?.costUsd ?? 0,
       searchCalls: 0,
       cacheHits: 0,
       refineRounds,
       recoveredRows,
-      gaps: reviewSourceRows.map((row) => ({
-        rowNumber: row.rowNumber,
-        displayName:
-          row.analysis?.productNameEnglish ??
-          row.analysis?.productNameChinese ??
-          row.analysis?.productFamily ??
-          `#${row.rowNumber}`,
-        searchQuery: row.analysis?.searchQueryChinese ?? null,
-        reason: row.analysis ? "no_results" : "failed",
-        detail: row.error,
-      })),
+      gaps: emptyGaps,
       reviewIssues: buildPipelineReviewIssues(
         reviewSourceRows,
         new Set<number>(),
@@ -1088,6 +1137,21 @@ export class PipelineService {
         });
         continue;
       }
+      // Da qui in giù la riga è scoperta. Prima di dire «non trovata» si
+      // guarda se fosse trovabile: un modulo da stampare o un codice che solo
+      // il costruttore risolve non è un fallimento della ricerca, ed è la
+      // differenza fra una riga da riprovare e una da girare al cliente.
+      // L'ordine conta: chi un prodotto coerente ce l'ha è già passato dai
+      // rami sopra e resta fra i confermati, qualunque cosa dica l'analisi.
+      const notProcurable = procurementGap(source, {
+        displayName: row.displayName,
+        searchQuery: row.searchQuery,
+      });
+      if (notProcurable) {
+        gaps.push(notProcurable);
+        continue;
+      }
+
       if (!source?.analysis || row.status === "FAILED") {
         gaps.push({
           rowNumber: row.rowNumber,
@@ -1179,6 +1243,11 @@ export class PipelineService {
     // sparire soltanto perché il job non la contiene più.
     for (const source of reviewSourceRows) {
       if (seenRows.has(source.rowNumber)) continue;
+      const notProcurable = procurementGap(source);
+      if (notProcurable) {
+        gaps.push(notProcurable);
+        continue;
+      }
       gaps.push({
         rowNumber: source.rowNumber,
         displayName:
@@ -1211,11 +1280,20 @@ export class PipelineService {
         (left.attributeKey ?? "").localeCompare(right.attributeKey ?? "")
     );
 
+    // Le righe non acquistabili escono dal conto degli scoperti: restano tutte
+    // in `gaps`, ma contarle insieme alle altre prometterebbe un recupero che
+    // nessuna ri-ricerca può dare. I quattro numeri continuano a sommare al
+    // totale, ognuno con il proprio significato.
+    const notProcurable = gaps.filter(
+      (gap) => gap.reason === "not_procurable"
+    ).length;
+
     return {
       totalRows: analysisRun?.totalRows ?? results.rows.length,
       confirmedRows: confirmed,
       uncertainRows: uncertain,
-      uncoveredRows: gaps.length,
+      uncoveredRows: gaps.length - notProcurable,
+      notProcurableRows: notProcurable,
       reusedRows: results.job.reusedRows,
       totalCostUsd: analysisRun?.costUsd ?? 0,
       searchCalls:

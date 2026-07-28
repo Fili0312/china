@@ -187,8 +187,18 @@ export const TaobaoPipelineGapSchema = z.object({
   rowNumber: z.number().int(),
   displayName: z.string(),
   searchQuery: z.string().nullable(),
-  /** Perché è scoperta: nessun candidato, oppure nessuno giudicato coerente. */
-  reason: z.enum(["no_results", "no_coherent", "failed", "low_confidence"]),
+  /**
+   * Perché è scoperta: nessun candidato, nessuno giudicato coerente, oppure
+   * — `not_procurable` — perché quella riga non è un articolo di marketplace
+   * e nessuna ricerca l'avrebbe mai trovata.
+   */
+  reason: z.enum([
+    "no_results",
+    "no_coherent",
+    "failed",
+    "low_confidence",
+    "not_procurable",
+  ]),
   /** Dettaglio già leggibile: errore della fonte o motivi dell'incoerenza. */
   detail: z.string().nullable(),
 });
@@ -236,8 +246,18 @@ export const TaobaoPipelineOutcomeSchema = z.object({
   confirmedRows: z.number().int().min(0),
   /** Righe con prodotti ma senza verdetto di coerenza positivo. */
   uncertainRows: z.number().int().min(0),
-  /** Righe senza nulla di utilizzabile: sono quelle in `gaps`. */
+  /**
+   * Righe senza nulla di utilizzabile che una ricerca migliore potrebbe
+   * ancora salvare. Le righe non acquistabili non sono qui: contarle insieme
+   * significherebbe promettere un recupero impossibile.
+   */
   uncoveredRows: z.number().int().min(0),
+  /**
+   * Righe che non sono articoli da marketplace (moduli da stampare, codici di
+   * costruttore, servizi). Il default tiene leggibili gli esiti salvati prima
+   * che l'analisi sapesse riconoscerle.
+   */
+  notProcurableRows: z.number().int().min(0).default(0),
   reusedRows: z.number().int().min(0),
   totalCostUsd: z.number().min(0),
   searchCalls: z.number().int().min(0),

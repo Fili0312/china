@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import { prisma } from "@china/db";
-import type { ProductAnalysis } from "@china/shared";
+import { DEFAULT_PROCUREMENT, type ProductAnalysis } from "@china/shared";
 import { CoherenceService } from "./coherence.service";
 import { deriveV2RequirementContext } from "./v2-requirement-policy";
 
@@ -25,6 +25,7 @@ function analysis(): ProductAnalysis {
     searchQueryChinese: "针规 2.48mm",
     searchQueryEnglish: "pin gauge 2.48mm",
     confidence: 0.95,
+    procurement: DEFAULT_PROCUREMENT,
     warnings: [],
   };
 }

@@ -39,6 +39,8 @@ export type V2ResultSection =
   | "corrected"
   | "review"
   | "no_result"
+  /** Righe che nessun marketplace vende: moduli, servizi, codici interni. */
+  | "not_procurable"
   | "auto_resolved";
 
 export type V2ResultSectionFilter = V2ResultSection | "all";
@@ -292,6 +294,7 @@ export function groupV2ResultRows(
     corrected: [],
     review: [],
     no_result: [],
+    not_procurable: [],
     auto_resolved: [],
   };
   for (const row of rows) grouped[row.section].push(row);
@@ -457,6 +460,12 @@ function classifyRow({
   candidate: TaobaoCandidate | null;
   actions: readonly V2HumanAction[];
 }): V2ResultSection {
+  // Prima di tutto: la riga era comprabile? Una richiesta che nessun venditore
+  // può evadere non è un fallimento della ricerca, e metterla fra i «nessun
+  // risultato» chiede all'operatore di riprovare qualcosa che non riuscirà
+  // mai. Vale solo per le righe rimaste scoperte: se un prodotto coerente è
+  // stato trovato lo stesso, la pipeline non emette questo gap.
+  if (gap?.reason === "not_procurable") return "not_procurable";
   const hasNoResult =
     Boolean(gap) ||
     source?.status === "FAILED" ||

@@ -3,6 +3,8 @@ import { test } from "node:test";
 import type { ProductAnalysis } from "@china/shared";
 import type { MergedProduct } from "./merge";
 import { checkRequirements, dimensionMatches, rankCandidates } from "./scoring";
+import type { ScoredProduct } from "./scoring";
+import { pinExcelFirst as pinExcelFirstForTest } from "./taobao-runner.service";
 
 /**
  * La classifica.
@@ -168,4 +170,45 @@ test("il modello si riconosce anche scritto con separatori diversi", () => {
     product({ title: "驱动器 DJM050485 工业级" })
   );
   assert.deepEqual(result.missing, []);
+});
+
+test("un link del foglio senza prezzo né immagine non rappresenta la riga", () => {
+  const complete = {
+    product: {
+      sources: ["api"],
+      price: 12,
+      promotionPrice: null,
+      variantPrice: null,
+      imageUrl: "https://img.example/a.jpg",
+    },
+  } as unknown as ScoredProduct;
+  const emptyExcel = {
+    product: {
+      sources: ["excel", "api"],
+      price: null,
+      promotionPrice: null,
+      variantPrice: null,
+      imageUrl: null,
+    },
+  } as unknown as ScoredProduct;
+  const usefulExcel = {
+    product: {
+      sources: ["excel"],
+      price: 9,
+      promotionPrice: null,
+      variantPrice: null,
+      imageUrl: "https://img.example/b.jpg",
+    },
+  } as unknown as ScoredProduct;
+
+  // Un guscio senza dati resta in lista, ma dopo il candidato completo.
+  assert.deepEqual(pinExcelFirstForTest([complete, emptyExcel]), [
+    complete,
+    emptyExcel,
+  ]);
+  // Un link del foglio che porta prezzo e immagine mantiene la precedenza.
+  assert.deepEqual(pinExcelFirstForTest([complete, usefulExcel]), [
+    usefulExcel,
+    complete,
+  ]);
 });

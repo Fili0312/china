@@ -34,8 +34,8 @@ import styles from "./results-workspace.module.css";
  * calcola le altezze, non le misura, quindi una scheda più alta del previsto
  * lascerebbe buchi durante lo scorrimento.
  */
-const CARD_MIN_WIDTH = 220;
-const CARD_ROW_HEIGHT = 268;
+/** Altezza di una riga: fissa, perché la virtualizzazione la calcola. */
+const LINE_HEIGHT = 52;
 const SECTION_ORDER: readonly V2ResultSection[] = [
   "corrected",
   "review",
@@ -90,6 +90,9 @@ const COPY = {
     imageMissing: "Immagine non disponibile",
     unitMissing: "unità non indicata",
     notVerified: "Non verificato",
+    retryRow: "Riprova",
+    retrying: "In corso…",
+    triedQueries: "Query provate",
     unavailable: "Non disponibile",
     reused: "Riusato",
     candidates: "{count} candidati",
@@ -162,6 +165,9 @@ const COPY = {
     imageMissing: "Image unavailable",
     unitMissing: "unit not specified",
     notVerified: "Not verified",
+    retryRow: "Retry",
+    retrying: "Running…",
+    triedQueries: "Queries tried",
     unavailable: "Unavailable",
     reused: "Reused",
     candidates: "{count} candidates",
@@ -234,6 +240,9 @@ const COPY = {
     imageMissing: "图片不可用",
     unitMissing: "未注明销售单位",
     notVerified: "未验证",
+    retryRow: "重试",
+    retrying: "进行中…",
+    triedQueries: "已尝试的搜索词",
     unavailable: "不可用",
     reused: "已复用",
     candidates: "{count} 个候选项",
@@ -268,6 +277,13 @@ interface ResultsWorkspaceProps {
   reviewIssues?: readonly TaobaoPipelineReviewIssue[];
   loading?: boolean;
   loadError?: string | null;
+  /**
+   * Ripete la ricerca di una sola riga.
+   *
+   * Assente quando i risultati sono storici: lì non c'è un job vivo da
+   * rilanciare, e un pulsante che non fa nulla è peggio di nessun pulsante.
+   */
+  onRetryRow?: (rowNumber: number) => Promise<void> | void;
 }
 
 export function ResultsWorkspace({
@@ -276,6 +292,7 @@ export function ResultsWorkspace({
   reviewIssues = [],
   loading = false,
   loadError = null,
+  onRetryRow,
 }: ResultsWorkspaceProps) {
   const { locale, intlLocale } = useI18n();
   const copy = COPY[locale];
@@ -285,6 +302,18 @@ export function ResultsWorkspace({
   const [platformFilter, setPlatformFilter] =
     useState<V2ResultPlatformFilter>("all");
   const [sort, setSort] = useState<V2ResultSort>("row_asc");
+  const [retryingRow, setRetryingRow] = useState<number | null>(null);
+
+  const retryRow = onRetryRow
+    ? async (rowNumber: number) => {
+        setRetryingRow(rowNumber);
+        try {
+          await onRetryRow(rowNumber);
+        } finally {
+          setRetryingRow(null);
+        }
+      }
+    : undefined;
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [actionsOpen, setActionsOpen] = useState(false);
   const [openSections, setOpenSections] = useState<
@@ -531,13 +560,15 @@ export function ResultsWorkspace({
 
               {isOpen ? (
                 visibleRows.length > 0 ? (
-                  <VirtualizedGrid
+                  <VirtualizedRows
                     rows={visibleRows}
                     selectedId={selectedId}
                     locale={locale}
                     intlLocale={intlLocale}
                     copy={copy}
                     onSelect={setSelectedId}
+                    onRetryRow={retryRow}
+                    retryingRow={retryingRow}
                   />
                 ) : (
                   <p className={styles.sectionEmpty}>{copy.empty}</p>
@@ -560,13 +591,26 @@ export function ResultsWorkspace({
   );
 }
 
-function VirtualizedGrid({
+/**
+ * La lista dei risultati: una riga per richiesta, sette informazioni.
+ *
+ * È la vista per scorrere centinaia di righe, non per approvarle una a una:
+ * mostra solo ciò che serve a decidere se aprire il dettaglio — immagine,
+ * cosa era stato chiesto, cosa è stato trovato, prezzo, variante, stato e il
+ * link alla scheda originale. Tutto il resto vive nel pannello di dettaglio.
+ *
+ * Si virtualizza per riga: con mille prodotti restano montati solo quelli
+ * visibili, e le immagini si caricano solo quando entrano nello schermo.
+ */
+function VirtualizedRows({
   rows,
   selectedId,
   locale,
   intlLocale,
   copy,
   onSelect,
+  onRetryRow,
+  retryingRow,
 }: {
   rows: readonly V2ResultRow[];
   selectedId: string | null;
@@ -574,22 +618,17 @@ function VirtualizedGrid({
   intlLocale: string;
   copy: (typeof COPY)[keyof typeof COPY];
   onSelect: (id: string) => void;
+  onRetryRow?: (rowNumber: number) => void;
+  retryingRow?: number | null;
 }) {
   const viewportRef = useRef<HTMLDivElement>(null);
   const [scrollTop, setScrollTop] = useState(0);
   const [viewportHeight, setViewportHeight] = useState(430);
-  const [columns, setColumns] = useState(1);
 
   useEffect(() => {
     const viewport = viewportRef.current;
     if (!viewport) return;
-    const update = () => {
-      setViewportHeight(viewport.clientHeight || 430);
-      // Le colonne seguono la larghezza reale: la griglia è la stessa su un
-      // portatile e su un monitor largo, cambia solo quanto ci sta in riga.
-      const width = viewport.clientWidth || CARD_MIN_WIDTH;
-      setColumns(Math.max(1, Math.floor(width / CARD_MIN_WIDTH)));
-    };
+    const update = () => setViewportHeight(viewport.clientHeight || 430);
     update();
     if (typeof ResizeObserver === "undefined") return;
     const observer = new ResizeObserver(update);
@@ -602,16 +641,13 @@ function VirtualizedGrid({
     if (viewportRef.current) viewportRef.current.scrollTop = 0;
   }, [rows]);
 
-  // Si virtualizza per **file di schede**: con 1.000 prodotti restano montate
-  // solo quelle visibili, esattamente come faceva la tabella.
-  const cardRows = Math.ceil(rows.length / columns);
   const window = calculateVirtualWindow(
-    cardRows,
+    rows.length,
     scrollTop,
     viewportHeight,
-    CARD_ROW_HEIGHT
+    LINE_HEIGHT
   );
-  const visible = rows.slice(window.start * columns, window.end * columns);
+  const visible = rows.slice(window.start, window.end);
 
   return (
     <div
@@ -623,12 +659,9 @@ function VirtualizedGrid({
       {window.paddingTop > 0 ? (
         <div aria-hidden="true" style={{ height: window.paddingTop }} />
       ) : null}
-      <div
-        className={styles.cardGrid}
-        style={{ gridTemplateColumns: `repeat(${columns}, minmax(0, 1fr))` }}
-      >
+      <div className={styles.lineList} role="list">
         {visible.map((row) => (
-          <ResultCard
+          <ResultLine
             key={row.id}
             row={row}
             selected={selectedId === row.id}
@@ -636,6 +669,8 @@ function VirtualizedGrid({
             intlLocale={intlLocale}
             copy={copy}
             onSelect={onSelect}
+            onRetryRow={onRetryRow}
+            retrying={retryingRow === row.rowNumber}
           />
         ))}
       </div>
@@ -646,21 +681,15 @@ function VirtualizedGrid({
   );
 }
 
-/**
- * La scheda del prodotto trovato.
- *
- * Mostra ciò che serve a riconoscerlo a colpo d'occhio — immagine, titolo,
- * prezzo, link — e nient'altro: il resto sta nel dettaglio, che si apre
- * cliccando. È la vista pensata per scorrere centinaia di righe, non per
- * approvarle una a una.
- */
-function ResultCard({
+function ResultLine({
   row,
   selected,
   locale,
   intlLocale,
   copy,
   onSelect,
+  onRetryRow,
+  retrying,
 }: {
   row: V2ResultRow;
   selected: boolean;
@@ -668,12 +697,15 @@ function ResultCard({
   intlLocale: string;
   copy: (typeof COPY)[keyof typeof COPY];
   onSelect: (id: string) => void;
+  onRetryRow?: (rowNumber: number) => void;
+  retrying?: boolean;
 }) {
   const candidate = row.candidate;
   const status =
     row.status === "UNKNOWN"
       ? copy.notVerified
       : TAOBAO_ROW_STATUS_LABELS[locale][row.status];
+  const variant = row.sku ?? copy.unitMissing;
 
   function onKeyDown(event: KeyboardEvent<HTMLElement>) {
     if (event.key === "Enter" || event.key === " ") {
@@ -684,84 +716,80 @@ function ResultCard({
 
   return (
     <article
-      className={`${styles.card} ${selected ? styles.cardSelected : ""}`}
+      className={`${styles.line} ${selected ? styles.lineSelected : ""}`}
+      role="listitem"
       tabIndex={0}
-      role="button"
       aria-selected={selected}
       aria-label={candidate?.product.title ?? row.displayName}
       onClick={() => onSelect(row.id)}
       onKeyDown={onKeyDown}
     >
-      <div className={styles.cardMedia}>
+      <span className={styles.lineThumb}>
         <Thumbnail
           src={row.imageUrl}
           alt={candidate?.product.title ?? row.displayName}
           fallback={copy.imageMissing}
         />
-        <span className={`${styles.cardBadge} ${styles[row.section]}`}>
-          {copy.sections[row.section].title}
-        </span>
+      </span>
+
+      <span className={styles.lineRequested} title={row.displayName}>
+        <span className={styles.rowNumber}>#{row.rowNumber}</span>
+        {row.displayName}
+      </span>
+
+      <span className={styles.lineFound}>
+        {candidate ? (
+          <span title={candidate.product.title}>{candidate.product.title}</span>
+        ) : (
+          // Senza prodotto la riga deve dire perché, non restare muta.
+          <span className={styles.lineMissing}>
+            {row.gap?.detail ?? copy.candidateMissing}
+          </span>
+        )}
+      </span>
+
+      <span className={styles.linePrice}>
+        {formatPrice(row.price, row.currency, intlLocale)}
+      </span>
+
+      <span className={styles.lineVariant} title={variant}>
+        {variant}
+      </span>
+
+      <span className={`${styles.lineStatus} ${styles[row.section]}`}>
+        {status}
         {row.actions.length > 0 ? (
-          <span
-            className={styles.cardAlert}
-            role="img"
-            aria-label={copy.sections.review.title}
-            title={copy.sections.review.title}
-          >
-            <svg
-              viewBox="0 0 24 24"
-              width="12"
-              height="12"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2.5"
-              strokeLinecap="round"
-              aria-hidden="true"
-            >
-              <path d="M12 7v6" />
-              <path d="M12 17h.01" />
-            </svg>
+          <span className={styles.lineAlert} title={copy.sections.review.title}>
+            !
           </span>
         ) : null}
-      </div>
+      </span>
 
-      <div className={styles.cardBody}>
-        <p className={styles.cardRequested}>
-          <span className={styles.rowNumber}>#{row.rowNumber}</span>
-          {row.displayName}
-        </p>
-        {candidate ? (
-          <p className={styles.cardTitle} title={candidate.product.title}>
-            {candidate.product.title}
-          </p>
-        ) : (
-          <p className={styles.missing}>{copy.candidateMissing}</p>
-        )}
-
-        <div className={styles.cardFooter}>
-          <span className={styles.cardPrice}>
-            {formatPrice(row.price, row.currency, intlLocale)}
-            <span className={styles.cardUnit}>
-              / {row.salesUnit ?? copy.unitMissing}
-            </span>
-          </span>
-          {candidate?.product.url ? (
-            <a
-              className={styles.cardLink}
-              href={candidate.product.url}
-              target="_blank"
-              rel="noreferrer"
-              onClick={(event) => event.stopPropagation()}
-            >
-              {copy.openProduct}
-            </a>
-          ) : null}
-        </div>
-        <p className={styles.cardMeta}>
-          {row.sku ? `SKU ${row.sku}` : status}
-          {row.reused ? ` · ${copy.reused}` : ""}
-        </p>
-      </div>
+      <span className={styles.lineActions}>
+        {candidate?.product.url ? (
+          <a
+            className={styles.cardLink}
+            href={candidate.product.url}
+            target="_blank"
+            rel="noreferrer"
+            onClick={(event) => event.stopPropagation()}
+          >
+            {copy.openProduct}
+          </a>
+        ) : onRetryRow ? (
+          <button
+            type="button"
+            className={styles.retryButton}
+            disabled={retrying}
+            onClick={(event) => {
+              event.stopPropagation();
+              onRetryRow(row.rowNumber);
+            }}
+          >
+            {retrying ? copy.retrying : copy.retryRow}
+          </button>
+        ) : null}
+      </span>
     </article>
   );
 }
@@ -794,6 +822,20 @@ function ResultDetails({
           ×
         </button>
       </div>
+
+      {/* Una riga senza prodotto deve spiegarsi: cosa è stato cercato, perché
+          non è bastato, e come riprovare senza rifare l'intero foglio. */}
+      {!row.candidate && row.attemptedQueries.length > 0 ? (
+        <div className={styles.detailNoResult}>
+          <strong>{copy.triedQueries}</strong>
+          <ul className={styles.triedQueries}>
+            {row.attemptedQueries.map((query) => (
+              <li key={query}>{query}</li>
+            ))}
+          </ul>
+          {row.gap?.detail ? <p>{row.gap.detail}</p> : null}
+        </div>
+      ) : null}
 
       <div className={styles.detailGrid}>
         <div className={styles.detailProduct}>

@@ -807,17 +807,36 @@ function readAnalysis(value: Prisma.JsonValue | null): ProductAnalysis | null {
 }
 
 /**
- * Il prodotto arrivato dal link del foglio sta sempre in cima.
+ * Un link del foglio vale come punto di partenza solo se mostra qualcosa.
  *
- * Non è un giudizio tecnico: è la regola concordata — se il cliente ha già
- * comprato da quel link, quello è il punto di partenza («prodotto usato in
- * precedenza»), e i candidati con corrispondenza migliore stanno subito sotto,
- * nell'ordine della classifica.
+ * La regola concordata resta: se il cliente ha già comprato da quel link,
+ * quello va in cima e i candidati con corrispondenza migliore stanno sotto.
+ * Ma un link ricavato dal foglio nasce senza prezzo e senza immagine — la
+ * fonte non li espone per un id noto — e messo in cima diventa la scheda che
+ * rappresenta la riga: l'operatore si trova un riquadro vuoto al posto del
+ * prodotto trovato. Un guscio così non è un punto di partenza, è un buco.
+ *
+ * Quindi: in cima ci va il link del foglio **che porta un dato utile**; gli
+ * altri restano visibili, dopo i candidati completi.
  */
-function pinExcelFirst(ranked: ScoredProduct[]): ScoredProduct[] {
-  const excel = ranked.filter((entry) => entry.product.sources.includes("excel"));
-  if (excel.length === 0) return ranked;
-  return [...excel, ...ranked.filter((entry) => !entry.product.sources.includes("excel"))];
+function excelCandidateIsInformative(entry: ScoredProduct): boolean {
+  const product = entry.product;
+  const hasPrice =
+    product.price != null ||
+    product.promotionPrice != null ||
+    product.variantPrice != null;
+  return hasPrice || Boolean(product.imageUrl);
+}
+
+export function pinExcelFirst(ranked: ScoredProduct[]): ScoredProduct[] {
+  const fromExcel = (entry: ScoredProduct) =>
+    entry.product.sources.includes("excel");
+  const pinned = ranked.filter(
+    (entry) => fromExcel(entry) && excelCandidateIsInformative(entry)
+  );
+  if (pinned.length === 0) return ranked;
+  const rest = ranked.filter((entry) => !pinned.includes(entry));
+  return [...pinned, ...rest];
 }
 
 /** Riesportato per i test del punteggio. */

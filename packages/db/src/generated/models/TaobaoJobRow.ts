@@ -112,6 +112,7 @@ export type TaobaoJobRowCountAggregateOutputType = {
   status: number
   reused: number
   reuseReason: number
+  attemptedQueries: number
   hwhStatus: number
   hwhError: number
   hwhCount: number
@@ -217,6 +218,7 @@ export type TaobaoJobRowCountAggregateInputType = {
   status?: true
   reused?: true
   reuseReason?: true
+  attemptedQueries?: true
   hwhStatus?: true
   hwhError?: true
   hwhCount?: true
@@ -333,6 +335,7 @@ export type TaobaoJobRowGroupByOutputType = {
   status: $Enums.TaobaoRowStatus
   reused: boolean
   reuseReason: string | null
+  attemptedQueries: string[]
   hwhStatus: string | null
   hwhError: string | null
   hwhCount: number
@@ -385,6 +388,7 @@ export type TaobaoJobRowWhereInput = {
   status?: Prisma.EnumTaobaoRowStatusFilter<"TaobaoJobRow"> | $Enums.TaobaoRowStatus
   reused?: Prisma.BoolFilter<"TaobaoJobRow"> | boolean
   reuseReason?: Prisma.StringNullableFilter<"TaobaoJobRow"> | string | null
+  attemptedQueries?: Prisma.StringNullableListFilter<"TaobaoJobRow">
   hwhStatus?: Prisma.StringNullableFilter<"TaobaoJobRow"> | string | null
   hwhError?: Prisma.StringNullableFilter<"TaobaoJobRow"> | string | null
   hwhCount?: Prisma.IntFilter<"TaobaoJobRow"> | number
@@ -419,6 +423,7 @@ export type TaobaoJobRowOrderByWithRelationInput = {
   status?: Prisma.SortOrder
   reused?: Prisma.SortOrder
   reuseReason?: Prisma.SortOrderInput | Prisma.SortOrder
+  attemptedQueries?: Prisma.SortOrder
   hwhStatus?: Prisma.SortOrderInput | Prisma.SortOrder
   hwhError?: Prisma.SortOrderInput | Prisma.SortOrder
   hwhCount?: Prisma.SortOrder
@@ -457,6 +462,7 @@ export type TaobaoJobRowWhereUniqueInput = Prisma.AtLeast<{
   status?: Prisma.EnumTaobaoRowStatusFilter<"TaobaoJobRow"> | $Enums.TaobaoRowStatus
   reused?: Prisma.BoolFilter<"TaobaoJobRow"> | boolean
   reuseReason?: Prisma.StringNullableFilter<"TaobaoJobRow"> | string | null
+  attemptedQueries?: Prisma.StringNullableListFilter<"TaobaoJobRow">
   hwhStatus?: Prisma.StringNullableFilter<"TaobaoJobRow"> | string | null
   hwhError?: Prisma.StringNullableFilter<"TaobaoJobRow"> | string | null
   hwhCount?: Prisma.IntFilter<"TaobaoJobRow"> | number
@@ -491,6 +497,7 @@ export type TaobaoJobRowOrderByWithAggregationInput = {
   status?: Prisma.SortOrder
   reused?: Prisma.SortOrder
   reuseReason?: Prisma.SortOrderInput | Prisma.SortOrder
+  attemptedQueries?: Prisma.SortOrder
   hwhStatus?: Prisma.SortOrderInput | Prisma.SortOrder
   hwhError?: Prisma.SortOrderInput | Prisma.SortOrder
   hwhCount?: Prisma.SortOrder
@@ -528,6 +535,7 @@ export type TaobaoJobRowScalarWhereWithAggregatesInput = {
   status?: Prisma.EnumTaobaoRowStatusWithAggregatesFilter<"TaobaoJobRow"> | $Enums.TaobaoRowStatus
   reused?: Prisma.BoolWithAggregatesFilter<"TaobaoJobRow"> | boolean
   reuseReason?: Prisma.StringNullableWithAggregatesFilter<"TaobaoJobRow"> | string | null
+  attemptedQueries?: Prisma.StringNullableListFilter<"TaobaoJobRow">
   hwhStatus?: Prisma.StringNullableWithAggregatesFilter<"TaobaoJobRow"> | string | null
   hwhError?: Prisma.StringNullableWithAggregatesFilter<"TaobaoJobRow"> | string | null
   hwhCount?: Prisma.IntWithAggregatesFilter<"TaobaoJobRow"> | number
@@ -553,6 +561,7 @@ export type TaobaoJobRowCreateInput = {
   status?: $Enums.TaobaoRowStatus
   reused?: boolean
   reuseReason?: string | null
+  attemptedQueries?: Prisma.TaobaoJobRowCreateattemptedQueriesInput | string[]
   hwhStatus?: string | null
   hwhError?: string | null
   hwhCount?: number
@@ -587,6 +596,7 @@ export type TaobaoJobRowUncheckedCreateInput = {
   status?: $Enums.TaobaoRowStatus
   reused?: boolean
   reuseReason?: string | null
+  attemptedQueries?: Prisma.TaobaoJobRowCreateattemptedQueriesInput | string[]
   hwhStatus?: string | null
   hwhError?: string | null
   hwhCount?: number
@@ -613,6 +623,7 @@ export type TaobaoJobRowUpdateInput = {
   status?: Prisma.EnumTaobaoRowStatusFieldUpdateOperationsInput | $Enums.TaobaoRowStatus
   reused?: Prisma.BoolFieldUpdateOperationsInput | boolean
   reuseReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  attemptedQueries?: Prisma.TaobaoJobRowUpdateattemptedQueriesInput | string[]
   hwhStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   hwhError?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   hwhCount?: Prisma.IntFieldUpdateOperationsInput | number
@@ -647,6 +658,7 @@ export type TaobaoJobRowUncheckedUpdateInput = {
   status?: Prisma.EnumTaobaoRowStatusFieldUpdateOperationsInput | $Enums.TaobaoRowStatus
   reused?: Prisma.BoolFieldUpdateOperationsInput | boolean
   reuseReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  attemptedQueries?: Prisma.TaobaoJobRowUpdateattemptedQueriesInput | string[]
   hwhStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   hwhError?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   hwhCount?: Prisma.IntFieldUpdateOperationsInput | number
@@ -677,6 +689,7 @@ export type TaobaoJobRowCreateManyInput = {
   status?: $Enums.TaobaoRowStatus
   reused?: boolean
   reuseReason?: string | null
+  attemptedQueries?: Prisma.TaobaoJobRowCreateattemptedQueriesInput | string[]
   hwhStatus?: string | null
   hwhError?: string | null
   hwhCount?: number
@@ -702,6 +715,7 @@ export type TaobaoJobRowUpdateManyMutationInput = {
   status?: Prisma.EnumTaobaoRowStatusFieldUpdateOperationsInput | $Enums.TaobaoRowStatus
   reused?: Prisma.BoolFieldUpdateOperationsInput | boolean
   reuseReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  attemptedQueries?: Prisma.TaobaoJobRowUpdateattemptedQueriesInput | string[]
   hwhStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   hwhError?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   hwhCount?: Prisma.IntFieldUpdateOperationsInput | number
@@ -731,6 +745,7 @@ export type TaobaoJobRowUncheckedUpdateManyInput = {
   status?: Prisma.EnumTaobaoRowStatusFieldUpdateOperationsInput | $Enums.TaobaoRowStatus
   reused?: Prisma.BoolFieldUpdateOperationsInput | boolean
   reuseReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  attemptedQueries?: Prisma.TaobaoJobRowUpdateattemptedQueriesInput | string[]
   hwhStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   hwhError?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   hwhCount?: Prisma.IntFieldUpdateOperationsInput | number
@@ -775,6 +790,7 @@ export type TaobaoJobRowCountOrderByAggregateInput = {
   status?: Prisma.SortOrder
   reused?: Prisma.SortOrder
   reuseReason?: Prisma.SortOrder
+  attemptedQueries?: Prisma.SortOrder
   hwhStatus?: Prisma.SortOrder
   hwhError?: Prisma.SortOrder
   hwhCount?: Prisma.SortOrder
@@ -1039,8 +1055,17 @@ export type TaobaoJobRowUncheckedUpdateManyWithoutJobNestedInput = {
   deleteMany?: Prisma.TaobaoJobRowScalarWhereInput | Prisma.TaobaoJobRowScalarWhereInput[]
 }
 
+export type TaobaoJobRowCreateattemptedQueriesInput = {
+  set: string[]
+}
+
 export type EnumTaobaoRowStatusFieldUpdateOperationsInput = {
   set?: $Enums.TaobaoRowStatus
+}
+
+export type TaobaoJobRowUpdateattemptedQueriesInput = {
+  set?: string[]
+  push?: string | string[]
 }
 
 export type TaobaoJobRowCreateNestedOneWithoutResultsInput = {
@@ -1065,6 +1090,7 @@ export type TaobaoJobRowCreateWithoutDatasetRowInput = {
   status?: $Enums.TaobaoRowStatus
   reused?: boolean
   reuseReason?: string | null
+  attemptedQueries?: Prisma.TaobaoJobRowCreateattemptedQueriesInput | string[]
   hwhStatus?: string | null
   hwhError?: string | null
   hwhCount?: number
@@ -1097,6 +1123,7 @@ export type TaobaoJobRowUncheckedCreateWithoutDatasetRowInput = {
   status?: $Enums.TaobaoRowStatus
   reused?: boolean
   reuseReason?: string | null
+  attemptedQueries?: Prisma.TaobaoJobRowCreateattemptedQueriesInput | string[]
   hwhStatus?: string | null
   hwhError?: string | null
   hwhCount?: number
@@ -1156,6 +1183,7 @@ export type TaobaoJobRowScalarWhereInput = {
   status?: Prisma.EnumTaobaoRowStatusFilter<"TaobaoJobRow"> | $Enums.TaobaoRowStatus
   reused?: Prisma.BoolFilter<"TaobaoJobRow"> | boolean
   reuseReason?: Prisma.StringNullableFilter<"TaobaoJobRow"> | string | null
+  attemptedQueries?: Prisma.StringNullableListFilter<"TaobaoJobRow">
   hwhStatus?: Prisma.StringNullableFilter<"TaobaoJobRow"> | string | null
   hwhError?: Prisma.StringNullableFilter<"TaobaoJobRow"> | string | null
   hwhCount?: Prisma.IntFilter<"TaobaoJobRow"> | number
@@ -1181,6 +1209,7 @@ export type TaobaoJobRowCreateWithoutAnalysisRowInput = {
   status?: $Enums.TaobaoRowStatus
   reused?: boolean
   reuseReason?: string | null
+  attemptedQueries?: Prisma.TaobaoJobRowCreateattemptedQueriesInput | string[]
   hwhStatus?: string | null
   hwhError?: string | null
   hwhCount?: number
@@ -1213,6 +1242,7 @@ export type TaobaoJobRowUncheckedCreateWithoutAnalysisRowInput = {
   status?: $Enums.TaobaoRowStatus
   reused?: boolean
   reuseReason?: string | null
+  attemptedQueries?: Prisma.TaobaoJobRowCreateattemptedQueriesInput | string[]
   hwhStatus?: string | null
   hwhError?: string | null
   hwhCount?: number
@@ -1265,6 +1295,7 @@ export type TaobaoJobRowCreateWithoutRequestInput = {
   status?: $Enums.TaobaoRowStatus
   reused?: boolean
   reuseReason?: string | null
+  attemptedQueries?: Prisma.TaobaoJobRowCreateattemptedQueriesInput | string[]
   hwhStatus?: string | null
   hwhError?: string | null
   hwhCount?: number
@@ -1297,6 +1328,7 @@ export type TaobaoJobRowUncheckedCreateWithoutRequestInput = {
   status?: $Enums.TaobaoRowStatus
   reused?: boolean
   reuseReason?: string | null
+  attemptedQueries?: Prisma.TaobaoJobRowCreateattemptedQueriesInput | string[]
   hwhStatus?: string | null
   hwhError?: string | null
   hwhCount?: number
@@ -1349,6 +1381,7 @@ export type TaobaoJobRowCreateWithoutJobInput = {
   status?: $Enums.TaobaoRowStatus
   reused?: boolean
   reuseReason?: string | null
+  attemptedQueries?: Prisma.TaobaoJobRowCreateattemptedQueriesInput | string[]
   hwhStatus?: string | null
   hwhError?: string | null
   hwhCount?: number
@@ -1381,6 +1414,7 @@ export type TaobaoJobRowUncheckedCreateWithoutJobInput = {
   status?: $Enums.TaobaoRowStatus
   reused?: boolean
   reuseReason?: string | null
+  attemptedQueries?: Prisma.TaobaoJobRowCreateattemptedQueriesInput | string[]
   hwhStatus?: string | null
   hwhError?: string | null
   hwhCount?: number
@@ -1433,6 +1467,7 @@ export type TaobaoJobRowCreateWithoutResultsInput = {
   status?: $Enums.TaobaoRowStatus
   reused?: boolean
   reuseReason?: string | null
+  attemptedQueries?: Prisma.TaobaoJobRowCreateattemptedQueriesInput | string[]
   hwhStatus?: string | null
   hwhError?: string | null
   hwhCount?: number
@@ -1466,6 +1501,7 @@ export type TaobaoJobRowUncheckedCreateWithoutResultsInput = {
   status?: $Enums.TaobaoRowStatus
   reused?: boolean
   reuseReason?: string | null
+  attemptedQueries?: Prisma.TaobaoJobRowCreateattemptedQueriesInput | string[]
   hwhStatus?: string | null
   hwhError?: string | null
   hwhCount?: number
@@ -1507,6 +1543,7 @@ export type TaobaoJobRowUpdateWithoutResultsInput = {
   status?: Prisma.EnumTaobaoRowStatusFieldUpdateOperationsInput | $Enums.TaobaoRowStatus
   reused?: Prisma.BoolFieldUpdateOperationsInput | boolean
   reuseReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  attemptedQueries?: Prisma.TaobaoJobRowUpdateattemptedQueriesInput | string[]
   hwhStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   hwhError?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   hwhCount?: Prisma.IntFieldUpdateOperationsInput | number
@@ -1540,6 +1577,7 @@ export type TaobaoJobRowUncheckedUpdateWithoutResultsInput = {
   status?: Prisma.EnumTaobaoRowStatusFieldUpdateOperationsInput | $Enums.TaobaoRowStatus
   reused?: Prisma.BoolFieldUpdateOperationsInput | boolean
   reuseReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  attemptedQueries?: Prisma.TaobaoJobRowUpdateattemptedQueriesInput | string[]
   hwhStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   hwhError?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   hwhCount?: Prisma.IntFieldUpdateOperationsInput | number
@@ -1568,6 +1606,7 @@ export type TaobaoJobRowCreateManyDatasetRowInput = {
   status?: $Enums.TaobaoRowStatus
   reused?: boolean
   reuseReason?: string | null
+  attemptedQueries?: Prisma.TaobaoJobRowCreateattemptedQueriesInput | string[]
   hwhStatus?: string | null
   hwhError?: string | null
   hwhCount?: number
@@ -1593,6 +1632,7 @@ export type TaobaoJobRowUpdateWithoutDatasetRowInput = {
   status?: Prisma.EnumTaobaoRowStatusFieldUpdateOperationsInput | $Enums.TaobaoRowStatus
   reused?: Prisma.BoolFieldUpdateOperationsInput | boolean
   reuseReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  attemptedQueries?: Prisma.TaobaoJobRowUpdateattemptedQueriesInput | string[]
   hwhStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   hwhError?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   hwhCount?: Prisma.IntFieldUpdateOperationsInput | number
@@ -1625,6 +1665,7 @@ export type TaobaoJobRowUncheckedUpdateWithoutDatasetRowInput = {
   status?: Prisma.EnumTaobaoRowStatusFieldUpdateOperationsInput | $Enums.TaobaoRowStatus
   reused?: Prisma.BoolFieldUpdateOperationsInput | boolean
   reuseReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  attemptedQueries?: Prisma.TaobaoJobRowUpdateattemptedQueriesInput | string[]
   hwhStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   hwhError?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   hwhCount?: Prisma.IntFieldUpdateOperationsInput | number
@@ -1654,6 +1695,7 @@ export type TaobaoJobRowUncheckedUpdateManyWithoutDatasetRowInput = {
   status?: Prisma.EnumTaobaoRowStatusFieldUpdateOperationsInput | $Enums.TaobaoRowStatus
   reused?: Prisma.BoolFieldUpdateOperationsInput | boolean
   reuseReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  attemptedQueries?: Prisma.TaobaoJobRowUpdateattemptedQueriesInput | string[]
   hwhStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   hwhError?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   hwhCount?: Prisma.IntFieldUpdateOperationsInput | number
@@ -1682,6 +1724,7 @@ export type TaobaoJobRowCreateManyAnalysisRowInput = {
   status?: $Enums.TaobaoRowStatus
   reused?: boolean
   reuseReason?: string | null
+  attemptedQueries?: Prisma.TaobaoJobRowCreateattemptedQueriesInput | string[]
   hwhStatus?: string | null
   hwhError?: string | null
   hwhCount?: number
@@ -1707,6 +1750,7 @@ export type TaobaoJobRowUpdateWithoutAnalysisRowInput = {
   status?: Prisma.EnumTaobaoRowStatusFieldUpdateOperationsInput | $Enums.TaobaoRowStatus
   reused?: Prisma.BoolFieldUpdateOperationsInput | boolean
   reuseReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  attemptedQueries?: Prisma.TaobaoJobRowUpdateattemptedQueriesInput | string[]
   hwhStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   hwhError?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   hwhCount?: Prisma.IntFieldUpdateOperationsInput | number
@@ -1739,6 +1783,7 @@ export type TaobaoJobRowUncheckedUpdateWithoutAnalysisRowInput = {
   status?: Prisma.EnumTaobaoRowStatusFieldUpdateOperationsInput | $Enums.TaobaoRowStatus
   reused?: Prisma.BoolFieldUpdateOperationsInput | boolean
   reuseReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  attemptedQueries?: Prisma.TaobaoJobRowUpdateattemptedQueriesInput | string[]
   hwhStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   hwhError?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   hwhCount?: Prisma.IntFieldUpdateOperationsInput | number
@@ -1768,6 +1813,7 @@ export type TaobaoJobRowUncheckedUpdateManyWithoutAnalysisRowInput = {
   status?: Prisma.EnumTaobaoRowStatusFieldUpdateOperationsInput | $Enums.TaobaoRowStatus
   reused?: Prisma.BoolFieldUpdateOperationsInput | boolean
   reuseReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  attemptedQueries?: Prisma.TaobaoJobRowUpdateattemptedQueriesInput | string[]
   hwhStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   hwhError?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   hwhCount?: Prisma.IntFieldUpdateOperationsInput | number
@@ -1796,6 +1842,7 @@ export type TaobaoJobRowCreateManyRequestInput = {
   status?: $Enums.TaobaoRowStatus
   reused?: boolean
   reuseReason?: string | null
+  attemptedQueries?: Prisma.TaobaoJobRowCreateattemptedQueriesInput | string[]
   hwhStatus?: string | null
   hwhError?: string | null
   hwhCount?: number
@@ -1821,6 +1868,7 @@ export type TaobaoJobRowUpdateWithoutRequestInput = {
   status?: Prisma.EnumTaobaoRowStatusFieldUpdateOperationsInput | $Enums.TaobaoRowStatus
   reused?: Prisma.BoolFieldUpdateOperationsInput | boolean
   reuseReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  attemptedQueries?: Prisma.TaobaoJobRowUpdateattemptedQueriesInput | string[]
   hwhStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   hwhError?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   hwhCount?: Prisma.IntFieldUpdateOperationsInput | number
@@ -1853,6 +1901,7 @@ export type TaobaoJobRowUncheckedUpdateWithoutRequestInput = {
   status?: Prisma.EnumTaobaoRowStatusFieldUpdateOperationsInput | $Enums.TaobaoRowStatus
   reused?: Prisma.BoolFieldUpdateOperationsInput | boolean
   reuseReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  attemptedQueries?: Prisma.TaobaoJobRowUpdateattemptedQueriesInput | string[]
   hwhStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   hwhError?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   hwhCount?: Prisma.IntFieldUpdateOperationsInput | number
@@ -1882,6 +1931,7 @@ export type TaobaoJobRowUncheckedUpdateManyWithoutRequestInput = {
   status?: Prisma.EnumTaobaoRowStatusFieldUpdateOperationsInput | $Enums.TaobaoRowStatus
   reused?: Prisma.BoolFieldUpdateOperationsInput | boolean
   reuseReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  attemptedQueries?: Prisma.TaobaoJobRowUpdateattemptedQueriesInput | string[]
   hwhStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   hwhError?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   hwhCount?: Prisma.IntFieldUpdateOperationsInput | number
@@ -1910,6 +1960,7 @@ export type TaobaoJobRowCreateManyJobInput = {
   status?: $Enums.TaobaoRowStatus
   reused?: boolean
   reuseReason?: string | null
+  attemptedQueries?: Prisma.TaobaoJobRowCreateattemptedQueriesInput | string[]
   hwhStatus?: string | null
   hwhError?: string | null
   hwhCount?: number
@@ -1935,6 +1986,7 @@ export type TaobaoJobRowUpdateWithoutJobInput = {
   status?: Prisma.EnumTaobaoRowStatusFieldUpdateOperationsInput | $Enums.TaobaoRowStatus
   reused?: Prisma.BoolFieldUpdateOperationsInput | boolean
   reuseReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  attemptedQueries?: Prisma.TaobaoJobRowUpdateattemptedQueriesInput | string[]
   hwhStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   hwhError?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   hwhCount?: Prisma.IntFieldUpdateOperationsInput | number
@@ -1967,6 +2019,7 @@ export type TaobaoJobRowUncheckedUpdateWithoutJobInput = {
   status?: Prisma.EnumTaobaoRowStatusFieldUpdateOperationsInput | $Enums.TaobaoRowStatus
   reused?: Prisma.BoolFieldUpdateOperationsInput | boolean
   reuseReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  attemptedQueries?: Prisma.TaobaoJobRowUpdateattemptedQueriesInput | string[]
   hwhStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   hwhError?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   hwhCount?: Prisma.IntFieldUpdateOperationsInput | number
@@ -1996,6 +2049,7 @@ export type TaobaoJobRowUncheckedUpdateManyWithoutJobInput = {
   status?: Prisma.EnumTaobaoRowStatusFieldUpdateOperationsInput | $Enums.TaobaoRowStatus
   reused?: Prisma.BoolFieldUpdateOperationsInput | boolean
   reuseReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  attemptedQueries?: Prisma.TaobaoJobRowUpdateattemptedQueriesInput | string[]
   hwhStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   hwhError?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   hwhCount?: Prisma.IntFieldUpdateOperationsInput | number
@@ -2056,6 +2110,7 @@ export type TaobaoJobRowSelect<ExtArgs extends runtime.Types.Extensions.Internal
   status?: boolean
   reused?: boolean
   reuseReason?: boolean
+  attemptedQueries?: boolean
   hwhStatus?: boolean
   hwhError?: boolean
   hwhCount?: boolean
@@ -2091,6 +2146,7 @@ export type TaobaoJobRowSelectCreateManyAndReturn<ExtArgs extends runtime.Types.
   status?: boolean
   reused?: boolean
   reuseReason?: boolean
+  attemptedQueries?: boolean
   hwhStatus?: boolean
   hwhError?: boolean
   hwhCount?: boolean
@@ -2124,6 +2180,7 @@ export type TaobaoJobRowSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.
   status?: boolean
   reused?: boolean
   reuseReason?: boolean
+  attemptedQueries?: boolean
   hwhStatus?: boolean
   hwhError?: boolean
   hwhCount?: boolean
@@ -2157,6 +2214,7 @@ export type TaobaoJobRowSelectScalar = {
   status?: boolean
   reused?: boolean
   reuseReason?: boolean
+  attemptedQueries?: boolean
   hwhStatus?: boolean
   hwhError?: boolean
   hwhCount?: boolean
@@ -2174,7 +2232,7 @@ export type TaobaoJobRowSelectScalar = {
   finishedAt?: boolean
 }
 
-export type TaobaoJobRowOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "jobId" | "datasetRowId" | "analysisRowId" | "requestId" | "rowNumber" | "displayName" | "searchQuery" | "status" | "reused" | "reuseReason" | "hwhStatus" | "hwhError" | "hwhCount" | "apiStatus" | "apiError" | "apiCount" | "elimStatus" | "elimError" | "elimCount" | "browserStatus" | "browserError" | "browserCount" | "error" | "startedAt" | "finishedAt", ExtArgs["result"]["taobaoJobRow"]>
+export type TaobaoJobRowOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "jobId" | "datasetRowId" | "analysisRowId" | "requestId" | "rowNumber" | "displayName" | "searchQuery" | "status" | "reused" | "reuseReason" | "attemptedQueries" | "hwhStatus" | "hwhError" | "hwhCount" | "apiStatus" | "apiError" | "apiCount" | "elimStatus" | "elimError" | "elimCount" | "browserStatus" | "browserError" | "browserCount" | "error" | "startedAt" | "finishedAt", ExtArgs["result"]["taobaoJobRow"]>
 export type TaobaoJobRowInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   job?: boolean | Prisma.TaobaoJobDefaultArgs<ExtArgs>
   datasetRow?: boolean | Prisma.TaobaoDatasetRowDefaultArgs<ExtArgs>
@@ -2223,6 +2281,12 @@ export type $TaobaoJobRowPayload<ExtArgs extends runtime.Types.Extensions.Intern
      * Perché è stata riusata o rifatta: è la risposta a «perché non l'hai cercato?».
      */
     reuseReason: string | null
+    /**
+     * Le query realmente inviate alla fonte, in ordine di tentativo.
+     * Su una riga senza risultato è l'unica spiegazione utile: dice se il
+     * problema è la traduzione, i vincoli o il catalogo.
+     */
+    attemptedQueries: string[]
     /**
      * Esito separato per trasporto: un captcha su Playwright non deve
      * cancellare i risultati dell'API.
@@ -2685,6 +2749,7 @@ export interface TaobaoJobRowFieldRefs {
   readonly status: Prisma.FieldRef<"TaobaoJobRow", 'TaobaoRowStatus'>
   readonly reused: Prisma.FieldRef<"TaobaoJobRow", 'Boolean'>
   readonly reuseReason: Prisma.FieldRef<"TaobaoJobRow", 'String'>
+  readonly attemptedQueries: Prisma.FieldRef<"TaobaoJobRow", 'String[]'>
   readonly hwhStatus: Prisma.FieldRef<"TaobaoJobRow", 'String'>
   readonly hwhError: Prisma.FieldRef<"TaobaoJobRow", 'String'>
   readonly hwhCount: Prisma.FieldRef<"TaobaoJobRow", 'Int'>

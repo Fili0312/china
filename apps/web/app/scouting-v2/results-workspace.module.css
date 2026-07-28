@@ -750,3 +750,209 @@
     transition: none;
   }
 }
+
+/* -------------------------------------------------------------------------- */
+/* Lista compatta: una riga per richiesta, sette informazioni.                 */
+/* -------------------------------------------------------------------------- */
+
+.lineList {
+  display: flex;
+  flex-direction: column;
+}
+
+.line {
+  display: grid;
+  grid-template-columns:
+    40px minmax(7rem, 1.1fr) minmax(8rem, 1.6fr)
+    minmax(4.5rem, auto) minmax(4rem, 0.6fr) minmax(5rem, auto) auto;
+  align-items: center;
+  gap: 0.6rem;
+  /* Altezza fissa: la virtualizzazione la calcola, non la misura. */
+  height: 52px;
+  padding: 0 0.7rem;
+  border-bottom: 1px solid color-mix(in srgb, var(--s-border, #e5e5ea) 70%, transparent);
+  background: var(--s-surface, #fff);
+  cursor: pointer;
+  outline: 0;
+  transition: background-color 0.12s ease;
+}
+
+.line:hover,
+.line:focus-visible {
+  background: var(--s-surface-2, #f5f5f7);
+}
+
+.line:focus-visible {
+  box-shadow: inset 0 0 0 2px var(--s-accent, #1d1d1f);
+}
+
+.lineSelected {
+  background: var(--s-surface-2, #f5f5f7);
+  box-shadow: inset 2px 0 0 var(--s-accent, #1d1d1f);
+}
+
+.lineThumb {
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  overflow: hidden;
+  border: 1px solid var(--s-border, #e5e5ea);
+  border-radius: 8px;
+  background: var(--s-surface-2, #f5f5f7);
+}
+
+.lineThumb .thumbnail {
+  width: 100%;
+  height: 100%;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  object-fit: contain;
+}
+
+.lineRequested,
+.lineFound,
+.lineVariant {
+  overflow: hidden;
+  font-size: 0.8rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.lineRequested {
+  color: var(--s-muted, #6e6e73);
+}
+
+.lineFound {
+  color: var(--s-text, #1d1d1f);
+  font-weight: 500;
+}
+
+.lineMissing {
+  color: var(--s-muted, #6e6e73);
+  font-style: italic;
+}
+
+.linePrice {
+  color: var(--s-text, #1d1d1f);
+  font-size: 0.82rem;
+  font-weight: 600;
+  text-align: right;
+  white-space: nowrap;
+}
+
+.lineVariant {
+  color: var(--s-muted, #6e6e73);
+  font-size: 0.74rem;
+}
+
+.lineStatus {
+  display: inline-flex;
+  gap: 0.25rem;
+  align-items: center;
+  justify-self: start;
+  padding: 0.12rem 0.45rem;
+  border-radius: 999px;
+  background: var(--s-surface-2, #f5f5f7);
+  color: var(--s-muted, #6e6e73);
+  font-size: 0.68rem;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.lineStatus.corrected {
+  background: var(--s-ok-bg, #f2f8f4);
+  color: var(--s-ok, #1d7a4c);
+}
+
+.lineStatus.review {
+  background: var(--s-warn-bg, #fdf8ee);
+  color: var(--s-warn, #9a6700);
+}
+
+.lineStatus.no_result {
+  background: var(--s-err-bg, #fdf2f1);
+  color: var(--s-err, #b3261e);
+}
+
+.lineAlert {
+  font-weight: 700;
+}
+
+.lineActions {
+  display: flex;
+  gap: 0.4rem;
+  align-items: center;
+  justify-content: flex-end;
+}
+
+.retryButton {
+  padding: 0.22rem 0.55rem;
+  border: 1px solid var(--s-border-strong, #d2d2d7);
+  border-radius: 999px;
+  background: var(--s-surface, #fff);
+  color: var(--s-text, #1d1d1f);
+  font-size: 0.7rem;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.retryButton:hover:not(:disabled) {
+  background: var(--s-surface-2, #f5f5f7);
+}
+
+.retryButton:disabled {
+  color: var(--s-faint, #86868b);
+  cursor: default;
+}
+
+/* Le query provate, nel dettaglio di una riga senza risultato. */
+.triedQueries {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem;
+  margin: 0.3rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.triedQueries li {
+  padding: 0.12rem 0.45rem;
+  border: 1px solid var(--s-border, #e5e5ea);
+  border-radius: 999px;
+  background: var(--s-surface-2, #f5f5f7);
+  font-size: 0.7rem;
+}
+
+/* Sotto i 720px il prezzo e la variante cedono il posto: restano immagine,
+   richiesta, trovato e stato, che sono le colonne che si leggono davvero. */
+@media (max-width: 720px) {
+  .line {
+    grid-template-columns: 36px minmax(0, 1fr) minmax(0, 1.2fr) auto auto;
+  }
+
+  .linePrice,
+  .lineVariant {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .line {
+    transition: none;
+  }
+}
+
+.detailNoResult {
+  padding: 0.6rem 0.75rem;
+  border: 1px solid var(--s-border, #e5e5ea);
+  border-radius: 10px;
+  background: var(--s-surface-2, #f5f5f7);
+  font-size: 0.78rem;
+}
+
+.detailNoResult p {
+  margin: 0.4rem 0 0;
+  color: var(--s-muted, #6e6e73);
+}

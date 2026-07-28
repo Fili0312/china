@@ -86,6 +86,16 @@ export interface CoherenceExecutionContext {
    * leggere preferenze di altri clienti.
    */
   mode?: CoherenceExecutionMode;
+  /**
+   * Salta le righe che hanno già un candidato promosso.
+   *
+   * Serve alla seconda passata: la ricerca porta a casa dieci candidati per
+   * riga ma la prima verifica ne guarda solo i primi. Quando nessuno di quelli
+   * convince, gli altri sono già stati pagati e stanno lì inutilizzati — vale
+   * la pena giudicarli prima di dichiarare la riga senza risultato. Sulle
+   * righe già risolte non si spende nulla.
+   */
+  onlyUnresolvedRows?: boolean;
 }
 
 export function shouldCreateCoherenceQuestion(
@@ -110,6 +120,15 @@ function readAnalysis(value: Prisma.JsonValue | null): ProductAnalysis | null {
   if (value == null) return null;
   const parsed = ProductAnalysisSchema.safeParse(value);
   return parsed.success ? parsed.data : null;
+}
+
+/** Il verdetto salvato su un risultato, senza fidarsi della forma del JSON. */
+function readCoherenceVerdict(value: Prisma.JsonValue | null): string | null {
+  if (value == null || typeof value !== "object" || Array.isArray(value)) {
+    return null;
+  }
+  const verdict = (value as Record<string, unknown>).verdict;
+  return typeof verdict === "string" ? verdict : null;
 }
 
 /** La richiesta come la vede il giudice: tutto ciò che il foglio specifica. */
@@ -444,6 +463,17 @@ export class CoherenceService {
     for (const row of rows) {
       const analysis = readAnalysis(row.analysisRow?.effectiveAnalysis ?? null);
       if (!analysis || row.results.length === 0) continue;
+      // Seconda passata: una riga che ha già un prodotto promosso è chiusa.
+      if (
+        context.onlyUnresolvedRows &&
+        row.results.some(
+          (candidate) =>
+            readCoherenceVerdict(candidate.coherence) === "coherent" &&
+            !candidate.product.unavailable
+        )
+      ) {
+        continue;
+      }
       const sourceText =
         row.analysisRow?.analysis?.submittedText ??
         row.analysisRow?.signatureText ??

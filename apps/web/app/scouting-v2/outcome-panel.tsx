@@ -33,6 +33,23 @@ export function OutcomePanel({ state, onRestart }: OutcomePanelProps) {
   const outcome = state.outcome;
   const jobPath = `/taobao/clients/${state.clientId}/jobs/${state.jobId}`;
 
+  /**
+   * Ripete la ricerca di una riga sola.
+   *
+   * Riusa l'endpoint di ri-esecuzione del job indicando la riga: rifare
+   * l'intero ambito per una domanda su una riga costerebbe decine di
+   * chiamate a pagamento.
+   */
+  async function retryRow(rowNumber: number) {
+    if (!state.jobId) return;
+    await api(`${jobPath}/rerun`, {
+      method: "POST",
+      body: JSON.stringify({ rowNumbers: [rowNumber], forceFullSearch: true }),
+    });
+    const refreshed = await api<TaobaoJobResults>(`${jobPath}/results`);
+    setResults(refreshed);
+  }
+
   useEffect(() => {
     if (!state.jobId) {
       setResults(null);
@@ -136,6 +153,7 @@ export function OutcomePanel({ state, onRestart }: OutcomePanelProps) {
         reviewIssues={outcome.reviewIssues ?? []}
         loading={resultsLoading}
         loadError={resultsError}
+        onRetryRow={retryRow}
       />
     </section>
   );

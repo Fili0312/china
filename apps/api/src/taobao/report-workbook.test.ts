@@ -104,6 +104,7 @@ function results(candidates: TaobaoCandidate[]): TaobaoJobResults {
         status: "DONE",
         reused: false,
         reuseReason: null,
+  attemptedQueries: [],
         variantKey: "ceramic-pin-gauge:abc",
         originalCells: [],
         requestedQuantity: 50,

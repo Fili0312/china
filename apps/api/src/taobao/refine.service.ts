@@ -279,6 +279,10 @@ export class RefineService {
             queryPlan[0] ??
             target.previousQuery;
           searchedProducts = retry.products;
+          await prisma.taobaoJobRow.update({
+            where: { id: target.rowId },
+            data: { attemptedQueries: retry.attemptedQueries },
+          });
           if (searchedProducts.length === 0) {
             await prisma.taobaoJobRow.update({
               where: { id: target.rowId },
@@ -286,6 +290,9 @@ export class RefineService {
                 reuseReason: v2NoCompatibleReason(
                   retry.attemptedQueries.length
                 ),
+                // Le query provate restano sulla riga: senza di loro
+                // «nessun risultato» non è una spiegazione.
+                attemptedQueries: retry.attemptedQueries,
               },
             });
             continue;

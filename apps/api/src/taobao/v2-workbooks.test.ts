@@ -82,6 +82,7 @@ function row(
     rowNumber,
     displayName: `Richiesta ${rowNumber}`,
     searchQuery: `query ${rowNumber}`,
+    attemptedQueries: [],
     status: "DONE",
     reused: false,
     reuseReason,

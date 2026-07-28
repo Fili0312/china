@@ -65,6 +65,8 @@ export interface V2ResultRow {
   rowNumber: number;
   displayName: string;
   searchQuery: string | null;
+  /** Le query realmente inviate: spiegano una riga senza risultato. */
+  attemptedQueries: readonly string[];
   status: TaobaoRowResults["status"] | "UNKNOWN";
   reused: boolean;
   section: V2ResultSection;
@@ -207,6 +209,7 @@ export function buildV2ResultRows(
         rowNumber,
         displayName,
         searchQuery,
+        attemptedQueries: source?.attemptedQueries ?? [],
         status: source?.status ?? "UNKNOWN",
         reused: source?.reused ?? false,
         section,

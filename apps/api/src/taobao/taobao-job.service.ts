@@ -192,9 +192,13 @@ export class TaobaoJobService {
 
     // Quali righe rifare. `all` non filtra: si rileggono tutte le righe della
     // revisione, comprese quelle che nel frattempo sono state confermate.
+    const onlyRows = new Set(input.rowNumbers ?? []);
     const wanted = new Set(
       previous.rows
         .filter((row) => {
+          // Una richiesta puntuale vince sull'ambito: chi indica le righe sa
+          // già quali vuole rifare.
+          if (onlyRows.size > 0) return onlyRows.has(row.rowNumber);
           if (input.scope === "failed") return row.status === "FAILED";
           if (input.scope === "empty") return row._count.results === 0;
           return true;
@@ -398,6 +402,7 @@ export class TaobaoJobService {
         status: row.status,
         reused: row.reused,
         reuseReason: row.reuseReason,
+        attemptedQueries: row.attemptedQueries ?? [],
         variantKey: row.request?.variantKey ?? null,
         originalCells: (row.datasetRow.cells as unknown as string[]) ?? [],
         // Quantità e unità chieste dal foglio: servono al report per il

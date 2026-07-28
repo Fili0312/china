@@ -710,6 +710,7 @@ export const TaobaoJobRowScalarFieldEnum = {
   status: 'status',
   reused: 'reused',
   reuseReason: 'reuseReason',
+  attemptedQueries: 'attemptedQueries',
   hwhStatus: 'hwhStatus',
   hwhError: 'hwhError',
   hwhCount: 'hwhCount',

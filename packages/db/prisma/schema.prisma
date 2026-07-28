@@ -1112,6 +1112,10 @@ model TaobaoJobRow {
   reused      Boolean @default(false)
   /// Perché è stata riusata o rifatta: è la risposta a «perché non l'hai cercato?».
   reuseReason String?
+  /// Le query realmente inviate alla fonte, in ordine di tentativo.
+  /// Su una riga senza risultato è l'unica spiegazione utile: dice se il
+  /// problema è la traduzione, i vincoli o il catalogo.
+  attemptedQueries String[]
 
   /// Esito separato per trasporto: un captcha su Playwright non deve
   /// cancellare i risultati dell'API.

@@ -286,6 +286,7 @@ function resultRow(
     status: "DONE",
     reused: false,
     reuseReason: null,
+    attemptedQueries: [],
     variantKey: null,
     originalCells: [`Product ${rowNumber}`],
     requestedQuantity: 1,

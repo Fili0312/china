@@ -102,6 +102,28 @@ export function v2HumanActionForWarning(
  *   segnale che il problema non è la query: continuare spenderebbe soltanto.
  */
 
+/**
+ * Quanti candidati giudicare alla prima passata di verifica.
+ *
+ * Tenerlo basso è giusto: il ranking mette davanti i più promettenti e ogni
+ * giudizio costa. Le righe che restano scoperte le recupera la seconda passata.
+ */
+const V2_VERIFY_TOP_N = (() => {
+  const parsed = Number(process.env.V2_VERIFY_TOP_N);
+  return Number.isFinite(parsed) && parsed > 0 ? Math.floor(parsed) : 3;
+})();
+
+/**
+ * Fin dove spingersi sulle righe rimaste senza un prodotto promosso.
+ *
+ * Copre tutti i candidati che la ricerca ha già portato a casa: sono pagati,
+ * non giudicarli è l'unico spreco che resta.
+ */
+const V2_VERIFY_DEEP_TOP_N = (() => {
+  const parsed = Number(process.env.V2_VERIFY_DEEP_TOP_N);
+  return Number.isFinite(parsed) && parsed > 0 ? Math.floor(parsed) : 12;
+})();
+
 /** Ogni quanto si rilegge lo stato di un job in corso. */
 const JOB_POLL_MS = 3000;
 
@@ -754,13 +776,31 @@ export class PipelineService {
     await this.step(pipelineId, { phase: "VERIFY", step: "step.verifying", ratio: 0.1 });
     try {
       const summary = await this.coherence.verifyJob(pipeline.clientId, pipeline.jobId, {
-        topN: 3,
+        topN: V2_VERIFY_TOP_N,
         force: false,
       }, { mode: "v2-review" });
+
+      // Seconda passata sui candidati già acquistati.
+      //
+      // La ricerca porta dieci candidati per riga, la prima verifica ne guarda
+      // tre. Quando quei tre non convincono, gli altri sette sono già in
+      // archivio: giudicarli non costa una sola chiamata di ricerca in più e
+      // recupera righe che altrimenti finirebbero fra i «nessun risultato».
+      // Le righe già risolte vengono saltate, quindi non si ripaga nulla.
+      const deep = await this.coherence.verifyJob(
+        pipeline.clientId,
+        pipeline.jobId,
+        { topN: V2_VERIFY_DEEP_TOP_N, force: false },
+        { mode: "v2-review", onlyUnresolvedRows: true }
+      );
+
       await this.step(pipelineId, {
         phase: "VERIFY",
         step: "step.verifying",
-        params: { checked: summary.checkedCandidates, coherent: summary.coherent },
+        params: {
+          checked: summary.checkedCandidates + deep.checkedCandidates,
+          coherent: summary.coherent + deep.coherent,
+        },
         ratio: 1,
       });
     } catch (error) {

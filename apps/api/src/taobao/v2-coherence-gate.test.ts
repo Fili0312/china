@@ -134,3 +134,146 @@ test("una fonte che non serve schede viene abbandonata dopo pochi tentativi", as
   // Tre risposte vuote e basta: le altre sette righe non pagano nulla.
   assert.equal(detailCalls.length, 3);
 });
+
+test("la seconda passata salta le righe già risolte e giudica solo le altre", async () => {
+  const job = prisma.taobaoJob as unknown as {
+    findUnique: (args: unknown) => Promise<unknown>;
+  };
+  const jobRow = prisma.taobaoJobRow as unknown as {
+    findMany: (args: unknown) => Promise<unknown[]>;
+  };
+  const jobResult = prisma.taobaoJobResult as unknown as {
+    update: (args: unknown) => Promise<unknown>;
+  };
+  const originals = {
+    job: job.findUnique,
+    rows: jobRow.findMany,
+    result: jobResult.update,
+  };
+  const originalKey = process.env.DEEPSEEK_API_KEY;
+
+  const parsed = analysis();
+  const sourceText = "Nome: Pin gauge\nSpecifiche: diametro 2.48 mm";
+
+  function product(id: string) {
+    return {
+      id: `product-${id}`,
+      itemId: `item-${id}`,
+      platform: "taobao",
+      title: "高精度针规 量具",
+      titleEn: null,
+      sku: null,
+      shopName: null,
+      specs: null,
+      variants: null,
+      moq: 1,
+      price: 10,
+      promotionPrice: null,
+      currency: "CNY",
+      availability: null,
+      url: null,
+      sources: [],
+      unavailable: false,
+    };
+  }
+
+  process.env.DEEPSEEK_API_KEY = "test-key-never-used";
+  job.findUnique = async () => ({ id: "job-a", clientId: "client-a" });
+  jobRow.findMany = async () => [
+    {
+      // Riga già risolta: ha un candidato promosso, non va ritoccata.
+      rowNumber: 1,
+      searchQuery: "针规 2.48mm",
+      analysisRow: {
+        effectiveAnalysis: parsed,
+        signatureText: sourceText,
+        manualEdits: {},
+        analysis: { submittedText: sourceText },
+        datasetRow: { cells: [] },
+      },
+      results: [
+        {
+          id: "ok-1",
+          rank: 1,
+          coherenceCheckedAt: new Date(),
+          coherence: { verdict: "coherent" },
+          product: product("ok"),
+        },
+        {
+          id: "ok-2",
+          rank: 2,
+          coherenceCheckedAt: null,
+          coherence: null,
+          product: product("ok2"),
+        },
+      ],
+    },
+    {
+      // Riga scoperta: i candidati mai giudicati devono arrivare al giudice.
+      rowNumber: 2,
+      searchQuery: "针规 2.48mm",
+      analysisRow: {
+        effectiveAnalysis: parsed,
+        signatureText: sourceText,
+        manualEdits: {},
+        analysis: { submittedText: sourceText },
+        datasetRow: { cells: [] },
+      },
+      results: [
+        {
+          id: "ko-1",
+          rank: 1,
+          coherenceCheckedAt: new Date(),
+          coherence: { verdict: "incoherent" },
+          product: product("ko"),
+        },
+        {
+          id: "pending-1",
+          rank: 4,
+          coherenceCheckedAt: null,
+          coherence: null,
+          product: product("pending"),
+        },
+      ],
+    },
+  ];
+  jobResult.update = async () => ({});
+
+  // Sonda osservabile prima dell'IA: la lettura scheda scatta solo sui
+  // candidati che il giudizio prenderebbe in carico.
+  const detailCalls: string[] = [];
+  const service = new CoherenceService(
+    { assertOwnership: () => undefined } as never,
+    {} as never,
+    {
+      isConfigured: true,
+      detail: async (itemId: string) => {
+        detailCalls.push(itemId);
+        return { patch: {}, credits: 1, fromCache: false };
+      },
+    } as never
+  );
+
+  try {
+    await service.verifyJob(
+      "client-a",
+      "job-a",
+      { topN: 12, force: false },
+      { mode: "v2-review", onlyUnresolvedRows: true }
+    );
+  } catch {
+    // Senza IA raggiungibile la verifica fallisce a valle: qui conta solo
+    // quali righe siano state prese in carico.
+  } finally {
+    job.findUnique = originals.job;
+    jobRow.findMany = originals.rows;
+    jobResult.update = originals.result;
+    if (originalKey == null) delete process.env.DEEPSEEK_API_KEY;
+    else process.env.DEEPSEEK_API_KEY = originalKey;
+  }
+
+  // Nessun candidato della riga già risolta: quella riga non si ripaga.
+  assert.ok(!detailCalls.some((itemId) => itemId.startsWith("item-ok")));
+  // La riga scoperta invece viene lavorata.
+  assert.ok(detailCalls.length > 0);
+});

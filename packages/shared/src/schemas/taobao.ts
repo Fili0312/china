@@ -369,6 +369,14 @@ export const TAOBAO_RERUN_SCOPE_LABELS: Localized<TaobaoRerunScope> = {
 export const RerunTaobaoJobRequestSchema = z.object({
   scope: TaobaoRerunScopeSchema.default("failed"),
   /**
+   * Rifà soltanto le righe indicate, ignorando l'ambito.
+   *
+   * Serve al comando «riprova questa ricerca» accanto a una riga senza
+   * risultato: rifare l'intero ambito per una riga sola costerebbe decine di
+   * chiamate per rispondere a una domanda su una.
+   */
+  rowNumbers: z.array(z.coerce.number().int().positive()).optional(),
+  /**
    * Ignora i prodotti già in memoria e ricerca comunque.
    *
    * Predefinito `true`: chi chiede di rifare la ricerca vuole interrogare la
@@ -506,6 +514,8 @@ export const TaobaoRowResultsSchema = z.object({
   status: TaobaoRowStatusSchema,
   reused: z.boolean(),
   reuseReason: z.string().nullable(),
+  /// Le query realmente inviate, in ordine: spiegano un «nessun risultato».
+  attemptedQueries: z.array(z.string()).default([]),
   variantKey: z.string().nullable(),
   originalCells: z.array(z.string()),
   /** Quantità e unità chieste dal foglio, come le ha lette l'analisi. */

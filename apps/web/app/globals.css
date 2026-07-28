@@ -1479,7 +1479,13 @@ select {
    più del contenuto e sporca la pagina. Qui il pulsante è una superficie
    chiara con un filo di bordo — si distingue per forma, non per massa — e
    solo l'azione primaria (`.v2-primary`) resta piena. */
-.scouting.v2 button:not(.chip) {
+/* `:where()` azzera la specificità del contenitore: questa resta la *base* dei
+   pulsanti — batte la regola globale `button` perché viene dopo — ma perde
+   contro qualunque classe di componente. Senza questo accorgimento la regola
+   imponeva padding e altezza anche a un pulsante che ne dichiara di suoi:
+   la X di chiusura del popup finiva fuori centro e i pulsanti del report
+   uscivano di misure diverse a seconda che fossero `<button>` o `<a>`. */
+:where(.scouting.v2) button {
   background: var(--s-surface);
   color: var(--s-text);
   border: 1px solid var(--s-border-strong);
@@ -1491,12 +1497,12 @@ select {
   box-shadow: none;
 }
 
-.scouting.v2 button:not(.chip):hover:not(:disabled) {
+:where(.scouting.v2) button:where(:hover:not(:disabled)) {
   background: var(--s-surface-2);
   border-color: var(--s-text);
 }
 
-.scouting.v2 button:not(.chip):disabled {
+:where(.scouting.v2) button:where(:disabled) {
   color: var(--s-faint);
   border-color: var(--s-border);
   background: var(--s-surface);
@@ -1566,7 +1572,7 @@ select {
     align-items: stretch;
   }
 
-  .scouting.v2 button:not(.chip) {
+  :where(.scouting.v2) button {
     width: 100%;
   }
 

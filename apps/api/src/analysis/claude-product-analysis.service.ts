@@ -351,6 +351,8 @@ export class ClaudeProductAnalysisService {
 
     const missed: AnalysisInputRow[] = [];
     const failures = new Map<number, string>();
+    /** L'errore del lotto, da riportare se anche il tentativo singolo fallisce. */
+    const lastBatchError = new Map<number, string | null>();
 
     await this.runBatches(batches, concurrency, async (batch) => {
       const result = await this.callBatch(batch, usage, provider, budget, options.knowledge?.entries);
@@ -374,8 +376,16 @@ export class ClaudeProductAnalysisService {
           });
         } else {
           // Riga assente dalla risposta, o lotto fallito per intero.
-          if (result.retryable) missed.push(row);
-          else failures.set(row.rowIndex, result.error ?? "Analisi non restituita dal modello.");
+          //
+          // Si ritenta comunque, anche quando l'errore non si dichiara
+          // ritentabile: il secondo tentativo è per riga singola, quindi
+          // affronta un problema diverso da quello del lotto — una riga che
+          // il modello ha saltato, o un lotto troppo lungo. Costa una
+          // chiamata per riga fallita e in cambio non si perdono righe per
+          // un errore che riguardava le vicine. Se fallisce anche da sola,
+          // l'errore viene registrato lì.
+          missed.push(row);
+          lastBatchError.set(row.rowIndex, result.error ?? null);
         }
       }
     });
@@ -407,7 +417,9 @@ export class ClaudeProductAnalysisService {
           } else {
             failures.set(
               row.rowIndex,
-              result.error ?? "Analisi non restituita dal modello dopo un nuovo tentativo."
+              result.error ??
+                lastBatchError.get(row.rowIndex) ??
+                "Analisi non restituita dal modello dopo un nuovo tentativo."
             );
           }
         }

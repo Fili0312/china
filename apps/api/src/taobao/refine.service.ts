@@ -472,18 +472,41 @@ export class RefineService {
     return [...excel, ...ranked.filter((e) => !e.product.sources.includes("excel"))];
   }
 
-  /** Riscrive i risultati di una riga con la nuova classifica. */
+  /**
+   * Riscrive i risultati di una riga con la nuova classifica.
+   *
+   * I verdetti già emessi su un prodotto **seguono il prodotto**. La riga
+   * viene riscritta perché è cambiata la classifica, non perché sia cambiato
+   * ciò che il giudice ha visto: un candidato che rientra identico è lo
+   * stesso prodotto, giudicato sugli stessi dati. Buttare il suo verdetto
+   * significa ricomprarlo — nella corsa del 28/07 erano ~1700 verifiche
+   * rifatte in due minuti, tutte già pagate una volta.
+   *
+   * Un prodotto che invece **entra ora** non ha verdetto e resta da
+   * giudicare, come dev'essere.
+   */
   private async writeRowResults(
     rowId: string,
     ranked: readonly ScoredProduct[],
     productIds: Map<string, string>
   ): Promise<void> {
+    const previous = await prisma.taobaoJobResult.findMany({
+      where: { jobRowId: rowId },
+      select: { productId: true, coherence: true, coherenceCheckedAt: true },
+    });
+    const judged = new Map(
+      previous
+        .filter((entry) => entry.coherenceCheckedAt != null)
+        .map((entry) => [entry.productId, entry])
+    );
+
     await prisma.taobaoJobResult.deleteMany({ where: { jobRowId: rowId } });
     let rank = 0;
     for (const entry of ranked) {
       const productId = productIds.get(`${entry.product.platform}:${entry.product.itemId}`);
       if (!productId) continue;
       rank += 1;
+      const carried = judged.get(productId);
       await prisma.taobaoJobResult.create({
         data: {
           jobRowId: rowId,
@@ -496,6 +519,12 @@ export class RefineService {
           warnings: entry.warnings,
           sources: entry.product.sources,
           sourceConflicts: entry.product.conflicts,
+          ...(carried
+            ? {
+                coherence: carried.coherence as Prisma.InputJsonValue,
+                coherenceCheckedAt: carried.coherenceCheckedAt,
+              }
+            : {}),
         },
       });
     }

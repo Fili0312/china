@@ -119,7 +119,14 @@ interface OutcomeRow {
   rowNumber: number;
   analysis: ProductAnalysis;
   /** Verdetto del candidato trovato; `null` quando la riga è rimasta vuota. */
-  verdict?: "coherent" | "incoherent" | null;
+  verdict?: "coherent" | "incoherent" | "unsure" | null;
+  /** Obiezioni del giudice sul candidato: un coerente con riserve non chiude. */
+  issues?: readonly string[];
+  /**
+   * Testo originale della riga. Conta: un dubbio sulle misure viene ritenuto
+   * pertinente solo se le misure sono davvero scritte nella riga.
+   */
+  submittedText?: string;
 }
 
 /**
@@ -139,7 +146,9 @@ async function outcomeFor(rows: readonly OutcomeRow[]) {
       signatureText: row.analysis.productNameChinese,
       effectiveAnalysis: row.analysis,
       error: null,
-      analysis: { submittedText: row.analysis.productNameChinese },
+      analysis: {
+        submittedText: row.submittedText ?? row.analysis.productNameChinese,
+      },
     })),
   });
 
@@ -169,7 +178,7 @@ async function outcomeFor(rows: readonly OutcomeRow[]) {
               {
                 rank: 1,
                 score: 1,
-                coherence: { verdict: row.verdict, issues: [] },
+                coherence: { verdict: row.verdict, issues: row.issues ?? [] },
                 product: { unavailable: false },
               },
             ]
@@ -286,6 +295,54 @@ test("una riga che non verrà cercata non chiede più niente a nessuno", () => {
     0.4
   );
   assert.deepEqual(silent, []);
+});
+
+test("il verdetto senza riserve chiude il dubbio; l'incerto no", async () => {
+  // Un dubbio che davvero chiama una persona: la stessa forma che la corsa
+  // da 498 righe produceva sui pannelli «60*60» senza unità.
+  const doubtful = analysis({
+    dimensions: [
+      { axis: "length", label: null, value: 60, unit: null },
+      { axis: "width", label: null, value: 60, unit: null },
+    ],
+    warnings: [
+      {
+        code: "AMBIGUOUS_UNIT",
+        field: "dimensions",
+        message: "Unità di misura non specificata per le dimensioni 60*60",
+      },
+    ],
+  });
+
+  const line = "Nome: 平板灯\nSpecifiche: 60*60";
+
+  const settled = await outcomeFor([
+    { rowNumber: 1, analysis: doubtful, verdict: "coherent", submittedText: line },
+  ]);
+  assert.equal(settled.confirmedRows, 1);
+  assert.equal(settled.uncertainRows, 0);
+
+  // Gruppo di controllo, due volte. Un «incerto» significa che il giudice non
+  // ha potuto verificare proprio quell'attributo: la domanda resta.
+  const unsure = await outcomeFor([
+    { rowNumber: 1, analysis: doubtful, verdict: "unsure", submittedText: line },
+  ]);
+  assert.equal(unsure.uncertainRows, 1);
+  assert.equal(unsure.confirmedRows, 0);
+
+  // E un coerente **con obiezioni** è una deviazione da accettare, non una
+  // risposta: decide una persona.
+  const withReservations = await outcomeFor([
+    {
+      rowNumber: 1,
+      analysis: doubtful,
+      verdict: "coherent",
+      issues: ["Il titolo indica 30x60, non 60x60."],
+      submittedText: line,
+    },
+  ]);
+  assert.equal(withReservations.uncertainRows, 1);
+  assert.equal(withReservations.confirmedRows, 0);
 });
 
 test("i quattro conteggi continuano a sommare al totale delle righe", async () => {

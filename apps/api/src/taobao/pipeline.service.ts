@@ -242,6 +242,26 @@ function procurementGap(
 }
 
 /**
+ * `true` se questo candidato risponde da solo ai dubbi dell'analisi.
+ *
+ * La barra è deliberatamente alta: verdetto **coerente**, nessuna obiezione
+ * e nessuna variante da scegliere. Un «incerto» non basta — significa che il
+ * giudice non è riuscito a verificare proprio l'attributo in discussione — e
+ * un coerente con obiezioni nemmeno, perché quelle obiezioni sono la
+ * deviazione che una persona deve accettare o rifiutare.
+ */
+function isSettledByEvidence(candidate: {
+  coherence?: unknown;
+}): boolean {
+  const coherence = v2CandidateCoherence(candidate as never);
+  return (
+    coherence?.verdict === "coherent" &&
+    (coherence.issues?.length ?? 0) === 0 &&
+    coherence.variantSelectionRequired !== true
+  );
+}
+
+/**
  * `true` se nessuna risposta in arrivo può cambiare questa riga.
  *
  * È deliberatamente la **stessa** regola con cui la cache dell'analisi decide
@@ -283,13 +303,18 @@ export function hasPendingPipelineDecision(
  */
 export function buildPipelineReviewIssues(
   rows: readonly PipelineReviewSourceRow[],
-  _confirmedRows: ReadonlySet<number>,
+  confirmedRows: ReadonlySet<number>,
   minConfidence: number
 ): V2PipelineReviewIssue[] {
   const issues = new Map<string, V2PipelineReviewIssue>();
 
   for (const row of rows) {
     const analysis = row.analysis;
+    // Il dubbio dell'analisi nasce dal testo della riga; il prodotto trovato
+    // è una risposta migliore di qualsiasi ipotesi. Quando la verifica ha
+    // accettato un candidato senza riserve, l'ambiguità non ha più effetto su
+    // che cosa si compra: resta annotata, ma non ferma più una persona.
+    const settledByProduct = confirmedRows.has(row.rowNumber);
     const displayName =
       analysis?.productNameEnglish ??
       analysis?.productNameChinese ??
@@ -346,9 +371,9 @@ export function buildPipelineReviewIssues(
         // Soltanto una decisione che può prendere il cliente resta aperta.
         // Dubbi interni, Taobao o informativi sono già stati normalizzati,
         // verificati o convertiti in un gap dopo i retry.
-        resolvedAutomatically: classified !== "USER_INPUT",
+        resolvedAutomatically: classified !== "USER_INPUT" || settledByProduct,
         humanAction:
-          classified === "USER_INPUT"
+          classified === "USER_INPUT" && !settledByProduct
             ? v2HumanActionForWarning(warning)
             : null,
       });
@@ -1205,7 +1230,20 @@ export class PipelineService {
         // commerciale ancora aperta (equivalente/tolleranza). La workspace
         // lo mostra in "Da controllare", quindi anche i contatori outcome
         // devono classificarlo come incerto.
-        if (source && hasPendingPipelineDecision(source)) {
+        //
+        // A meno che il dubbio non l'abbia già sciolto il prodotto stesso:
+        // un candidato accettato **senza riserve** — verdetto coerente, zero
+        // obiezioni, nessuna variante da scegliere — è la risposta alla
+        // domanda che l'analisi voleva fare. Chiedere «60*60 in mm o in cm?»
+        // dopo aver trovato un pannello 60x60 che il giudice accetta non
+        // cambia cosa si compra: cambia solo chi deve stare sveglio a
+        // rispondere. Un candidato "incerto", o coerente con obiezioni, non
+        // vale come risposta: lì la domanda resta.
+        if (
+          source &&
+          hasPendingPipelineDecision(source) &&
+          !usableCandidates.some(isSettledByEvidence)
+        ) {
           uncertain += 1;
           continue;
         }

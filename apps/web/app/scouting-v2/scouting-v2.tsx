@@ -49,6 +49,8 @@ type Stage = "upload" | "estimate" | "running" | "results";
 type OpenedResultsContext = {
   gaps: readonly TaobaoPipelineGap[];
   reviewIssues: readonly TaobaoPipelineReviewIssue[];
+  /** La corsa da cui vengono: senza, la riprova non saprebbe cosa rifare. */
+  pipelineId: string | null;
 };
 
 export function ScoutingV2() {
@@ -506,6 +508,7 @@ export function ScoutingV2() {
         setOpenedResultsContext({
           gaps: entry.pipeline?.outcome?.gaps ?? [],
           reviewIssues: entry.pipeline?.outcome?.reviewIssues ?? [],
+          pipelineId: entry.pipeline?.pipelineId ?? null,
         });
         setStage("results");
       } catch (cause) {
@@ -785,6 +788,7 @@ export function ScoutingV2() {
           results={openedResults}
           gaps={openedResultsContext?.gaps}
           reviewIssues={openedResultsContext?.reviewIssues}
+          pipelineId={openedResultsContext?.pipelineId}
           onBack={restart}
         />
       ) : null}

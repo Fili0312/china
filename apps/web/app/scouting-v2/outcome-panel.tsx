@@ -4,13 +4,12 @@ import { useEffect, useState } from "react";
 import type {
   TaobaoJobResults,
   TaobaoPipelineState,
-  V2RetryEstimate,
   V2RetryMode,
-  V2RetryResult,
 } from "@china/shared";
 import { api, apiDownloadUrl } from "../../lib/api";
 import { useI18n } from "../i18n/context";
 import { ResultsWorkspace } from "./results-workspace";
+import { estimateRetryRows, retryRowsRequest } from "./retry-actions";
 
 /**
  * Il risultato: cosa è pronto e cosa aspetta una persona.
@@ -44,7 +43,6 @@ export function OutcomePanel({
   const [resultsError, setResultsError] = useState<string | null>(null);
   const outcome = state.outcome;
   const jobPath = `/taobao/clients/${state.clientId}/jobs/${state.jobId}`;
-  const pipelinePath = `/taobao/clients/${state.clientId}/pipelines/${state.pipelineId}`;
 
   /**
    * Riprova le righe scelte al gradino scelto.
@@ -55,10 +53,12 @@ export function OutcomePanel({
    * dopo aver visto la stima.
    */
   async function retryRows(rowNumbers: readonly number[], mode: V2RetryMode) {
-    const result = await api<V2RetryResult>(`${pipelinePath}/retry`, {
-      method: "POST",
-      body: JSON.stringify({ rowNumbers, mode }),
-    });
+    const result = await retryRowsRequest(
+      state.clientId,
+      state.pipelineId,
+      rowNumbers,
+      mode
+    );
     // La riprova cambia verdetti e prodotti: si rilegge tutto invece di
     // indovinare che cosa è cambiato.
     const refreshed = await api<TaobaoJobResults>(`${jobPath}/results?limit=1000`);
@@ -68,10 +68,7 @@ export function OutcomePanel({
   }
 
   function estimateRetry(rowNumbers: readonly number[], mode: V2RetryMode) {
-    return api<V2RetryEstimate>(`${pipelinePath}/retry-estimate`, {
-      method: "POST",
-      body: JSON.stringify({ rowNumbers, mode }),
-    });
+    return estimateRetryRows(state.clientId, state.pipelineId, rowNumbers, mode);
   }
 
   useEffect(() => {

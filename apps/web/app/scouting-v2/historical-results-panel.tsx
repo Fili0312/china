@@ -5,16 +5,27 @@ import type {
   TaobaoJobResults,
   TaobaoPipelineGap,
   TaobaoPipelineReviewIssue,
+  V2RetryMode,
 } from "@china/shared";
 import { apiDownloadUrl } from "../../lib/api";
 import { useI18n } from "../i18n/context";
 import type { MessageKey } from "../i18n/messages-en";
 import { ResultsWorkspace } from "./results-workspace";
+import { estimateRetryRows, retryRowsRequest } from "./retry-actions";
 
 interface HistoricalResultsPanelProps {
   results: TaobaoJobResults;
   gaps?: readonly TaobaoPipelineGap[];
   reviewIssues?: readonly TaobaoPipelineReviewIssue[];
+  /**
+   * La corsa da cui vengono questi risultati, se si sa quale.
+   *
+   * Serve alla riprova mirata: riprovare una riga scoperta ha senso anche —
+   * e soprattutto — qualche giorno dopo, quando qualcuno riapre il file e
+   * guarda cosa è rimasto indietro. Senza pipeline il pannello resta di sola
+   * lettura, come i risultati dei job più vecchi.
+   */
+  pipelineId?: string | null;
   onBack: () => void;
 }
 
@@ -22,10 +33,13 @@ export function HistoricalResultsPanel({
   results,
   gaps = [],
   reviewIssues = [],
+  pipelineId = null,
   onBack,
 }: HistoricalResultsPanelProps) {
   const { t } = useI18n();
   const [markup, setMarkup] = useState(0);
+  const [reloadKey, setReloadKey] = useState(0);
+  const clientId = results.job.clientId;
   const jobPath = `/taobao/clients/${results.job.clientId}/jobs/${results.job.jobId}`;
   const rowsWithCandidates = results.rows.filter(
     (row) => row.candidates.length > 0
@@ -113,10 +127,33 @@ export function HistoricalResultsPanel({
 
       <h3>{t("v2.results.rows")}</h3>
       <ResultsWorkspace
-          markupPct={markup}
+        key={reloadKey}
+        markupPct={markup}
         rows={results.rows}
         gaps={gaps}
         reviewIssues={reviewIssues}
+        onRetryRows={
+          pipelineId
+            ? async (rowNumbers: readonly number[], mode: V2RetryMode) => {
+                const result = await retryRowsRequest(
+                  clientId,
+                  pipelineId,
+                  rowNumbers,
+                  mode
+                );
+                // I risultati di questa vista sono una fotografia: dopo una
+                // riprova va ripresa, e chi guarda deve vedere che è cambiata.
+                setReloadKey((current) => current + 1);
+                return result;
+              }
+            : undefined
+        }
+        onEstimateRetry={
+          pipelineId
+            ? (rowNumbers: readonly number[], mode: V2RetryMode) =>
+                estimateRetryRows(clientId, pipelineId, rowNumbers, mode)
+            : undefined
+        }
       />
     </section>
   );

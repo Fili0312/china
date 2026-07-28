@@ -923,6 +923,33 @@ export class PipelineService {
   }
 
   /**
+   * Rifà il conto finale di una corsa già chiusa, senza rieseguirla.
+   *
+   * Serve quando i verdetti cambiano sotto una corsa conclusa — un rigiudizio
+   * dopo una modifica alle regole, il ritentativo di una singola riga. Senza
+   * questo l'`outcome` resta quello congelato a fine corsa e le caselle in
+   * alto contraddicono i gruppi del report, che invece si ricalcolano dai
+   * candidati a ogni apertura della pagina.
+   */
+  async recomputeOutcome(pipelineId: string): Promise<TaobaoPipelineOutcome> {
+    const pipeline = await prisma.taobaoPipeline.findUniqueOrThrow({
+      where: { id: pipelineId },
+    });
+    const outcome = await this.buildOutcome(
+      pipeline.clientId,
+      pipeline.analysisRunId,
+      pipeline.jobId,
+      pipeline.refineRounds,
+      pipeline.recoveredRows
+    );
+    await prisma.taobaoPipeline.update({
+      where: { id: pipelineId },
+      data: { outcome: toJson(outcome) },
+    });
+    return outcome;
+  }
+
+  /**
    * Il conto finale, letto dai risultati veri.
    *
    * Le tre categorie non si sovrappongono e coprono tutte le righe:

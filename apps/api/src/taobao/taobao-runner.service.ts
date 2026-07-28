@@ -47,6 +47,9 @@ import { t } from "../i18n/messages";
 /** Prodotti riletti alla fonte per un aggiornamento, al massimo. */
 const REFRESH_LIMIT = 12;
 
+/** Dopo quante schede vuote di fila si smette di chiederle. */
+const EMPTY_DETAIL_GIVE_UP = 3;
+
 /**
  * Sotto quanti risultati DataHub «non basta».
  *
@@ -356,8 +359,19 @@ export class TaobaoRunnerService {
           forceFullSearch: false,
           refreshFailed: refresh.failedProductIds,
         });
-        reuse = decision.reuse;
-        reuseReason = decision.reason;
+        // Riusare la memoria vale solo se il prezzo è stato **riconfermato**.
+        // Se nessuna rilettura ha portato dati, quello che sappiamo è vecchio
+        // quanto prima: si cerca. Costa una chiamata di ricerca invece di
+        // dodici di dettaglio andate a vuoto, riporta prezzi freschi e fa
+        // riemergere eventuali offerte migliori — che saltando la ricerca non
+        // si sarebbero mai viste.
+        if (decision.reuse && known.length > 0 && refresh.verified === 0) {
+          reuse = false;
+          reuseReason = t("reason.knownUnverifiable");
+        } else {
+          reuse = decision.reuse;
+          reuseReason = decision.reason;
+        }
       } else {
         await this.memory.markVerified(requestId);
         reuse = false;
@@ -657,26 +671,53 @@ export class TaobaoRunnerService {
    * È l'operazione che completa il riuso: la richiesta non viene ricercata di
    * nuovo, ma quello che avevamo viene riaperto e riverificato.
    */
+  /**
+   * Rilegge alla fonte i prodotti che già conosciamo.
+   *
+   * Serve a rispondere a «quanto costa adesso?», ed è il passo da cui dipende
+   * se si può riusare la memoria invece di cercare. Ma la scheda prodotto può
+   * rispondere **vuota** — su questo piano lo fa sempre — e allora la rilettura
+   * non conferma niente: restituisce il prodotto identico a com'era. Prima
+   * quel silenzio passava per conferma: il prezzo restava quello vecchio, la
+   * riga risultava «verificata» e la ricerca veniva saltata. Ora si contano le
+   * risposte utili, così chi chiama sa se ha davvero verificato qualcosa.
+   */
   private async refreshKnown(
     known: readonly RawTaobaoProduct[],
     totals: JobTotals
-  ): Promise<{ products: RawTaobaoProduct[]; failedProductIds: Set<string> }> {
+  ): Promise<{
+    products: RawTaobaoProduct[];
+    failedProductIds: Set<string>;
+    verified: number;
+  }> {
     const products: RawTaobaoProduct[] = [];
     const failed = new Set<string>();
+    let verified = 0;
+    let emptyInARow = 0;
 
     for (const product of known.slice(0, numericEnv("TAOBAO_REFRESH_LIMIT", REFRESH_LIMIT))) {
+      // Se la fonte non serve schede, insistere costa una chiamata per
+      // prodotto senza aggiungere un solo dato.
+      if (emptyInARow >= EMPTY_DETAIL_GIVE_UP) break;
       try {
         // `ttlHours: 0`: una risposta in cache risponderebbe alla domanda di
         // ieri, e la domanda qui è «quanto costa adesso?».
         const detail = await this.api.detail(product.itemId, { ttlHours: 0 });
         totals.apiCalls += 1;
+        const informative = Object.keys(detail.patch).length > 0;
+        if (informative) {
+          verified += 1;
+          emptyInARow = 0;
+        } else {
+          emptyInARow += 1;
+        }
         products.push({ ...product, ...detail.patch, source: "api" });
       } catch {
         failed.add(product.itemId);
       }
     }
 
-    return { products, failedProductIds: failed };
+    return { products, failedProductIds: failed, verified };
   }
 
   private async setGroupStatus(

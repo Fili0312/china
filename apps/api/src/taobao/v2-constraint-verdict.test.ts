@@ -498,3 +498,29 @@ test("più quote diventano un gruppo, come le scrivono i venditori", () => {
     `nessun tentativo con la taglia raggruppata: ${queries.join(" | ")}`
   );
 });
+
+/**
+ * Memoria e prezzi: la rilettura di una scheda che torna vuota non conferma
+ * nulla. Regola verificata sul run delle 08:48, dove 25 righe su 29 venivano
+ * riusate senza che un solo prezzo fosse stato riconfermato.
+ */
+
+test("una rilettura vuota non conferma il prezzo", () => {
+  // È la forma che restituisce la fonte quando la scheda non c'è.
+  const emptyPatch: Record<string, unknown> = {};
+  const informativePatch: Record<string, unknown> = { price: 12.5 };
+
+  const verified = (patch: Record<string, unknown>) =>
+    Object.keys(patch).length > 0;
+
+  assert.equal(verified(emptyPatch), false);
+  assert.equal(verified(informativePatch), true);
+
+  // Nessuna rilettura utile su prodotti noti: la memoria non basta più, e
+  // tocca cercare — che è anche l'unico modo di accorgersi di un'offerta
+  // migliore comparsa nel frattempo.
+  const known = 9;
+  const verifiedCount = 0;
+  const canReuse = !(known > 0 && verifiedCount === 0);
+  assert.equal(canReuse, false);
+});

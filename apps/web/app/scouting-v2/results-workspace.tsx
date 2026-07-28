@@ -748,6 +748,14 @@ function ResultLine({
         )}
       </span>
 
+      {/* Quanto ordinare: viene dal foglio, ed è il dato con cui si compila
+          l'ordine. Senza questo il prezzo unitario non basta. */}
+      <span className={styles.lineQty}>
+        {row.requestedQuantity != null
+          ? `${row.requestedQuantity}${row.requestedUnit ? ` ${row.requestedUnit}` : ""}`
+          : "—"}
+      </span>
+
       <span className={styles.linePrice}>
         {formatPrice(row.price, row.currency, intlLocale)}
       </span>

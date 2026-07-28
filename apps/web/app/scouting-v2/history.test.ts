@@ -494,15 +494,18 @@ test("the v2 action vocabulary is closed to the five supported decisions", () =>
 // resta visibile fra quelli da controllare. Nasconderlo faceva dichiarare
 // «nessun risultato» a righe in cui la ricerca aveva invece trovato qualcosa,
 // e il totale finale non tornava con quello della ricerca.
-test("unavailable candidates disappear, incoherent ones stay for review", () => {
+test("unavailable candidates disappear, incoherent ones stay visible", () => {
   const modeled = buildV2ResultRows([
     resultRow(1, [candidate("unavailable", { unavailable: true })]),
     resultRow(2, [candidate("incoherent", { verdict: "incoherent" })]),
   ]);
 
+  // La riga senza nulla di acquistabile resta un buco; quella con un prodotto
+  // bocciato dall'IA non finisce più in revisione, perché non c'è niente che
+  // una persona debba decidere: il prodotto è lì e si può guardare.
   assert.deepEqual(
     modeled.map((row) => row.section),
-    ["no_result", "review"]
+    ["no_result", "corrected"]
   );
   assert.equal(modeled[0]!.candidate, null);
   assert.deepEqual(modeled[0]!.candidates, []);
@@ -523,4 +526,28 @@ test("search, marketplace filters and price sorting operate on the local project
   });
 
   assert.deepEqual(filtered.map((row) => row.rowNumber), [2, 1]);
+});
+
+test("la quantità del foglio arriva sulla riga", () => {
+  const rows = buildV2ResultRows([
+    { ...resultRow(1, [candidate("a")]), requestedQuantity: 12, requestedUnit: "个" },
+  ]);
+
+  assert.equal(rows[0]!.requestedQuantity, 12);
+  assert.equal(rows[0]!.requestedUnit, "个");
+});
+
+test("a pari verdetto rappresenta la riga la scheda con prezzo e immagine", () => {
+  // Il caso reale: il link del foglio arriva primo ma è un riquadro vuoto.
+  const empty = {
+    ...candidate("dal-foglio", { imageUrl: null, price: null, verdict: null }),
+    rank: 1,
+  };
+  const complete = { ...candidate("trovato", { verdict: null }), rank: 2 };
+
+  const rows = buildV2ResultRows([resultRow(1, [empty, complete])]);
+
+  assert.equal(rows[0]!.candidate?.product.title, "Product trovato");
+  // Il vuoto resta consultabile, solo non rappresenta più la riga.
+  assert.equal(rows[0]!.candidates.length, 2);
 });

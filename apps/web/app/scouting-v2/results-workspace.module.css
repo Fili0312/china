@@ -763,8 +763,9 @@
 .line {
   display: grid;
   grid-template-columns:
-    40px minmax(7rem, 1.1fr) minmax(8rem, 1.6fr)
-    minmax(4.5rem, auto) minmax(4rem, 0.6fr) minmax(5rem, auto) auto;
+    40px minmax(6.5rem, 1.05fr) minmax(8rem, 1.5fr)
+    minmax(3.2rem, auto) minmax(4.2rem, auto) minmax(3.8rem, 0.55fr)
+    minmax(5rem, auto) auto;
   align-items: center;
   gap: 0.6rem;
   /* Altezza fissa: la virtualizzazione la calcola, non la misura. */
@@ -809,6 +810,13 @@
   border-radius: 0;
   background: transparent;
   object-fit: contain;
+}
+
+.lineQty {
+  color: var(--s-text, #1d1d1f);
+  font-size: 0.76rem;
+  text-align: right;
+  white-space: nowrap;
 }
 
 .lineRequested,
@@ -929,10 +937,11 @@
    richiesta, trovato e stato, che sono le colonne che si leggono davvero. */
 @media (max-width: 720px) {
   .line {
-    grid-template-columns: 36px minmax(0, 1fr) minmax(0, 1.2fr) auto auto;
+    grid-template-columns: 36px minmax(0, 1fr) minmax(0, 1.15fr) auto auto;
   }
 
   .linePrice,
+  .lineQty,
   .lineVariant {
     display: none;
   }

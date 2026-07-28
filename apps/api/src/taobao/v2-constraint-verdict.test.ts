@@ -5,6 +5,7 @@ import {
   buildV2RetryQueries,
   deriveV2RequirementContext,
   evaluateV2Candidate,
+  normalizeV2Analysis,
   isV2CandidateCompatible,
   repairV2SearchQuery,
 } from "./v2-requirement-policy";
@@ -291,4 +292,45 @@ test("la scala di retry resta corta e leggibile", () => {
   for (const query of queries) {
     assert.ok(query.split(/\s+/u).length <= 4, `query troppo lunga: ${query}`);
   }
+});
+
+test("la quantità del foglio si legge anche dopo il contesto completo", () => {
+  // Il testo reale prodotto dalla v2: `Quantità:` e `Unità:` vengono appese
+  // dopo il riversamento della riga, quindi dopo il punto di troncamento.
+  const sourceText = [
+    "Nome: 牙签",
+    "Specifiche: 2瓶装双头尖翻盖瓶-约800支",
+    "Utilizzo: 样件涂胶用",
+    "Contesto completo della riga:",
+    "序号 (Cella 1): 1",
+    "申请数量 (Cella 6): 12",
+    "单位 (Cella 7): 个",
+    "Quantità: 12",
+    "Unità: 个",
+  ].join("\n");
+
+  const context = deriveV2RequirementContext(
+    analysis({ productNameChinese: "牙签", searchQueryChinese: "牙签" }),
+    sourceText
+  );
+
+  assert.equal(context.quantity.value, 12);
+  assert.equal(context.quantity.unit, "个");
+});
+
+test("un foglio senza quantità non cancella quella letta dall'IA", () => {
+  const context = deriveV2RequirementContext(
+    analysis({ requestedQuantity: 5, unit: "pcs" }),
+    "Nome: Vite\nSpecifiche: M4"
+  );
+
+  // Il contesto non trova nulla di dichiarato...
+  assert.equal(context.quantity.value, null);
+  // ...ma il grounding deve conservare il valore dell'analisi.
+  const grounded = normalizeV2Analysis(
+    analysis({ requestedQuantity: 5, unit: "pcs" }),
+    "Nome: Vite\nSpecifiche: M4"
+  );
+  assert.equal(grounded.analysis.requestedQuantity, 5);
+  assert.equal(grounded.analysis.unit, "pcs");
 });

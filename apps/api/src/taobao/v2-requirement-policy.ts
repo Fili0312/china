@@ -687,8 +687,19 @@ export function deriveV2RequirementContext(
   ]);
   if (labelledModel && modelTokens.length === 0) modelTokens.push(normalizeSpace(labelledModel));
 
-  const quantityText = lineValue(constraintSource, QUANTITY_LABELS);
-  const unitText = lineValue(constraintSource, UNIT_LABELS);
+  // Quantità e unità si leggono dal testo **intero**, non da quello troncato.
+  //
+  // Il troncamento serve ai vincoli tecnici: taglia via il riversamento
+  // «Contesto completo della riga» perché lì dentro finiscono numeri
+  // amministrativi che non sono misure. Ma le righe `Quantità:` e `Unità:`
+  // vengono aggiunte **dopo** quel marcatore, quindi cercarle solo prima le
+  // rendeva invisibili: era nullo su ogni riga, e il grounding sovrascriveva
+  // con quel nulla anche la quantità che l'IA aveva letto correttamente.
+  const quantityText =
+    lineValue(constraintSource, QUANTITY_LABELS) ??
+    lineValue(source, QUANTITY_LABELS);
+  const unitText =
+    lineValue(constraintSource, UNIT_LABELS) ?? lineValue(source, UNIT_LABELS);
   const quantity = {
     value: parseQuantity(quantityText),
     unit: quantityUnit(quantityText, unitText),
@@ -889,8 +900,13 @@ export function normalizeV2Analysis(
     return grounded;
   });
 
-  const requestedQuantity = baseContext.quantity.value;
-  const unit = baseContext.quantity.unit;
+  // La colonna del foglio comanda, ma la sua assenza non cancella l'analisi:
+  // se il foglio non dichiara una quantità si tiene quella che l'IA ha letto
+  // dalle specifiche. Azzerarla faceva perdere la quantità da ordinare — che è
+  // il dato con cui si compila l'ordine.
+  const requestedQuantity =
+    baseContext.quantity.value ?? analysis.requestedQuantity;
+  const unit = baseContext.quantity.unit ?? analysis.unit;
   if (requestedQuantity !== analysis.requestedQuantity) {
     normalized.push(
       `quantity:${analysis.requestedQuantity ?? "null"}→${requestedQuantity ?? "null"}`

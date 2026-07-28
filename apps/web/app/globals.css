@@ -1468,3 +1468,120 @@ select {
     padding: 18px 16px;
   }
 }
+
+/* ==========================================================================
+   v2 — impaginazione 2026: neutra, compatta, leggibile sul telefono.
+   Tutto scoped su `.scouting.v2`: la v1 non vede nessuna di queste regole.
+   ========================================================================== */
+
+/* I controlli non sono lastre piene.
+   Con l'accento grafite, un pulsante riempito diventa una fascia nera: pesa
+   più del contenuto e sporca la pagina. Qui il pulsante è una superficie
+   chiara con un filo di bordo — si distingue per forma, non per massa — e
+   solo l'azione primaria (`.v2-primary`) resta piena. */
+.scouting.v2 button:not(.chip) {
+  background: var(--s-surface);
+  color: var(--s-text);
+  border: 1px solid var(--s-border-strong);
+  border-radius: 980px;
+  padding: 10px 18px;
+  font-weight: 500;
+  /* 44px: la misura minima perché un dito lo prenda al primo colpo. */
+  min-height: 44px;
+  box-shadow: none;
+}
+
+.scouting.v2 button:not(.chip):hover:not(:disabled) {
+  background: var(--s-surface-2);
+  border-color: var(--s-text);
+}
+
+.scouting.v2 button:not(.chip):disabled {
+  color: var(--s-faint);
+  border-color: var(--s-border);
+  background: var(--s-surface);
+}
+
+.scouting.v2 button.v2-primary {
+  background: var(--s-accent);
+  border-color: var(--s-accent);
+  color: #fff;
+}
+
+.scouting.v2 button.v2-primary:hover:not(:disabled) {
+  background: var(--s-accent-strong);
+  border-color: var(--s-accent-strong);
+}
+
+/* Le barre di avanzamento sono un filo, non un blocco. */
+.scouting.v2 .scouting-bar-fill,
+.scouting.v2 .v2-bar-fill {
+  background: var(--s-text);
+}
+
+.scouting.v2 .scouting-bulk {
+  background: var(--s-surface-2);
+  border: 1px solid var(--s-border);
+  border-radius: var(--s-r-card);
+}
+
+/* La zona di trascinamento si accende di grigio, non di nero. */
+.scouting.v2 .v2-drop.dragging {
+  background: var(--s-surface-2);
+  border-color: var(--s-text);
+}
+
+/* Impaginazione: una colonna di lettura larga 16/9 rispetto all'altezza utile,
+   centrata, con aria intorno. Su schermi molto larghi il contenuto non si
+   stira all'infinito: oltre una certa misura si leggono peggio le righe. */
+.scouting.v2 {
+  width: 100%;
+  max-width: min(1600px, calc(100vw - 3rem));
+  margin-inline: auto;
+  gap: 22px;
+}
+
+.scouting.v2 .v2-card,
+.scouting.v2 .scouting-card {
+  border-radius: var(--s-r-card);
+  box-shadow: var(--s-shadow);
+}
+
+/* Telefono: una colonna, niente scorrimento orizzontale, controlli a piena
+   larghezza perché si prendano con il pollice. */
+@media (max-width: 640px) {
+  .scouting.v2 {
+    max-width: 100%;
+    margin-inline: 0;
+    gap: 14px;
+    letter-spacing: -0.008em;
+  }
+
+  .scouting.v2 .scouting-row,
+  .scouting.v2 .scouting-options {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .scouting.v2 button:not(.chip) {
+    width: 100%;
+  }
+
+  .scouting.v2 .scouting-bulk {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  /* Le tabelle residue scorrono dentro il loro contenitore, mai la pagina. */
+  .scouting.v2 table {
+    display: block;
+    overflow-x: auto;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .scouting.v2 * {
+    transition: none !important;
+    animation: none !important;
+  }
+}

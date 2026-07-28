@@ -67,6 +67,9 @@ export interface V2ResultRow {
   searchQuery: string | null;
   /** Le query realmente inviate: spiegano una riga senza risultato. */
   attemptedQueries: readonly string[];
+  /** Quanto ordinare, come lo chiede il foglio: serve a compilare l'ordine. */
+  requestedQuantity: number | null;
+  requestedUnit: string | null;
   status: TaobaoRowResults["status"] | "UNKNOWN";
   reused: boolean;
   section: V2ResultSection;
@@ -210,6 +213,8 @@ export function buildV2ResultRows(
         displayName,
         searchQuery,
         attemptedQueries: source?.attemptedQueries ?? [],
+        requestedQuantity: source?.requestedQuantity ?? null,
+        requestedUnit: source?.requestedUnit ?? null,
         status: source?.status ?? "UNKNOWN",
         reused: source?.reused ?? false,
         section,
@@ -346,6 +351,16 @@ export function salesUnitFromCandidate(
   return null;
 }
 
+/** Quanto una scheda è mostrabile: prezzo e immagine valgono un punto ciascuno. */
+function candidateCompleteness(candidate: TaobaoCandidate): number {
+  const product = candidate.product;
+  const hasPrice =
+    product.promotionPrice != null ||
+    product.price != null ||
+    product.variantPrice != null;
+  return (hasPrice ? 1 : 0) + (product.imageUrl ? 1 : 0);
+}
+
 function bestCandidate(
   candidates: readonly TaobaoCandidate[]
 ): TaobaoCandidate | null {
@@ -360,9 +375,15 @@ function bestCandidate(
     const selectionDifference =
       Number(leftCoherence?.variantSelectionRequired === true) -
       Number(rightCoherence?.variantSelectionRequired === true);
+    // A pari verdetto vince la scheda che si può mostrare: una senza prezzo
+    // né immagine è un riquadro vuoto, e non deve rappresentare la riga anche
+    // quando la ricerca l'aveva messa prima.
+    const completenessDifference =
+      candidateCompleteness(right) - candidateCompleteness(left);
     return (
       verdictDifference ||
       selectionDifference ||
+      completenessDifference ||
       left.rank - right.rank ||
       right.score - left.score
     );
@@ -400,12 +421,12 @@ function classifyRow({
     source?.status === "SKIPPED" ||
     (!candidate && Boolean(source));
   if (hasNoResult) return "no_result";
-  if (
-    reviewIssues.length > 0 ||
-    actions.length > 0 ||
-    Boolean(gap) ||
-    v2CandidateCoherence(candidate)?.verdict !== "coherent"
-  ) {
+  // In revisione ci va solo ciò che una persona deve davvero decidere: una
+  // scelta commerciale aperta (`actions`) o un rilievo esplicito. Un verdetto
+  // «incerto» dell'IA non è una decisione umana — è il giudice che non si
+  // sbilancia — e mandarci ogni riga incerta riempiva la sezione di prodotti
+  // corretti, rendendola inutile da leggere.
+  if (reviewIssues.length > 0 || actions.length > 0 || Boolean(gap)) {
     return "review";
   }
   if (automaticIssues.length > 0) return "auto_resolved";

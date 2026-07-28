@@ -113,6 +113,7 @@ export function HistoricalResultsPanel({
 
       <h3>{t("v2.results.rows")}</h3>
       <ResultsWorkspace
+          markupPct={markup}
         rows={results.rows}
         gaps={gaps}
         reviewIssues={reviewIssues}

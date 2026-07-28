@@ -551,3 +551,13 @@ test("a pari verdetto rappresenta la riga la scheda con prezzo e immagine", () =
   // Il vuoto resta consultabile, solo non rappresenta più la riga.
   assert.equal(rows[0]!.candidates.length, 2);
 });
+
+test("il prezzo maggiorato si calcola sul costo", () => {
+  // Il report mostra due cifre: quanto costa e quanto si rivende.
+  const rows = buildV2ResultRows([resultRow(1, [candidate("a", { price: 20 })])]);
+  const cost = rows[0]!.price!;
+
+  assert.equal(cost, 20);
+  assert.equal(cost * (1 + 15 / 100), 23);
+  assert.equal(cost * (1 + 0 / 100), 20);
+});

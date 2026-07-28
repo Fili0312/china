@@ -89,7 +89,9 @@ const COPY = {
     candidateMissing: "Nessun prodotto",
     imageMissing: "Immagine non disponibile",
     notVerified: "Non verificato",
-    pickRow: "Scegli una riga per vedere il confronto",
+    costLabel: "Costo",
+    sellLabel: "Prezzo di vendita",
+    showDetail: "Dettaglio",
     qtyLabel: "Da ordinare",
     priceLabel: "Prezzo",
     totalLabel: "Totale",
@@ -167,7 +169,9 @@ const COPY = {
     candidateMissing: "No product",
     imageMissing: "Image unavailable",
     notVerified: "Not verified",
-    pickRow: "Pick a row to see the comparison",
+    costLabel: "Cost",
+    sellLabel: "Selling price",
+    showDetail: "Details",
     qtyLabel: "To order",
     priceLabel: "Price",
     totalLabel: "Total",
@@ -245,7 +249,9 @@ const COPY = {
     candidateMissing: "没有产品",
     imageMissing: "图片不可用",
     notVerified: "未验证",
-    pickRow: "选择一行查看对比",
+    costLabel: "成本",
+    sellLabel: "售价",
+    showDetail: "详情",
     qtyLabel: "订购数量",
     priceLabel: "单价",
     totalLabel: "合计",
@@ -286,6 +292,8 @@ interface ResultsWorkspaceProps {
   reviewIssues?: readonly TaobaoPipelineReviewIssue[];
   loading?: boolean;
   loadError?: string | null;
+  /** Maggiorazione da applicare al costo per ottenere il prezzo di vendita. */
+  markupPct?: number;
   /**
    * Ripete la ricerca di una sola riga.
    *
@@ -301,6 +309,7 @@ export function ResultsWorkspace({
   reviewIssues = [],
   loading = false,
   loadError = null,
+  markupPct = 0,
   onRetryRow,
 }: ResultsWorkspaceProps) {
   const { locale, intlLocale } = useI18n();
@@ -312,6 +321,7 @@ export function ResultsWorkspace({
     useState<V2ResultPlatformFilter>("all");
   const [sort, setSort] = useState<V2ResultSort>("row_asc");
   const [retryingRow, setRetryingRow] = useState<number | null>(null);
+
 
   const retryRow = onRetryRow
     ? async (rowNumber: number) => {
@@ -348,6 +358,9 @@ export function ResultsWorkspace({
       }),
     [modeledRows, platformFilter, query, sectionFilter, sort]
   );
+  // Il report mostra i prodotti trovati; le righe scoperte stanno in fondo.
+  const found = filteredRows.filter((row) => row.candidate != null);
+  const missing = filteredRows.filter((row) => row.candidate == null);
   const allGrouped = useMemo(() => groupV2ResultRows(modeledRows), [modeledRows]);
   const filteredGrouped = useMemo(
     () => groupV2ResultRows(filteredRows),
@@ -530,519 +543,266 @@ export function ResultsWorkspace({
         <p className={styles.stateMessage}>{copy.empty}</p>
       ) : null}
 
-      {/* Striscia di sintesi: la prima domanda è «va tutto bene?», e la
-          risposta deve stare in una riga sola. */}
-      {modeledRows.length > 0 ? (
-        <div className={styles.kpiStrip}>
-          {SECTION_ORDER.map((section) => {
-            const count = allGrouped[section].length;
-            if (count === 0) return null;
-            return (
-              <button
-                key={section}
-                type="button"
-                className={`${styles.kpi} ${styles[section]} ${
-                  sectionFilter === section ? styles.kpiActive : ""
-                }`}
-                aria-pressed={sectionFilter === section}
-                onClick={() =>
-                  setSectionFilter((current) =>
-                    current === section ? "all" : section
-                  )
-                }
-              >
-                <strong>{count}</strong>
-                <span>{copy.sections[section].title}</span>
-              </button>
-            );
-          })}
+      {/* Il report: una riga per prodotto trovato, e nient'altro.
+          Foto, titolo, quanto ordinare, quanto costa, quanto si rivende. */}
+      {found.length > 0 ? (
+        <div className={styles.report} role="list">
+          {found.map((row) => (
+            <ReportRow
+              key={row.id}
+              row={row}
+              markupPct={markupPct}
+              intlLocale={intlLocale}
+              copy={copy}
+              onOpen={() => setSelectedId(row.id)}
+            />
+          ))}
         </div>
       ) : null}
 
-      <div className={styles.split}>
-        <div className={styles.sections}>
-        {SECTION_ORDER.filter(
-          (section) => sectionFilter === "all" || sectionFilter === section
-        ).map((section) => {
-          const visibleRows = filteredGrouped[section];
-          const total = allGrouped[section].length;
-          const isOpen = openSections[section];
-          return (
-            <section
-              key={section}
-              className={`${styles.resultSection} ${styles[section]}`}
-            >
-              <button
-                type="button"
-                className={styles.sectionHeading}
-                aria-expanded={isOpen}
-                onClick={() =>
-                  setOpenSections((current) => ({
-                    ...current,
-                    [section]: !current[section],
-                  }))
-                }
-              >
-                <span className={styles.chevron} aria-hidden="true">
-                  {isOpen ? "▾" : "▸"}
-                </span>
-                <span>
-                  <strong>{copy.sections[section].title}</strong>
-                  <small>{copy.sections[section].hint}</small>
-                </span>
-                <span className={styles.sectionCount}>
-                  {visibleRows.length === total
-                    ? total
-                    : `${visibleRows.length}/${total}`}
-                </span>
-              </button>
+      {/* Le righe scoperte stanno in fondo, senza rubare spazio al report. */}
+      {missing.length > 0 ? (
+        <details className={styles.missingBlock}>
+          <summary>
+            {copy.sections.no_result.title}
+            <span className={styles.missingCount}>{missing.length}</span>
+          </summary>
+          <ul className={styles.missingList}>
+            {missing.map((row) => (
+              <li key={row.id}>
+                <span className={styles.rowNumber}>#{row.rowNumber}</span>
+                <span className={styles.missingName}>{row.displayName}</span>
+                {retryRow ? (
+                  <button
+                    type="button"
+                    className={styles.retryButton}
+                    disabled={retryingRow === row.rowNumber}
+                    onClick={() => retryRow(row.rowNumber)}
+                  >
+                    {retryingRow === row.rowNumber
+                      ? copy.retrying
+                      : copy.retryRow}
+                  </button>
+                ) : null}
+              </li>
+            ))}
+          </ul>
+        </details>
+      ) : null}
 
-              {isOpen ? (
-                visibleRows.length > 0 ? (
-                  <VirtualizedRows
-                    rows={visibleRows}
-                    selectedId={selectedId}
-                    locale={locale}
-                    intlLocale={intlLocale}
-                    copy={copy}
-                    onSelect={setSelectedId}
-                    onRetryRow={retryRow}
-                    retryingRow={retryingRow}
-                  />
-                ) : (
-                  <p className={styles.sectionEmpty}>{copy.empty}</p>
-                )
-              ) : null}
-            </section>
-          );
-        })}
-        </div>
-
-        {/* Il confronto sta accanto alla lista, non sopra: scorrere la lista
-            senza perdere di vista il prodotto è il gesto che si ripete di più.
-            Sotto i 1024px torna un pannello a tutta larghezza. */}
-        <div className={styles.detailColumn}>
-          {selected ? (
-            <ResultDetails
-              row={selected}
-              intlLocale={intlLocale}
-              copy={copy}
-              onClose={() => setSelectedId(null)}
-            />
-          ) : (
-            <p className={styles.detailPlaceholder}>{copy.pickRow}</p>
-          )}
-        </div>
-      </div>
-
+      {selected ? (
+        <ProductDialog
+          row={selected}
+          markupPct={markupPct}
+          intlLocale={intlLocale}
+          copy={copy}
+          onClose={() => setSelectedId(null)}
+        />
+      ) : null}
     </section>
   );
 }
 
-/**
- * La lista dei risultati: una riga per richiesta, sette informazioni.
- *
- * È la vista per scorrere centinaia di righe, non per approvarle una a una:
- * mostra solo ciò che serve a decidere se aprire il dettaglio — immagine,
- * cosa era stato chiesto, cosa è stato trovato, prezzo, variante, stato e il
- * link alla scheda originale. Tutto il resto vive nel pannello di dettaglio.
- *
- * Si virtualizza per riga: con mille prodotti restano montati solo quelli
- * visibili, e le immagini si caricano solo quando entrano nello schermo.
- */
-function VirtualizedRows({
-  rows,
-  selectedId,
-  locale,
-  intlLocale,
-  copy,
-  onSelect,
-  onRetryRow,
-  retryingRow,
-}: {
-  rows: readonly V2ResultRow[];
-  selectedId: string | null;
-  locale: keyof typeof COPY;
-  intlLocale: string;
-  copy: (typeof COPY)[keyof typeof COPY];
-  onSelect: (id: string) => void;
-  onRetryRow?: (rowNumber: number) => void;
-  retryingRow?: number | null;
-}) {
-  const viewportRef = useRef<HTMLDivElement>(null);
-  const [scrollTop, setScrollTop] = useState(0);
-  const [viewportHeight, setViewportHeight] = useState(430);
-
-  useEffect(() => {
-    const viewport = viewportRef.current;
-    if (!viewport) return;
-    const update = () => setViewportHeight(viewport.clientHeight || 430);
-    update();
-    if (typeof ResizeObserver === "undefined") return;
-    const observer = new ResizeObserver(update);
-    observer.observe(viewport);
-    return () => observer.disconnect();
-  }, []);
-
-  useEffect(() => {
-    setScrollTop(0);
-    if (viewportRef.current) viewportRef.current.scrollTop = 0;
-  }, [rows]);
-
-  const window = calculateVirtualWindow(
-    rows.length,
-    scrollTop,
-    viewportHeight,
-    LINE_HEIGHT
-  );
-  const visible = rows.slice(window.start, window.end);
-
-  return (
-    <div
-      ref={viewportRef}
-      className={styles.gridViewport}
-      onScroll={(event) => setScrollTop(event.currentTarget.scrollTop)}
-      tabIndex={0}
-    >
-      {window.paddingTop > 0 ? (
-        <div aria-hidden="true" style={{ height: window.paddingTop }} />
-      ) : null}
-      <div className={styles.lineList} role="list">
-        {visible.map((row) => (
-          <ResultLine
-            key={row.id}
-            row={row}
-            selected={selectedId === row.id}
-            locale={locale}
-            intlLocale={intlLocale}
-            copy={copy}
-            onSelect={onSelect}
-            onRetryRow={onRetryRow}
-            retrying={retryingRow === row.rowNumber}
-          />
-        ))}
-      </div>
-      {window.paddingBottom > 0 ? (
-        <div aria-hidden="true" style={{ height: window.paddingBottom }} />
-      ) : null}
-    </div>
-  );
+/** Prezzo con la maggiorazione applicata: è quello che si rivende. */
+function markedUpPrice(price: number | null, markupPct: number): number | null {
+  if (price == null) return null;
+  return price * (1 + markupPct / 100);
 }
 
-function ResultLine({
+/**
+ * Una riga del report.
+ *
+ * Mostra solo ciò che serve per ordinare e per quotare. Tutto il resto —
+ * specifiche, negozio, verdetti, alternative — sta nella scheda, che si apre
+ * al clic e si chiude subito.
+ */
+function ReportRow({
   row,
-  selected,
-  locale,
+  markupPct,
   intlLocale,
   copy,
-  onSelect,
-  onRetryRow,
-  retrying,
+  onOpen,
 }: {
   row: V2ResultRow;
-  selected: boolean;
-  locale: keyof typeof COPY;
+  markupPct: number;
   intlLocale: string;
   copy: (typeof COPY)[keyof typeof COPY];
-  onSelect: (id: string) => void;
-  onRetryRow?: (rowNumber: number) => void;
-  retrying?: boolean;
+  onOpen: () => void;
 }) {
   const candidate = row.candidate;
-  const status =
-    row.status === "UNKNOWN"
-      ? copy.notVerified
-      : TAOBAO_ROW_STATUS_LABELS[locale][row.status];
-  const variant = row.sku;
-
-  function onKeyDown(event: KeyboardEvent<HTMLElement>) {
-    if (event.key === "Enter" || event.key === " ") {
-      event.preventDefault();
-      onSelect(row.id);
-    }
-  }
+  const title = candidate?.product.title ?? row.displayName;
 
   return (
-    <article
-      className={`${styles.line} ${selected ? styles.lineSelected : ""}`}
-      role="listitem"
-      tabIndex={0}
-      aria-selected={selected}
-      aria-label={candidate?.product.title ?? row.displayName}
-      onClick={() => onSelect(row.id)}
-      onKeyDown={onKeyDown}
-    >
-      <span className={styles.lineThumb}>
-        <Thumbnail
-          src={row.imageUrl}
-          alt={candidate?.product.title ?? row.displayName}
-          fallback={copy.imageMissing}
-        />
-      </span>
+    <article className={styles.reportRow} role="listitem">
+      <Thumbnail src={row.imageUrl} alt={title} fallback={copy.imageMissing} />
 
-      <span className={styles.lineMain}>
-        <span className={styles.lineTop}>
+      <div className={styles.reportMain}>
+        <p className={styles.reportTitle} title={title}>
+          {title}
+        </p>
+        <p className={styles.reportRequested}>
           <span className={styles.rowNumber}>#{row.rowNumber}</span>
-          <span className={styles.lineRequested} title={row.displayName}>
-            {row.displayName}
-          </span>
-        </span>
-        <span className={styles.lineBottom}>
-          {candidate ? (
-            <span className={styles.lineFound} title={candidate.product.title}>
-              {candidate.product.title}
-            </span>
-          ) : (
-            <span className={styles.lineMissing}>
-              {row.gap?.detail ?? copy.candidateMissing}
-            </span>
+          {row.displayName}
+        </p>
+      </div>
+
+      <div className={styles.reportFigure}>
+        <span className={styles.figureLabel}>{copy.qtyLabel}</span>
+        <strong className={styles.figureQty}>
+          {row.requestedQuantity ?? "—"}
+          {row.requestedUnit ? <em>{row.requestedUnit}</em> : null}
+        </strong>
+      </div>
+
+      <div className={styles.reportFigure}>
+        <span className={styles.figureLabel}>{copy.costLabel}</span>
+        <strong className={styles.figureCost}>
+          {formatPrice(row.price, row.currency, intlLocale)}
+        </strong>
+      </div>
+
+      <div className={styles.reportFigure}>
+        <span className={styles.figureLabel}>{copy.sellLabel}</span>
+        <strong className={styles.figureSell}>
+          {formatPrice(
+            markedUpPrice(row.price, markupPct),
+            row.currency,
+            intlLocale
           )}
-        </span>
-      </span>
+        </strong>
+      </div>
 
-      {/* La quantità da ordinare è il dato con cui si compila l'ordine:
-          sta in un riquadro suo, leggibile senza cercarla. */}
-      <span className={styles.lineQty}>
-        {row.requestedQuantity != null ? (
-          <>
-            <strong>{row.requestedQuantity}</strong>
-            {row.requestedUnit ? <em>{row.requestedUnit}</em> : null}
-          </>
-        ) : (
-          <span aria-hidden="true">—</span>
-        )}
-      </span>
-
-      <span className={styles.linePrice}>
-        {formatPrice(row.price, row.currency, intlLocale)}
-      </span>
-
-      <span className={`${styles.lineDot} ${styles[row.section]}`} title={status}>
-        <span className={styles.srOnly}>{status}</span>
-      </span>
-
-      <span className={styles.lineActions}>
-        {!candidate && onRetryRow ? (
-          <button
-            type="button"
-            className={styles.retryButton}
-            disabled={retrying}
-            onClick={(event) => {
-              event.stopPropagation();
-              onRetryRow(row.rowNumber);
-            }}
+      <div className={styles.reportActions}>
+        {candidate?.product.url ? (
+          <a
+            className={styles.taobaoLink}
+            href={candidate.product.url}
+            target="_blank"
+            rel="noreferrer"
           >
-            {retrying ? copy.retrying : copy.retryRow}
-          </button>
+            Taobao
+          </a>
         ) : null}
-      </span>
+        <button type="button" className={styles.detailButton} onClick={onOpen}>
+          {copy.showDetail}
+        </button>
+      </div>
     </article>
   );
 }
 
-function ResultDetails({
+/**
+ * La scheda del prodotto, in un popup.
+ *
+ * Si apre dal report e si chiude subito: serve a guardare il prodotto da
+ * vicino — foto grande, cosa era stato chiesto, cosa costa — non a gestire un
+ * flusso di lavoro. Tutto ciò che non aiuta quella occhiata sta fuori.
+ */
+function ProductDialog({
   row,
+  markupPct,
   intlLocale,
   copy,
   onClose,
 }: {
   row: V2ResultRow;
+  markupPct: number;
   intlLocale: string;
   copy: (typeof COPY)[keyof typeof COPY];
   onClose: () => void;
 }) {
   const candidate = row.candidate;
+  const title = candidate?.product.title ?? row.displayName;
+
+  useEffect(() => {
+    function onKey(event: globalThis.KeyboardEvent) {
+      if (event.key === "Escape") onClose();
+    }
+    document.addEventListener("keydown", onKey);
+    return () => document.removeEventListener("keydown", onKey);
+  }, [onClose]);
+
   return (
-    <aside className={styles.detailsPanel}>
-      <div className={styles.panelHeading}>
-        <div>
-          <h3>{interpolate(copy.details, { row: row.rowNumber })}</h3>
-          <p>{row.displayName}</p>
-        </div>
+    <div
+      className={styles.dialogBackdrop}
+      role="presentation"
+      onClick={onClose}
+    >
+      <div
+        className={styles.dialog}
+        role="dialog"
+        aria-modal="true"
+        aria-label={title}
+        onClick={(event) => event.stopPropagation()}
+      >
         <button
           type="button"
-          className={styles.iconButton}
+          className={styles.dialogClose}
           aria-label={copy.closeDetails}
           onClick={onClose}
         >
-          ×
-        </button>
-      </div>
-
-      {/* Una riga senza prodotto deve spiegarsi: cosa è stato cercato, perché
-          non è bastato, e come riprovare senza rifare l'intero foglio. */}
-      {!row.candidate && row.attemptedQueries.length > 0 ? (
-        <div className={styles.detailNoResult}>
-          <strong>{copy.triedQueries}</strong>
-          <ul className={styles.triedQueries}>
-            {row.attemptedQueries.map((query) => (
-              <li key={query}>{query}</li>
-            ))}
-          </ul>
-          {row.gap?.detail ? <p>{row.gap.detail}</p> : null}
-        </div>
-      ) : null}
-
-      {/* Il blocco d'ordine: quanto ordinare, a che prezzo, quanto viene in
-          totale. Sono le tre cifre che servono per comprare, quindi stanno
-          insieme e in grande — non sparse fra le specifiche. */}
-      <div className={styles.orderBlock}>
-        <div className={styles.orderFigure}>
-          <span className={styles.orderLabel}>{copy.qtyLabel}</span>
-          <strong className={styles.orderQty}>
-            {row.requestedQuantity != null ? row.requestedQuantity : "—"}
-            {row.requestedUnit ? (
-              <em className={styles.orderUnit}>{row.requestedUnit}</em>
-            ) : null}
-          </strong>
-        </div>
-        <div className={styles.orderFigure}>
-          <span className={styles.orderLabel}>{copy.priceLabel}</span>
-          <strong className={styles.orderPrice}>
-            {formatPrice(row.price, row.currency, intlLocale)}
-            {row.salesUnit ? (
-              <em className={styles.orderUnit}>/ {row.salesUnit}</em>
-            ) : null}
-          </strong>
-        </div>
-        {row.requestedQuantity != null && row.price != null ? (
-          <div className={styles.orderFigure}>
-            <span className={styles.orderLabel}>{copy.totalLabel}</span>
-            <strong className={styles.orderTotal}>
-              {formatPrice(
-                row.price * row.requestedQuantity,
-                row.currency,
-                intlLocale
-              )}
-            </strong>
-          </div>
-        ) : null}
-        {candidate?.product.url ? (
-          <a
-            className={styles.orderLink}
-            href={candidate.product.url}
-            target="_blank"
-            rel="noreferrer"
+          <svg
+            viewBox="0 0 24 24"
+            width="16"
+            height="16"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="1.8"
+            strokeLinecap="round"
+            aria-hidden="true"
           >
-            {copy.openProduct}
-          </a>
-        ) : null}
-      </div>
+            <path d="M6 6l12 12M18 6L6 18" />
+          </svg>
+        </button>
 
-      <div className={styles.detailGrid}>
-        <div className={styles.detailProduct}>
-          <Thumbnail
-            src={row.imageUrl}
-            alt={candidate?.product.title ?? row.displayName}
-            fallback={copy.imageMissing}
-            large
-          />
-          <div>
-            {candidate?.product.url ? (
-              <a
-                href={candidate.product.url}
-                target="_blank"
-                rel="noreferrer"
-                className={styles.detailTitle}
-              >
-                {candidate.product.title}
-              </a>
-            ) : (
-              <strong className={styles.detailTitle}>
-                {candidate?.product.title ?? copy.candidateMissing}
+        <Thumbnail src={row.imageUrl} alt={title} fallback={copy.imageMissing} large />
+
+        <div className={styles.dialogBody}>
+          <p className={styles.dialogTitle}>{title}</p>
+          <p className={styles.dialogRequested}>
+            <span className={styles.rowNumber}>#{row.rowNumber}</span>
+            {row.displayName}
+          </p>
+
+          <div className={styles.dialogFigures}>
+            <div>
+              <span className={styles.figureLabel}>{copy.qtyLabel}</span>
+              <strong className={styles.figureQty}>
+                {row.requestedQuantity ?? "—"}
+                {row.requestedUnit ? <em>{row.requestedUnit}</em> : null}
               </strong>
-            )}
-            {candidate ? (
-              <p>
-                {formatPrice(row.price, row.currency, intlLocale)} /{" "}
-                {row.salesUnit}
-                {candidate.product.moq != null
-                  ? ` · MOQ ${candidate.product.moq}`
-                  : ""}
-                {row.sku ? ` · SKU/variante ${row.sku}` : ""}
-              </p>
-            ) : null}
-            {candidate?.product.url ? (
-              <a href={candidate.product.url} target="_blank" rel="noreferrer">
-                {copy.openProduct}
-              </a>
-            ) : null}
-          </div>
-        </div>
-
-        <dl className={styles.detailFacts}>
-          {row.searchQuery ? (
-            <>
-              <dt>{copy.query}</dt>
-              <dd>{row.searchQuery}</dd>
-            </>
-          ) : null}
-          <dt>{copy.columns.status}</dt>
-          <dd>{copy.sections[row.section].title}</dd>
-          {row.source?.originalCells.length ? (
-            <>
-              <dt>{copy.original}</dt>
-              <dd>{row.source.originalCells.join(" · ")}</dd>
-            </>
-          ) : null}
-          {row.error ? (
-            <>
-              <dt>{copy.error}</dt>
-              <dd>{row.error}</dd>
-            </>
-          ) : null}
-        </dl>
-      </div>
-
-      {row.actions.length > 0 ? (
-        <DetailList
-          title={copy.actionsTitle}
-          items={row.actions.map(
-            (action) =>
-              `${copy.actionTypes[action.type]}${
-                action.detail ? ` — ${action.detail}` : ""
-              }`
-          )}
-          tone="attention"
-        />
-      ) : null}
-      {row.reviewIssues.length > 0 ? (
-        <DetailList
-          title={copy.technicalChecks}
-          items={row.reviewIssues.map((issue) =>
-            [issue.code, issue.attributeKey, issue.detail]
-              .filter(Boolean)
-              .join(" · ")
-          )}
-        />
-      ) : null}
-      {row.automaticIssues.length > 0 ? (
-        <DetailList
-          title={copy.automaticChecks}
-          items={row.automaticIssues.map((issue) =>
-            [issue.code, issue.attributeKey, issue.detail]
-              .filter(Boolean)
-              .join(" · ")
-          )}
-        />
-      ) : null}
-      {row.candidates.length > 1 ? (
-        <DetailList
-          title={copy.alternatives}
-          items={row.candidates
-            .filter((entry) => entry !== row.candidate)
-            .slice(0, 5)
-            .map(
-              (entry) =>
-                `#${entry.rank} ${entry.product.title} · ${formatPrice(
-                  entry.product.promotionPrice ?? entry.product.price,
-                  entry.product.currency,
+            </div>
+            <div>
+              <span className={styles.figureLabel}>{copy.costLabel}</span>
+              <strong className={styles.figureCost}>
+                {formatPrice(row.price, row.currency, intlLocale)}
+              </strong>
+            </div>
+            <div>
+              <span className={styles.figureLabel}>{copy.sellLabel}</span>
+              <strong className={styles.figureSell}>
+                {formatPrice(
+                  markedUpPrice(row.price, markupPct),
+                  row.currency,
                   intlLocale
-                )}`
-            )}
-        />
-      ) : null}
-    </aside>
+                )}
+              </strong>
+            </div>
+          </div>
+
+          {candidate?.product.url ? (
+            <a
+              className={styles.dialogLink}
+              href={candidate.product.url}
+              target="_blank"
+              rel="noreferrer"
+            >
+              {copy.openProduct}
+            </a>
+          ) : null}
+        </div>
+      </div>
+    </div>
   );
 }
 

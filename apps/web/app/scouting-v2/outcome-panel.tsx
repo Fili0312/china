@@ -154,6 +154,7 @@ export function OutcomePanel({ state, onRestart }: OutcomePanelProps) {
         loading={resultsLoading}
         loadError={resultsError}
         onRetryRow={retryRow}
+        markupPct={markup}
       />
     </section>
   );

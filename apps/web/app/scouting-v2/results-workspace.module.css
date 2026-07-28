@@ -758,249 +758,204 @@
 }
 
 
+
 /* ==========================================================================
-   Area di revisione: sintesi in alto, lista a sinistra, confronto a destra.
-   Il gesto che si ripete è «scorro la lista senza perdere di vista il
-   prodotto»: per questo il confronto è accanto e non sopra.
+   Il report: una riga per prodotto. Foto, titolo, quanto ordinare, quanto
+   costa, quanto si rivende. Il resto sta nel popup.
    ========================================================================== */
 
-.kpiStrip {
+.report {
   display: flex;
-  flex-wrap: wrap;
+  flex-direction: column;
   gap: 0.5rem;
 }
 
-.kpi {
-  display: flex;
-  gap: 0.45rem;
-  align-items: baseline;
-  padding: 0.55rem 0.85rem;
+.reportRow {
+  display: grid;
+  grid-template-columns: 56px minmax(0, 1fr) repeat(3, minmax(4.5rem, auto)) auto;
+  align-items: center;
+  gap: 1.1rem;
+  padding: 0.7rem 0.9rem;
+  overflow: hidden;
   border: 1px solid var(--s-border, #e5e5ea);
   border-radius: 14px;
   background: var(--s-surface, #fff);
-  cursor: pointer;
-  transition: border-color 0.15s ease, background-color 0.15s ease;
+  transition: border-color 0.15s ease;
 }
 
-.kpi strong {
-  font-size: 1.15rem;
-  font-weight: 600;
-  letter-spacing: -0.02em;
-}
-
-.kpi span {
-  color: var(--s-muted, #6e6e73);
-  font-size: 0.76rem;
-}
-
-.kpi:hover {
+.reportRow:hover {
   border-color: var(--s-border-strong, #d2d2d7);
 }
 
-.kpiActive {
-  border-color: var(--s-text, #1d1d1f);
-  background: var(--s-surface-2, #f5f5f7);
-}
-
-.kpi.corrected strong { color: var(--s-ok, #1d7a4c); }
-.kpi.review strong { color: var(--s-warn, #9a6700); }
-.kpi.no_result strong { color: var(--s-err, #b3261e); }
-
-/* Due colonne: la lista tiene una misura fissa e leggibile, il confronto
-   prende lo spazio che resta. */
-.split {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 1.05fr);
-  gap: 1rem;
-  align-items: start;
-}
-
-.detailColumn {
-  position: sticky;
-  /* Sotto la barra degli strumenti, che è già sticky. */
-  top: 4.4rem;
-  max-height: calc(100vh - 5.5rem);
-  overflow: hidden auto;
-  border: 1px solid var(--s-border, #e5e5ea);
-  border-radius: var(--s-r-card, 18px);
-  background: var(--s-surface, #fff);
-  overscroll-behavior: contain;
-}
-
-.detailPlaceholder {
-  margin: 0;
-  padding: 2.5rem 1rem;
-  border: 1px dashed var(--s-border-strong, #d2d2d7);
-  border-radius: var(--s-r-card, 18px);
-  color: var(--s-muted, #6e6e73);
-  font-size: 0.85rem;
-  text-align: center;
-}
-
-/* --- La riga della lista: due livelli, non otto colonne ------------------- */
-
-.lineList {
-  display: flex;
-  flex-direction: column;
-}
-
-.line {
-  display: grid;
-  grid-template-columns: 44px minmax(0, 1fr) auto minmax(0, auto) 10px auto;
-  align-items: center;
-  gap: 0.7rem;
-  /* Nessun termine lungo deve sfondare il bordo della card. */
-  overflow: hidden;
-  /* Altezza fissa: la virtualizzazione la calcola, non la misura. */
-  height: 64px;
-  padding: 0 0.8rem;
-  border-bottom: 1px solid color-mix(in srgb, var(--s-border, #e5e5ea) 65%, transparent);
-  background: var(--s-surface, #fff);
-  cursor: pointer;
-  outline: 0;
-  transition: background-color 0.12s ease;
-}
-
-.line:hover {
-  background: var(--s-surface-2, #f5f5f7);
-}
-
-.line:focus-visible {
-  box-shadow: inset 0 0 0 2px var(--s-accent, #1d1d1f);
-}
-
-.lineSelected {
-  background: var(--s-surface-2, #f5f5f7);
-  box-shadow: inset 3px 0 0 var(--s-accent, #1d1d1f);
-}
-
-.lineThumb {
-  display: grid;
-  place-items: center;
-  width: 44px;
-  height: 44px;
-  overflow: hidden;
+.reportRow .thumbnail {
+  width: 56px;
+  height: 56px;
   border: 1px solid var(--s-border, #e5e5ea);
   border-radius: 10px;
   background: var(--s-surface-2, #f5f5f7);
-}
-
-.lineThumb .thumbnail {
-  width: 100%;
-  height: 100%;
-  border: 0;
-  border-radius: 0;
-  background: transparent;
   object-fit: contain;
 }
 
-.lineMain {
-  display: flex;
-  flex-direction: column;
-  gap: 0.1rem;
+.reportMain {
   min-width: 0;
 }
 
-.lineTop,
-.lineBottom {
+.reportTitle {
+  margin: 0;
+  overflow: hidden;
+  color: var(--s-text, #1d1d1f);
+  font-size: 0.88rem;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.reportRequested {
   display: flex;
   gap: 0.35rem;
-  align-items: baseline;
-  min-width: 0;
+  margin: 0.15rem 0 0;
+  overflow: hidden;
+  color: var(--s-muted, #6e6e73);
+  font-size: 0.74rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
-.lineRequested,
-.lineFound {
+/* Le tre cifre: stessa forma, peso diverso. Si leggono in colonna. */
+.reportFigure {
+  display: flex;
+  flex-direction: column;
+  gap: 0.05rem;
+  text-align: right;
+}
+
+.figureLabel {
+  color: var(--s-faint, #86868b);
+  font-size: 0.62rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  white-space: nowrap;
+}
+
+.figureQty,
+.figureCost,
+.figureSell {
+  display: flex;
+  gap: 0.2rem;
+  align-items: baseline;
+  justify-content: flex-end;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  white-space: nowrap;
+}
+
+.figureQty {
+  font-size: 1.05rem;
+}
+
+.figureQty em {
+  color: var(--s-muted, #6e6e73);
+  font-size: 0.68rem;
+  font-style: normal;
+  font-weight: 500;
+}
+
+.figureCost {
+  font-size: 0.95rem;
+  color: var(--s-muted, #6e6e73);
+}
+
+/* Il prezzo di vendita è quello che si porta al cliente: è il più marcato. */
+.figureSell {
+  font-size: 1.05rem;
+  color: var(--s-text, #1d1d1f);
+}
+
+.reportActions {
+  display: flex;
+  gap: 0.4rem;
+  align-items: center;
+}
+
+.taobaoLink,
+.detailButton {
+  min-height: 34px;
+  padding: 0.35rem 0.8rem;
+  border: 1px solid var(--s-border-strong, #d2d2d7);
+  border-radius: 999px;
+  background: var(--s-surface, #fff);
+  color: var(--s-text, #1d1d1f);
+  font-size: 0.74rem;
+  font-weight: 500;
+  text-decoration: none;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.taobaoLink:hover,
+.detailButton:hover {
+  background: var(--s-surface-2, #f5f5f7);
+}
+
+/* --- Righe senza prodotto: in fondo, chiuse --------------------------------- */
+
+.missingBlock {
+  padding: 0.6rem 0.9rem;
+  border: 1px solid var(--s-border, #e5e5ea);
+  border-radius: 14px;
+  background: var(--s-surface, #fff);
+  font-size: 0.82rem;
+}
+
+.missingBlock summary {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+  color: var(--s-muted, #6e6e73);
+  cursor: pointer;
+}
+
+.missingCount {
+  padding: 0.05rem 0.45rem;
+  border-radius: 999px;
+  background: var(--s-surface-2, #f5f5f7);
+  font-size: 0.72rem;
+  font-weight: 600;
+}
+
+.missingList {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  margin: 0.7rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.missingList li {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.missingName {
+  flex: 1;
+  min-width: 0;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
-/* Sopra cosa è stato chiesto, sotto cosa è stato trovato: il confronto si
-   legge in verticale, senza spostare gli occhi lungo la riga. */
-.lineRequested {
-  color: var(--s-text, #1d1d1f);
-  font-size: 0.82rem;
-  font-weight: 500;
-}
-
-.lineFound {
-  color: var(--s-muted, #6e6e73);
-  font-size: 0.74rem;
-}
-
-.lineMissing {
-  color: var(--s-err, #b3261e);
-  font-size: 0.74rem;
-}
-
-/* La quantità è un riquadro, non una colonna fra le altre. */
-.lineQty {
-  display: flex;
-  gap: 0.15rem;
-  align-items: baseline;
-  justify-content: center;
-  min-width: 3.4rem;
-  padding: 0.2rem 0.5rem;
-  border-radius: 9px;
-  background: var(--s-surface-2, #f5f5f7);
-  color: var(--s-text, #1d1d1f);
-}
-
-.lineQty strong {
-  font-size: 0.95rem;
-  font-weight: 600;
-  letter-spacing: -0.02em;
-}
-
-.lineQty em {
-  color: var(--s-muted, #6e6e73);
-  font-size: 0.66rem;
-  font-style: normal;
-}
-
-.linePrice {
-  color: var(--s-text, #1d1d1f);
-  font-size: 0.85rem;
-  font-weight: 500;
-  text-align: right;
-  white-space: nowrap;
-}
-
-/* Lo stato è un punto: il colore basta, la parola sta nel titolo e per i
-   lettori di schermo. */
-.lineDot {
-  width: 8px;
-  height: 8px;
-  border-radius: 999px;
-  background: var(--s-border-strong, #d2d2d7);
-}
-
-.lineDot.corrected { background: var(--s-ok, #1d7a4c); }
-.lineDot.review { background: var(--s-warn, #9a6700); }
-.lineDot.no_result { background: var(--s-err, #b3261e); }
-
-.lineActions {
-  display: flex;
-  gap: 0.4rem;
-  align-items: center;
-  justify-content: flex-end;
-}
-
 .retryButton {
   min-height: 32px;
-  padding: 0.25rem 0.6rem;
+  padding: 0.25rem 0.65rem;
   border: 1px solid var(--s-border-strong, #d2d2d7);
   border-radius: 999px;
   background: var(--s-surface, #fff);
   color: var(--s-text, #1d1d1f);
-  font-size: 0.7rem;
+  font-size: 0.72rem;
   cursor: pointer;
-  white-space: nowrap;
-}
-
-.retryButton:hover:not(:disabled) {
-  background: var(--s-surface-2, #f5f5f7);
 }
 
 .retryButton:disabled {
@@ -1008,156 +963,167 @@
   cursor: default;
 }
 
-/* --- Il blocco d'ordine nel dettaglio ------------------------------------- */
+/* --- Il popup -------------------------------------------------------------- */
 
-.orderBlock {
+.dialogBackdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  display: grid;
+  place-items: center;
+  padding: 1rem;
+  background: rgb(0 0 0 / 32%);
+  backdrop-filter: blur(3px);
+}
+
+.dialog {
+  position: relative;
   display: flex;
-  flex-wrap: wrap;
-  gap: 1.4rem;
-  align-items: flex-end;
-  padding: 0.9rem 1rem;
+  flex-direction: column;
+  gap: 0.9rem;
+  width: min(30rem, 100%);
+  max-height: min(88vh, 46rem);
+  overflow: auto;
+  padding: 1.4rem;
+  border-radius: 20px;
+  background: var(--s-surface, #fff);
+  box-shadow: 0 24px 60px rgb(0 0 0 / 20%);
+}
+
+.dialogClose {
+  position: absolute;
+  top: 0.8rem;
+  right: 0.8rem;
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border: 0;
+  border-radius: 999px;
+  background: var(--s-surface-2, #f5f5f7);
+  color: var(--s-muted, #6e6e73);
+  cursor: pointer;
+}
+
+.dialogClose:hover {
+  color: var(--s-text, #1d1d1f);
+}
+
+.dialog .thumbnail {
+  width: 100%;
+  height: 15rem;
   border: 1px solid var(--s-border, #e5e5ea);
   border-radius: 14px;
   background: var(--s-surface-2, #f5f5f7);
+  object-fit: contain;
 }
 
-.orderFigure {
+.dialogBody {
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+}
+
+.dialogTitle {
+  margin: 0;
+  color: var(--s-text, #1d1d1f);
+  font-size: 1rem;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  line-height: 1.35;
+}
+
+.dialogRequested {
+  display: flex;
+  gap: 0.35rem;
+  margin: 0;
+  color: var(--s-muted, #6e6e73);
+  font-size: 0.78rem;
+}
+
+.dialogFigures {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.8rem;
+  padding: 0.8rem 0;
+  border-top: 1px solid var(--s-border, #e5e5ea);
+  border-bottom: 1px solid var(--s-border, #e5e5ea);
+}
+
+.dialogFigures > div {
   display: flex;
   flex-direction: column;
   gap: 0.1rem;
 }
 
-.orderLabel {
-  color: var(--s-muted, #6e6e73);
-  font-size: 0.68rem;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
+.dialogFigures .figureQty,
+.dialogFigures .figureCost,
+.dialogFigures .figureSell {
+  justify-content: flex-start;
+  font-size: 1.15rem;
 }
 
-.orderQty,
-.orderTotal,
-.orderPrice {
-  display: flex;
-  gap: 0.25rem;
-  align-items: baseline;
-  font-weight: 600;
-  letter-spacing: -0.03em;
-}
-
-/* La cifra da ordinare è la più grande della pagina: è quella che si copia
-   nell'ordine, e cercarla era la lamentela. */
-.orderQty {
-  font-size: 2rem;
-  line-height: 1.05;
-}
-
-.orderPrice {
-  font-size: 1.1rem;
-}
-
-.orderTotal {
-  font-size: 1.35rem;
-}
-
-.orderUnit {
-  color: var(--s-muted, #6e6e73);
-  font-size: 0.72rem;
-  font-style: normal;
-  font-weight: 500;
-}
-
-.orderLink {
-  margin-left: auto;
-  padding: 0.5rem 0.95rem;
+.dialogLink {
+  align-self: flex-start;
+  min-height: 40px;
+  padding: 0.6rem 1.1rem;
   border-radius: 999px;
   background: var(--s-accent, #1d1d1f);
   color: #fff;
-  font-size: 0.78rem;
+  font-size: 0.82rem;
   font-weight: 500;
   text-decoration: none;
-  white-space: nowrap;
 }
 
-.detailNoResult {
-  padding: 0.7rem 0.85rem;
-  border: 1px solid var(--s-border, #e5e5ea);
-  border-radius: 12px;
-  background: var(--s-surface-2, #f5f5f7);
-  font-size: 0.78rem;
-}
+/* --- Telefono -------------------------------------------------------------- */
 
-.detailNoResult p {
-  margin: 0.4rem 0 0;
-  color: var(--s-muted, #6e6e73);
-}
-
-.triedQueries {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.3rem;
-  margin: 0.35rem 0 0;
-  padding: 0;
-  list-style: none;
-}
-
-.triedQueries li {
-  padding: 0.14rem 0.5rem;
-  border: 1px solid var(--s-border, #e5e5ea);
-  border-radius: 999px;
-  background: var(--s-surface, #fff);
-  font-size: 0.7rem;
-}
-
-/* --- Telefono e tablet ---------------------------------------------------- */
-
-/* Sotto i 1024px il confronto non sta accanto: torna sotto la lista, a tutta
-   larghezza, e smette di essere appiccicato. */
-@media (max-width: 1024px) {
-  .split {
-    grid-template-columns: minmax(0, 1fr);
+@media (max-width: 720px) {
+  .reportRow {
+    grid-template-columns: 48px minmax(0, 1fr) auto;
+    grid-template-areas:
+      "foto titolo azioni"
+      "cifre cifre cifre";
+    gap: 0.6rem 0.8rem;
+    padding: 0.7rem;
   }
 
-  .detailColumn {
-    position: static;
+  .reportRow .thumbnail {
+    grid-area: foto;
+    width: 48px;
+    height: 48px;
   }
 
-  .detailPlaceholder {
-    display: none;
-  }
-}
-
-@media (max-width: 640px) {
-  .line {
-    grid-template-columns: 40px minmax(0, 1fr) auto 8px;
-    height: 60px;
-    gap: 0.55rem;
-    padding: 0 0.6rem;
+  .reportMain {
+    grid-area: titolo;
   }
 
-  .lineThumb {
-    width: 40px;
-    height: 40px;
+  .reportActions {
+    grid-area: azioni;
   }
 
-  /* Sul telefono il prezzo cede il posto alla quantità: il prezzo si legge
-     nel dettaglio, la quantità serve mentre si scorre. */
-  .linePrice,
-  .lineActions {
-    display: none;
+  /* Le tre cifre passano sotto, in linea: restano leggibili senza stringersi. */
+  .reportFigure {
+    display: flex;
+    flex-direction: row;
+    gap: 0.35rem;
+    align-items: baseline;
+    text-align: left;
   }
 
-  .orderBlock {
-    gap: 1rem;
-  }
+  .reportFigure:nth-of-type(1) { grid-area: cifre; justify-self: start; }
+  .reportFigure:nth-of-type(2) { grid-area: cifre; justify-self: center; }
+  .reportFigure:nth-of-type(3) { grid-area: cifre; justify-self: end; }
 
-  .orderQty {
-    font-size: 1.7rem;
+  .figureQty,
+  .figureCost,
+  .figureSell {
+    font-size: 0.95rem;
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .line,
-  .kpi {
+  .reportRow {
     transition: none;
   }
 }

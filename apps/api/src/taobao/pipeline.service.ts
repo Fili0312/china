@@ -865,6 +865,33 @@ export class PipelineService {
       }
     }
 
+    // Ultima passata prima del report, sui candidati già acquistati.
+    //
+    // La ri-ricerca porta candidati nuovi ma ne fa giudicare solo i primi:
+    // gli altri restano senza verdetto, e una riga finisce fra i «nessun
+    // risultato» mentre in archivio ha candidati che nessuno ha guardato. È
+    // stato il caso di 15 righe su 28, ognuna con 7 candidati inesaminati.
+    // Qui si chiude il conto: costa solo giudizi, nessuna nuova ricerca.
+    if (pipeline.jobId) {
+      try {
+        const closing = await this.coherence.verifyJob(
+          pipeline.clientId,
+          pipeline.jobId,
+          { topN: V2_VERIFY_DEEP_TOP_N, force: false },
+          { mode: "v2-review", onlyUnresolvedRows: true }
+        );
+        if (closing.checkedCandidates > 0) {
+          this.logger.log(
+            `pipeline ${pipelineId}: passata finale su ${closing.checkedCandidates} candidati già acquistati, ${closing.coherent} recuperati`
+          );
+        }
+      } catch (error) {
+        this.logger.warn(
+          `pipeline ${pipelineId}: passata finale saltata (${error instanceof Error ? error.message : error})`
+        );
+      }
+    }
+
     await this.completePhase(pipelineId, "REFINE");
     await prisma.taobaoPipeline.update({ where: { id: pipelineId }, data: { phase: "REPORT" } });
   }

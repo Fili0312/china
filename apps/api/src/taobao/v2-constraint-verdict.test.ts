@@ -334,3 +334,119 @@ test("un foglio senza quantità non cancella quella letta dall'IA", () => {
   assert.equal(grounded.analysis.requestedQuantity, 5);
   assert.equal(grounded.analysis.unit, "pcs");
 });
+
+/**
+ * I numeri nudi nella query: misurati sulla fonte reale il 28/07/2026.
+ * `货架 200 40 140 300kg` tornava 0 risultati, `货架 300kg` venti.
+ */
+
+test("i numeri senza unità escono dalla query", () => {
+  const a = analysis({
+    productFamily: "scaffale",
+    familyKey: "shelf",
+    productNameChinese: "货架",
+    searchQueryChinese: "货架 200 40 140 300kg",
+  });
+  const context = deriveV2RequirementContext(a, "Nome: Scaffale\nSpecifiche: 300kg");
+
+  const query = repairV2SearchQuery("货架 200 40 140 300kg", a, context);
+
+  assert.equal(query, "货架 300kg");
+});
+
+test("un numero che è una misura dell'analisi recupera la sua unità", () => {
+  const a = analysis({
+    productFamily: "calibro a spillo",
+    familyKey: "pin-gauge",
+    productNameChinese: "针规",
+    searchQueryChinese: "针规 2.48",
+    dimensions: [
+      { axis: "diameter", label: "diametro", value: 2.48, unit: "mm" },
+    ] as never,
+  });
+  const context = deriveV2RequirementContext(a, "Nome: Pin gauge\nSpecifiche: 2.48 mm");
+
+  // Invece di perdere la misura, la query diventa cercabile.
+  assert.equal(repairV2SearchQuery("针规 2.48", a, context), "针规 2.48mm");
+});
+
+test("termini con unità, separatore o lettera restano intatti", () => {
+  const a = analysis({
+    productNameChinese: "平板灯",
+    model: "M1",
+    searchQueryChinese: "平板灯 60x60 4P M1 300kg",
+  });
+  // Il foglio dichiara tutti questi termini: la query è valida e va usata
+  // così com'è. Qui si verifica che la pulizia dei numeri nudi non tocchi
+  // ciò che porta unità, separatore o lettera.
+  const context = deriveV2RequirementContext(
+    a,
+    "Nome: Pannello\nModello: M1\nSpecifiche: 60x60, 4P, 300kg"
+  );
+
+  assert.equal(
+    repairV2SearchQuery("平板灯 60x60 4P M1 300kg", a, context),
+    "平板灯 60x60 4P M1 300kg"
+  );
+});
+
+test("una query di soli numeri non viene svuotata", () => {
+  const a = analysis({ productNameChinese: "产品", searchQueryChinese: "123 456" });
+  const context = deriveV2RequirementContext(a, "Nome: Prodotto");
+
+  assert.ok(repairV2SearchQuery("123 456", a, context).length > 0);
+});
+
+/**
+ * Zeri finali e unità di conteggio: misurati sulla fonte il 28/07/2026, dove
+ * ciascuno da solo portava la stessa ricerca da 0 a 20 risultati.
+ */
+
+test("gli zeri finali di una misura spariscono dalla query", () => {
+  const a = analysis({
+    productFamily: "calibro ceramico",
+    familyKey: "ceramic-gauge",
+    productNameChinese: "陶瓷针规",
+    searchQueryChinese: "陶瓷针规 5.00mm 塞规",
+  });
+  const context = deriveV2RequirementContext(
+    a,
+    "Nome: Calibro ceramico\nSpecifiche: 5.00 mm"
+  );
+
+  assert.equal(
+    repairV2SearchQuery("陶瓷针规 5.00mm 塞规", a, context),
+    "陶瓷针规 5mm 塞规"
+  );
+});
+
+test("l'unità di conteggio del foglio non entra nella ricerca", () => {
+  const a = analysis({
+    productFamily: "calibro ceramico",
+    familyKey: "ceramic-gauge",
+    productNameChinese: "陶瓷针规",
+    searchQueryChinese: "陶瓷针规 5mm 单支 塞规",
+    requestedQuantity: 1,
+    unit: "支",
+  });
+  const context = deriveV2RequirementContext(
+    a,
+    "Nome: Calibro ceramico\nSpecifiche: 5 mm\nQuantità: 1\nUnità: 支"
+  );
+
+  // `单支` dice come si contano i pezzi, non cosa si compra.
+  assert.equal(
+    repairV2SearchQuery("陶瓷针规 5mm 单支 塞规", a, context),
+    "陶瓷针规 5mm 塞规"
+  );
+});
+
+test("una misura senza zeri superflui resta com'è", () => {
+  const a = analysis({
+    productNameChinese: "针规",
+    searchQueryChinese: "针规 2.48mm",
+  });
+  const context = deriveV2RequirementContext(a, "Nome: Pin gauge\nSpecifiche: 2.48 mm");
+
+  assert.equal(repairV2SearchQuery("针规 2.48mm", a, context), "针规 2.48mm");
+});

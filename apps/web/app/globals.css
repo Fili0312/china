@@ -1534,11 +1534,14 @@ select {
 /* Impaginazione: una colonna di lettura larga 16/9 rispetto all'altezza utile,
    centrata, con aria intorno. Su schermi molto larghi il contenuto non si
    stira all'infinito: oltre una certa misura si leggono peggio le righe. */
+/* A tutto schermo: l'area di revisione è una superficie di lavoro, non una
+   colonna di lettura. Il respiro lo dànno le card, non un margine che lascia
+   metà monitor vuoto. */
 .scouting.v2 {
   width: 100%;
-  max-width: min(1600px, calc(100vw - 3rem));
-  margin-inline: auto;
-  gap: 22px;
+  max-width: none;
+  margin-inline: 0;
+  gap: 16px;
 }
 
 .scouting.v2 .v2-card,
@@ -1583,5 +1586,19 @@ select {
   .scouting.v2 * {
     transition: none !important;
     animation: none !important;
+  }
+}
+
+/* La pagina v2 esce dalla colonna di lettura di `main`.
+   `:has()` tiene la regola qui e non tocca nessun'altra pagina: senza questo
+   l'area di revisione resta larga 1100px con mezzo monitor vuoto. */
+main:has(.scouting.v2) {
+  max-width: none;
+  padding: 24px clamp(12px, 2vw, 28px) 72px;
+}
+
+@media (max-width: 640px) {
+  main:has(.scouting.v2) {
+    padding: 16px 10px 56px;
   }
 }

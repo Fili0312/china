@@ -664,7 +664,95 @@ export function repairV2SearchQuery(
     cleaned &&
     queryRecognizesProduct(cleaned, analysis) &&
     !queryHasUnexpectedNumbers(cleaned, context, analysis);
-  return validProposal ? cleaned : rebuildQueryFromAnalysis(analysis, context);
+  return tidySearchQuery(
+    validProposal ? cleaned : rebuildQueryFromAnalysis(analysis, context),
+    analysis,
+    context
+  );
+}
+
+/** `5.00mm` e `5mm` sono la stessa misura, ma solo una la scrivono i venditori. */
+function trimTrailingZeros(token: string): string {
+  return token.replace(
+    /(\d+)[.,](\d*?)0+(?=\D|$)/gu,
+    (_match, whole: string, decimals: string) =>
+      decimals.length > 0 ? `${whole}.${decimals}` : whole
+  );
+}
+
+/**
+ * Toglie dalla query ciò che nessun venditore scrive nel titolo.
+ *
+ * Tre pulizie, tutte misurate sulla fonte reale il 28/07/2026, dove ognuna
+ * da sola faceva passare la stessa ricerca da **0 a 20 risultati**:
+ *
+ * - **zeri finali** — `陶瓷针规 5.00mm 塞规` non trova niente, `5mm` sì. Il
+ *   foglio scrive le misure con la precisione dello strumento, il negozio con
+ *   quella del linguaggio.
+ * - **unità di conteggio** — `单支`, `单个`: vengono dalla colonna «unità» del
+ *   foglio e dicono *come si contano* i pezzi, non *cosa* si compra. Si toglie
+ *   l'unità dichiarata dal foglio e la sua forma con `单`, quindi senza
+ *   elenchi di parole: il dato viene dalla riga.
+ * - **numeri nudi** — vedi `groundBareNumbers`.
+ */
+function tidySearchQuery(
+  query: string,
+  analysis: ProductAnalysis,
+  context: V2RequirementContext
+): string {
+  const unit = context.quantity.unit?.trim();
+  const droppable = new Set(
+    unit ? [compact(unit), compact(`单${unit}`)] : []
+  );
+
+  const kept = normalizeSpace(query)
+    .split(/\s+/u)
+    .map(trimTrailingZeros)
+    .filter((token) => token && !droppable.has(compact(token)));
+
+  const tidied = normalizeSpace(kept.join(" "));
+  return groundBareNumbers(tidied || normalizeSpace(query), analysis);
+}
+
+/** Un termine è un numero e nient'altro: né unità, né separatori, né lettere. */
+const BARE_NUMBER_RE = /^\d+(?:[.,]\d+)?$/u;
+
+/**
+ * Dà un'unità ai numeri nudi della query, o li toglie.
+ *
+ * Un numero senza unità è il modo più efficace di non trovare niente: il
+ * marketplace mette i termini in AND e nessun titolo contiene «200» e «40» e
+ * «140» tutti insieme. Misurato sulle query realmente inviate:
+ *
+ * - `货架 200 40 140 300kg` → **0 risultati**; `货架 300kg` → **20**
+ * - `打标测试板 86 54 0.21` → **0 risultati**; `打标测试板` → **20**
+ *
+ * Quando il numero corrisponde a una misura dell'analisi si recupera la sua
+ * unità (`2.48` → `2.48mm`): così la query resta precisa invece di allargarsi.
+ * Quando non corrisponde a nulla è un frammento di dimensione o un codice
+ * amministrativo, e va via. I termini con unità, separatore o lettera
+ * (`300kg`, `60x60`, `M1`, `4P`) non vengono toccati: quelli il venditore li
+ * scrive nel titolo.
+ */
+function groundBareNumbers(query: string, analysis: ProductAnalysis): string {
+  const unitByValue = new Map<string, string>();
+  for (const dimension of analysis.dimensions ?? []) {
+    if (dimension.value == null || !dimension.unit) continue;
+    unitByValue.set(String(dimension.value), dimension.unit);
+  }
+
+  const kept = normalizeSpace(query)
+    .split(/\s+/u)
+    .map((token) => {
+      if (!BARE_NUMBER_RE.test(token)) return token;
+      const unit = unitByValue.get(token.replace(",", "."));
+      return unit ? `${token}${unit}` : "";
+    })
+    .filter(Boolean);
+
+  const rebuilt = normalizeSpace(kept.join(" "));
+  // Non si restituisce mai una query vuota: meglio quella di partenza.
+  return rebuilt || normalizeSpace(query);
 }
 
 /**

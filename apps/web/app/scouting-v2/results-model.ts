@@ -441,6 +441,11 @@ function classifyRow({
   if (reviewIssues.length > 0 || actions.length > 0 || Boolean(gap)) {
     return "review";
   }
+  // Stessa regola che usa il riepilogo lato server, altrimenti le caselle in
+  // alto e i gruppi del report raccontano due storie diverse sulla stessa
+  // ricerca: un prodotto che l'IA ha **respinto** aspetta una decisione, non è
+  // confermato solo perché non ha sollevato altri rilievi.
+  if (!acceptedByAi(candidate)) return "review";
   if (automaticIssues.length > 0) return "auto_resolved";
   return "corrected";
 }

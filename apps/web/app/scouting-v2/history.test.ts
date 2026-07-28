@@ -503,9 +503,11 @@ test("unavailable candidates disappear, incoherent ones stay visible", () => {
   // La riga senza nulla di acquistabile resta un buco; quella con un prodotto
   // bocciato dall'IA non finisce più in revisione, perché non c'è niente che
   // una persona debba decidere: il prodotto è lì e si può guardare.
+  // Il prodotto bocciato resta visibile, ma fra quelli che aspettano una
+  // decisione: dirlo confermato contraddirebbe il riepilogo del server.
   assert.deepEqual(
     modeled.map((row) => row.section),
-    ["no_result", "corrected"]
+    ["no_result", "review"]
   );
   assert.equal(modeled[0]!.candidate, null);
   assert.deepEqual(modeled[0]!.candidates, []);
@@ -560,4 +562,22 @@ test("il prezzo maggiorato si calcola sul costo", () => {
   assert.equal(cost, 20);
   assert.equal(cost * (1 + 15 / 100), 23);
   assert.equal(cost * (1 + 0 / 100), 20);
+});
+
+test("un prodotto respinto dall'IA non risulta confermato nel report", () => {
+  // Il difetto: le caselle in alto (calcolate dal server) dicevano 18/11 e i
+  // gruppi del report 25/4 sulla stessa ricerca, perché qui il verdetto non
+  // veniva guardato affatto.
+  const modeled = buildV2ResultRows([
+    resultRow(1, [candidate("ok", { verdict: "coherent" })]),
+    resultRow(2, [candidate("dubbio", { verdict: "unsure" })]),
+    resultRow(3, [candidate("no", { verdict: "incoherent" })]),
+    resultRow(4, [candidate("mai giudicato", { verdict: null })]),
+  ]);
+
+  assert.deepEqual(
+    modeled.map((row) => row.section),
+    // Promosso e incerto sono accettati; respinto e non giudicato aspettano.
+    ["corrected", "corrected", "review", "review"]
+  );
 });

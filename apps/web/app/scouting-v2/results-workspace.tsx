@@ -377,10 +377,20 @@ export function ResultsWorkspace({
   );
   // Tre gruppi, in quest'ordine: quello che è a posto, quello che chiede una
   // decisione, quello che non ha trovato nulla.
-  const withProduct = filteredRows.filter((row) => row.candidate != null);
-  const confirmed = withProduct.filter((row) => row.section !== "review");
-  const toConfirm = withProduct.filter((row) => row.section === "review");
-  const missing = filteredRows.filter((row) => row.candidate == null);
+  //
+  // La sezione decide, non la presenza di un prodotto: una riga i cui
+  // candidati sono stati tutti respinti conserva il migliore fra loro come
+  // traccia, ma resta un "nessun risultato". Filtrare per `candidate != null`
+  // la faceva scivolare fra i confermati.
+  const confirmed = filteredRows.filter(
+    (row) =>
+      row.candidate != null &&
+      (row.section === "corrected" || row.section === "auto_resolved")
+  );
+  const toConfirm = filteredRows.filter((row) => row.section === "review");
+  const missing = filteredRows.filter(
+    (row) => row.section === "no_result" || row.candidate == null
+  );
   const allGrouped = useMemo(() => groupV2ResultRows(modeledRows), [modeledRows]);
   const filteredGrouped = useMemo(
     () => groupV2ResultRows(filteredRows),

@@ -25,21 +25,56 @@ import { estimateCostUsd, estimateDeepSeekCostUsd } from "./usage";
  */
 
 /** Va cambiata a ogni modifica del prompt: è parte dell'identità del verdetto. */
-export const COHERENCE_PROMPT_VERSION = "2026-07-23.1";
+export const COHERENCE_PROMPT_VERSION = "2026-07-28.2";
 
 const SYSTEM = `Sei il controllo qualità di uno scouting di prodotti su Taobao/1688.
 
 Ricevi richieste d'acquisto (interpretate da un foglio Excel del cliente) e, per ognuna, i prodotti candidati trovati dalla ricerca. Per OGNI candidato giudichi se è coerente con la richiesta.
 
+## La distinzione che conta: CONTRADDETTO ≠ NON DICHIARATO
+
+Le inserzioni Taobao hanno titoli incompleti: quasi nessuna ripete tutte le specifiche richieste. Questa è la normalità, non un difetto del prodotto.
+
+Per ogni cosa che la richiesta specifica, chiediti quale dei due casi è:
+
+- **CONTRADDETTO** — l'inserzione dichiara un valore ed è diverso.
+  «richiesti 5 pollici, il titolo dice 8 pollici» · «richiesto acciaio, il titolo dice plastica» · «richiesto modello X, il titolo dice modello Y».
+- **NON DICHIARATO** — l'inserzione semplicemente non ne parla.
+  «il titolo non menziona l'acciaio 420» · «non specifica se è in silicone» · «non riporta il codice modello».
+
+Un dato NON DICHIARATO **non è mai** un motivo per respingere. Il prodotto può benissimo essere quello giusto: il venditore non l'ha scritto nel titolo. Chi legge il tuo verdetto andrà a controllare sulla scheda.
+
+Compila "conflictType" con il caso peggiore che hai trovato:
+- "explicit" → almeno una cosa CONTRADDETTA.
+- "unstated" → niente di contraddetto, ma qualcosa di richiesto non è dichiarato.
+- "none" → tutto ciò che la richiesta specifica trova riscontro.
+
+### Quando è "explicit", senza esitare
+
+Queste NON sono assenze. Se ricadi in uno di questi casi il tipo è "explicit":
+
+1. **Puoi citare un valore dell'inserzione diverso da quello richiesto.** Se stai scrivendo «il titolo dice 50 metri ma ne servono 10» o «il titolo dice 30x60 ma serve 60x60», hai trovato una contraddizione. Il fatto che manchino ALTRE informazioni non la cancella.
+2. **Il prodotto è di un'altra famiglia merceologica.** Un tester per ionizzatori al posto di un tester elettrostatico, un componente per stampi al posto di un blocchetto di fissaggio, un detergente al posto di un materiale industriale. Qui non serve che manchi un dato: è proprio un altro prodotto.
+3. **L'inserzione elenca più valori e quello richiesto non c'è.** «8/10/12 pollici» quando ne servono 5 è una contraddizione, non un silenzio.
+
+Non scrivere mai un dubbio nelle "issues" ("contraddetto?"): decidi. Se hai citato due valori diversi, è "explicit".
+
+Usa "unstated" solo quando dell'attributo richiesto l'inserzione **non dice nulla**: nessun valore da confrontare, nessun elenco in cui cercarlo.
+
 ## Come giudicare
 
-- "coherent": il prodotto è quello chiesto — famiglia giusta, misure/modello/materiale compatibili con ciò che la richiesta specifica.
-- "incoherent": qualcosa di specificato nella richiesta NON torna (misura diversa, modello diverso, materiale diverso, prodotto di un'altra famiglia, quantità/confezione incompatibile). Elenca in "issues" ogni cosa che non torna, in italiano, una frase per voce.
-- "unsure": non hai elementi per decidere. Usalo quando il titolo non dice abbastanza, NON quando sei pigro.
+- "coherent": il prodotto è quello chiesto e nulla di specificato è contraddetto.
+- "incoherent": **solo** se qualcosa è CONTRADDETTO, oppure se il prodotto è di un'altra famiglia merceologica (una pinzetta al posto di un calibro, un detergente viso al posto di un materiale industriale).
+- "unsure": il prodotto è plausibile ma qualcosa di richiesto non è dichiarato.
+
+Elenca in "issues" ogni cosa che non torna, in italiano, una frase per voce. Scrivi sempre se è contraddetta o solo non dichiarata.
 
 Regole:
 - Giudica SOLO dai dati forniti (titolo, specifiche, prezzo, note). Non inventare caratteristiche che non vedi.
 - Un dettaglio che la richiesta NON specifica non rende un candidato incoerente.
+- Confronta ciò che è confrontabile: il materiale del corpo di un contenitore non contraddice la specifica del suo tappo o del suo ugello.
+- Un'inserzione che elenca più misure ("8/10/12 pollici") contiene la misura richiesta **solo se compare nell'elenco**: allora è una variante e non un conflitto. Se non compare, è un conflitto esplicito.
+- Un assortimento (un set, una confezione multipla) che comprende plausibilmente il pezzo richiesto è "unsure", non un rifiuto: la variante si sceglie in fase d'ordine.
 - Un prezzo fuori scala rispetto agli altri candidati della stessa richiesta va segnalato in "issues" (possibile unità di vendita diversa: pezzo singolo vs confezione), ma da solo non basta per "incoherent".
 - "confidence" da 0 a 1 sul tuo verdetto.
 
@@ -77,6 +112,14 @@ const CoherenceBatchSchema = z.object({
       rowIndex: z.number(),
       candidateIndex: z.number(),
       verdict: z.enum(["coherent", "incoherent", "unsure"]),
+      /**
+       * Il caso peggiore trovato: contraddetto, non dichiarato, o nulla.
+       *
+       * È il campo che decide davvero il verdetto — vedi `settleVerdict`.
+       * Chiederlo esplicitamente costringe il modello a separare le due cose
+       * invece di fonderle in un unico «non torna».
+       */
+      conflictType: z.enum(["explicit", "unstated", "none"]),
       /** Cosa non torna, in italiano; vuoto se coerente. */
       issues: z.array(z.string()),
       /** Domanda per l'operatore; null se non serve. */
@@ -136,6 +179,29 @@ function buildPayload(rows: readonly CoherenceInputRow[]): string {
     .join("\n\n");
 }
 
+/**
+ * Il verdetto finale, deciso qui e non dal modello.
+ *
+ * Il modello sbagliava sistematicamente un caso solo: rispondeva `incoherent`
+ * per cose che l'inserzione non dichiarava — «il titolo non menziona l'acciaio
+ * 420» — respingendo prodotti giusti perché il venditore è stato sintetico.
+ * Misurato su una corsa da 498 righe: 183 candidati su 1693 respinti così, che
+ * lasciavano 23 righe senza alcun risultato.
+ *
+ * Chiedere «contraddetto o non dichiarato?» separatamente e derivare qui il
+ * verdetto toglie di mezzo l'ambiguità: `unstated` non può più diventare un
+ * rifiuto, qualunque cosa il modello scriva in `verdict`. Il caso opposto
+ * resta intatto: `explicit` che il modello giudica coerente resta coerente,
+ * perché contraddizioni innocue esistono (una misura elencata fra le varianti).
+ */
+export function settleVerdict(
+  verdict: "coherent" | "incoherent" | "unsure",
+  conflictType: "explicit" | "unstated" | "none"
+): "coherent" | "incoherent" | "unsure" {
+  if (verdict === "incoherent" && conflictType === "unstated") return "unsure";
+  return verdict;
+}
+
 /** Verdetti validi per `${rowIndex}:${candidateIndex}`; gli indici non chiesti si scartano. */
 function extractVerdicts(
   results: CoherenceBatch["results"],
@@ -151,7 +217,7 @@ function extractVerdicts(
     const key = `${entry.rowIndex}:${entry.candidateIndex}`;
     if (!requested.has(key)) continue; // indice non richiesto = allucinazione
     verdicts.set(key, {
-      verdict: entry.verdict,
+      verdict: settleVerdict(entry.verdict, entry.conflictType),
       issues: entry.issues,
       question: entry.question,
       confidence: Math.min(1, Math.max(0, entry.confidence)),
@@ -344,10 +410,19 @@ async function verifyWithDeepSeek(
     const verdict = raw.verdict;
     if (!Number.isFinite(rowIndex) || !Number.isFinite(candidateIndex)) continue;
     if (verdict !== "coherent" && verdict !== "incoherent" && verdict !== "unsure") continue;
+    // Manca il campo? Si resta al verdetto del modello: "explicit" è l'unico
+    // valore che non muove nulla. Ammorbidire un rifiuto per un campo che non
+    // è arrivato significherebbe promuovere candidati mai valutati come tali.
+    const rawConflict = raw.conflictType;
+    const conflictType =
+      rawConflict === "explicit" || rawConflict === "unstated" || rawConflict === "none"
+        ? rawConflict
+        : "explicit";
     valid.push({
       rowIndex,
       candidateIndex,
       verdict,
+      conflictType,
       issues: Array.isArray(raw.issues)
         ? raw.issues.filter((x): x is string => typeof x === "string")
         : [],

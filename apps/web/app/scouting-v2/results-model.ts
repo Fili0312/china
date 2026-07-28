@@ -421,6 +421,19 @@ function acceptedByAi(candidate: TaobaoCandidate | null): boolean {
   return verdict === "coherent" || verdict === "unsure";
 }
 
+/**
+ * L'IA ha guardato questo prodotto e l'ha respinto — o non l'ha mai visto?
+ *
+ * Sono due esiti diversi e vanno in due sezioni diverse: un rifiuto esplicito
+ * è «non trovato» (non c'è niente da decidere, il giudice ha già deciso),
+ * mentre un candidato mai giudicato è «da confermare», perché la verifica non
+ * è stata disponibile e qualcuno deve guardarlo. Confonderli è ciò che faceva
+ * divergere i contatori in alto da quelli del report.
+ */
+function rejectedByAi(candidate: TaobaoCandidate | null): boolean {
+  return v2CandidateCoherence(candidate)?.verdict === "incoherent";
+}
+
 function classifyRow({
   source,
   gap,
@@ -450,10 +463,14 @@ function classifyRow({
   if (reviewIssues.length > 0 || actions.length > 0 || Boolean(gap)) {
     return "review";
   }
-  // Stessa regola che usa il riepilogo lato server, altrimenti le caselle in
-  // alto e i gruppi del report raccontano due storie diverse sulla stessa
-  // ricerca: un prodotto che l'IA ha **respinto** aspetta una decisione, non è
-  // confermato solo perché non ha sollevato altri rilievi.
+  // `bestCandidate` ordina per verdetto: se nemmeno il primo è accettato,
+  // nessun candidato della riga lo è. Un rifiuto esplicito non lascia niente
+  // da confermare — il giudice ha già deciso, e mandarlo in revisione
+  // riempiva "Da confermare" di righe senza proposta: su una corsa da 498
+  // righe erano 110 su 129, da aprire a una a una per scoprirle vuote.
+  if (rejectedByAi(candidate)) return "no_result";
+  // Mai giudicato è un'altra cosa: la verifica non c'è stata, quindi la
+  // decisione tocca davvero a una persona.
   if (!acceptedByAi(candidate)) return "review";
   if (automaticIssues.length > 0) return "auto_resolved";
   return "corrected";

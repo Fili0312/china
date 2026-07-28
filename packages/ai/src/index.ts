@@ -29,6 +29,7 @@ export {
 export { estimateCostUsd } from "./usage";
 export {
   verifyCandidateCoherence,
+  settleVerdict,
   COHERENCE_PROMPT_VERSION,
   CoherenceError,
   type CoherenceCallResult,

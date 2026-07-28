@@ -1105,12 +1105,24 @@ export class PipelineService {
           )
         ),
       ].slice(0, 3);
-      // Qui la riga **ha** candidati utilizzabili. Dire «nessun risultato»
-      // sarebbe falso: la ricerca ha trovato prodotti, è la verifica che non
-      // li ha promossi. Come nella v1 restano visibili e da controllare, così
-      // il conteggio finale non contraddice quello della ricerca.
+      // La riga ha candidati, ma il giudice li ha respinti tutti: non c'è
+      // niente da confermare. «Da confermare» deve contenere solo ciò che
+      // l'IA non può decidere — una scelta commerciale, una variante da
+      // scegliere — non righe dove semplicemente non è stato trovato nulla
+      // di buono. Su una corsa da 498 righe erano 110 su 129: si aprivano a
+      // una a una per scoprire che non contenevano una proposta.
+      //
+      // `no_coherent` le distingue da `no_results`: la ricerca ha prodotto
+      // candidati, è la verifica a non averne promosso nessuno. Il motivo
+      // resta leggibile in `detail`.
       if (isV2NoCompatibleReason(row.reuseReason)) {
-        uncertain += 1;
+        gaps.push({
+          rowNumber: row.rowNumber,
+          displayName: row.displayName,
+          searchQuery: row.searchQuery,
+          reason: "no_coherent",
+          detail: issues.length > 0 ? issues.join(" · ") : row.reuseReason,
+        });
         continue;
       }
 
@@ -1124,10 +1136,16 @@ export class PipelineService {
         continue;
       }
 
-      // Nessun candidato promosso, ma dei candidati ci sono: riga incerta,
-      // non un buco. `issues` resta calcolato perché alimenta la revisione.
-      void issues;
-      uncertain += 1;
+      // Nessun candidato promosso e nessuno dei casi sopra: stessa sostanza
+      // del ramo `no_compatible` — c'è un verdetto, ed è un rifiuto. Non è una
+      // decisione che l'operatore possa prendere al posto del giudice.
+      gaps.push({
+        rowNumber: row.rowNumber,
+        displayName: row.displayName,
+        searchQuery: row.searchQuery,
+        reason: "no_coherent",
+        detail: issues.length > 0 ? issues.join(" · ") : null,
+      });
     }
 
     // In caso di dati storici incompleti, nessuna riga dell'analisi deve

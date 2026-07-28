@@ -30,11 +30,52 @@ import {
  * risultato finto finirebbe in memoria e deciderebbe il riuso di prodotti
  * veri.
  */
+/**
+ * Risposte di dettaglio consecutive senza un solo campo utile prima di
+ * smettere di chiamare l'endpoint.
+ *
+ * Non è una soglia di prudenza: è la constatazione che il piano non serve
+ * quell'endpoint. Cinque risposte vuote di fila non capitano per caso.
+ */
+const DETAIL_DEAD_AFTER = 5;
+
+/** Dopo quanto si concede una sonda: un piano può essere stato attivato. */
+const DETAIL_RETRY_AFTER_MS = 30 * 60_000;
+
 @Injectable()
 export class DataHubProvider {
   private readonly logger = new Logger("TaobaoApi");
 
+  /**
+   * Quante risposte di dettaglio di fila non hanno portato un solo campo.
+   *
+   * Vive sul provider, non su chi chiama: il fatto che la fonte non serva
+   * schede riguarda la fonte, non la riga che sta cercando. Tenerlo nel
+   * chiamante — com'era in `refreshKnown`, dove il contatore era locale e
+   * quindi ripartiva da zero a ogni riga — significa ripagare l'errore una
+   * volta per riga. Su un foglio da 500 righe sono state 746 chiamate a vuoto.
+   */
+  private deadDetailStreak = 0;
+
+  /** Quando l'interruttore è scattato, per concedere la sonda successiva. */
+  private detailDisabledAt = 0;
+
   constructor(private readonly client: DataHubClient) {}
+
+  /**
+   * L'endpoint di dettaglio è dato per morto in questo momento?
+   *
+   * Scaduta la finestra si torna a `false` una volta sola: la chiamata
+   * successiva è la sonda che decide se riaprire o richiudere.
+   */
+  private get detailLooksDead(): boolean {
+    if (this.deadDetailStreak < DETAIL_DEAD_AFTER) return false;
+    if (Date.now() - this.detailDisabledAt >= DETAIL_RETRY_AFTER_MS) {
+      this.deadDetailStreak = DETAIL_DEAD_AFTER - 1;
+      return false;
+    }
+    return true;
+  }
 
   get isConfigured(): boolean {
     return this.client.isConfigured;
@@ -122,16 +163,37 @@ export class DataHubProvider {
     itemId: string,
     options: { ttlHours?: number } = {}
   ): Promise<{ patch: Partial<RawTaobaoProduct>; credits: number; fromCache: boolean }> {
+    // Una scheda che la fonte non serve non diventa disponibile insistendo:
+    // si risponde «niente da aggiungere» senza spendere la chiamata. Chi
+    // chiama vede una patch vuota, che è esattamente ciò che vedrebbe pagando.
+    if (this.detailLooksDead) {
+      return { patch: {}, credits: 0, fromCache: false };
+    }
+
     const response = await this.client.call(
       "detail",
       { [this.client.itemParam]: itemId },
       { ttlHours: options.ttlHours }
     );
-    return {
-      patch: mapDetailPayload(response.payload),
-      credits: response.credits,
-      fromCache: response.fromCache,
-    };
+    const patch = mapDetailPayload(response.payload);
+
+    if (Object.keys(patch).length > 0) {
+      this.deadDetailStreak = 0;
+    } else if (!response.fromCache) {
+      // Solo le risposte pagate contano: una cache di risposte vuote
+      // spegnerebbe l'endpoint senza che la fonte sia stata interrogata.
+      this.deadDetailStreak += 1;
+      if (this.deadDetailStreak === DETAIL_DEAD_AFTER) {
+        this.detailDisabledAt = Date.now();
+        this.logger.warn(
+          `la fonte non serve schede prodotto (${DETAIL_DEAD_AFTER} risposte vuote di fila): ` +
+            `endpoint di dettaglio sospeso per ${Math.round(DETAIL_RETRY_AFTER_MS / 60_000)} minuti. ` +
+            "I candidati vanno al giudizio semantico con i dati della ricerca."
+        );
+      }
+    }
+
+    return { patch, credits: response.credits, fromCache: response.fromCache };
   }
 
   /** Recensioni: numero e voto medio, quando la fonte li espone. */

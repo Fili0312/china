@@ -500,14 +500,15 @@ test("unavailable candidates disappear, incoherent ones stay visible", () => {
     resultRow(2, [candidate("incoherent", { verdict: "incoherent" })]),
   ]);
 
-  // La riga senza nulla di acquistabile resta un buco; quella con un prodotto
-  // bocciato dall'IA non finisce più in revisione, perché non c'è niente che
-  // una persona debba decidere: il prodotto è lì e si può guardare.
-  // Il prodotto bocciato resta visibile, ma fra quelli che aspettano una
-  // decisione: dirlo confermato contraddirebbe il riepilogo del server.
+  // Entrambe sono buchi, per ragioni diverse: la prima non ha nulla di
+  // acquistabile, la seconda ha un prodotto che il giudice ha respinto. In
+  // nessuna delle due c'è una decisione che una persona possa prendere al
+  // posto dell'IA, quindi nessuna delle due va in "Da confermare".
+  // Il prodotto respinto resta comunque visibile, come traccia di cosa è
+  // stato trovato e scartato.
   assert.deepEqual(
     modeled.map((row) => row.section),
-    ["no_result", "review"]
+    ["no_result", "no_result"]
   );
   assert.equal(modeled[0]!.candidate, null);
   assert.deepEqual(modeled[0]!.candidates, []);
@@ -577,7 +578,9 @@ test("un prodotto respinto dall'IA non risulta confermato nel report", () => {
 
   assert.deepEqual(
     modeled.map((row) => row.section),
-    // Promosso e incerto sono accettati; respinto e non giudicato aspettano.
-    ["corrected", "corrected", "review", "review"]
+    // Promosso e incerto sono accettati. Il respinto è un buco: il giudice ha
+    // già deciso. Il mai giudicato invece aspetta davvero una persona, perché
+    // la verifica su quella riga non è stata fatta.
+    ["corrected", "corrected", "no_result", "review"]
   );
 });

@@ -32,6 +32,7 @@ import { RefineService } from "./refine.service";
 import { TaobaoAnalysisService } from "./taobao-analysis.service";
 import { TaobaoDatasetService } from "./taobao-dataset.service";
 import { TaobaoJobService } from "./taobao-job.service";
+import { hasReviewableWarning } from "./review-gate";
 import {
   isV2NoCompatibleReason,
   isV2WarningRelevant,
@@ -238,6 +239,22 @@ function procurementGap(
     reason: "not_procurable",
     detail: why ? `${label} · ${why}` : label,
   };
+}
+
+/**
+ * `true` se nessuna risposta in arrivo può cambiare questa riga.
+ *
+ * È deliberatamente la **stessa** regola con cui la cache dell'analisi decide
+ * se riusare un'analisi già pagata quando arriva conoscenza nuova: una riga
+ * senza avvisi critici tornerà identica, quindi cercarla adesso o dopo la
+ * risposta dà lo stesso risultato. Se le due regole divergessero, la v2
+ * cercherebbe righe destinate a cambiare — e comprerebbe il prodotto
+ * sbagliato con la sicurezza di chi ha già finito.
+ */
+export function isRowUnaffectedByAnswers(
+  analysis: ProductAnalysis | null
+): boolean {
+  return analysis != null && !hasReviewableWarning(analysis);
 }
 
 /** Solo una decisione USER_INPUT resta un'azione umana irrisolta. */
@@ -688,6 +705,12 @@ export class PipelineService {
         where: { id: pipelineId },
         data: { status: "WAITING_ANSWERS", phase: "QUESTIONS" },
       });
+      // Una domanda ferma le righe che potrebbe cambiare, non il file.
+      // Su una corsa da 498 righe le domande aperte sono al massimo due e
+      // toccano poche decine di righe: far aspettare le altre quattrocento
+      // significa che chi risponde in serata trova la corsa ancora ferma
+      // all'inizio invece che quasi finita.
+      await this.startSearchForUnaffectedRows(pipelineId);
       return;
     }
 
@@ -695,6 +718,61 @@ export class PipelineService {
     if (pipeline.questionRound > 0) await this.completePhase(pipelineId, "QUESTIONS");
     await this.step(pipelineId, { phase: "REVIEW", step: "step.approving", ratio: 0 });
     await prisma.taobaoPipeline.update({ where: { id: pipelineId }, data: { phase: "REVIEW" } });
+  }
+
+  /**
+   * Fa partire la ricerca sulle righe che nessuna risposta può cambiare.
+   *
+   * Quali siano non è un'opinione: sono esattamente quelle che la rianalisi
+   * riuserà dalla cache invece di richiedere al modello — analisi riuscita e
+   * nessun avviso critico. Una riga con un avviso critico, o senza analisi,
+   * verrà ricalcolata quando la risposta arriva, quindi cercarla adesso
+   * significherebbe cercare il prodotto sbagliato.
+   *
+   * Le righe rimaste indietro entrano nello **stesso** job quando la corsa
+   * riprende (`runSearch`): una corsa, un job, un riepilogo.
+   */
+  private async startSearchForUnaffectedRows(pipelineId: string): Promise<void> {
+    const pipeline = await prisma.taobaoPipeline.findUniqueOrThrow({ where: { id: pipelineId } });
+    // Se un job c'è già, la ricerca parziale è partita a un giro precedente.
+    if (pipeline.jobId || !pipeline.analysisRunId) return;
+
+    const rows = await prisma.taobaoAnalysisRow.findMany({
+      where: { runId: pipeline.analysisRunId },
+      select: { rowNumber: true, effectiveAnalysis: true },
+    });
+    const unaffected = new Set<number>();
+    for (const row of rows) {
+      const parsed = ProductAnalysisSchema.safeParse(row.effectiveAnalysis);
+      if (!isRowUnaffectedByAnswers(parsed.success ? parsed.data : null)) continue;
+      unaffected.add(row.rowNumber);
+    }
+    // Nessuna riga libera: non si crea un job vuoto solo per averlo.
+    if (unaffected.size === 0) return;
+
+    const job = await this.jobs.createJob(
+      pipeline.clientId,
+      pipeline.datasetId,
+      {
+        mapping: pipeline.mapping as DatasetMapping[],
+        analysisRunId: pipeline.analysisRunId,
+        forceFullSearch: pipeline.forceFullSearch,
+        useBrowser: false,
+        useElim: false,
+        use1688: false,
+        maxCandidates: 10,
+        detailTopN: DETAIL_TOP_N,
+        reviewTopN: 0,
+      },
+      { allowReviewRows: true, onlyRowNumbers: unaffected }
+    );
+    await prisma.taobaoPipeline.update({
+      where: { id: pipelineId },
+      data: { jobId: job.jobId },
+    });
+    this.logger.log(
+      `pipeline ${pipelineId}: ricerca avviata su ${unaffected.size} righe mentre ${rows.length - unaffected.size} attendono una risposta`
+    );
   }
 
   /**
@@ -737,6 +815,21 @@ export class PipelineService {
     if (!pipeline.analysisRunId) throw new BadRequestException(t("err.jobNoAnalysis"));
 
     let jobId = pipeline.jobId;
+    if (jobId) {
+      // Il job esiste già perché la ricerca era partita sulle righe libere
+      // mentre le domande aspettavano una risposta. Ora entrano anche le
+      // altre, con l'analisi rifatta dopo la risposta.
+      const added = await this.jobs.appendMissingRows(jobId, pipeline.analysisRunId, {
+        allowReviewRows: true,
+      });
+      if (added > 0) {
+        await this.step(pipelineId, {
+          phase: "SEARCH",
+          step: "step.searchStarting",
+          ratio: 0,
+        });
+      }
+    }
     if (!jobId) {
       await this.step(pipelineId, { phase: "SEARCH", step: "step.searchStarting", ratio: 0 });
       const job = await this.jobs.createJob(pipeline.clientId, pipeline.datasetId, {

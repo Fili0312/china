@@ -188,18 +188,23 @@ export class TaobaoRunnerService {
       groups.set(key, bucket);
     }
 
+    // I contatori ripartono da quello che il job ha già registrato, non da
+    // zero: un job può essere ripreso — con righe aggiunte dopo una risposta,
+    // o dopo un'interruzione — e ricominciare da zero cancellerebbe dal
+    // riepilogo le chiamate già pagate nella passata precedente. Le righe già
+    // lavorate non sono più `PENDING`, quindi nessun conteggio si ripete.
     const totals: JobTotals = {
-      hwhCalls: 0,
-      apiCalls: 0,
-      apiCacheHits: 0,
-      elimCalls: 0,
-      browserCalls: 0,
-      reusedProducts: 0,
-      newProducts: 0,
-      processedRows: 0,
-      reusedRows: 0,
-      searchedRows: 0,
-      failedRows: 0,
+      hwhCalls: job.hwhCalls,
+      apiCalls: job.apiCalls,
+      apiCacheHits: job.apiCacheHits,
+      elimCalls: job.elimCalls,
+      browserCalls: job.browserCalls,
+      reusedProducts: job.reusedProducts,
+      newProducts: job.newProducts,
+      processedRows: job.processedRows,
+      reusedRows: job.reusedRows,
+      searchedRows: job.searchedRows,
+      failedRows: job.failedRows,
     };
 
     for (const [, group] of groups) {

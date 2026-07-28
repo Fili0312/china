@@ -52,6 +52,13 @@ export interface TaobaoJobBuildOptions {
    * della v1: una riga non confermata resta SKIPPED.
    */
   allowReviewRows?: boolean;
+  /**
+   * Limita il job a queste righe. Serve alla v2 per far partire la ricerca
+   * sulle righe che nessuna domanda aperta può cambiare, mentre le altre
+   * aspettano una risposta: le righe mancanti si aggiungono dopo, allo stesso
+   * job, con `appendMissingRows`.
+   */
+  onlyRowNumbers?: ReadonlySet<number>;
 }
 
 export function isTaobaoJobRowReady(
@@ -138,7 +145,10 @@ export class TaobaoJobService {
       throw new BadRequestException(t("err.reviewNoRows"));
     }
 
-    const selected = input.maxRows ? analysisRows.slice(0, input.maxRows) : analysisRows;
+    const capped = input.maxRows ? analysisRows.slice(0, input.maxRows) : analysisRows;
+    const selected = options.onlyRowNumbers
+      ? capped.filter((row) => options.onlyRowNumbers!.has(row.rowNumber))
+      : capped;
 
     const job = await prisma.taobaoJob.create({
       data: {
@@ -170,6 +180,63 @@ export class TaobaoJobService {
 
     this.runner.start(job.id);
     return this.getJob(clientId, job.id);
+  }
+
+  /**
+   * Aggiunge a un job già creato le righe della sua analisi che non contiene.
+   *
+   * Nasce dalle domande della v2: mentre una risposta si fa attendere, le
+   * righe che quella risposta non tocca possono già essere cercate. Quelle in
+   * sospeso arrivano qui, nello **stesso** job — un secondo job spezzerebbe in
+   * due il riepilogo, i costi e il report della stessa corsa.
+   *
+   * Il job torna in coda e il runner riparte: lavora solo le righe `PENDING`,
+   * e i contatori proseguono da dove erano invece di azzerarsi.
+   */
+  async appendMissingRows(
+    jobId: string,
+    analysisRunId: string,
+    options: TaobaoJobBuildOptions = {}
+  ): Promise<number> {
+    const job = await prisma.taobaoJob.findUnique({
+      where: { id: jobId },
+      select: { id: true, totalRows: true },
+    });
+    if (!job) return 0;
+
+    const present = await prisma.taobaoJobRow.findMany({
+      where: { jobId },
+      select: { datasetRowId: true },
+    });
+    const seen = new Set(present.map((row) => row.datasetRowId));
+
+    // Le righe si prendono dalla sessione d'analisi **corrente**, non da
+    // quella con cui il job era nato: una risposta produce una rianalisi, e
+    // le righe in sospeso vanno cercate con l'analisi nuova, che è l'unica
+    // che tiene conto di ciò che l'operatore ha appena detto.
+    const missing = (
+      await prisma.taobaoAnalysisRow.findMany({
+        where: { runId: analysisRunId },
+        orderBy: { rowNumber: "asc" },
+        include: { datasetRow: { select: { id: true, cells: true, hyperlink: true } } },
+      })
+    ).filter((row) => !seen.has(row.datasetRowId));
+    if (missing.length === 0) return 0;
+
+    const created = await this.buildJobRows(jobId, missing, options);
+    await prisma.taobaoJob.update({
+      where: { id: jobId },
+      // `QUEUED` prima di ripartire: chi sta seguendo il job non deve vederlo
+      // «concluso» un istante prima che il runner riprenda.
+      data: {
+        totalRows: job.totalRows + created,
+        status: "QUEUED",
+        finishedAt: null,
+        analysisRunId,
+      },
+    });
+    this.runner.start(jobId);
+    return created;
   }
 
   /**

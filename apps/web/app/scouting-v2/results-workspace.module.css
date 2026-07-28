@@ -883,6 +883,102 @@
   cursor: default;
 }
 
+.missingReason {
+  color: var(--s-muted, #6e6e73);
+  font-size: 0.74rem;
+}
+
+/* --- La riprova a scala ----------------------------------------------------- */
+
+.retryBar {
+  display: grid;
+  gap: 0.6rem;
+  margin: 0.7rem 0;
+  padding: 0.7rem 0.8rem;
+  border: 1px solid var(--s-border, #e5e5ea);
+  border-radius: 12px;
+  background: var(--s-surface-2, #f5f5f7);
+}
+
+.retryChoice {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  align-items: center;
+  font-size: 0.78rem;
+}
+
+.chipButton {
+  padding: 0.15rem 0.6rem;
+  border: 1px solid var(--s-border-strong, #d2d2d7);
+  border-radius: 999px;
+  background: var(--s-surface, #fff);
+  color: inherit;
+  font: inherit;
+  font-size: 0.72rem;
+  cursor: pointer;
+}
+
+.chipButton:disabled {
+  color: var(--s-faint, #86868b);
+  cursor: default;
+}
+
+/* I due gradini, nell'ordine in cui vanno provati. */
+.retryModes {
+  display: grid;
+  gap: 0.4rem;
+}
+
+.retryMode {
+  display: flex;
+  gap: 0.5rem;
+  align-items: start;
+  font-size: 0.78rem;
+}
+
+.retryMode span {
+  display: grid;
+}
+
+.retryMode em {
+  color: var(--s-muted, #6e6e73);
+  font-size: 0.72rem;
+  font-style: normal;
+}
+
+.retryLaunch {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.retryEstimate {
+  color: var(--s-muted, #6e6e73);
+  font-size: 0.76rem;
+}
+
+.retryResult {
+  margin: 0;
+  color: var(--s-ok, #1a7f37);
+  font-size: 0.78rem;
+}
+
+/* La casella di selezione sta fuori dalla scheda, non dentro: la scheda è la
+   stessa del report e non deve cambiare forma a seconda di dove appare. */
+.selectableRow {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.selectableRow > article {
+  flex: 1;
+  min-width: 0;
+}
+
 /* --- Il popup -------------------------------------------------------------- */
 
 .dialogBackdrop {

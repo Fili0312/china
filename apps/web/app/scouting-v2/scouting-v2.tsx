@@ -743,7 +743,17 @@ export function ScoutingV2() {
           ) : null}
 
           {state.status === "COMPLETED" ? (
-            <OutcomePanel state={state} onRestart={restart} />
+            <OutcomePanel
+              state={state}
+              onRestart={restart}
+              onRefreshOutcome={() => {
+                // La riprova mirata cambia i conteggi in alto: si rilegge lo
+                // stato invece di lasciare a schermo numeri appena smentiti.
+                void api<TaobaoPipelineState>(
+                  `/taobao/clients/${state.clientId}/pipelines/${state.pipelineId}`
+                ).then(acceptPipelineState);
+              }}
+            />
           ) : null}
 
           {state.status === "FAILED" ? (

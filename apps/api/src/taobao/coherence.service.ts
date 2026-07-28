@@ -96,6 +96,13 @@ export interface CoherenceExecutionContext {
    * righe già risolte non si spende nulla.
    */
   onlyUnresolvedRows?: boolean;
+  /**
+   * Limita la verifica a queste righe.
+   *
+   * Serve alla riprova mirata: chi ha scelto tre righe scoperte non deve
+   * pagare la riverifica di tutte le altre quattrocentonovanta.
+   */
+  onlyRowNumbers?: ReadonlySet<number>;
 }
 
 export function shouldCreateCoherenceQuestion(
@@ -411,7 +418,13 @@ export class CoherenceService {
     }
 
     const rows = await prisma.taobaoJobRow.findMany({
-      where: { jobId, status: "DONE" },
+      where: {
+        jobId,
+        status: "DONE",
+        ...(context.onlyRowNumbers
+          ? { rowNumber: { in: [...context.onlyRowNumbers] } }
+          : {}),
+      },
       orderBy: { rowNumber: "asc" },
       include: {
         analysisRow: {

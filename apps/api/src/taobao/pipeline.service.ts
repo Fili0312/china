@@ -20,6 +20,9 @@ import {
   type TaobaoPipelinePhase,
   type TaobaoPipelineState,
   type TaobaoPipelineStep,
+  type RetryV2RowsRequest,
+  type V2RetryEstimate,
+  type V2RetryResult,
 } from "@china/shared";
 import { t } from "../i18n/messages";
 import {
@@ -1106,6 +1109,137 @@ export class PipelineService {
       data: { outcome: toJson(outcome) },
     });
     return outcome;
+  }
+
+  /**
+   * Quanto costa riprovare queste righe, prima di riprovarci.
+   *
+   * Le due scale sono lontanissime fra loro — rigiudicare candidati già in
+   * archivio costa centesimi di IA, ricercare costa chiamate a pagamento — e
+   * mostrarlo dopo il lancio non serve a nessuno.
+   */
+  async estimateRetry(
+    clientId: string,
+    pipelineId: string,
+    input: RetryV2RowsRequest
+  ): Promise<V2RetryEstimate> {
+    const pipeline = await this.load(clientId, pipelineId);
+    const wanted = new Set(input.rowNumbers);
+    const empty: V2RetryEstimate = {
+      mode: input.mode,
+      rows: 0,
+      candidates: 0,
+      searchCalls: 0,
+      estimatedCostUsd: 0,
+    };
+    if (!pipeline.jobId) return empty;
+
+    const rows = await prisma.taobaoJobRow.findMany({
+      where: { jobId: pipeline.jobId, rowNumber: { in: [...wanted] } },
+      select: { rowNumber: true, status: true, _count: { select: { results: true } } },
+    });
+    // Rigiudicare ha senso solo dove qualcosa è già stato comprato; ricercare
+    // solo dove la ricerca è arrivata in fondo.
+    const usable = rows.filter((row) =>
+      input.mode === "rejudge" ? row._count.results > 0 : row.status === "DONE"
+    );
+    const candidates = usable.reduce((sum, row) => sum + row._count.results, 0);
+
+    const perVerifyUsd = numericEnv("PIPELINE_COST_PER_VERIFY_USD", 0.00008);
+    const perRowUsd = numericEnv("PIPELINE_COST_PER_ROW_USD", 0.00035);
+    if (input.mode === "rejudge") {
+      return {
+        mode: input.mode,
+        rows: usable.length,
+        candidates,
+        // Nessuna chiamata al marketplace: si rilegge ciò che è in archivio.
+        searchCalls: 0,
+        estimatedCostUsd: Number((candidates * perVerifyUsd).toFixed(4)),
+      };
+    }
+    // Ri-ricerca: per ogni riga una riscrittura della query, una ricerca, i
+    // dettagli dei primi candidati e la riverifica di quelli nuovi.
+    const searchCalls = usable.length * (1 + DETAIL_TOP_N);
+    return {
+      mode: input.mode,
+      rows: usable.length,
+      candidates,
+      searchCalls,
+      estimatedCostUsd: Number(
+        (usable.length * perRowUsd + usable.length * V2_VERIFY_TOP_N * perVerifyUsd).toFixed(4)
+      ),
+    };
+  }
+
+  /**
+   * Riprova le righe scelte, un gradino alla volta.
+   *
+   * Il gradino lo sceglie chi guarda: `rejudge` rilegge con i criteri di oggi
+   * i candidati già pagati — i verdetti di una corsa nascono da un giudice
+   * che nel frattempo è cambiato, e una riga scartata da criteri vecchi può
+   * essere buona a costo di ricerca zero. `research` è il gradino successivo,
+   * e quello le chiamate le spende.
+   *
+   * In entrambi i casi il conto finale si rifà alla fine: i numeri in alto
+   * devono dire la stessa cosa delle righe qui sotto.
+   */
+  async retryRows(
+    clientId: string,
+    pipelineId: string,
+    input: RetryV2RowsRequest
+  ): Promise<V2RetryResult> {
+    const pipeline = await this.load(clientId, pipelineId);
+    if (!pipeline.jobId) throw new NotFoundException(t("err.jobNotFound", { id: "-" }));
+    const estimate = await this.estimateRetry(clientId, pipelineId, input);
+    const wanted = new Set(input.rowNumbers);
+    const before = await this.confirmedRowNumbers(clientId, pipeline.jobId, wanted);
+
+    let spentUsd = 0;
+    if (input.mode === "rejudge") {
+      const summary = await this.coherence.verifyJob(
+        clientId,
+        pipeline.jobId,
+        { topN: V2_VERIFY_DEEP_TOP_N, force: true },
+        { mode: "v2-review", onlyRowNumbers: wanted }
+      );
+      spentUsd = summary.estimatedCostUsd;
+    } else {
+      const summary = await this.refine.refineJob(
+        clientId,
+        pipeline.jobId,
+        { topN: V2_VERIFY_TOP_N },
+        { mode: "v2-review", onlyRowNumbers: wanted }
+      );
+      spentUsd = summary.estimatedCostUsd;
+    }
+
+    const after = await this.confirmedRowNumbers(clientId, pipeline.jobId, wanted);
+    await this.recomputeOutcome(pipelineId);
+    return {
+      ...estimate,
+      recoveredRows: [...after].filter((row) => !before.has(row)).length,
+      spentUsd: Number(spentUsd.toFixed(4)),
+    };
+  }
+
+  /** Le righe, fra quelle scelte, che hanno un candidato promosso. */
+  private async confirmedRowNumbers(
+    clientId: string,
+    jobId: string,
+    wanted: ReadonlySet<number>
+  ): Promise<Set<number>> {
+    const results = await this.jobs.getResults(clientId, jobId, { limit: 1000 });
+    const confirmed = new Set<number>();
+    for (const row of results.rows) {
+      if (!wanted.has(row.rowNumber)) continue;
+      const promoted = row.candidates.some(
+        (candidate) =>
+          !candidate.product.unavailable &&
+          candidate.coherence?.verdict === "coherent"
+      );
+      if (promoted) confirmed.add(row.rowNumber);
+    }
+    return confirmed;
   }
 
   /**

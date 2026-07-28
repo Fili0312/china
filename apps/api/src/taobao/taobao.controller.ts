@@ -28,6 +28,7 @@ import {
   UpdateClientRequestSchema,
   VerifyTaobaoJobRequestSchema,
   AnswerTaobaoPipelineRequestSchema,
+  RetryV2RowsRequestSchema,
   StartTaobaoPipelineRequestSchema,
 } from "@china/shared";
 import { readBinaryBody, type BinaryRequest } from "../common/binary-body";
@@ -548,5 +549,34 @@ export class TaobaoController {
     @Param("pipelineId") pipelineId: string
   ) {
     return this.pipeline.cancel(clientId, pipelineId);
+  }
+
+  /**
+   * Quanto costerebbe riprovare queste righe.
+   *
+   * È un POST anche se non cambia niente: l'elenco delle righe è lungo e in
+   * una query string finirebbe troncato dal primo proxy che incontra.
+   */
+  @Post("clients/:clientId/pipelines/:pipelineId/retry-estimate")
+  estimatePipelineRetry(
+    @Param("clientId") clientId: string,
+    @Param("pipelineId") pipelineId: string,
+    @Body() body: unknown
+  ) {
+    const parsed = RetryV2RowsRequestSchema.safeParse(body);
+    if (!parsed.success) throw new BadRequestException(parsed.error.flatten());
+    return this.pipeline.estimateRetry(clientId, pipelineId, parsed.data);
+  }
+
+  /** Riprova le righe scelte al gradino scelto. */
+  @Post("clients/:clientId/pipelines/:pipelineId/retry")
+  retryPipelineRows(
+    @Param("clientId") clientId: string,
+    @Param("pipelineId") pipelineId: string,
+    @Body() body: unknown
+  ) {
+    const parsed = RetryV2RowsRequestSchema.safeParse(body);
+    if (!parsed.success) throw new BadRequestException(parsed.error.flatten());
+    return this.pipeline.retryRows(clientId, pipelineId, parsed.data);
   }
 }

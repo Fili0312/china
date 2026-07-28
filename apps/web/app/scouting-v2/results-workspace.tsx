@@ -5,6 +5,9 @@ import {
   type TaobaoPipelineGap,
   type TaobaoPipelineReviewIssue,
   type TaobaoRowResults,
+  type V2RetryEstimate,
+  type V2RetryMode,
+  type V2RetryResult,
 } from "@china/shared";
 import {
   useEffect,
@@ -107,6 +110,26 @@ const COPY = {
     totalLabel: "Totale",
     retryRow: "Riprova",
     retrying: "In corso…",
+    selectRow: "Scegli la riga {row}",
+    retrySelected: "{chosen} righe scelte su {total}",
+    retrySelectAll: "Tutte",
+    retryClear: "Nessuna",
+    retryModeLabel: "Come riprovare",
+    retryModes: {
+      rejudge: {
+        title: "Rileggi i prodotti già trovati",
+        hint: "Rigiudica con i criteri di oggi. Nessuna chiamata di ricerca.",
+      },
+      research: {
+        title: "Cerca di nuovo",
+        hint: "Riscrive la query dai motivi del rifiuto e ricerca. Costa chiamate.",
+      },
+    },
+    retryPickFirst: "Scegli almeno una riga.",
+    retryEstimating: "Calcolo del costo…",
+    retryCost: "{rows} righe · {calls} chiamate di ricerca · ~${cost}",
+    retryLaunch: "Riprova le righe scelte",
+    retryDone: "{recovered} righe recuperate su {rows} · spesi ${spent}",
     triedQueries: "Query provate",
     unavailable: "Non disponibile",
     reused: "Riusato",
@@ -193,6 +216,26 @@ const COPY = {
     totalLabel: "Total",
     retryRow: "Retry",
     retrying: "Running…",
+    selectRow: "Select row {row}",
+    retrySelected: "{chosen} of {total} rows selected",
+    retrySelectAll: "All",
+    retryClear: "None",
+    retryModeLabel: "How to retry",
+    retryModes: {
+      rejudge: {
+        title: "Re-read the products already found",
+        hint: "Re-judges with today's criteria. No search calls.",
+      },
+      research: {
+        title: "Search again",
+        hint: "Rewrites the query from the rejection reasons. Costs calls.",
+      },
+    },
+    retryPickFirst: "Select at least one row.",
+    retryEstimating: "Estimating cost…",
+    retryCost: "{rows} rows · {calls} search calls · ~${cost}",
+    retryLaunch: "Retry selected rows",
+    retryDone: "{recovered} of {rows} rows recovered · ${spent} spent",
     triedQueries: "Queries tried",
     unavailable: "Unavailable",
     reused: "Reused",
@@ -278,6 +321,26 @@ const COPY = {
     totalLabel: "合计",
     retryRow: "重试",
     retrying: "进行中…",
+    selectRow: "选择第 {row} 行",
+    retrySelected: "已选 {chosen} / {total} 行",
+    retrySelectAll: "全选",
+    retryClear: "取消",
+    retryModeLabel: "重试方式",
+    retryModes: {
+      rejudge: {
+        title: "重新审核已找到的产品",
+        hint: "按当前标准重新判定，不消耗搜索调用。",
+      },
+      research: {
+        title: "重新搜索",
+        hint: "依据被拒原因改写搜索词后再搜，会消耗调用。",
+      },
+    },
+    retryPickFirst: "请至少选择一行。",
+    retryEstimating: "正在估算费用…",
+    retryCost: "{rows} 行 · {calls} 次搜索调用 · 约 ${cost}",
+    retryLaunch: "重试所选行",
+    retryDone: "{rows} 行中恢复 {recovered} 行 · 花费 ${spent}",
     triedQueries: "已尝试的搜索词",
     unavailable: "不可用",
     reused: "已复用",
@@ -312,12 +375,20 @@ interface ResultsWorkspaceProps {
   /** Maggiorazione da applicare al costo per ottenere il prezzo di vendita. */
   markupPct?: number;
   /**
-   * Ripete la ricerca di una sola riga.
+   * Riprova le righe scelte, al gradino scelto.
    *
    * Assente quando i risultati sono storici: lì non c'è un job vivo da
    * rilanciare, e un pulsante che non fa nulla è peggio di nessun pulsante.
    */
-  onRetryRow?: (rowNumber: number) => Promise<void> | void;
+  onRetryRows?: (
+    rowNumbers: readonly number[],
+    mode: V2RetryMode
+  ) => Promise<V2RetryResult>;
+  /** Quanto costerebbe, prima di lanciare. */
+  onEstimateRetry?: (
+    rowNumbers: readonly number[],
+    mode: V2RetryMode
+  ) => Promise<V2RetryEstimate>;
 }
 
 export function ResultsWorkspace({
@@ -327,7 +398,8 @@ export function ResultsWorkspace({
   loading = false,
   loadError = null,
   markupPct = 0,
-  onRetryRow,
+  onRetryRows,
+  onEstimateRetry,
 }: ResultsWorkspaceProps) {
   const { locale, intlLocale } = useI18n();
   const copy = COPY[locale];
@@ -337,19 +409,19 @@ export function ResultsWorkspace({
   const [platformFilter, setPlatformFilter] =
     useState<V2ResultPlatformFilter>("all");
   const [sort, setSort] = useState<V2ResultSort>("row_asc");
-  const [retryingRow, setRetryingRow] = useState<number | null>(null);
-
-
-  const retryRow = onRetryRow
-    ? async (rowNumber: number) => {
-        setRetryingRow(rowNumber);
-        try {
-          await onRetryRow(rowNumber);
-        } finally {
-          setRetryingRow(null);
-        }
-      }
-    : undefined;
+  /**
+   * La riprova a scala: quali righe, a quale gradino, a che prezzo.
+   *
+   * La stima si chiede a ogni cambio di selezione o di gradino perché è
+   * l'unica cosa che rende la scelta informata: fra rigiudicare e ricercare
+   * ci sono due ordini di grandezza, e vederli dopo non serve a niente.
+   */
+  const [chosenRows, setChosenRows] = useState<ReadonlySet<number>>(new Set());
+  const [retryMode, setRetryMode] = useState<V2RetryMode>("rejudge");
+  const [estimate, setEstimate] = useState<V2RetryEstimate | null>(null);
+  const [retryBusy, setRetryBusy] = useState(false);
+  const [retryOutcome, setRetryOutcome] = useState<V2RetryResult | null>(null);
+  const [retryError, setRetryError] = useState<string | null>(null);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   /** Dove porta il campanello: l'intestazione delle decisioni aperte. */
   const decisionsRef = useRef<HTMLHeadingElement | null>(null);
@@ -447,6 +519,61 @@ export function ResultsWorkspace({
     setSectionFilter(value);
     if (value !== "all") {
       setOpenSections((current) => ({ ...current, [value]: true }));
+    }
+  }
+
+  // Le righe selezionabili sono quelle senza un prodotto di cui fidarsi:
+  // riprovare una riga già confermata sarebbe spendere per rifare ciò che è
+  // già riuscito. Le non acquistabili restano fuori: non è la ricerca ad
+  // aver fallito.
+  const retryable = useMemo(
+    () => missing.map((row) => row.rowNumber),
+    [missing]
+  );
+  const chosen = useMemo(
+    () => retryable.filter((rowNumber) => chosenRows.has(rowNumber)),
+    [retryable, chosenRows]
+  );
+
+  useEffect(() => {
+    if (!onEstimateRetry || chosen.length === 0) {
+      setEstimate(null);
+      return;
+    }
+    let cancelled = false;
+    void onEstimateRetry(chosen, retryMode)
+      .then((fresh) => {
+        if (!cancelled) setEstimate(fresh);
+      })
+      .catch(() => {
+        if (!cancelled) setEstimate(null);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [chosen, onEstimateRetry, retryMode]);
+
+  function toggleRow(rowNumber: number) {
+    setChosenRows((current) => {
+      const next = new Set(current);
+      if (next.has(rowNumber)) next.delete(rowNumber);
+      else next.add(rowNumber);
+      return next;
+    });
+  }
+
+  async function launchRetry() {
+    if (!onRetryRows || chosen.length === 0) return;
+    setRetryBusy(true);
+    setRetryError(null);
+    setRetryOutcome(null);
+    try {
+      setRetryOutcome(await onRetryRows(chosen, retryMode));
+      setChosenRows(new Set());
+    } catch (cause) {
+      setRetryError(cause instanceof Error ? cause.message : String(cause));
+    } finally {
+      setRetryBusy(false);
     }
   }
 
@@ -624,37 +751,65 @@ export function ResultsWorkspace({
           {/* Le righe dove un prodotto è stato trovato ma respinto restano
               guardabili: è l'unico modo per ribaltare un rifiuto sbagliato,
               e nasconderle faceva sembrare vuota una riga che non lo era. */}
+          {onRetryRows ? (
+            <RetryBar
+              copy={copy}
+              chosen={chosen}
+              retryable={retryable}
+              mode={retryMode}
+              estimate={estimate}
+              busy={retryBusy}
+              result={retryOutcome}
+              error={retryError}
+              onMode={setRetryMode}
+              onSelectAll={() => setChosenRows(new Set(retryable))}
+              onClear={() => setChosenRows(new Set())}
+              onLaunch={launchRetry}
+            />
+          ) : null}
           {missingWithProduct.length > 0 ? (
             <div className={styles.report} role="list">
               {missingWithProduct.map((row) => (
-                <ReportRow
-                  key={row.id}
-                  row={row}
-                  markupPct={markupPct}
-                  intlLocale={intlLocale}
-                  copy={copy}
-                  onOpen={() => setSelectedId(row.id)}
-                  needsDecision
-                />
+                <div key={row.id} className={styles.selectableRow}>
+                  {onRetryRows ? (
+                    <input
+                      type="checkbox"
+                      aria-label={interpolate(copy.selectRow, {
+                        row: row.rowNumber,
+                      })}
+                      checked={chosenRows.has(row.rowNumber)}
+                      onChange={() => toggleRow(row.rowNumber)}
+                    />
+                  ) : null}
+                  <ReportRow
+                    row={row}
+                    markupPct={markupPct}
+                    intlLocale={intlLocale}
+                    copy={copy}
+                    onOpen={() => setSelectedId(row.id)}
+                    needsDecision
+                  />
+                </div>
               ))}
             </div>
           ) : null}
           <ul className={styles.missingList}>
             {missingEmpty.map((row) => (
               <li key={row.id}>
+                {onRetryRows ? (
+                  <input
+                    type="checkbox"
+                    aria-label={interpolate(copy.selectRow, {
+                      row: row.rowNumber,
+                    })}
+                    checked={chosenRows.has(row.rowNumber)}
+                    onChange={() => toggleRow(row.rowNumber)}
+                  />
+                ) : null}
                 <span className={styles.rowNumber}>#{row.rowNumber}</span>
                 <span className={styles.missingName}>{row.displayName}</span>
-                {retryRow ? (
-                  <button
-                    type="button"
-                    className={styles.retryButton}
-                    disabled={retryingRow === row.rowNumber}
-                    onClick={() => retryRow(row.rowNumber)}
-                  >
-                    {retryingRow === row.rowNumber
-                      ? copy.retrying
-                      : copy.retryRow}
-                  </button>
+                {row.gap?.detail ? (
+                  <span className={styles.missingReason}>{row.gap.detail}</span>
                 ) : null}
               </li>
             ))}
@@ -802,6 +957,121 @@ function ReportRow({
         </button>
       </div>
     </article>
+  );
+}
+
+/**
+ * La barra della riprova: cosa si rifà, come, e quanto costa.
+ *
+ * I due gradini stanno nello stesso posto e nello stesso ordine in cui vanno
+ * provati — prima rileggere ciò che è già stato pagato, poi tornare a cercare
+ * — e la stima è accanto al pulsante, non dopo il clic. È l'unica differenza
+ * che conta fra i due: uno non spende chiamate, l'altro sì.
+ */
+function RetryBar({
+  copy,
+  chosen,
+  retryable,
+  mode,
+  estimate,
+  busy,
+  result,
+  error,
+  onMode,
+  onSelectAll,
+  onClear,
+  onLaunch,
+}: {
+  copy: (typeof COPY)[keyof typeof COPY];
+  chosen: readonly number[];
+  retryable: readonly number[];
+  mode: V2RetryMode;
+  estimate: V2RetryEstimate | null;
+  busy: boolean;
+  result: V2RetryResult | null;
+  error: string | null;
+  onMode: (mode: V2RetryMode) => void;
+  onSelectAll: () => void;
+  onClear: () => void;
+  onLaunch: () => void;
+}) {
+  return (
+    <div className={styles.retryBar}>
+      <div className={styles.retryChoice}>
+        <strong>
+          {interpolate(copy.retrySelected, {
+            chosen: chosen.length,
+            total: retryable.length,
+          })}
+        </strong>
+        <button type="button" className={styles.chipButton} onClick={onSelectAll}>
+          {copy.retrySelectAll}
+        </button>
+        <button
+          type="button"
+          className={styles.chipButton}
+          onClick={onClear}
+          disabled={chosen.length === 0}
+        >
+          {copy.retryClear}
+        </button>
+      </div>
+
+      <div className={styles.retryModes} role="radiogroup" aria-label={copy.retryModeLabel}>
+        {(["rejudge", "research"] as const).map((value) => (
+          <label key={value} className={styles.retryMode}>
+            <input
+              type="radio"
+              name="v2-retry-mode"
+              value={value}
+              checked={mode === value}
+              onChange={() => onMode(value)}
+            />
+            <span>
+              <strong>{copy.retryModes[value].title}</strong>
+              <em>{copy.retryModes[value].hint}</em>
+            </span>
+          </label>
+        ))}
+      </div>
+
+      <div className={styles.retryLaunch}>
+        <span className={styles.retryEstimate}>
+          {chosen.length === 0
+            ? copy.retryPickFirst
+            : estimate
+              ? interpolate(copy.retryCost, {
+                  rows: estimate.rows,
+                  calls: estimate.searchCalls,
+                  cost: estimate.estimatedCostUsd.toFixed(4),
+                })
+              : copy.retryEstimating}
+        </span>
+        <button
+          type="button"
+          className={styles.retryButton}
+          disabled={busy || chosen.length === 0}
+          onClick={onLaunch}
+        >
+          {busy ? copy.retrying : copy.retryLaunch}
+        </button>
+      </div>
+
+      {result ? (
+        <p className={styles.retryResult}>
+          {interpolate(copy.retryDone, {
+            recovered: result.recoveredRows,
+            rows: result.rows,
+            spent: result.spentUsd.toFixed(4),
+          })}
+        </p>
+      ) : null}
+      {error ? (
+        <p className={styles.errorMessage} role="alert">
+          {error}
+        </p>
+      ) : null}
+    </div>
   );
 }
 

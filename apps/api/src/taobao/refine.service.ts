@@ -92,7 +92,16 @@ export class RefineService {
     }
 
     const rows = await prisma.taobaoJobRow.findMany({
-      where: { jobId, status: "DONE", requestId: { not: null } },
+      where: {
+        jobId,
+        status: "DONE",
+        requestId: { not: null },
+        // La riprova mirata sceglie le righe: senza questo filtro «rifai
+        // queste tre» diventerebbe «rifai tutto il foglio».
+        ...(coherenceContext.onlyRowNumbers
+          ? { rowNumber: { in: [...coherenceContext.onlyRowNumbers] } }
+          : {}),
+      },
       orderBy: { rowNumber: "asc" },
       include: {
         analysisRow: {

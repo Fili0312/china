@@ -179,6 +179,59 @@ export const AnswerTaobaoPipelineRequestSchema = z.object({
 export type AnswerTaobaoPipelineRequest = z.infer<typeof AnswerTaobaoPipelineRequestSchema>;
 
 /* -------------------------------------------------------------------------- */
+/* Riprova mirata sulle righe scoperte                                         */
+/* -------------------------------------------------------------------------- */
+
+/**
+ * I gradini della riprova, dal più economico al più caro.
+ *
+ * L'ordine non è un dettaglio dell'interfaccia: è la regola. Prima si rilegge
+ * ciò che è già stato pagato con i criteri di oggi — i verdetti nascono da un
+ * giudice che è cambiato più volte, e una riga scartata da criteri vecchi può
+ * essere buona senza spendere una sola chiamata di ricerca. Solo se lì non
+ * esce nulla si torna a cercare, che è il gradino che costa.
+ */
+export const V2_RETRY_MODES = [
+  /** Rigiudica i candidati già in archivio: nessuna chiamata di ricerca. */
+  "rejudge",
+  /** Riscrive la query dai motivi del rifiuto e cerca di nuovo. */
+  "research",
+] as const;
+export const V2RetryModeSchema = z.enum(V2_RETRY_MODES);
+export type V2RetryMode = z.infer<typeof V2RetryModeSchema>;
+
+export const RetryV2RowsRequestSchema = z.object({
+  /** Le righe scelte. Vuoto non è ammesso: si sceglie sempre cosa rifare. */
+  rowNumbers: z.array(z.number().int()).min(1).max(500),
+  mode: V2RetryModeSchema.default("rejudge"),
+});
+export type RetryV2RowsRequest = z.infer<typeof RetryV2RowsRequestSchema>;
+
+/**
+ * Quanto costerebbe. Si mostra **prima** di lanciare: la differenza fra i due
+ * gradini è di due ordini di grandezza, e va vista prima, non dopo.
+ */
+export const V2RetryEstimateSchema = z.object({
+  mode: V2RetryModeSchema,
+  /** Righe che il gradino scelto toccherebbe davvero. */
+  rows: z.number().int().min(0),
+  /** Candidati già in archivio che verrebbero rigiudicati. */
+  candidates: z.number().int().min(0),
+  /** Chiamate di ricerca a pagamento: zero per `rejudge`. */
+  searchCalls: z.number().int().min(0),
+  estimatedCostUsd: z.number().min(0),
+});
+export type V2RetryEstimate = z.infer<typeof V2RetryEstimateSchema>;
+
+export const V2RetryResultSchema = V2RetryEstimateSchema.extend({
+  /** Righe che dopo la riprova hanno un prodotto di cui fidarsi. */
+  recoveredRows: z.number().int().min(0),
+  /** Quanto è costata davvero, non la stima. */
+  spentUsd: z.number().min(0),
+});
+export type V2RetryResult = z.infer<typeof V2RetryResultSchema>;
+
+/* -------------------------------------------------------------------------- */
 /* Lo stato che la pagina legge                                                */
 /* -------------------------------------------------------------------------- */
 

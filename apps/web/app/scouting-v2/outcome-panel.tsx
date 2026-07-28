@@ -1,7 +1,13 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import type { TaobaoJobResults, TaobaoPipelineState } from "@china/shared";
+import type {
+  TaobaoJobResults,
+  TaobaoPipelineState,
+  V2RetryEstimate,
+  V2RetryMode,
+  V2RetryResult,
+} from "@china/shared";
 import { api, apiDownloadUrl } from "../../lib/api";
 import { useI18n } from "../i18n/context";
 import { ResultsWorkspace } from "./results-workspace";
@@ -22,9 +28,15 @@ import { ResultsWorkspace } from "./results-workspace";
 interface OutcomePanelProps {
   state: TaobaoPipelineState;
   onRestart: () => void;
+  /** Rilegge lo stato dopo una riprova: i conteggi in alto devono seguirla. */
+  onRefreshOutcome: () => void;
 }
 
-export function OutcomePanel({ state, onRestart }: OutcomePanelProps) {
+export function OutcomePanel({
+  state,
+  onRestart,
+  onRefreshOutcome,
+}: OutcomePanelProps) {
   const { t } = useI18n();
   const [markup, setMarkup] = useState(state.markupPct);
   const [results, setResults] = useState<TaobaoJobResults | null>(null);
@@ -32,22 +44,34 @@ export function OutcomePanel({ state, onRestart }: OutcomePanelProps) {
   const [resultsError, setResultsError] = useState<string | null>(null);
   const outcome = state.outcome;
   const jobPath = `/taobao/clients/${state.clientId}/jobs/${state.jobId}`;
+  const pipelinePath = `/taobao/clients/${state.clientId}/pipelines/${state.pipelineId}`;
 
   /**
-   * Ripete la ricerca di una riga sola.
+   * Riprova le righe scelte al gradino scelto.
    *
-   * Riusa l'endpoint di ri-esecuzione del job indicando la riga: rifare
-   * l'intero ambito per una domanda su una riga costerebbe decine di
-   * chiamate a pagamento.
+   * I due gradini non sono equivalenti e non costano lo stesso: `rejudge`
+   * rilegge i candidati già in archivio con i criteri di oggi senza spendere
+   * una chiamata di ricerca, `research` torna a cercare. Chi guarda sceglie —
+   * dopo aver visto la stima.
    */
-  async function retryRow(rowNumber: number) {
-    if (!state.jobId) return;
-    await api(`${jobPath}/rerun`, {
+  async function retryRows(rowNumbers: readonly number[], mode: V2RetryMode) {
+    const result = await api<V2RetryResult>(`${pipelinePath}/retry`, {
       method: "POST",
-      body: JSON.stringify({ rowNumbers: [rowNumber], forceFullSearch: true }),
+      body: JSON.stringify({ rowNumbers, mode }),
     });
-    const refreshed = await api<TaobaoJobResults>(`${jobPath}/results`);
+    // La riprova cambia verdetti e prodotti: si rilegge tutto invece di
+    // indovinare che cosa è cambiato.
+    const refreshed = await api<TaobaoJobResults>(`${jobPath}/results?limit=1000`);
     setResults(refreshed);
+    onRefreshOutcome();
+    return result;
+  }
+
+  function estimateRetry(rowNumbers: readonly number[], mode: V2RetryMode) {
+    return api<V2RetryEstimate>(`${pipelinePath}/retry-estimate`, {
+      method: "POST",
+      body: JSON.stringify({ rowNumbers, mode }),
+    });
   }
 
   useEffect(() => {
@@ -162,7 +186,8 @@ export function OutcomePanel({ state, onRestart }: OutcomePanelProps) {
         reviewIssues={outcome.reviewIssues ?? []}
         loading={resultsLoading}
         loadError={resultsError}
-        onRetryRow={retryRow}
+        onRetryRows={state.jobId ? retryRows : undefined}
+        onEstimateRetry={state.jobId ? estimateRetry : undefined}
         markupPct={markup}
       />
     </section>

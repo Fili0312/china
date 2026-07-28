@@ -4,6 +4,10 @@ dist/
 .turbo/
 .env
 .env.local
+# Le copie di sicurezza dello `.env` hanno un suffisso con la data: senza questa
+# riga sfuggono alle due sopra e finiscono tracciate con le chiavi dentro.
+.env.*
+!.env.example
 *.tsbuildinfo
 
 # Fogli di richiesta caricati dagli utenti: dati cliente, non codice sorgente.

@@ -24,6 +24,7 @@ function row(patch: Partial<TaobaoRowResults> = {}): TaobaoRowResults {
     attemptedQueries: [],
     requestedQuantity: null,
     requestedUnit: null,
+    originalTitle: null,
     status: "DONE",
     reused: false,
     error: null,

@@ -288,6 +288,7 @@ function resultRow(
     reuseReason: null,
     attemptedQueries: [],
     variantKey: null,
+    originalTitle: null,
     originalCells: [`Product ${rowNumber}`],
     requestedQuantity: 1,
     requestedUnit: "requested-only-unit",

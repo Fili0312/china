@@ -87,6 +87,24 @@ export function isTaobaoJobRowProcurable(
   return analysis == null || isSearchableProcurement(procurementOf(analysis));
 }
 
+/**
+ * Nome e specifiche del foglio, uniti come li leggerebbe una persona.
+ *
+ * Niente ricostruzioni furbe: si prendono le due celle mappate e si uniscono.
+ * Se il foglio non ha una colonna nome riconosciuta, torna `null` — meglio
+ * niente che un testo inventato accostando celle a caso.
+ */
+export function originalTitleOf(
+  cells: readonly string[],
+  namePosition: number | null,
+  specPosition: number | null
+): string | null {
+  const parti = [namePosition, specPosition]
+    .map((position) => (position == null ? "" : (cells[position] ?? "").trim()))
+    .filter(Boolean);
+  return parti.length > 0 ? parti.join(" · ") : null;
+}
+
 function toJson(value: unknown): Prisma.InputJsonValue {
   return value as unknown as Prisma.InputJsonValue;
 }
@@ -469,6 +487,38 @@ export class TaobaoJobService {
   ): Promise<TaobaoJobResults> {
     const job = await this.getJob(clientId, jobId);
 
+    // Le intestazioni del foglio e la mappatura servono a restituire la riga
+    // originale leggibile: senza, `originalCells` è un elenco di stringhe
+    // senza nome e non aiuta nessuno a controllare una quotazione.
+    const [dataset, jobRecord] = await Promise.all([
+      prisma.taobaoDataset.findUnique({
+        where: { id: job.datasetId },
+        select: { columns: true },
+      }),
+      // La mappatura da usare è quella con cui il job è stato creato, non
+      // quella salvata sul foglio: possono differire, e vale ciò che è stato
+      // davvero cercato.
+      prisma.taobaoJob.findUnique({ where: { id: jobId }, select: { mapping: true } }),
+    ]);
+    const columns = ((dataset?.columns ?? []) as Array<{
+      index: number;
+      header?: string | null;
+    }>).map((column) => ({ index: column.index, header: column.header ?? "" }));
+    const columnPosition = new Map(
+      columns.map((column, position) => [column.index, position])
+    );
+    const mapping = (jobRecord?.mapping ?? []) as Array<{
+      columnIndex: number;
+      field: string;
+    }>;
+    const positionOf = (field: string): number | null => {
+      const entry = mapping.find((item) => item.field === field);
+      if (!entry) return null;
+      return columnPosition.get(entry.columnIndex) ?? null;
+    };
+    const namePosition = positionOf("name") ?? positionOf("title");
+    const specPosition = positionOf("spec");
+
     const rows = await prisma.taobaoJobRow.findMany({
       where: { jobId },
       orderBy: { rowNumber: "asc" },
@@ -497,6 +547,11 @@ export class TaobaoJobService {
         reuseReason: row.reuseReason,
         attemptedQueries: row.attemptedQueries ?? [],
         variantKey: row.request?.variantKey ?? null,
+        originalTitle: originalTitleOf(
+          (row.datasetRow.cells as unknown as string[]) ?? [],
+          namePosition,
+          specPosition
+        ),
         originalCells: (row.datasetRow.cells as unknown as string[]) ?? [],
         // Quantità e unità chieste dal foglio: servono al report per il
         // cliente, dove il prezzo va moltiplicato per ciò che si compra.
@@ -519,7 +574,7 @@ export class TaobaoJobService {
       };
     });
 
-    return { job, rows: mapped };
+    return { job, columns: columns.map((column) => column.header), rows: mapped };
   }
 
   /**

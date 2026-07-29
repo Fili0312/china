@@ -517,6 +517,15 @@ export const TaobaoRowResultsSchema = z.object({
   /// Le query realmente inviate, in ordine: spiegano un «nessun risultato».
   attemptedQueries: z.array(z.string()).default([]),
   variantKey: z.string().nullable(),
+  /**
+   * Il testo della riga **come stava nel foglio**: nome e specifiche, uniti.
+   *
+   * Serve perché `displayName` è ciò che l'analisi ha capito — il nome cinese
+   * del prodotto — e chi controlla una quotazione vuole rileggere ciò che il
+   * cliente aveva scritto, non la nostra interpretazione. Il default vuoto
+   * tiene leggibili i job salvati prima che questo campo esistesse.
+   */
+  originalTitle: z.string().nullable().default(null),
   originalCells: z.array(z.string()),
   /** Quantità e unità chieste dal foglio, come le ha lette l'analisi. */
   requestedQuantity: z.number().nullable(),
@@ -542,6 +551,13 @@ export type TaobaoRowResults = z.infer<typeof TaobaoRowResultsSchema>;
 
 export const TaobaoJobResultsSchema = z.object({
   job: TaobaoJobSummarySchema,
+  /**
+   * Le intestazioni del foglio, nello stesso ordine di `originalCells`.
+   *
+   * Stanno qui e non su ogni riga perché sono le stesse per tutte: ripeterle
+   * cinquecento volte gonfierebbe la risposta senza aggiungere nulla.
+   */
+  columns: z.array(z.string()).default([]),
   rows: z.array(TaobaoRowResultsSchema),
 });
 export type TaobaoJobResults = z.infer<typeof TaobaoJobResultsSchema>;

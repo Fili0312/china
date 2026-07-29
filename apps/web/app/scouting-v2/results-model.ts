@@ -77,6 +77,8 @@ export interface V2ResultRow {
   id: string;
   rowNumber: number;
   displayName: string;
+  /** Nome e specifiche **come stavano nel foglio**, non come li ha capiti l'IA. */
+  originalTitle: string | null;
   searchQuery: string | null;
   /** Le query realmente inviate: spiegano una riga senza risultato. */
   attemptedQueries: readonly string[];
@@ -222,6 +224,7 @@ export function buildV2ResultRows(
       const searchText = normalizeSearch(
         [
           displayName,
+          source?.originalTitle ?? null,
           searchQuery,
           candidate?.product.title,
           candidate?.product.titleEn,
@@ -248,6 +251,7 @@ export function buildV2ResultRows(
         id: rowId,
         rowNumber,
         displayName,
+        originalTitle: source?.originalTitle ?? null,
         searchQuery,
         attemptedQueries: source?.attemptedQueries ?? [],
         requestedQuantity: source?.requestedQuantity ?? null,

@@ -68,6 +68,7 @@ function candidate(overrides: {
 
 function results(candidates: TaobaoCandidate[]): TaobaoJobResults {
   return {
+    columns: [],
     job: {
       jobId: "j1",
       clientId: "c1",
@@ -106,7 +107,8 @@ function results(candidates: TaobaoCandidate[]): TaobaoJobResults {
         reuseReason: null,
   attemptedQueries: [],
         variantKey: "ceramic-pin-gauge:abc",
-        originalCells: [],
+        originalTitle: null,
+    originalCells: [],
         requestedQuantity: 50,
         requestedUnit: "支",
         hwhStatus: "DONE",

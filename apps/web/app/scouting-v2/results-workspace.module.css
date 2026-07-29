@@ -883,6 +883,53 @@
   cursor: default;
 }
 
+/* Il testo del foglio sotto il nome cercato: piccolo, ma sempre lì. */
+.reportOriginal {
+  margin: 0.1rem 0 0;
+  overflow: hidden;
+  color: var(--s-faint, #86868b);
+  font-size: 0.7rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* --- La riga del foglio, per intero, nel dettaglio ------------------------- */
+
+.originalRow {
+  margin-top: 0.9rem;
+  padding-top: 0.7rem;
+  border-top: 1px solid var(--s-border, #e5e5ea);
+}
+
+.originalRow h4 {
+  margin: 0 0 0.4rem;
+  font-size: 0.82rem;
+}
+
+.originalRow dl {
+  display: grid;
+  gap: 0.15rem;
+  margin: 0;
+}
+
+.originalRow dl > div {
+  display: grid;
+  grid-template-columns: 9rem minmax(0, 1fr);
+  gap: 0.6rem;
+  padding: 0.2rem 0;
+  border-top: 1px solid var(--s-border, #f0f0f2);
+  font-size: 0.74rem;
+}
+
+.originalRow dt {
+  color: var(--s-muted, #6e6e73);
+}
+
+.originalRow dd {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+
 /* --- Le altre proposte, dentro il dettaglio ---------------------------------- */
 
 .alternatives {
@@ -1308,10 +1355,12 @@
   box-shadow: inset 3px 0 0 var(--s-warn, #9a6700);
 }
 
+/* La promozione dichiarata dalla fonte: una nota, non un prezzo annullato.
+   Barrarla direbbe «questa cifra non vale», mentre il senso è l'opposto —
+   vale forse, e va controllata sulla pagina prima di fidarsene. */
 .figureList {
   color: var(--s-faint, #86868b);
   font-size: 0.68rem;
-  text-decoration: line-through;
 }
 
 .dialogNote {

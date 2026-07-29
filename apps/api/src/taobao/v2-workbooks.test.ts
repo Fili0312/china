@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import type { TaobaoCandidate, TaobaoJobResults, TaobaoRowResults } from "@china/shared";
 import * as XLSX from "xlsx";
+import { originalTitleOf } from "./taobao-job.service";
 import { runWithLocale } from "../i18n/request-locale";
 import {
   v2QuotationPrice,
@@ -90,6 +91,7 @@ function row(
     reused: false,
     reuseReason,
     variantKey: `variant-${rowNumber}`,
+    originalTitle: null,
     originalCells: [`originale ${rowNumber}`],
     requestedQuantity: 5,
     requestedUnit: "pezzi",
@@ -139,6 +141,7 @@ function results(rows: TaobaoRowResults[]): TaobaoJobResults {
       finishedAt: null,
       error: null,
     },
+    columns: [],
     rows,
   };
 }
@@ -383,4 +386,15 @@ test("la v2 quota sul listino, non sulla promozione dichiarata dalla fonte", () 
     XLSX.read(buffer, { type: "buffer" }).Sheets["Report"]!
   );
   assert.equal(report[0]?.["Prezzo 1"], 3);
+});
+
+// Il testo del foglio non si ricostruisce a intuito: si prendono le due celle
+// mappate e basta. Se il foglio non ha una colonna nome riconosciuta è meglio
+// niente che un titolo inventato accostando celle a caso.
+test("il titolo originale sono le celle del foglio, non una ricostruzione", () => {
+  const cells = ["12", "6/24/26", "牙签", "双头尖 500支", "", "20"];
+  assert.equal(originalTitleOf(cells, 2, 3), "牙签 · 双头尖 500支");
+  assert.equal(originalTitleOf(cells, 2, null), "牙签");
+  assert.equal(originalTitleOf(cells, 2, 4), "牙签");
+  assert.equal(originalTitleOf(cells, null, null), null);
 });

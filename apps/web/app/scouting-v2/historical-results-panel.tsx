@@ -170,6 +170,7 @@ export function HistoricalResultsPanel({
         key={reloadKey}
         markupPct={markup}
         rows={results.rows}
+        columns={results.columns ?? []}
         gaps={gaps}
         reviewIssues={reviewIssues}
         onRetryRows={

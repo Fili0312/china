@@ -204,6 +204,7 @@ export function OutcomePanel({
       <h3>{t("v2.results.rows")}</h3>
       <ResultsWorkspace
         rows={results?.rows ?? []}
+        columns={results?.columns ?? []}
         gaps={outcome.gaps}
         reviewIssues={outcome.reviewIssues ?? []}
         loading={resultsLoading}

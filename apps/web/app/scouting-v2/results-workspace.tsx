@@ -403,6 +403,8 @@ const COPY = {
 
 interface ResultsWorkspaceProps {
   rows: readonly TaobaoRowResults[];
+  /** Intestazioni del foglio, allineate a `originalCells` di ogni riga. */
+  columns?: readonly string[];
   gaps?: readonly TaobaoPipelineGap[];
   reviewIssues?: readonly TaobaoPipelineReviewIssue[];
   loading?: boolean;
@@ -436,6 +438,7 @@ interface ResultsWorkspaceProps {
 
 export function ResultsWorkspace({
   rows,
+  columns = [],
   gaps = [],
   reviewIssues = [],
   loading = false,
@@ -987,6 +990,7 @@ export function ResultsWorkspace({
           markupPct={markupPct}
           intlLocale={intlLocale}
           copy={copy}
+          columns={columns}
           onClose={() => setSelectedId(null)}
           onAccept={
             onAcceptCandidate
@@ -1046,6 +1050,14 @@ function ReportRow({
           <span className={styles.rowNumber}>#{row.rowNumber}</span>
           {row.displayName}
         </p>
+        {/* Il testo del foglio, quando dice qualcosa di diverso dal nome che
+            l'analisi ha estratto. Chi controlla una quotazione vuole rileggere
+            ciò che il cliente aveva scritto, non la nostra interpretazione. */}
+        {row.originalTitle && row.originalTitle !== row.displayName ? (
+          <p className={styles.reportOriginal} title={row.originalTitle}>
+            {row.originalTitle}
+          </p>
+        ) : null}
         {/* Quale decisione serve, scritto sulla riga. Prima viveva dentro il
             pannello del campanello: si sapeva che c'era una decisione da
             prendere, ma non su quale riga finché non la si apriva. */}
@@ -1232,12 +1244,15 @@ function ProductDialog({
   markupPct,
   intlLocale,
   copy,
+  columns,
   onClose,
   onAccept,
 }: {
   row: V2ResultRow;
   markupPct: number;
   intlLocale: string;
+  /** Intestazioni del foglio, per dare un nome alle celle originali. */
+  columns: readonly string[];
   copy: (typeof COPY)[keyof typeof COPY];
   onClose: () => void;
   /** Sceglie un'altra proposta per questa riga; assente sui risultati storici. */
@@ -1245,6 +1260,11 @@ function ProductDialog({
 }) {
   const candidate = row.candidate;
   const [switching, setSwitching] = useState<string | null>(null);
+  // La riga del foglio così com'era: solo le celle piene, con la loro
+  // intestazione. È la prova di che cosa il cliente aveva davvero chiesto.
+  const originalRow = (row.source?.originalCells ?? [])
+    .map((value, position) => [columns[position] ?? `#${position + 1}`, value.trim()] as const)
+    .filter(([, value]) => value.length > 0);
   const title = candidate?.product.title ?? row.displayName;
 
   useEffect(() => {
@@ -1359,14 +1379,30 @@ function ProductDialog({
               migliore. Non lo è per forza — la scelta la fa la compatibilità,
               non il prezzo — e un prezzo più basso è spesso una confezione
               più piccola, quindi le si mostrano insieme e decide una persona. */}
+          {originalRow.length > 0 ? (
+            <div className={styles.originalRow}>
+              <h4>{copy.original}</h4>
+              <dl>
+                {originalRow.map(([header, value]) => (
+                  <div key={`${header}-${value}`}>
+                    <dt>{header}</dt>
+                    <dd>{value}</dd>
+                  </div>
+                ))}
+              </dl>
+            </div>
+          ) : null}
+
           {row.candidates.length > 1 ? (
             <div className={styles.alternatives}>
               <h4>{copy.alternatives}</h4>
               <p className={styles.dialogNote}>{copy.alternativesHint}</p>
               <ul>
                 {row.candidates.map((entry) => {
+                  // Stessa regola della scheda: si mostra il listino della
+                  // variante predefinita, non la «promozione» della fonte.
                   const price =
-                    entry.product.promotionPrice ?? entry.product.price ?? null;
+                    entry.product.price ?? entry.product.promotionPrice ?? null;
                   const current =
                     entry.product.productId === candidate?.product.productId;
                   return (

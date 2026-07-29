@@ -586,6 +586,12 @@ export class CoherenceService {
           continue;
         }
         if (mode === "v2-review" && result.rank > input.topN) continue;
+        // Una decisione umana non si rigiudica: `force` vale per i verdetti
+        // della macchina, non per quelli di chi ha guardato la scheda.
+        if ((result.coherence as { acceptedByHuman?: boolean } | null)?.acceptedByHuman) {
+          skipped += 1;
+          continue;
+        }
         if (result.coherenceCheckedAt && !input.force) {
           skipped += 1;
           continue;

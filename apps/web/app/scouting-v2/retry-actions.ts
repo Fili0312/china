@@ -1,4 +1,9 @@
-import type { V2RetryEstimate, V2RetryMode, V2RetryResult } from "@china/shared";
+import type {
+  TaobaoPipelineOutcome,
+  V2RetryEstimate,
+  V2RetryMode,
+  V2RetryResult,
+} from "@china/shared";
 import { api } from "../../lib/api";
 
 /**
@@ -36,5 +41,23 @@ export function retryRowsRequest(
   return api<V2RetryResult>(`${retryPath(clientId, pipelineId)}/retry`, {
     method: "POST",
     body: JSON.stringify({ rowNumbers, mode }),
+  });
+}
+
+/**
+ * Accetta a mano un prodotto che il giudice aveva respinto.
+ *
+ * Torna l'esito ricalcolato: i contatori in alto si aggiornano subito, senza
+ * che la pagina debba indovinare che cosa è cambiato.
+ */
+export function acceptCandidateRequest(
+  clientId: string,
+  pipelineId: string,
+  rowNumber: number,
+  productId: string
+): Promise<TaobaoPipelineOutcome> {
+  return api<TaobaoPipelineOutcome>(`${retryPath(clientId, pipelineId)}/accept`, {
+    method: "POST",
+    body: JSON.stringify({ rowNumber, productId }),
   });
 }

@@ -475,6 +475,7 @@ export const zh: Record<MessageKey, string> = {
   "v2.done.confirmed": "已确认",
   "v2.done.uncertain": "待查看",
   "v2.done.uncovered": "未找到",
+  "v2.done.rejected": "找到但被否决",
   "v2.done.notProcurable": "网购买不到",
   "v2.done.reused": "来自记忆库",
   "v2.done.spent": "花费 ${cost} · {calls} 次搜索调用 · 缓存节省 {cached} 次",

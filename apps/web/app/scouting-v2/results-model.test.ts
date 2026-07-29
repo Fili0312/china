@@ -60,7 +60,7 @@ test("una riga non acquistabile ha una sezione propria, non «nessun risultato»
   assert.equal(grouped.no_result.length, 0);
 });
 
-test("gruppo di controllo: gli altri buchi restano dove sono sempre stati", () => {
+test("gruppo di controllo: ogni buco resta nella sua sezione", () => {
   const rows = buildV2ResultRows(
     [row(), row({ jobRowId: "row-2", rowNumber: 2 })],
     {
@@ -72,6 +72,23 @@ test("gruppo di controllo: gli altri buchi restano dove sono sempre stati", () =
   );
 
   const grouped = groupV2ResultRows(rows);
-  assert.equal(grouped.no_result.length, 2);
+  // La ricerca vuota resta «nessun prodotto»; quella con prodotti respinti ha
+  // la sua sezione. Le tre non si mescolano mai.
+  assert.equal(grouped.no_result.length, 1);
+  assert.equal(grouped.rejected.length, 1);
   assert.equal(grouped.not_procurable.length, 0);
+});
+
+test("una riga con prodotti respinti non finisce fra quelle senza prodotto", () => {
+  const rows = buildV2ResultRows([row()], {
+    gaps: [gap({ reason: "no_coherent", detail: "Misure 60x60, il titolo dice 30x60" })],
+  });
+
+  assert.equal(rows[0]?.section, "rejected");
+  const grouped = groupV2ResultRows(rows);
+  assert.equal(grouped.rejected.length, 1);
+  assert.equal(grouped.no_result.length, 0);
+  // Il motivo del rifiuto resta attaccato alla riga: è ciò che permette di
+  // decidere se il giudice ha sbagliato.
+  assert.match(rows[0]?.gap?.detail ?? "", /30x60/u);
 });

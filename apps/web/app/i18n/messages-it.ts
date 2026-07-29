@@ -484,6 +484,7 @@ export const it: Record<MessageKey, string> = {
   "v2.done.confirmed": "confermate",
   "v2.done.uncertain": "da guardare",
   "v2.done.uncovered": "senza risultato",
+  "v2.done.rejected": "trovati ma scartati",
   "v2.done.notProcurable": "non acquistabili online",
   "v2.done.reused": "dalla memoria",
   "v2.done.spent": "spesi ${cost} · {calls} chiamate di ricerca · {cached} risparmiate dalla cache",

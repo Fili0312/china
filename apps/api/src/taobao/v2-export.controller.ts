@@ -14,6 +14,8 @@ import {
   buildV2TaobaoExport,
   v2ExportFileName,
   v2ReportFileName,
+  type V2ReviewStatus,
+  type V2WorkbookOptions,
 } from "./v2-workbooks";
 
 function contentDisposition(fileName: string): string {
@@ -29,31 +31,47 @@ function contentDisposition(fileName: string): string {
  * si va a prenderla lì. Se il job non appartiene a una pipeline v2 — o
  * l'esito non c'è ancora — l'insieme è vuoto e il file resta come prima.
  */
-async function outcomeContext(jobId: string): Promise<{
-  needsPerson: ReadonlySet<number>;
-  notProcurable: ReadonlySet<number>;
-}> {
+async function outcomeContext(jobId: string): Promise<V2WorkbookOptions> {
   const pipeline = await prisma.taobaoPipeline.findFirst({
     where: { jobId },
     select: { outcome: true },
     orderBy: { createdAt: "desc" },
   });
   const parsed = TaobaoPipelineOutcomeSchema.safeParse(pipeline?.outcome);
-  if (!parsed.success) {
-    return { needsPerson: new Set<number>(), notProcurable: new Set<number>() };
+  if (!parsed.success) return {};
+
+  const outcome = parsed.data;
+  const needsPerson = new Set(
+    outcome.reviewIssues
+      .filter((issue) => !issue.resolvedAutomatically)
+      .map((issue) => issue.rowNumber)
+  );
+  const notProcurable = new Set(
+    outcome.gaps
+      .filter((gap) => gap.reason === "not_procurable")
+      .map((gap) => gap.rowNumber)
+  );
+
+  // Lo stato riga per riga, dedotto una volta sola dall'esito. Le priorità
+  // sono le stesse della pagina: prima ciò che non si compra, poi ciò che è
+  // stato respinto, poi ciò che è rimasto vuoto, poi ciò che aspetta una
+  // persona. Tutto il resto è pronto.
+  const statusByRow = new Map<number, V2ReviewStatus>();
+  for (const gap of outcome.gaps) {
+    statusByRow.set(
+      gap.rowNumber,
+      gap.reason === "not_procurable"
+        ? "not_procurable"
+        : gap.reason === "no_coherent"
+          ? "rejected"
+          : "none"
+    );
   }
-  return {
-    needsPerson: new Set(
-      parsed.data.reviewIssues
-        .filter((issue) => !issue.resolvedAutomatically)
-        .map((issue) => issue.rowNumber)
-    ),
-    notProcurable: new Set(
-      parsed.data.gaps
-        .filter((gap) => gap.reason === "not_procurable")
-        .map((gap) => gap.rowNumber)
-    ),
-  };
+  for (const rowNumber of needsPerson) {
+    if (!statusByRow.has(rowNumber)) statusByRow.set(rowNumber, "check");
+  }
+
+  return { statusByRow, needsPerson, notProcurable };
 }
 
 /**

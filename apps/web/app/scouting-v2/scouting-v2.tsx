@@ -51,6 +51,8 @@ type OpenedResultsContext = {
   reviewIssues: readonly TaobaoPipelineReviewIssue[];
   /** La corsa da cui vengono: senza, la riprova non saprebbe cosa rifare. */
   pipelineId: string | null;
+  /** L'esito calcolato dal backend: è l'unica fonte dei contatori. */
+  outcome: TaobaoPipelineState["outcome"] | null;
 };
 
 export function ScoutingV2() {
@@ -509,6 +511,7 @@ export function ScoutingV2() {
           gaps: entry.pipeline?.outcome?.gaps ?? [],
           reviewIssues: entry.pipeline?.outcome?.reviewIssues ?? [],
           pipelineId: entry.pipeline?.pipelineId ?? null,
+          outcome: entry.pipeline?.outcome ?? null,
         });
         setStage("results");
       } catch (cause) {
@@ -789,6 +792,7 @@ export function ScoutingV2() {
           gaps={openedResultsContext?.gaps}
           reviewIssues={openedResultsContext?.reviewIssues}
           pipelineId={openedResultsContext?.pipelineId}
+          outcome={openedResultsContext?.outcome}
           onBack={restart}
         />
       ) : null}

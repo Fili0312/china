@@ -260,7 +260,10 @@ test("gruppo di controllo: le righe normali restano classificate come prima", as
 
   assert.equal(outcome.notProcurableRows, 0);
   assert.equal(outcome.confirmedRows, 1);
-  assert.equal(outcome.uncoveredRows, 2);
+  // I due buchi restano due, ma non si chiamano più allo stesso modo: uno ha
+  // prodotti da guardare, l'altro non ha niente.
+  assert.equal(outcome.rejectedRows, 1);
+  assert.equal(outcome.uncoveredRows, 1);
   assert.deepEqual(
     outcome.gaps.map((gap) => gap.reason).sort(),
     ["no_coherent", "no_results"]
@@ -388,4 +391,60 @@ test("i quattro conteggi continuano a sommare al totale delle righe", async () =
     outcome.totalRows
   );
   assert.equal(outcome.notProcurableRows, 2);
+});
+
+test("i prodotti respinti hanno un conto proprio, non quello dei non trovati", async () => {
+  const outcome = await outcomeFor([
+    // Trovata e respinta: prodotti ce ne sono, il giudice li ha bocciati.
+    { rowNumber: 1, analysis: analysis(), verdict: "incoherent" },
+    // Cercata e vuota: qui non c'è niente da guardare.
+    { rowNumber: 2, analysis: analysis() },
+    { rowNumber: 3, analysis: notProcurable("PRINTED_DOCUMENT", "modulo") },
+  ]);
+
+  assert.equal(outcome.rejectedRows, 1);
+  assert.equal(outcome.uncoveredRows, 1);
+  assert.equal(outcome.notProcurableRows, 1);
+  // I quattro numeri continuano a coprire il totale senza sovrapporsi.
+  assert.equal(
+    outcome.confirmedRows +
+      outcome.uncertainRows +
+      outcome.rejectedRows +
+      outcome.uncoveredRows +
+      outcome.notProcurableRows,
+    outcome.totalRows
+  );
+  assert.deepEqual(
+    outcome.gaps.map((gap) => [gap.rowNumber, gap.reason]),
+    [
+      [1, "no_coherent"],
+      [2, "no_results"],
+      [3, "not_procurable"],
+    ]
+  );
+});
+
+test("un modulo da stampare non diventa confermato per via di un vecchio candidato", async () => {
+  // Prodotti in archivio ce ne sono — li aveva comprati una ricerca fatta
+  // prima che l'analisi sapesse riconoscere i moduli — e il giudice ne ha pure
+  // accettato uno. Non basta: se oggi quella riga non la cercheremmo, non può
+  // arrivare al cliente come riga pronta.
+  const outcome = await outcomeFor([
+    {
+      rowNumber: 1,
+      analysis: notProcurable("PRINTED_DOCUMENT", "modulo di collaudo"),
+      verdict: "coherent",
+    },
+    // Un codice di costruttore invece si cerca: se il prodotto salta fuori
+    // davvero, quello vale più dell'etichetta.
+    {
+      rowNumber: 2,
+      analysis: notProcurable("PROPRIETARY_PART", "codice interno"),
+      verdict: "coherent",
+    },
+  ]);
+
+  assert.equal(outcome.notProcurableRows, 1);
+  assert.equal(outcome.confirmedRows, 1);
+  assert.equal(outcome.gaps[0]?.rowNumber, 1);
 });

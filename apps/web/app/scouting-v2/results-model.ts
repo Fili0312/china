@@ -40,6 +40,15 @@ export type V2CandidateCoherence = NonNullable<
 export type V2ResultSection =
   | "corrected"
   | "review"
+  /**
+   * Trovati, ma il giudice li ha respinti tutti.
+   *
+   * Stavano in «nessun risultato», e chi apriva quella sezione ci trovava
+   * prodotti — a volte pure giusti — sotto un'etichetta che diceva il
+   * contrario. Sono una cosa diversa e chiedono un gesto diverso: guardare il
+   * motivo del rifiuto e, se il motivo non regge, accettare il prodotto.
+   */
+  | "rejected"
   | "no_result"
   /** Righe che nessun marketplace vende: moduli, servizi, codici interni. */
   | "not_procurable"
@@ -295,6 +304,7 @@ export function groupV2ResultRows(
   const grouped: Record<V2ResultSection, V2ResultRow[]> = {
     corrected: [],
     review: [],
+    rejected: [],
     no_result: [],
     not_procurable: [],
     auto_resolved: [],
@@ -468,6 +478,9 @@ function classifyRow({
   // mai. Vale solo per le righe rimaste scoperte: se un prodotto coerente è
   // stato trovato lo stesso, la pipeline non emette questo gap.
   if (gap?.reason === "not_procurable") return "not_procurable";
+  // Prodotti ce ne sono, li ha respinti il giudice: è un'altra sezione e
+  // un'altra azione.
+  if (gap?.reason === "no_coherent") return "rejected";
   const hasNoResult =
     Boolean(gap) ||
     source?.status === "FAILED" ||

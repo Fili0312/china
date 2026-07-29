@@ -41,6 +41,7 @@ const LINE_HEIGHT = 64;
 const SECTION_ORDER: readonly V2ResultSection[] = [
   "corrected",
   "review",
+  "rejected",
   "no_result",
   "not_procurable",
   "auto_resolved",
@@ -80,9 +81,13 @@ const COPY = {
         title: "Da controllare",
         hint: "Un prodotto esiste, ma serve una decisione umana.",
       },
+      rejected: {
+        title: "Trovati ma scartati",
+        hint: "La ricerca ha portato prodotti, la verifica li ha respinti tutti: qui c'è il perché, e se il perché non regge puoi accettarli.",
+      },
       no_result: {
-        title: "Nessun risultato",
-        hint: "Righe senza un prodotto utilizzabile.",
+        title: "Nessun prodotto",
+        hint: "Righe per cui la ricerca non ha portato niente.",
       },
       not_procurable: {
         title: "Non acquistabili online",
@@ -153,6 +158,9 @@ const COPY = {
       MARK_UNAVAILABLE: "Segna non disponibile",
       CONFIRM_PRICE: "Leggi il prezzo sulla pagina",
     },
+    acceptTitle: "Accetta questo prodotto",
+    accepting: "Accetto…",
+    rejectedWhy: "Perché è stato scartato",
   },
   en: {
     search: "Search by row, product, query or SKU",
@@ -187,9 +195,13 @@ const COPY = {
         title: "To review",
         hint: "A product exists, but a person must decide.",
       },
+      rejected: {
+        title: "Found but rejected",
+        hint: "The search did bring products, the check rejected them all: here is why — and if the reason does not hold, you can accept them.",
+      },
       no_result: {
-        title: "No result",
-        hint: "Rows without a usable product.",
+        title: "No product",
+        hint: "Rows the search brought nothing for.",
       },
       not_procurable: {
         title: "Not sold online",
@@ -260,6 +272,9 @@ const COPY = {
       MARK_UNAVAILABLE: "Mark unavailable",
       CONFIRM_PRICE: "Read the price on the page",
     },
+    acceptTitle: "Accept this product",
+    accepting: "Accepting…",
+    rejectedWhy: "Why it was rejected",
   },
   zh: {
     search: "按行、产品、搜索词或 SKU 搜索",
@@ -294,9 +309,13 @@ const COPY = {
         title: "待检查",
         hint: "已有产品，但需要人工决定。",
       },
+      rejected: {
+        title: "找到了但被否决",
+        hint: "搜索有结果，但核对全部否决了：这里写明原因；理由不成立时可以直接采纳。",
+      },
       no_result: {
-        title: "无结果",
-        hint: "没有可用产品的行。",
+        title: "没有产品",
+        hint: "搜索没有带回任何结果的行。",
       },
       not_procurable: {
         title: "网购买不到",
@@ -366,6 +385,9 @@ const COPY = {
       MARK_UNAVAILABLE: "标记为不可用",
       CONFIRM_PRICE: "到页面上读取价格",
     },
+    acceptTitle: "采纳该产品",
+    accepting: "正在采纳…",
+    rejectedWhy: "被否决的原因",
   },
 } as const;
 
@@ -392,6 +414,14 @@ interface ResultsWorkspaceProps {
     rowNumbers: readonly number[],
     mode: V2RetryMode
   ) => Promise<V2RetryEstimate>;
+  /**
+   * «Questo prodotto va bene lo stesso».
+   *
+   * Il giudice sbaglia in una direzione sola — è severo, e su un titolo cinese
+   * povero preferisce respingere. Chi guarda la scheda lo vede in due secondi:
+   * questo è il gesto che gli permette di dirlo.
+   */
+  onAcceptCandidate?: (rowNumber: number, productId: string) => Promise<void>;
 }
 
 export function ResultsWorkspace({
@@ -403,6 +433,7 @@ export function ResultsWorkspace({
   markupPct = 0,
   onRetryRows,
   onEstimateRetry,
+  onAcceptCandidate,
 }: ResultsWorkspaceProps) {
   const { locale, intlLocale } = useI18n();
   const copy = COPY[locale];
@@ -425,6 +456,7 @@ export function ResultsWorkspace({
   const [retryBusy, setRetryBusy] = useState(false);
   const [retryOutcome, setRetryOutcome] = useState<V2RetryResult | null>(null);
   const [retryError, setRetryError] = useState<string | null>(null);
+  const [acceptingRow, setAcceptingRow] = useState<number | null>(null);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   /** Dove porta il campanello: l'intestazione delle decisioni aperte. */
   const decisionsRef = useRef<HTMLHeadingElement | null>(null);
@@ -433,6 +465,7 @@ export function ResultsWorkspace({
   >({
     corrected: true,
     review: true,
+    rejected: true,
     no_result: true,
     not_procurable: false,
     auto_resolved: false,
@@ -470,9 +503,14 @@ export function ResultsWorkspace({
   const notProcurable = filteredRows.filter(
     (row) => row.section === "not_procurable"
   );
+  // Trovati e respinti: hanno prodotti da guardare, quindi non stanno con le
+  // righe vuote. È la distinzione che mancava, e faceva sembrare bugiardo il
+  // conteggio di chi apriva «nessun risultato» e ci trovava dentro prodotti.
+  const rejected = filteredRows.filter((row) => row.section === "rejected");
   const missing = filteredRows.filter(
     (row) =>
       row.section !== "not_procurable" &&
+      row.section !== "rejected" &&
       (row.section === "no_result" || row.candidate == null)
   );
   // «Scoperta» ha due sensi: la ricerca non ha trovato nulla, oppure ha
@@ -530,8 +568,8 @@ export function ResultsWorkspace({
   // già riuscito. Le non acquistabili restano fuori: non è la ricerca ad
   // aver fallito.
   const retryable = useMemo(
-    () => missing.map((row) => row.rowNumber),
-    [missing]
+    () => [...rejected, ...missing].map((row) => row.rowNumber).sort((a, b) => a - b),
+    [missing, rejected]
   );
   const chosen = useMemo(
     () => retryable.filter((rowNumber) => chosenRows.has(rowNumber)),
@@ -577,6 +615,16 @@ export function ResultsWorkspace({
       setRetryError(cause instanceof Error ? cause.message : String(cause));
     } finally {
       setRetryBusy(false);
+    }
+  }
+
+  async function acceptCandidate(rowNumber: number, productId: string) {
+    if (!onAcceptCandidate) return;
+    setAcceptingRow(rowNumber);
+    try {
+      await onAcceptCandidate(rowNumber, productId);
+    } finally {
+      setAcceptingRow(null);
     }
   }
 
@@ -742,6 +790,84 @@ export function ResultsWorkspace({
             ))}
           </div>
         </>
+      ) : null}
+
+      {/* Trovati e respinti: prodotti veri, con scritto perché sono stati
+          scartati e un pulsante per ribaltare il giudizio. Aperta di default,
+          perché è la sezione dove c'è qualcosa da fare. */}
+      {rejected.length > 0 ? (
+        <details className={styles.missingBlock} open>
+          <summary>
+            {copy.sections.rejected.title}
+            <span className={styles.missingCount}>{rejected.length}</span>
+          </summary>
+          <p className={styles.stateMessage}>{copy.sections.rejected.hint}</p>
+          {onRetryRows ? (
+            <RetryBar
+              copy={copy}
+              chosen={chosen}
+              retryable={retryable}
+              mode={retryMode}
+              estimate={estimate}
+              busy={retryBusy}
+              result={retryOutcome}
+              error={retryError}
+              onMode={setRetryMode}
+              onSelectAll={() => setChosenRows(new Set(retryable))}
+              onClear={() => setChosenRows(new Set())}
+              onLaunch={launchRetry}
+            />
+          ) : null}
+          <div className={styles.report} role="list">
+            {rejected.map((row) => (
+              <div key={row.id} className={styles.rejectedRow}>
+                <div className={styles.selectableRow}>
+                  {onRetryRows ? (
+                    <input
+                      type="checkbox"
+                      aria-label={interpolate(copy.selectRow, {
+                        row: row.rowNumber,
+                      })}
+                      checked={chosenRows.has(row.rowNumber)}
+                      onChange={() => toggleRow(row.rowNumber)}
+                    />
+                  ) : null}
+                  <ReportRow
+                    row={row}
+                    markupPct={markupPct}
+                    intlLocale={intlLocale}
+                    copy={copy}
+                    onOpen={() => setSelectedId(row.id)}
+                    needsDecision
+                  />
+                </div>
+                <div className={styles.rejectedWhy}>
+                  <span>
+                    <strong>{copy.rejectedWhy}:</strong>{" "}
+                    {row.gap?.detail || row.candidate?.coherence?.issues?.join(" · ") || "—"}
+                  </span>
+                  {onAcceptCandidate && row.candidate ? (
+                    <button
+                      type="button"
+                      className={styles.acceptButton}
+                      disabled={acceptingRow === row.rowNumber}
+                      onClick={() =>
+                        acceptCandidate(
+                          row.rowNumber,
+                          row.candidate!.product.productId
+                        )
+                      }
+                    >
+                      {acceptingRow === row.rowNumber
+                        ? copy.accepting
+                        : copy.acceptTitle}
+                    </button>
+                  ) : null}
+                </div>
+              </div>
+            ))}
+          </div>
+        </details>
       ) : null}
 
       {/* Le righe scoperte stanno in fondo, senza rubare spazio al report. */}

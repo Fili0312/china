@@ -27,6 +27,7 @@ import {
   UpdateAnalysisRowRequestSchema,
   UpdateClientRequestSchema,
   VerifyTaobaoJobRequestSchema,
+  AcceptV2CandidateRequestSchema,
   AnswerTaobaoPipelineRequestSchema,
   RetryV2RowsRequestSchema,
   StartTaobaoPipelineRequestSchema,
@@ -566,6 +567,21 @@ export class TaobaoController {
     const parsed = RetryV2RowsRequestSchema.safeParse(body);
     if (!parsed.success) throw new BadRequestException(parsed.error.flatten());
     return this.pipeline.estimateRetry(clientId, pipelineId, parsed.data);
+  }
+
+  /**
+   * «Questo prodotto va bene lo stesso»: l'ultima parola di una persona su un
+   * candidato che il giudice aveva respinto.
+   */
+  @Post("clients/:clientId/pipelines/:pipelineId/accept")
+  acceptPipelineCandidate(
+    @Param("clientId") clientId: string,
+    @Param("pipelineId") pipelineId: string,
+    @Body() body: unknown
+  ) {
+    const parsed = AcceptV2CandidateRequestSchema.safeParse(body);
+    if (!parsed.success) throw new BadRequestException(parsed.error.flatten());
+    return this.pipeline.acceptCandidate(clientId, pipelineId, parsed.data);
   }
 
   /** Riprova le righe scelte al gradino scelto. */

@@ -4,6 +4,7 @@ import { useState } from "react";
 import type {
   TaobaoJobResults,
   TaobaoPipelineGap,
+  TaobaoPipelineOutcome,
   TaobaoPipelineReviewIssue,
   V2RetryMode,
 } from "@china/shared";
@@ -11,7 +12,11 @@ import { apiDownloadUrl } from "../../lib/api";
 import { useI18n } from "../i18n/context";
 import type { MessageKey } from "../i18n/messages-en";
 import { ResultsWorkspace } from "./results-workspace";
-import { estimateRetryRows, retryRowsRequest } from "./retry-actions";
+import {
+  acceptCandidateRequest,
+  estimateRetryRows,
+  retryRowsRequest,
+} from "./retry-actions";
 
 interface HistoricalResultsPanelProps {
   results: TaobaoJobResults;
@@ -26,6 +31,16 @@ interface HistoricalResultsPanelProps {
    * lettura, come i risultati dei job più vecchi.
    */
   pipelineId?: string | null;
+  /**
+   * L'esito della corsa, se la corsa lo ha prodotto.
+   *
+   * Quando c'è, i riquadri in alto sono **gli stessi** della fine corsa:
+   * confermati, da confermare, non trovati, non acquistabili. Prima questa
+   * vista contava a modo suo — righe elaborate, righe con candidati, righe
+   * verificate — e riaprire un lavoro dava quattro numeri diversi da quelli
+   * con cui lo si era chiuso. Il conteggio è uno solo e lo fa il backend.
+   */
+  outcome?: TaobaoPipelineOutcome | null;
   onBack: () => void;
 }
 
@@ -34,6 +49,7 @@ export function HistoricalResultsPanel({
   gaps = [],
   reviewIssues = [],
   pipelineId = null,
+  outcome = null,
   onBack,
 }: HistoricalResultsPanelProps) {
   const { t } = useI18n();
@@ -69,28 +85,52 @@ export function HistoricalResultsPanel({
         </p>
       </header>
 
-      <div className="v2-tiles">
-        <Tile
-          value={results.job.processedRows}
-          label={t("v2.results.processed")}
-          tone=""
-        />
-        <Tile
-          value={rowsWithCandidates}
-          label={t("v2.results.withCandidates")}
-          tone="ok"
-        />
-        <Tile
-          value={coherentRows}
-          label={t("v2.results.coherent")}
-          tone="ok"
-        />
-        <Tile
-          value={results.job.failedRows}
-          label={t("v2.results.failed")}
-          tone={results.job.failedRows > 0 ? "err" : ""}
-        />
-      </div>
+      {outcome ? (
+        <div className="v2-tiles">
+          <Tile value={outcome.confirmedRows} label={t("v2.done.confirmed")} tone="ok" />
+          <Tile value={outcome.uncertainRows} label={t("v2.done.uncertain")} tone="warn" />
+          {outcome.rejectedRows > 0 ? (
+            <Tile
+              value={outcome.rejectedRows}
+              label={t("v2.done.rejected")}
+              tone="warn"
+            />
+          ) : null}
+          <Tile value={outcome.uncoveredRows} label={t("v2.done.uncovered")} tone="err" />
+          {outcome.notProcurableRows > 0 ? (
+            <Tile
+              value={outcome.notProcurableRows}
+              label={t("v2.done.notProcurable")}
+              tone=""
+            />
+          ) : (
+            <Tile value={results.job.failedRows} label={t("v2.results.failed")} tone="" />
+          )}
+        </div>
+      ) : (
+        <div className="v2-tiles">
+          <Tile
+            value={results.job.processedRows}
+            label={t("v2.results.processed")}
+            tone=""
+          />
+          <Tile
+            value={rowsWithCandidates}
+            label={t("v2.results.withCandidates")}
+            tone="ok"
+          />
+          <Tile
+            value={coherentRows}
+            label={t("v2.results.coherent")}
+            tone="ok"
+          />
+          <Tile
+            value={results.job.failedRows}
+            label={t("v2.results.failed")}
+            tone={results.job.failedRows > 0 ? "err" : ""}
+          />
+        </div>
+      )}
 
       <p className="muted">
         {t(
@@ -152,6 +192,19 @@ export function HistoricalResultsPanel({
           pipelineId
             ? (rowNumbers: readonly number[], mode: V2RetryMode) =>
                 estimateRetryRows(clientId, pipelineId, rowNumbers, mode)
+            : undefined
+        }
+        onAcceptCandidate={
+          pipelineId
+            ? async (rowNumber: number, productId: string) => {
+                await acceptCandidateRequest(
+                  clientId,
+                  pipelineId,
+                  rowNumber,
+                  productId
+                );
+                setReloadKey((current) => current + 1);
+              }
             : undefined
         }
       />

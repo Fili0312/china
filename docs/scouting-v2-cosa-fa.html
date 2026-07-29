@@ -1,0 +1,151 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<title>Scouting v2 — cosa fa, quanto costa, cosa non fa</title>
+<style>
+  @page { size: A4; margin: 10mm 13mm; }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: -apple-system, "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+    font-size: 9.1pt;
+    line-height: 1.38;
+    color: #1a1a1a;
+  }
+  h1 { margin: 0 0 1mm; font-size: 17pt; letter-spacing: -0.4pt; }
+  .lead { margin: 0 0 3mm; color: #444; font-size: 9.6pt; }
+  h2 {
+    margin: 0 0 1.6mm;
+    padding-bottom: 0.8mm;
+    border-bottom: 1px solid #d8d8d8;
+    font-size: 9.4pt;
+    text-transform: uppercase;
+    letter-spacing: 0.6pt;
+    color: #555;
+  }
+  section { margin-bottom: 3.2mm; }
+  p { margin: 0 0 1.8mm; }
+  ol, ul { margin: 0; padding-left: 4.6mm; }
+  li { margin-bottom: 0.8mm; }
+  .cols { display: grid; grid-template-columns: 1fr 1fr; gap: 0 7mm; }
+  table { width: 100%; border-collapse: collapse; }
+  td, th { padding: 1.1mm 0; text-align: left; vertical-align: top; }
+  th { font-weight: 600; color: #555; border-bottom: 1px solid #e2e2e2; }
+  td:last-child, th:last-child { text-align: right; white-space: nowrap; }
+  tbody tr + tr td { border-top: 1px solid #f0f0f0; }
+  .num { font-variant-numeric: tabular-nums; font-weight: 600; }
+  .tiles { display: grid; grid-template-columns: repeat(4, 1fr); gap: 2.5mm; margin-bottom: 2mm; }
+  .tile { padding: 2mm 2.5mm; border: 1px solid #e2e2e2; border-radius: 2mm; }
+  .tile b { display: block; font-size: 14pt; line-height: 1.1; }
+  .tile span { font-size: 7.6pt; color: #666; }
+  .ok b { color: #1a7f37; }
+  .warn b { color: #9a6700; }
+  .err b { color: #b42318; }
+  .note {
+    padding: 2mm 2.5mm;
+    border-left: 2px solid #999;
+    background: #f7f7f7;
+    color: #333;
+    font-size: 8.5pt;
+  }
+  footer {
+    margin-top: 2mm;
+    padding-top: 1.5mm;
+    border-top: 1px solid #d8d8d8;
+    color: #777;
+    font-size: 7.4pt;
+    display: flex;
+    justify-content: space-between;
+  }
+  em { font-style: normal; background: #fff3cd; padding: 0 0.6mm; }
+</style>
+</head>
+<body>
+
+<h1>Da un foglio di richieste a un preventivo</h1>
+<p class="lead">
+  Il cliente manda un foglio Excel con decine o centinaia di articoli da comprare in Cina.
+  Il programma legge quel foglio riga per riga, capisce che cosa è ogni prodotto, lo cerca
+  su Taobao, controlla che quello che ha trovato corrisponda davvero alla richiesta e
+  restituisce un preventivo pronto da inoltrare. Il lavoro che restava a una persona —
+  aprire cinquecento schede prodotto una a una — lo fa il programma; alla persona resta
+  solo quello che il programma non può decidere da solo.
+</p>
+
+<section>
+  <h2>Come funziona, in cinque passaggi</h2>
+  <ol>
+    <li><b>Legge il foglio.</b> Riconosce da solo quali colonne contengono nome, specifiche, quantità: non serve preparare il file.</li>
+    <li><b>Capisce ogni riga.</b> Un'intelligenza artificiale estrae prodotto, misure, materiale, modello e prepara la ricerca in cinese. Riconosce anche ciò che <b>non</b> è merce da comprare online: moduli da stampare, codici interni del costruttore, servizi.</li>
+    <li><b>Chiede solo l'indispensabile.</b> Se una riga è ambigua fa una domanda, con le risposte già pronte da spuntare. La risposta viene ricordata: la stessa domanda non torna mai due volte, e nel frattempo le altre righe proseguono senza aspettare.</li>
+    <li><b>Cerca e controlla.</b> Cerca su Taobao e poi rilegge ogni prodotto trovato confrontandolo con la richiesta: misure, modello, materiale. Quello che non corrisponde viene scartato e la ricerca riprovata con altre parole.</li>
+    <li><b>Consegna.</b> Due file Excel: il <b>preventivo</b> per il cliente (foto, prezzo, ricarico applicato) e i <b>risultati completi</b> con tutte le alternative trovate, per chi vuole controllare.</li>
+  </ol>
+</section>
+
+<section>
+  <h2>Che cosa si ottiene — corsa reale su un foglio da 498 righe</h2>
+  <div class="tiles">
+    <div class="tile ok"><b>440</b><span>righe con un prodotto di cui fidarsi</span></div>
+    <div class="tile warn"><b>17</b><span>righe da guardare: una decisione che tocca a una persona</span></div>
+    <div class="tile err"><b>41</b><span>righe senza risultato utile</span></div>
+    <div class="tile"><b>67</b><span>minuti dall'inizio alla fine, senza nessuno davanti</span></div>
+  </div>
+  <p>
+    Su una prova più recente da 14 righe: 10 prodotti trovati, 1 riga senza risultato e
+    <b>3 righe riconosciute come «non acquistabili online»</b> — due moduli di collaudo da
+    stampare e un codice interno di un costruttore. Prima venivano presentate come ricerche
+    fallite, e qualcuno ci perdeva tempo sopra.
+  </p>
+</section>
+
+<div class="cols">
+  <section>
+    <h2>Quanto costa</h2>
+    <table>
+      <thead><tr><th>Voce</th><th>Costo misurato</th></tr></thead>
+      <tbody>
+        <tr><td>Lettura e comprensione delle righe</td><td class="num">~0,26 $ ogni 1.000 righe</td></tr>
+        <tr><td>Controllo dei prodotti trovati</td><td class="num">~0,06 $ ogni 1.000 prodotti</td></tr>
+        <tr><td><b>Totale intelligenza artificiale</b><br>per un foglio da 500 righe</td><td class="num"><b>circa 0,30 $</b></td></tr>
+        <tr><td>Ricerche su Taobao<br><span style="color:#666">1.105 chiamate per 498 righe, più 604 servite senza spendere grazie alla memoria</span></td><td class="num">secondo il piano<br>di abbonamento</td></tr>
+      </tbody>
+    </table>
+    <p style="margin-top:2mm; color:#555; font-size:8.4pt;">
+      In pratica: l'intelligenza artificiale costa <b>meno di un caffè per ogni foglio</b>.
+      La spesa vera sono le ricerche sul marketplace, che dipendono dall'abbonamento
+      sottoscritto. Il programma le riduce da solo: le righe uguali pagano una ricerca sola,
+      i prodotti già visti in passato non si ricercano, e ciò che non è merce non viene
+      cercato affatto.
+    </p>
+  </section>
+
+  <section>
+    <h2>Che cosa non fa, e i limiti da conoscere</h2>
+    <ul>
+      <li><b>Non compra.</b> Prepara la proposta; ordine, trattativa e pagamento restano a una persona.</li>
+      <li><b>Non garantisce il prezzo.</b> Il prezzo è quello letto sulla pagina nel momento della ricerca, per la variante predefinita: sul sito può cambiare.</li>
+      <li><b>Alcuni prodotti restano senza foto e senza prezzo.</b> Sono quelli presi dai link che il cliente stesso ha messo nel foglio: la fonte dà solo titolo e indirizzo. Il programma lo dichiara e chiede di leggere il prezzo sulla pagina, invece di consegnare una casella vuota.</li>
+      <li><b>Non inventa.</b> Se una misura non c'è, resta vuota. Meglio una riga in meno che una riga sbagliata comprata con sicurezza.</li>
+      <li><b>Su qualche riga si ferma.</b> Codici che il marketplace non indicizza, richieste su disegno, testi troppo poveri: circa <b>8 righe su 100</b> arrivano in fondo senza un prodotto. Restano visibili con il motivo, e si possono riprovare a scelta — prima gratis, rileggendo quello che è già stato trovato, poi cercando di nuovo, con il costo scritto <em>prima</em> di lanciare.</li>
+      <li><b>Il giudizio è di un'intelligenza artificiale.</b> È severa e motiva ogni scarto, ma su un prodotto importante l'ultima occhiata conviene sempre darla.</li>
+    </ul>
+  </section>
+</div>
+
+<p class="note">
+  <b>La regola che governa tutto:</b> il programma non abbellisce mai i numeri. Una riga senza
+  prezzo non viene contata fra quelle pronte, una richiesta che nessun negozio online vende
+  non viene mischiata alle ricerche fallite, e il file che arriva al cliente dice esattamente
+  ciò che dice lo schermo. Chi legge il preventivo può fidarsi dei conteggi perché sono
+  costruiti per non fare bella figura.
+</p>
+
+<footer>
+  <span>Scouting v2 — piattaforma di sourcing Cina</span>
+  <span>Dati misurati su corse reali · 28 luglio 2026</span>
+</footer>
+
+</body>
+</html>

@@ -494,6 +494,7 @@ export const en = {
   "v2.done.confirmed": "confirmed",
   "v2.done.uncertain": "to look at",
   "v2.done.uncovered": "nothing found",
+  "v2.done.rejected": "found but rejected",
   "v2.done.notProcurable": "not sold online",
   "v2.done.reused": "from memory",
   "v2.done.spent": "spent ${cost} · {calls} search calls · {cached} saved by the cache",

@@ -231,6 +231,24 @@ export const V2RetryResultSchema = V2RetryEstimateSchema.extend({
 });
 export type V2RetryResult = z.infer<typeof V2RetryResultSchema>;
 
+/**
+ * L'ultima parola di una persona su un prodotto che il giudice ha respinto.
+ *
+ * Serve perché il giudice sbaglia in una direzione precisa: è severo, e su un
+ * titolo cinese povero preferisce respingere. Chi guarda la scheda vede in due
+ * secondi che il prodotto è quello giusto, e finora non aveva modo di dirlo.
+ * Da qui in poi ce l'ha, e la sua decisione **vince**: nessuna riverifica
+ * successiva la sovrascrive.
+ */
+export const AcceptV2CandidateRequestSchema = z.object({
+  rowNumber: z.number().int(),
+  /** Il prodotto scelto; se manca si accetta il primo in classifica. */
+  productId: z.string().min(1).optional(),
+});
+export type AcceptV2CandidateRequest = z.infer<
+  typeof AcceptV2CandidateRequestSchema
+>;
+
 /* -------------------------------------------------------------------------- */
 /* Lo stato che la pagina legge                                                */
 /* -------------------------------------------------------------------------- */
@@ -311,6 +329,16 @@ export const TaobaoPipelineOutcomeSchema = z.object({
    * che l'analisi sapesse riconoscerle.
    */
   notProcurableRows: z.number().int().min(0).default(0),
+  /**
+   * Righe dove la ricerca **ha trovato** prodotti che il giudice ha respinto
+   * tutti.
+   *
+   * Stavano dentro «nessun risultato», e chi apriva quella sezione ci trovava
+   * prodotti — a volte pure giusti — sotto un'etichetta che diceva il
+   * contrario. Sono un'altra cosa e chiedono un'altra azione: non «cerca
+   * ancora», ma «guarda perché è stato scartato e, se sbaglia, accettalo».
+   */
+  rejectedRows: z.number().int().min(0).default(0),
   reusedRows: z.number().int().min(0),
   totalCostUsd: z.number().min(0),
   searchCalls: z.number().int().min(0),

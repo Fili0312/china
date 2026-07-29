@@ -148,7 +148,9 @@ test("il report classifica le righe come la pagina, non diversamente", () => {
   // riga — altrimenti il file che arriva al cliente smentisce lo schermo da
   // cui è nato.
   assert.equal(v2ReviewStatus(row(2, [candidate("unsure")])), "correct");
-  assert.equal(v2ReviewStatus(row(3, [candidate("incoherent")])), "none");
+  // Respinto non è «niente»: il prodotto c'è, e chi legge il file deve poter
+  // distinguere «guarda perché è stato scartato» da «qui non è arrivato nulla».
+  assert.equal(v2ReviewStatus(row(3, [candidate("incoherent")])), "rejected");
   assert.equal(v2ReviewStatus(row(4, [])), "none");
   assert.equal(
     v2ReviewStatus(row(5, [candidate("coherent", { unavailable: true })])),
@@ -287,7 +289,7 @@ test("il motivo scritto sulla riga non nasconde un prodotto che il giudice accet
     [candidate("incoherent", { itemId: "scartato" })],
     "V2_NO_COMPATIBLE: nessun risultato compatibile dopo 3 tentativi."
   );
-  assert.equal(v2ReviewStatus(rejected), "none");
+  assert.equal(v2ReviewStatus(rejected), "rejected");
   const rejectedBuffer = runWithLocale("it", () =>
     buildV2TaobaoExport(results([rejected]))
   );
@@ -338,4 +340,23 @@ test("il file distingue chi non si è trovato da chi non si vende online", () =>
     workbook.Sheets["Report"]!
   );
   assert.equal(report[0]?.["Stato"], "Non acquistabile online");
+});
+
+// Il file non ri-decide: quando l'esito ha già classificato la riga, quella
+// classificazione vince. Due implementazioni che «si trovano d'accordo» prima
+// o poi divergono — ed erano già divergenti di due righe su 498.
+test("lo stato dell'esito vince su qualunque deduzione del workbook", () => {
+  const conCandidati = row(1, [candidate("incoherent")]);
+  assert.equal(v2ReviewStatus(conCandidati), "rejected");
+
+  const buffer = runWithLocale("it", () =>
+    buildV2ClientReport(results([conCandidati]), {
+      markupPct: 0,
+      statusByRow: new Map([[1, "check"]]),
+    })
+  );
+  const report = XLSX.utils.sheet_to_json<Record<string, unknown>>(
+    XLSX.read(buffer, { type: "buffer" }).Sheets["Report"]!
+  );
+  assert.equal(report[0]?.["Stato"], "Da controllare");
 });

@@ -2,6 +2,7 @@ import { Injectable, Logger, NotFoundException, BadRequestException } from "@nes
 import { prisma, Prisma } from "@china/db";
 import {
   PROCUREMENT_KIND_LABELS,
+  TaobaoPipelineOutcomeSchema,
   ProductAnalysisSchema,
   isMarketplaceProcurement,
   isSearchableProcurement,
@@ -20,6 +21,7 @@ import {
   type TaobaoPipelinePhase,
   type TaobaoPipelineState,
   type TaobaoPipelineStep,
+  type AcceptV2CandidateRequest,
   type RetryV2RowsRequest,
   type V2RetryEstimate,
   type V2RetryResult,
@@ -1229,6 +1231,63 @@ export class PipelineService {
     };
   }
 
+  /**
+   * Accetta a mano un prodotto che il giudice aveva respinto.
+   *
+   * Il verdetto scritto porta `acceptedByHuman`, e la verifica lo salta anche
+   * quando le si chiede di rigiudicare tutto: una macchina non annulla la
+   * decisione di una persona. L'esito si ricalcola subito, così i contatori in
+   * alto e la riga qui sotto raccontano di nuovo la stessa cosa.
+   */
+  async acceptCandidate(
+    clientId: string,
+    pipelineId: string,
+    input: AcceptV2CandidateRequest
+  ): Promise<TaobaoPipelineOutcome> {
+    const pipeline = await this.load(clientId, pipelineId);
+    if (!pipeline.jobId) throw new NotFoundException(t("err.jobNotFound", { id: "-" }));
+
+    const row = await prisma.taobaoJobRow.findFirst({
+      where: { jobId: pipeline.jobId, rowNumber: input.rowNumber },
+      select: {
+        id: true,
+        results: {
+          orderBy: { rank: "asc" },
+          select: { id: true, productId: true, coherence: true },
+        },
+      },
+    });
+    const chosen = input.productId
+      ? row?.results.find((result) => result.productId === input.productId)
+      : row?.results[0];
+    if (!chosen) {
+      throw new NotFoundException(
+        t("err.rowNotFound", { id: String(input.rowNumber) })
+      );
+    }
+
+    const previous = (chosen.coherence ?? {}) as Record<string, unknown>;
+    await prisma.taobaoJobResult.update({
+      where: { id: chosen.id },
+      data: {
+        coherence: {
+          ...previous,
+          verdict: "coherent",
+          issues: [],
+          confidence: 1,
+          model: "human",
+          acceptedByHuman: true,
+          // Il motivo del rifiuto resta scritto: accettare non vuol dire
+          // cancellare l'obiezione, vuol dire assumersene la responsabilità.
+          overriddenIssues: Array.isArray(previous.issues) ? previous.issues : [],
+        } as unknown as Prisma.InputJsonValue,
+        coherenceCheckedAt: new Date(),
+      },
+    });
+
+    return this.recomputeOutcome(pipelineId);
+  }
+
   /** Le righe, fra quelle scelte, che hanno un candidato promosso. */
   private async confirmedRowNumbers(
     clientId: string,
@@ -1318,6 +1377,8 @@ export class PipelineService {
       uncertainRows: 0,
       uncoveredRows: emptyGaps.length - emptyNotProcurable,
       notProcurableRows: emptyNotProcurable,
+      // Senza job non c'è ricerca, quindi non c'è niente di respinto.
+      rejectedRows: 0,
       reusedRows: 0,
       totalCostUsd: analysisRun?.costUsd ?? 0,
       searchCalls: 0,
@@ -1347,6 +1408,29 @@ export class PipelineService {
     for (const row of results.rows) {
       seenRows.add(row.rowNumber);
       const source = analysisByRow.get(row.rowNumber);
+
+      // Ciò che rifiutiamo perfino di cercare non può essere «confermato» da
+      // un prodotto trovato: sarebbe fidarsi di una ricerca che oggi non
+      // faremmo. Sulla corsa da 498 righe la riga «激光去重不平衡记录表» — un
+      // modulo di collaudo — risultava confermata con un quaderno per
+      // bambini, comprato da una ricerca fatta prima che l'analisi sapesse
+      // riconoscere i moduli. Per i tipi che invece si cercano davvero
+      // (codice di costruttore, su disegno, servizio) resta valida la regola
+      // opposta, più sotto: un prodotto coerente trovato vale più
+      // dell'etichetta.
+      if (
+        source?.analysis &&
+        !isSearchableProcurement(procurementOf(source.analysis))
+      ) {
+        const gap = procurementGap(source, {
+          displayName: row.displayName,
+          searchQuery: row.searchQuery,
+        });
+        if (gap) {
+          gaps.push(gap);
+          continue;
+        }
+      }
       const usableCandidates = row.candidates.filter(
         (candidate) => !candidate.product.unavailable
       );
@@ -1574,20 +1658,22 @@ export class PipelineService {
         (left.attributeKey ?? "").localeCompare(right.attributeKey ?? "")
     );
 
-    // Le righe non acquistabili escono dal conto degli scoperti: restano tutte
-    // in `gaps`, ma contarle insieme alle altre prometterebbe un recupero che
-    // nessuna ri-ricerca può dare. I quattro numeri continuano a sommare al
-    // totale, ognuno con il proprio significato.
+    // Ogni buco ha il suo nome, perché ognuno chiede un'azione diversa.
+    // «Non acquistabile» non si recupera con nessuna ricerca; «trovati ma
+    // respinti» non si recupera cercando ancora, si recupera guardando; solo
+    // ciò che resta è davvero «non trovato». Sommati fanno il totale.
     const notProcurable = gaps.filter(
       (gap) => gap.reason === "not_procurable"
     ).length;
+    const rejected = gaps.filter((gap) => gap.reason === "no_coherent").length;
 
     return {
       totalRows: analysisRun?.totalRows ?? results.rows.length,
       confirmedRows: confirmed,
       uncertainRows: uncertain,
-      uncoveredRows: gaps.length - notProcurable,
+      uncoveredRows: gaps.length - notProcurable - rejected,
       notProcurableRows: notProcurable,
+      rejectedRows: rejected,
       reusedRows: results.job.reusedRows,
       totalCostUsd: analysisRun?.costUsd ?? 0,
       searchCalls:
@@ -1633,8 +1719,16 @@ export class PipelineService {
       analysisRunId: pipeline.analysisRunId,
       jobId: pipeline.jobId,
       markupPct: pipeline.markupPct,
+      // L'esito salvato passa dallo schema, non esce grezzo: le corse chiuse
+      // prima che esistessero `reviewIssues`, `notProcurableRows` o
+      // `rejectedRows` devono comunque arrivare alla pagina con quei campi
+      // valorizzati, altrimenti un contatore vecchio diventa `undefined` in
+      // interfaccia.
       outcome: rawOutcome
-        ? { ...rawOutcome, reviewIssues: rawOutcome.reviewIssues ?? [] }
+        ? (TaobaoPipelineOutcomeSchema.safeParse(rawOutcome).data ?? {
+            ...rawOutcome,
+            reviewIssues: rawOutcome.reviewIssues ?? [],
+          })
         : null,
       error: pipeline.error,
       uploadedAt: pipeline.dataset.createdAt.toISOString(),

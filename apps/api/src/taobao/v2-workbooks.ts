@@ -23,6 +23,7 @@ const labels: Record<
     check: string;
     none: string;
     not_procurable: string;
+    rejected: string;
     title: string;
     sku: string;
     saleUnit: string;
@@ -46,6 +47,7 @@ const labels: Record<
     check: "Needs checking",
     none: "No compatible result",
     not_procurable: "Not sold online",
+    rejected: "Found but rejected",
     title: "Found title",
     sku: "Selected variant / SKU",
     saleUnit: "Sale unit",
@@ -68,6 +70,7 @@ const labels: Record<
     check: "需要检查",
     none: "无兼容结果",
     not_procurable: "网购买不到",
+    rejected: "找到但被否决",
     title: "找到的标题",
     sku: "所选款式 / SKU",
     saleUnit: "销售单位",
@@ -90,6 +93,7 @@ const labels: Record<
     check: "Da controllare",
     none: "Nessun risultato compatibile",
     not_procurable: "Non acquistabile online",
+    rejected: "Trovato ma scartato",
     title: "Titolo trovato",
     sku: "Variante / SKU selezionata",
     saleUnit: "Unità di vendita",
@@ -106,7 +110,12 @@ const labels: Record<
   },
 };
 
-export type V2ReviewStatus = "correct" | "check" | "none" | "not_procurable";
+export type V2ReviewStatus =
+  | "correct"
+  | "check"
+  | "none"
+  | "not_procurable"
+  | "rejected";
 
 /**
  * Ciò che i workbook sanno oltre ai risultati della ricerca.
@@ -118,6 +127,15 @@ export type V2ReviewStatus = "correct" | "check" | "none" | "not_procurable";
  * arriva da fuori.
  */
 export interface V2WorkbookOptions {
+  /**
+   * Lo stato di ogni riga **come l'ha deciso l'esito della corsa**.
+   *
+   * È la sola fonte quando c'è: il file e la pagina devono dire la stessa
+   * cosa perché leggono lo stesso numero, non perché due implementazioni si
+   * trovano d'accordo. Due implementazioni prima o poi divergono — ed erano
+   * già divergenti di due righe su 498 quando questa mappa non esisteva.
+   */
+  statusByRow?: ReadonlyMap<number, V2ReviewStatus>;
   needsPerson?: ReadonlySet<number>;
   /**
    * Righe che nessun marketplace vende: moduli da stampare, codici di
@@ -164,7 +182,11 @@ export function v2ReviewStatus(
   if (ready) return needsPerson ? "check" : "correct";
   // Accettato ma con una variante da scegliere: la decisione è di una persona.
   if (accepted.length > 0) return "check";
-  return notProcurable ? "not_procurable" : "none";
+  if (notProcurable) return "not_procurable";
+  // Prodotti ne sono arrivati, li ha respinti la verifica: chi legge il file
+  // deve poterlo distinguere da una ricerca tornata vuota, perché l'azione è
+  // diversa — qui c'è da guardare, là c'è da cercare.
+  return available.length > 0 ? "rejected" : "none";
 }
 
 /** Candidati utilizzabili: gli incompatibili sono esclusi, non segnalati. */
@@ -236,9 +258,12 @@ function statusLabel(
   row: TaobaoRowResults,
   locale: Locale,
   needsPerson: boolean,
-  notProcurable: boolean
+  notProcurable: boolean,
+  fromOutcome: V2ReviewStatus | undefined
 ): string {
-  return labels[locale][v2ReviewStatus(row, needsPerson, notProcurable)];
+  return labels[locale][
+    fromOutcome ?? v2ReviewStatus(row, needsPerson, notProcurable)
+  ];
 }
 
 function linkCell(
@@ -262,6 +287,7 @@ export function buildV2TaobaoExport(
 ): Buffer {
   const needsPerson = options.needsPerson ?? new Set<number>();
   const notProcurable = options.notProcurable ?? new Set<number>();
+  const statusByRow = options.statusByRow ?? new Map<number, V2ReviewStatus>();
   const locale = currentLocale();
   const l = labels[locale];
   const workbook = XLSX.utils.book_new();
@@ -288,7 +314,8 @@ export function buildV2TaobaoExport(
         row,
         locale,
         needsPerson.has(row.rowNumber),
-        notProcurable.has(row.rowNumber)
+        notProcurable.has(row.rowNumber),
+        statusByRow.get(row.rowNumber)
       ),
       candidate?.product.title ?? "",
       candidate ? (selectedVariantOrSku(candidate) ?? "") : "",
@@ -360,6 +387,7 @@ export function buildV2ClientReport(
 ): Buffer {
   const needsPerson = options.needsPerson ?? new Set<number>();
   const notProcurable = options.notProcurable ?? new Set<number>();
+  const statusByRow = options.statusByRow ?? new Map<number, V2ReviewStatus>();
   const locale = currentLocale();
   const l = labels[locale];
   const workbook = XLSX.utils.book_new();
@@ -403,7 +431,8 @@ export function buildV2ClientReport(
         row,
         locale,
         needsPerson.has(row.rowNumber),
-        notProcurable.has(row.rowNumber)
+        notProcurable.has(row.rowNumber),
+        statusByRow.get(row.rowNumber)
       ),
       ...cells(candidates[0]),
       ...cells(candidates[1]),

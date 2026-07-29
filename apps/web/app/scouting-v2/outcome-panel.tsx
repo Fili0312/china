@@ -9,7 +9,11 @@ import type {
 import { api, apiDownloadUrl } from "../../lib/api";
 import { useI18n } from "../i18n/context";
 import { ResultsWorkspace } from "./results-workspace";
-import { estimateRetryRows, retryRowsRequest } from "./retry-actions";
+import {
+  acceptCandidateRequest,
+  estimateRetryRows,
+  retryRowsRequest,
+} from "./retry-actions";
 
 /**
  * Il risultato: cosa è pronto e cosa aspetta una persona.
@@ -71,6 +75,18 @@ export function OutcomePanel({
     return estimateRetryRows(state.clientId, state.pipelineId, rowNumbers, mode);
   }
 
+  async function acceptCandidate(rowNumber: number, productId: string) {
+    await acceptCandidateRequest(
+      state.clientId,
+      state.pipelineId,
+      rowNumber,
+      productId
+    );
+    const refreshed = await api<TaobaoJobResults>(`${jobPath}/results?limit=1000`);
+    setResults(refreshed);
+    onRefreshOutcome();
+  }
+
   useEffect(() => {
     if (!state.jobId) {
       setResults(null);
@@ -121,6 +137,15 @@ export function OutcomePanel({
       <div className="v2-tiles">
         <Tile value={outcome.confirmedRows} label={t("v2.done.confirmed")} tone="ok" />
         <Tile value={outcome.uncertainRows} label={t("v2.done.uncertain")} tone="warn" />
+        {/* «Trovati ma scartati» è un numero diverso da «non trovati»: chi
+            legge deve sapere dove c'è ancora qualcosa da guardare. */}
+        {outcome.rejectedRows > 0 ? (
+          <Tile
+            value={outcome.rejectedRows}
+            label={t("v2.done.rejected")}
+            tone="warn"
+          />
+        ) : null}
         <Tile value={outcome.uncoveredRows} label={t("v2.done.uncovered")} tone="err" />
         {/* Compare solo quando c'è: un riquadro a zero fisso su ogni corsa
             insegnerebbe a non leggerlo. */}
@@ -185,6 +210,7 @@ export function OutcomePanel({
         loadError={resultsError}
         onRetryRows={state.jobId ? retryRows : undefined}
         onEstimateRetry={state.jobId ? estimateRetry : undefined}
+        onAcceptCandidate={state.jobId ? acceptCandidate : undefined}
         markupPct={markup}
       />
     </section>

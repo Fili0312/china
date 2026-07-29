@@ -883,6 +883,58 @@
   cursor: default;
 }
 
+/* --- Trovati ma scartati ---------------------------------------------------- */
+
+.rejectedRow {
+  display: grid;
+  gap: 0.35rem;
+  padding: 0.4rem 0 0.6rem;
+  border-bottom: 1px solid var(--s-border, #e5e5ea);
+}
+
+.rejectedRow:last-child {
+  border-bottom: 0;
+}
+
+/* Il motivo del rifiuto sta sotto la scheda, non dentro un popup: è ciò che
+   permette di decidere in un colpo d'occhio se il giudice ha sbagliato. */
+.rejectedWhy {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  align-items: center;
+  justify-content: space-between;
+  padding-left: 1.6rem;
+  color: var(--s-muted, #6e6e73);
+  font-size: 0.76rem;
+}
+
+.acceptButton {
+  display: inline-flex;
+  align-items: center;
+  height: 30px;
+  padding: 0 0.8rem;
+  border: 1px solid var(--s-ok, #1a7f37);
+  border-radius: 999px;
+  background: var(--s-surface, #fff);
+  color: var(--s-ok, #1a7f37);
+  font: inherit;
+  font-size: 0.74rem;
+  font-weight: 600;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.acceptButton:hover:not(:disabled) {
+  background: #f0fdf4;
+}
+
+.acceptButton:disabled {
+  border-color: var(--s-border, #e5e5ea);
+  color: var(--s-faint, #86868b);
+  cursor: default;
+}
+
 .missingReason {
   color: var(--s-muted, #6e6e73);
   font-size: 0.74rem;

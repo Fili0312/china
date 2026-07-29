@@ -1,7 +1,11 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import type { TaobaoPipelineGap, TaobaoRowResults } from "@china/shared";
-import { buildV2ResultRows, groupV2ResultRows } from "./results-model";
+import {
+  buildV2ResultRows,
+  groupV2ResultRows,
+  marketplaceLabel,
+} from "./results-model";
 
 /**
  * Dove finisce, a schermo, una riga che nessun marketplace vende.
@@ -91,4 +95,20 @@ test("una riga con prodotti respinti non finisce fra quelle senza prodotto", () 
   // Il motivo del rifiuto resta attaccato alla riga: è ciò che permette di
   // decidere se il giudice ha sbagliato.
   assert.match(rows[0]?.gap?.detail ?? "", /30x60/u);
+});
+
+test("il link dice di quale vetrina è: Taobao, Tmall o 1688", () => {
+  // La ricerca «Taobao» restituisce anche inserzioni Tmall — è la vetrina B2C
+  // dello stesso gruppo. Chiamarle tutte «Taobao» nasconde una differenza che
+  // per chi compra conta, e fa sembrare sbagliato un link corretto.
+  assert.equal(
+    marketplaceLabel("https://detail.tmall.com/item.htm?id=805371542814", "taobao"),
+    "Tmall"
+  );
+  assert.equal(
+    marketplaceLabel("https://item.taobao.com/item.htm?id=1", "taobao"),
+    "Taobao"
+  );
+  assert.equal(marketplaceLabel("https://detail.1688.com/offer/9.html", "1688"), "1688");
+  assert.equal(marketplaceLabel(null, "taobao"), "Taobao");
 });

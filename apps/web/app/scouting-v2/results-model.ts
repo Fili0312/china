@@ -362,6 +362,26 @@ export function normalizeImageUrl(value: string | null | undefined): string | nu
   }
 }
 
+/**
+ * Il marketplace vero di un'inserzione, letto dal suo indirizzo.
+ *
+ * La ricerca «Taobao» restituisce anche inserzioni **Tmall**: è la vetrina B2C
+ * dello stesso gruppo, negozi ufficiali e marchi, e i suoi link stanno su
+ * `detail.tmall.com`. Scrivere «Taobao» su tutti nasconde una differenza che
+ * per chi compra conta — negozio ufficiale, fattura, prezzi in genere più
+ * alti — e fa sembrare sbagliato un link che sbagliato non è.
+ */
+export function marketplaceLabel(
+  url: string | null | undefined,
+  platform: string | null | undefined
+): string {
+  const address = (url ?? "").toLowerCase();
+  if (address.includes("tmall.com")) return "Tmall";
+  if (address.includes("1688.com")) return "1688";
+  if (address.includes("taobao.com")) return "Taobao";
+  return platform === "1688" ? "1688" : "Taobao";
+}
+
 export function salesUnitFromCandidate(
   candidate: TaobaoCandidate | null | undefined
 ): string | null {

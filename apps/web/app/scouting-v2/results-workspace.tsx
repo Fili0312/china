@@ -22,6 +22,7 @@ import {
   calculateVirtualWindow,
   filterAndSortV2ResultRows,
   groupV2ResultRows,
+  marketplaceLabel,
   type V2HumanActionType,
   type V2ResultPlatformFilter,
   type V2ResultRow,
@@ -147,7 +148,10 @@ const COPY = {
     error: "Errore",
     technicalChecks: "Controlli tecnici",
     automaticChecks: "Controlli risolti automaticamente",
-    alternatives: "Alternative salvate",
+    alternatives: "Altre proposte per questa riga",
+    alternativesHint: "Già pagate dalla ricerca: scegliere un'altra non costa nulla. Attenzione al formato — un prezzo più basso è spesso una confezione più piccola.",
+    useThis: "Usa questo",
+    inUse: "In uso",
     openProduct: "Apri il prodotto",
     bell: "{count} interventi umani richiesti",
     actionTypes: {
@@ -261,7 +265,10 @@ const COPY = {
     error: "Error",
     technicalChecks: "Technical checks",
     automaticChecks: "Automatically resolved checks",
-    alternatives: "Saved alternatives",
+    alternatives: "Other options for this row",
+    alternativesHint: "Already paid for by the search: picking another costs nothing. Mind the pack size — a lower price is often a smaller pack.",
+    useThis: "Use this one",
+    inUse: "In use",
     openProduct: "Open product",
     bell: "{count} human interventions required",
     actionTypes: {
@@ -374,7 +381,10 @@ const COPY = {
     error: "错误",
     technicalChecks: "技术检查",
     automaticChecks: "自动解决的检查",
-    alternatives: "已保存的备选项",
+    alternatives: "该行的其他候选",
+    alternativesHint: "搜索时已经付过费：换一个不额外花钱。注意规格——价格更低往往是更小的包装。",
+    useThis: "选用此项",
+    inUse: "使用中",
     openProduct: "打开产品",
     bell: "需要 {count} 项人工处理",
     actionTypes: {
@@ -978,6 +988,12 @@ export function ResultsWorkspace({
           intlLocale={intlLocale}
           copy={copy}
           onClose={() => setSelectedId(null)}
+          onAccept={
+            onAcceptCandidate
+              ? (productId: string) =>
+                  onAcceptCandidate(selected.rowNumber, productId)
+              : undefined
+          }
         />
       ) : null}
     </section>
@@ -1078,7 +1094,7 @@ function ReportRow({
             target="_blank"
             rel="noreferrer"
           >
-            Taobao
+            {marketplaceLabel(candidate.product.url, candidate.product.platform)}
           </a>
         ) : null}
         <button type="button" className={styles.detailButton} onClick={onOpen}>
@@ -1217,14 +1233,18 @@ function ProductDialog({
   intlLocale,
   copy,
   onClose,
+  onAccept,
 }: {
   row: V2ResultRow;
   markupPct: number;
   intlLocale: string;
   copy: (typeof COPY)[keyof typeof COPY];
   onClose: () => void;
+  /** Sceglie un'altra proposta per questa riga; assente sui risultati storici. */
+  onAccept?: (productId: string) => Promise<void>;
 }) {
   const candidate = row.candidate;
+  const [switching, setSwitching] = useState<string | null>(null);
   const title = candidate?.product.title ?? row.displayName;
 
   useEffect(() => {
@@ -1331,6 +1351,69 @@ function ProductDialog({
             >
               {copy.openProduct}
             </a>
+          ) : null}
+
+          {/* Le altre proposte, con il loro prezzo.
+              La ricerca le ha già pagate tutte e finora restavano invisibili:
+              chi guardava vedeva un prezzo e doveva fidarsi che fosse il
+              migliore. Non lo è per forza — la scelta la fa la compatibilità,
+              non il prezzo — e un prezzo più basso è spesso una confezione
+              più piccola, quindi le si mostrano insieme e decide una persona. */}
+          {row.candidates.length > 1 ? (
+            <div className={styles.alternatives}>
+              <h4>{copy.alternatives}</h4>
+              <p className={styles.dialogNote}>{copy.alternativesHint}</p>
+              <ul>
+                {row.candidates.map((entry) => {
+                  const price =
+                    entry.product.promotionPrice ?? entry.product.price ?? null;
+                  const current =
+                    entry.product.productId === candidate?.product.productId;
+                  return (
+                    <li key={entry.product.productId}>
+                      <span className={styles.altPrice}>
+                        {formatPrice(price, entry.product.currency, intlLocale)}
+                      </span>
+                      <a
+                        className={styles.altTitle}
+                        href={entry.product.url ?? "#"}
+                        target="_blank"
+                        rel="noreferrer"
+                        title={entry.product.title}
+                      >
+                        {entry.product.title}
+                      </a>
+                      <span className={styles.altShop}>
+                        {marketplaceLabel(entry.product.url, entry.product.platform)}
+                        {entry.product.shopName ? ` · ${entry.product.shopName}` : ""}
+                      </span>
+                      {current ? (
+                        <span className={styles.altCurrent}>{copy.inUse}</span>
+                      ) : onAccept ? (
+                        <button
+                          type="button"
+                          className={styles.acceptButton}
+                          disabled={switching != null}
+                          onClick={async () => {
+                            setSwitching(entry.product.productId);
+                            try {
+                              await onAccept(entry.product.productId);
+                              onClose();
+                            } finally {
+                              setSwitching(null);
+                            }
+                          }}
+                        >
+                          {switching === entry.product.productId
+                            ? copy.accepting
+                            : copy.useThis}
+                        </button>
+                      ) : null}
+                    </li>
+                  );
+                })}
+              </ul>
+            </div>
           ) : null}
         </div>
       </div>

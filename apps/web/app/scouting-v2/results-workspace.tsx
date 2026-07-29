@@ -145,6 +145,7 @@ const COPY = {
     closeDetails: "Chiudi dettagli",
     query: "Query",
     original: "Valori originali",
+    searchedAs: "cercato come:",
     error: "Errore",
     technicalChecks: "Controlli tecnici",
     automaticChecks: "Controlli risolti automaticamente",
@@ -262,6 +263,7 @@ const COPY = {
     closeDetails: "Close details",
     query: "Query",
     original: "Original values",
+    searchedAs: "searched as:",
     error: "Error",
     technicalChecks: "Technical checks",
     automaticChecks: "Automatically resolved checks",
@@ -378,6 +380,7 @@ const COPY = {
     closeDetails: "关闭详情",
     query: "搜索词",
     original: "原始值",
+    searchedAs: "搜索用词：",
     error: "错误",
     technicalChecks: "技术检查",
     automaticChecks: "自动解决的检查",
@@ -1046,16 +1049,18 @@ function ReportRow({
         <p className={styles.reportTitle} title={title}>
           {title}
         </p>
+        {/* Quello che il cliente ha chiesto viene prima: è il testo del
+            foglio. Il nome estratto dall'analisi compare **solo** quando
+            aggiunge qualcosa — spesso è già contenuto lì dentro (品名 静电棒
+            dentro «静电棒 · 橙色») e ripeterlo è rumore fra il titolo del
+            prodotto trovato e ciò con cui va confrontato. */}
         <p className={styles.reportRequested}>
           <span className={styles.rowNumber}>#{row.rowNumber}</span>
-          {row.displayName}
+          {row.originalTitle ?? row.displayName}
         </p>
-        {/* Il testo del foglio, quando dice qualcosa di diverso dal nome che
-            l'analisi ha estratto. Chi controlla una quotazione vuole rileggere
-            ciò che il cliente aveva scritto, non la nostra interpretazione. */}
-        {row.originalTitle && row.originalTitle !== row.displayName ? (
-          <p className={styles.reportOriginal} title={row.originalTitle}>
-            {row.originalTitle}
+        {row.originalTitle && !row.originalTitle.includes(row.displayName) ? (
+          <p className={styles.reportOriginal} title={row.displayName}>
+            {copy.searchedAs} {row.displayName}
           </p>
         ) : null}
         {/* Quale decisione serve, scritto sulla riga. Prima viveva dentro il
@@ -1314,8 +1319,13 @@ function ProductDialog({
           <p className={styles.dialogTitle}>{title}</p>
           <p className={styles.dialogRequested}>
             <span className={styles.rowNumber}>#{row.rowNumber}</span>
-            {row.displayName}
+            {row.originalTitle ?? row.displayName}
           </p>
+          {row.originalTitle && !row.originalTitle.includes(row.displayName) ? (
+            <p className={styles.reportOriginal}>
+              {copy.searchedAs} {row.displayName}
+            </p>
+          ) : null}
 
           <div className={styles.dialogFigures}>
             <div>

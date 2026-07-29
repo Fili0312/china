@@ -102,7 +102,7 @@ const COPY = {
     candidateMissing: "Nessun prodotto",
     imageMissing: "Immagine non disponibile",
     notVerified: "Non verificato",
-    listLabel: "listino",
+    listLabel: "promo dichiarata dalla fonte, da verificare:",
     readAt: "letto il",
     priceNote:
       "Il prezzo è quello della variante predefinita: sulla pagina può differire se scegli un'altra variante o se è attiva una promozione diversa.",
@@ -219,7 +219,7 @@ const COPY = {
     candidateMissing: "No product",
     imageMissing: "Image unavailable",
     notVerified: "Not verified",
-    listLabel: "list",
+    listLabel: "promo declared by the source, to verify:",
     readAt: "read on",
     priceNote:
       "This is the default variant price: the page may differ if you pick another variant or a different promotion is running.",
@@ -336,7 +336,7 @@ const COPY = {
     candidateMissing: "没有产品",
     imageMissing: "图片不可用",
     notVerified: "未验证",
-    listLabel: "原价",
+    listLabel: "来源声称的促销价，需核实：",
     readAt: "读取于",
     priceNote: "此价格为默认规格价：选择其他规格或遇到不同促销时，页面价格可能不同。",
     confirmedTitle: "已确认",
@@ -1312,10 +1312,10 @@ function ProductDialog({
               </strong>
               {/* Il listino accanto allo scontato: senza, la cifra sembra
                   semplicemente sbagliata rispetto alla pagina Taobao. */}
-              {row.listPrice != null && row.listPrice !== row.price ? (
+              {row.promoPrice != null ? (
                 <span className={styles.figureList}>
                   {copy.listLabel}{" "}
-                  {formatPrice(row.listPrice, row.currency, intlLocale)}
+                  {formatPrice(row.promoPrice, row.currency, intlLocale)}
                 </span>
               ) : null}
             </div>

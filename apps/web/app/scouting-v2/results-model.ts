@@ -91,8 +91,14 @@ export interface V2ResultRow {
   candidateCount: number;
   confidence: number | null;
   price: number | null;
-  /** Listino, presente solo quando il prezzo effettivo è scontato. */
-  listPrice: number | null;
+  /**
+   * La promozione **dichiarata dalla fonte**, quando è più bassa del listino.
+   *
+   * Non entra nei conti: è un'informazione da verificare sulla pagina. Su una
+   * riga di stecchini la fonte diceva 1,51 e la pagina Taobao 3,00, e in
+   * archivio ci sono inserzioni la cui «promozione» costa più del listino.
+   */
+  promoPrice: number | null;
   currency: string | null;
   /** Unità di vendita del marketplace, mai l'unità richiesta nel foglio. */
   salesUnit: string | null;
@@ -200,13 +206,15 @@ export function buildV2ResultRows(
         candidate,
         actions,
       });
+      // Si quota sul listino della variante predefinita: è la cifra che la
+      // pagina chiede davvero. La promozione dichiarata dalla fonte resta
+      // accanto come nota, perché smentisce la pagina troppo spesso.
       const price =
-        candidate?.product.promotionPrice ?? candidate?.product.price ?? null;
-      // Il listino resta accanto al prezzo effettivo quando i due differiscono:
-      // è ciò che permette di riconciliare la cifra con la pagina Taobao.
-      const listPrice =
-        candidate?.product.promotionPrice != null
-          ? (candidate?.product.price ?? null)
+        candidate?.product.price ?? candidate?.product.promotionPrice ?? null;
+      const declaredPromo = candidate?.product.promotionPrice ?? null;
+      const promoPrice =
+        price != null && declaredPromo != null && declaredPromo < price
+          ? declaredPromo
           : null;
       const salesUnit = salesUnitFromCandidate(candidate);
       const imageUrl = normalizeImageUrl(candidate?.product.imageUrl ?? null);
@@ -252,7 +260,7 @@ export function buildV2ResultRows(
         candidateCount: candidates.length,
         confidence: coherence?.confidence ?? null,
         price,
-        listPrice,
+        promoPrice,
         currency: candidate?.product.currency ?? null,
         salesUnit,
         imageUrl,

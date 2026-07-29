@@ -246,11 +246,18 @@ function procurementGap(
   };
 }
 
-/** Il prezzo che vale per la quotazione: promozione se c'è, altrimenti listino. */
+/**
+ * Il prezzo che vale per la quotazione: il listino della variante predefinita.
+ *
+ * Stessa regola dei workbook, per lo stesso motivo: la «promozione» dichiarata
+ * dalla fonte contraddice la pagina — 1,51 contro 3,00 su una riga verificata
+ * a mano — e in 61 casi costa più del listino. Si quota su ciò che la pagina
+ * chiede davvero.
+ */
 function effectiveCandidatePrice(candidate: {
   product: { price?: number | null; promotionPrice?: number | null };
 }): number | null {
-  return candidate.product.promotionPrice ?? candidate.product.price ?? null;
+  return candidate.product.price ?? candidate.product.promotionPrice ?? null;
 }
 
 /**

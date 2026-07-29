@@ -4,6 +4,7 @@ import type { TaobaoCandidate, TaobaoJobResults, TaobaoRowResults } from "@china
 import * as XLSX from "xlsx";
 import { runWithLocale } from "../i18n/request-locale";
 import {
+  v2QuotationPrice,
   buildV2ClientReport,
   buildV2TaobaoExport,
   productSaleUnit,
@@ -20,6 +21,8 @@ function candidate(
     unavailable?: boolean;
     sku?: string | null;
     specs?: Record<string, string> | null;
+    price?: number | null;
+    promotionPrice?: number | null;
   } = {}
 ): TaobaoCandidate {
   const itemId = overrides.itemId ?? "1";
@@ -45,10 +48,10 @@ function candidate(
         overrides.imageUrl === undefined
           ? `https://img.example/${itemId}.jpg`
           : overrides.imageUrl,
-      price: 12.5,
+      price: overrides.price === undefined ? 12.5 : overrides.price,
       currency: "CNY",
       variantPrice: null,
-      promotionPrice: null,
+      promotionPrice: overrides.promotionPrice ?? null,
       moq: 1,
       sku: overrides.sku === undefined ? `SKU-${itemId}` : overrides.sku,
       shopName: "Negozio",
@@ -359,4 +362,25 @@ test("lo stato dell'esito vince su qualunque deduzione del workbook", () => {
     XLSX.read(buffer, { type: "buffer" }).Sheets["Report"]!
   );
   assert.equal(report[0]?.["Stato"], "Da controllare");
+});
+
+// La fonte dà due cifre e la seconda mente: su una riga verificata a mano
+// dichiarava una «promozione» a 1,51 mentre la pagina Taobao chiedeva 3,00, e
+// in archivio 61 inserzioni hanno una promozione più cara del listino. La v2
+// quota sul listino della variante predefinita, che è ciò che si paga.
+test("la v2 quota sul listino, non sulla promozione dichiarata dalla fonte", () => {
+  const stecchini = candidate("coherent", { price: 3, promotionPrice: 1.51 });
+  assert.equal(v2QuotationPrice(stecchini), 3);
+
+  // Senza listino resta l'unica cifra disponibile: meglio quella che nessuna.
+  const soloPromo = candidate("coherent", { price: null, promotionPrice: 1.51 });
+  assert.equal(v2QuotationPrice(soloPromo), 1.51);
+
+  const buffer = runWithLocale("it", () =>
+    buildV2ClientReport(results([row(1, [stecchini])]), { markupPct: 0 })
+  );
+  const report = XLSX.utils.sheet_to_json<Record<string, unknown>>(
+    XLSX.read(buffer, { type: "buffer" }).Sheets["Report"]!
+  );
+  assert.equal(report[0]?.["Prezzo 1"], 3);
 });

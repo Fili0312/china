@@ -2,7 +2,7 @@ import type { Locale, TaobaoCandidate, TaobaoJobResults, TaobaoRowResults } from
 import * as XLSX from "xlsx";
 import { currentLocale } from "../i18n/request-locale";
 import { exportFileName } from "./export-workbook";
-import { effectivePrice, markedUpPrice, reportCandidates, reportFileName } from "./report-workbook";
+import { markedUpPrice, reportCandidates, reportFileName } from "./report-workbook";
 import { v2CandidateCoherence } from "./v2-review-contract";
 
 /**
@@ -109,6 +109,24 @@ const labels: Record<
     reportSheet: "Report",
   },
 };
+
+/**
+ * Il prezzo su cui la v2 quota: **il listino della variante predefinita**.
+ *
+ * La fonte restituisce due cifre per ogni inserzione, `price` e
+ * `promotionPrice`, e la seconda non è affidabile: su una riga di stecchini
+ * dichiarava 1,51 mentre la pagina Taobao ne chiedeva 3,00, e in archivio ci
+ * sono 61 prodotti la cui «promozione» costa **più** del listino — cosa che
+ * una promozione non può fare. Fidarsene sbaglia nel verso peggiore: si quota
+ * basso e si paga alto, e il margine se ne va senza che nessuno se ne accorga
+ * prima della fattura.
+ *
+ * La promozione resta scritta accanto come informazione da verificare sulla
+ * pagina, ma non entra nei numeri. La v1 continua a usare la sua regola.
+ */
+export function v2QuotationPrice(candidate: TaobaoCandidate): number | null {
+  return candidate.product.price ?? candidate.product.promotionPrice ?? null;
+}
 
 export type V2ReviewStatus =
   | "correct"
@@ -320,7 +338,7 @@ export function buildV2TaobaoExport(
       candidate?.product.title ?? "",
       candidate ? (selectedVariantOrSku(candidate) ?? "") : "",
       candidate ? (productSaleUnit(candidate) ?? "") : "",
-      candidate ? (effectivePrice(candidate) ?? "") : "",
+      candidate ? (v2QuotationPrice(candidate) ?? "") : "",
       candidate?.product.currency ?? "",
       candidate?.product.imageUrl ?? "",
       candidate?.product.url ?? "",
@@ -360,7 +378,7 @@ export function buildV2TaobaoExport(
         candidate.product.title,
         selectedVariantOrSku(candidate) ?? "",
         productSaleUnit(candidate) ?? "",
-        effectivePrice(candidate) ?? "",
+        v2QuotationPrice(candidate) ?? "",
         candidate.product.currency ?? "",
         candidate.product.imageUrl ?? "",
         candidate.product.url ?? "",
@@ -413,7 +431,7 @@ export function buildV2ClientReport(
     const candidates = reportCandidates(v2UsableCandidates(row.candidates));
     const cells = (candidate: TaobaoCandidate | undefined) => {
       if (!candidate) return ["", "", "", "", "", "", ""];
-      const price = effectivePrice(candidate);
+      const price = v2QuotationPrice(candidate);
       return [
         candidate.product.title,
         selectedVariantOrSku(candidate) ?? "",

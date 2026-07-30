@@ -58,6 +58,7 @@ export type TaobaoPipelineMinAggregateOutputType = {
   datasetId: string | null
   status: $Enums.TaobaoPipelineStatus | null
   phase: $Enums.TaobaoPipelinePhase | null
+  mode: string | null
   progress: number | null
   step: string | null
   markupPct: number | null
@@ -82,6 +83,7 @@ export type TaobaoPipelineMaxAggregateOutputType = {
   datasetId: string | null
   status: $Enums.TaobaoPipelineStatus | null
   phase: $Enums.TaobaoPipelinePhase | null
+  mode: string | null
   progress: number | null
   step: string | null
   markupPct: number | null
@@ -106,6 +108,7 @@ export type TaobaoPipelineCountAggregateOutputType = {
   datasetId: number
   status: number
   phase: number
+  mode: number
   progress: number
   step: number
   stepParams: number
@@ -154,6 +157,7 @@ export type TaobaoPipelineMinAggregateInputType = {
   datasetId?: true
   status?: true
   phase?: true
+  mode?: true
   progress?: true
   step?: true
   markupPct?: true
@@ -178,6 +182,7 @@ export type TaobaoPipelineMaxAggregateInputType = {
   datasetId?: true
   status?: true
   phase?: true
+  mode?: true
   progress?: true
   step?: true
   markupPct?: true
@@ -202,6 +207,7 @@ export type TaobaoPipelineCountAggregateInputType = {
   datasetId?: true
   status?: true
   phase?: true
+  mode?: true
   progress?: true
   step?: true
   stepParams?: true
@@ -317,6 +323,7 @@ export type TaobaoPipelineGroupByOutputType = {
   datasetId: string
   status: $Enums.TaobaoPipelineStatus
   phase: $Enums.TaobaoPipelinePhase
+  mode: string
   progress: number
   step: string
   stepParams: runtime.JsonValue | null
@@ -368,6 +375,7 @@ export type TaobaoPipelineWhereInput = {
   datasetId?: Prisma.StringFilter<"TaobaoPipeline"> | string
   status?: Prisma.EnumTaobaoPipelineStatusFilter<"TaobaoPipeline"> | $Enums.TaobaoPipelineStatus
   phase?: Prisma.EnumTaobaoPipelinePhaseFilter<"TaobaoPipeline"> | $Enums.TaobaoPipelinePhase
+  mode?: Prisma.StringFilter<"TaobaoPipeline"> | string
   progress?: Prisma.IntFilter<"TaobaoPipeline"> | number
   step?: Prisma.StringFilter<"TaobaoPipeline"> | string
   stepParams?: Prisma.JsonNullableFilter<"TaobaoPipeline">
@@ -401,6 +409,7 @@ export type TaobaoPipelineOrderByWithRelationInput = {
   datasetId?: Prisma.SortOrder
   status?: Prisma.SortOrder
   phase?: Prisma.SortOrder
+  mode?: Prisma.SortOrder
   progress?: Prisma.SortOrder
   step?: Prisma.SortOrder
   stepParams?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -437,6 +446,7 @@ export type TaobaoPipelineWhereUniqueInput = Prisma.AtLeast<{
   datasetId?: Prisma.StringFilter<"TaobaoPipeline"> | string
   status?: Prisma.EnumTaobaoPipelineStatusFilter<"TaobaoPipeline"> | $Enums.TaobaoPipelineStatus
   phase?: Prisma.EnumTaobaoPipelinePhaseFilter<"TaobaoPipeline"> | $Enums.TaobaoPipelinePhase
+  mode?: Prisma.StringFilter<"TaobaoPipeline"> | string
   progress?: Prisma.IntFilter<"TaobaoPipeline"> | number
   step?: Prisma.StringFilter<"TaobaoPipeline"> | string
   stepParams?: Prisma.JsonNullableFilter<"TaobaoPipeline">
@@ -470,6 +480,7 @@ export type TaobaoPipelineOrderByWithAggregationInput = {
   datasetId?: Prisma.SortOrder
   status?: Prisma.SortOrder
   phase?: Prisma.SortOrder
+  mode?: Prisma.SortOrder
   progress?: Prisma.SortOrder
   step?: Prisma.SortOrder
   stepParams?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -506,6 +517,7 @@ export type TaobaoPipelineScalarWhereWithAggregatesInput = {
   datasetId?: Prisma.StringWithAggregatesFilter<"TaobaoPipeline"> | string
   status?: Prisma.EnumTaobaoPipelineStatusWithAggregatesFilter<"TaobaoPipeline"> | $Enums.TaobaoPipelineStatus
   phase?: Prisma.EnumTaobaoPipelinePhaseWithAggregatesFilter<"TaobaoPipeline"> | $Enums.TaobaoPipelinePhase
+  mode?: Prisma.StringWithAggregatesFilter<"TaobaoPipeline"> | string
   progress?: Prisma.IntWithAggregatesFilter<"TaobaoPipeline"> | number
   step?: Prisma.StringWithAggregatesFilter<"TaobaoPipeline"> | string
   stepParams?: Prisma.JsonNullableWithAggregatesFilter<"TaobaoPipeline">
@@ -532,6 +544,7 @@ export type TaobaoPipelineCreateInput = {
   id?: string
   status?: $Enums.TaobaoPipelineStatus
   phase?: $Enums.TaobaoPipelinePhase
+  mode?: string
   progress?: number
   step?: string
   stepParams?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
@@ -563,6 +576,7 @@ export type TaobaoPipelineUncheckedCreateInput = {
   datasetId: string
   status?: $Enums.TaobaoPipelineStatus
   phase?: $Enums.TaobaoPipelinePhase
+  mode?: string
   progress?: number
   step?: string
   stepParams?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
@@ -590,6 +604,7 @@ export type TaobaoPipelineUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.EnumTaobaoPipelineStatusFieldUpdateOperationsInput | $Enums.TaobaoPipelineStatus
   phase?: Prisma.EnumTaobaoPipelinePhaseFieldUpdateOperationsInput | $Enums.TaobaoPipelinePhase
+  mode?: Prisma.StringFieldUpdateOperationsInput | string
   progress?: Prisma.IntFieldUpdateOperationsInput | number
   step?: Prisma.StringFieldUpdateOperationsInput | string
   stepParams?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
@@ -621,6 +636,7 @@ export type TaobaoPipelineUncheckedUpdateInput = {
   datasetId?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.EnumTaobaoPipelineStatusFieldUpdateOperationsInput | $Enums.TaobaoPipelineStatus
   phase?: Prisma.EnumTaobaoPipelinePhaseFieldUpdateOperationsInput | $Enums.TaobaoPipelinePhase
+  mode?: Prisma.StringFieldUpdateOperationsInput | string
   progress?: Prisma.IntFieldUpdateOperationsInput | number
   step?: Prisma.StringFieldUpdateOperationsInput | string
   stepParams?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
@@ -650,6 +666,7 @@ export type TaobaoPipelineCreateManyInput = {
   datasetId: string
   status?: $Enums.TaobaoPipelineStatus
   phase?: $Enums.TaobaoPipelinePhase
+  mode?: string
   progress?: number
   step?: string
   stepParams?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
@@ -676,6 +693,7 @@ export type TaobaoPipelineUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.EnumTaobaoPipelineStatusFieldUpdateOperationsInput | $Enums.TaobaoPipelineStatus
   phase?: Prisma.EnumTaobaoPipelinePhaseFieldUpdateOperationsInput | $Enums.TaobaoPipelinePhase
+  mode?: Prisma.StringFieldUpdateOperationsInput | string
   progress?: Prisma.IntFieldUpdateOperationsInput | number
   step?: Prisma.StringFieldUpdateOperationsInput | string
   stepParams?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
@@ -702,6 +720,7 @@ export type TaobaoPipelineUncheckedUpdateManyInput = {
   datasetId?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.EnumTaobaoPipelineStatusFieldUpdateOperationsInput | $Enums.TaobaoPipelineStatus
   phase?: Prisma.EnumTaobaoPipelinePhaseFieldUpdateOperationsInput | $Enums.TaobaoPipelinePhase
+  mode?: Prisma.StringFieldUpdateOperationsInput | string
   progress?: Prisma.IntFieldUpdateOperationsInput | number
   step?: Prisma.StringFieldUpdateOperationsInput | string
   stepParams?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
@@ -753,6 +772,7 @@ export type TaobaoPipelineCountOrderByAggregateInput = {
   datasetId?: Prisma.SortOrder
   status?: Prisma.SortOrder
   phase?: Prisma.SortOrder
+  mode?: Prisma.SortOrder
   progress?: Prisma.SortOrder
   step?: Prisma.SortOrder
   stepParams?: Prisma.SortOrder
@@ -790,6 +810,7 @@ export type TaobaoPipelineMaxOrderByAggregateInput = {
   datasetId?: Prisma.SortOrder
   status?: Prisma.SortOrder
   phase?: Prisma.SortOrder
+  mode?: Prisma.SortOrder
   progress?: Prisma.SortOrder
   step?: Prisma.SortOrder
   markupPct?: Prisma.SortOrder
@@ -814,6 +835,7 @@ export type TaobaoPipelineMinOrderByAggregateInput = {
   datasetId?: Prisma.SortOrder
   status?: Prisma.SortOrder
   phase?: Prisma.SortOrder
+  mode?: Prisma.SortOrder
   progress?: Prisma.SortOrder
   step?: Prisma.SortOrder
   markupPct?: Prisma.SortOrder
@@ -1046,6 +1068,7 @@ export type TaobaoPipelineCreateWithoutClientInput = {
   id?: string
   status?: $Enums.TaobaoPipelineStatus
   phase?: $Enums.TaobaoPipelinePhase
+  mode?: string
   progress?: number
   step?: string
   stepParams?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
@@ -1075,6 +1098,7 @@ export type TaobaoPipelineUncheckedCreateWithoutClientInput = {
   datasetId: string
   status?: $Enums.TaobaoPipelineStatus
   phase?: $Enums.TaobaoPipelinePhase
+  mode?: string
   progress?: number
   step?: string
   stepParams?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
@@ -1133,6 +1157,7 @@ export type TaobaoPipelineScalarWhereInput = {
   datasetId?: Prisma.StringFilter<"TaobaoPipeline"> | string
   status?: Prisma.EnumTaobaoPipelineStatusFilter<"TaobaoPipeline"> | $Enums.TaobaoPipelineStatus
   phase?: Prisma.EnumTaobaoPipelinePhaseFilter<"TaobaoPipeline"> | $Enums.TaobaoPipelinePhase
+  mode?: Prisma.StringFilter<"TaobaoPipeline"> | string
   progress?: Prisma.IntFilter<"TaobaoPipeline"> | number
   step?: Prisma.StringFilter<"TaobaoPipeline"> | string
   stepParams?: Prisma.JsonNullableFilter<"TaobaoPipeline">
@@ -1159,6 +1184,7 @@ export type TaobaoPipelineCreateWithoutDatasetInput = {
   id?: string
   status?: $Enums.TaobaoPipelineStatus
   phase?: $Enums.TaobaoPipelinePhase
+  mode?: string
   progress?: number
   step?: string
   stepParams?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
@@ -1188,6 +1214,7 @@ export type TaobaoPipelineUncheckedCreateWithoutDatasetInput = {
   clientId: string
   status?: $Enums.TaobaoPipelineStatus
   phase?: $Enums.TaobaoPipelinePhase
+  mode?: string
   progress?: number
   step?: string
   stepParams?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
@@ -1241,6 +1268,7 @@ export type TaobaoPipelineCreateWithoutAnalysisRunInput = {
   id?: string
   status?: $Enums.TaobaoPipelineStatus
   phase?: $Enums.TaobaoPipelinePhase
+  mode?: string
   progress?: number
   step?: string
   stepParams?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
@@ -1271,6 +1299,7 @@ export type TaobaoPipelineUncheckedCreateWithoutAnalysisRunInput = {
   datasetId: string
   status?: $Enums.TaobaoPipelineStatus
   phase?: $Enums.TaobaoPipelinePhase
+  mode?: string
   progress?: number
   step?: string
   stepParams?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
@@ -1323,6 +1352,7 @@ export type TaobaoPipelineCreateWithoutJobInput = {
   id?: string
   status?: $Enums.TaobaoPipelineStatus
   phase?: $Enums.TaobaoPipelinePhase
+  mode?: string
   progress?: number
   step?: string
   stepParams?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
@@ -1353,6 +1383,7 @@ export type TaobaoPipelineUncheckedCreateWithoutJobInput = {
   datasetId: string
   status?: $Enums.TaobaoPipelineStatus
   phase?: $Enums.TaobaoPipelinePhase
+  mode?: string
   progress?: number
   step?: string
   stepParams?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
@@ -1405,6 +1436,7 @@ export type TaobaoPipelineCreateWithoutClarificationsInput = {
   id?: string
   status?: $Enums.TaobaoPipelineStatus
   phase?: $Enums.TaobaoPipelinePhase
+  mode?: string
   progress?: number
   step?: string
   stepParams?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
@@ -1435,6 +1467,7 @@ export type TaobaoPipelineUncheckedCreateWithoutClarificationsInput = {
   datasetId: string
   status?: $Enums.TaobaoPipelineStatus
   phase?: $Enums.TaobaoPipelinePhase
+  mode?: string
   progress?: number
   step?: string
   stepParams?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
@@ -1477,6 +1510,7 @@ export type TaobaoPipelineUpdateWithoutClarificationsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.EnumTaobaoPipelineStatusFieldUpdateOperationsInput | $Enums.TaobaoPipelineStatus
   phase?: Prisma.EnumTaobaoPipelinePhaseFieldUpdateOperationsInput | $Enums.TaobaoPipelinePhase
+  mode?: Prisma.StringFieldUpdateOperationsInput | string
   progress?: Prisma.IntFieldUpdateOperationsInput | number
   step?: Prisma.StringFieldUpdateOperationsInput | string
   stepParams?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
@@ -1507,6 +1541,7 @@ export type TaobaoPipelineUncheckedUpdateWithoutClarificationsInput = {
   datasetId?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.EnumTaobaoPipelineStatusFieldUpdateOperationsInput | $Enums.TaobaoPipelineStatus
   phase?: Prisma.EnumTaobaoPipelinePhaseFieldUpdateOperationsInput | $Enums.TaobaoPipelinePhase
+  mode?: Prisma.StringFieldUpdateOperationsInput | string
   progress?: Prisma.IntFieldUpdateOperationsInput | number
   step?: Prisma.StringFieldUpdateOperationsInput | string
   stepParams?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
@@ -1534,6 +1569,7 @@ export type TaobaoPipelineCreateManyClientInput = {
   datasetId: string
   status?: $Enums.TaobaoPipelineStatus
   phase?: $Enums.TaobaoPipelinePhase
+  mode?: string
   progress?: number
   step?: string
   stepParams?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
@@ -1560,6 +1596,7 @@ export type TaobaoPipelineUpdateWithoutClientInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.EnumTaobaoPipelineStatusFieldUpdateOperationsInput | $Enums.TaobaoPipelineStatus
   phase?: Prisma.EnumTaobaoPipelinePhaseFieldUpdateOperationsInput | $Enums.TaobaoPipelinePhase
+  mode?: Prisma.StringFieldUpdateOperationsInput | string
   progress?: Prisma.IntFieldUpdateOperationsInput | number
   step?: Prisma.StringFieldUpdateOperationsInput | string
   stepParams?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
@@ -1589,6 +1626,7 @@ export type TaobaoPipelineUncheckedUpdateWithoutClientInput = {
   datasetId?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.EnumTaobaoPipelineStatusFieldUpdateOperationsInput | $Enums.TaobaoPipelineStatus
   phase?: Prisma.EnumTaobaoPipelinePhaseFieldUpdateOperationsInput | $Enums.TaobaoPipelinePhase
+  mode?: Prisma.StringFieldUpdateOperationsInput | string
   progress?: Prisma.IntFieldUpdateOperationsInput | number
   step?: Prisma.StringFieldUpdateOperationsInput | string
   stepParams?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
@@ -1617,6 +1655,7 @@ export type TaobaoPipelineUncheckedUpdateManyWithoutClientInput = {
   datasetId?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.EnumTaobaoPipelineStatusFieldUpdateOperationsInput | $Enums.TaobaoPipelineStatus
   phase?: Prisma.EnumTaobaoPipelinePhaseFieldUpdateOperationsInput | $Enums.TaobaoPipelinePhase
+  mode?: Prisma.StringFieldUpdateOperationsInput | string
   progress?: Prisma.IntFieldUpdateOperationsInput | number
   step?: Prisma.StringFieldUpdateOperationsInput | string
   stepParams?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
@@ -1644,6 +1683,7 @@ export type TaobaoPipelineCreateManyDatasetInput = {
   clientId: string
   status?: $Enums.TaobaoPipelineStatus
   phase?: $Enums.TaobaoPipelinePhase
+  mode?: string
   progress?: number
   step?: string
   stepParams?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
@@ -1670,6 +1710,7 @@ export type TaobaoPipelineUpdateWithoutDatasetInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.EnumTaobaoPipelineStatusFieldUpdateOperationsInput | $Enums.TaobaoPipelineStatus
   phase?: Prisma.EnumTaobaoPipelinePhaseFieldUpdateOperationsInput | $Enums.TaobaoPipelinePhase
+  mode?: Prisma.StringFieldUpdateOperationsInput | string
   progress?: Prisma.IntFieldUpdateOperationsInput | number
   step?: Prisma.StringFieldUpdateOperationsInput | string
   stepParams?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
@@ -1699,6 +1740,7 @@ export type TaobaoPipelineUncheckedUpdateWithoutDatasetInput = {
   clientId?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.EnumTaobaoPipelineStatusFieldUpdateOperationsInput | $Enums.TaobaoPipelineStatus
   phase?: Prisma.EnumTaobaoPipelinePhaseFieldUpdateOperationsInput | $Enums.TaobaoPipelinePhase
+  mode?: Prisma.StringFieldUpdateOperationsInput | string
   progress?: Prisma.IntFieldUpdateOperationsInput | number
   step?: Prisma.StringFieldUpdateOperationsInput | string
   stepParams?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
@@ -1727,6 +1769,7 @@ export type TaobaoPipelineUncheckedUpdateManyWithoutDatasetInput = {
   clientId?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.EnumTaobaoPipelineStatusFieldUpdateOperationsInput | $Enums.TaobaoPipelineStatus
   phase?: Prisma.EnumTaobaoPipelinePhaseFieldUpdateOperationsInput | $Enums.TaobaoPipelinePhase
+  mode?: Prisma.StringFieldUpdateOperationsInput | string
   progress?: Prisma.IntFieldUpdateOperationsInput | number
   step?: Prisma.StringFieldUpdateOperationsInput | string
   stepParams?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
@@ -1755,6 +1798,7 @@ export type TaobaoPipelineCreateManyAnalysisRunInput = {
   datasetId: string
   status?: $Enums.TaobaoPipelineStatus
   phase?: $Enums.TaobaoPipelinePhase
+  mode?: string
   progress?: number
   step?: string
   stepParams?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
@@ -1780,6 +1824,7 @@ export type TaobaoPipelineUpdateWithoutAnalysisRunInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.EnumTaobaoPipelineStatusFieldUpdateOperationsInput | $Enums.TaobaoPipelineStatus
   phase?: Prisma.EnumTaobaoPipelinePhaseFieldUpdateOperationsInput | $Enums.TaobaoPipelinePhase
+  mode?: Prisma.StringFieldUpdateOperationsInput | string
   progress?: Prisma.IntFieldUpdateOperationsInput | number
   step?: Prisma.StringFieldUpdateOperationsInput | string
   stepParams?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
@@ -1810,6 +1855,7 @@ export type TaobaoPipelineUncheckedUpdateWithoutAnalysisRunInput = {
   datasetId?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.EnumTaobaoPipelineStatusFieldUpdateOperationsInput | $Enums.TaobaoPipelineStatus
   phase?: Prisma.EnumTaobaoPipelinePhaseFieldUpdateOperationsInput | $Enums.TaobaoPipelinePhase
+  mode?: Prisma.StringFieldUpdateOperationsInput | string
   progress?: Prisma.IntFieldUpdateOperationsInput | number
   step?: Prisma.StringFieldUpdateOperationsInput | string
   stepParams?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
@@ -1838,6 +1884,7 @@ export type TaobaoPipelineUncheckedUpdateManyWithoutAnalysisRunInput = {
   datasetId?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.EnumTaobaoPipelineStatusFieldUpdateOperationsInput | $Enums.TaobaoPipelineStatus
   phase?: Prisma.EnumTaobaoPipelinePhaseFieldUpdateOperationsInput | $Enums.TaobaoPipelinePhase
+  mode?: Prisma.StringFieldUpdateOperationsInput | string
   progress?: Prisma.IntFieldUpdateOperationsInput | number
   step?: Prisma.StringFieldUpdateOperationsInput | string
   stepParams?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
@@ -1865,6 +1912,7 @@ export type TaobaoPipelineCreateManyJobInput = {
   datasetId: string
   status?: $Enums.TaobaoPipelineStatus
   phase?: $Enums.TaobaoPipelinePhase
+  mode?: string
   progress?: number
   step?: string
   stepParams?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
@@ -1890,6 +1938,7 @@ export type TaobaoPipelineUpdateWithoutJobInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.EnumTaobaoPipelineStatusFieldUpdateOperationsInput | $Enums.TaobaoPipelineStatus
   phase?: Prisma.EnumTaobaoPipelinePhaseFieldUpdateOperationsInput | $Enums.TaobaoPipelinePhase
+  mode?: Prisma.StringFieldUpdateOperationsInput | string
   progress?: Prisma.IntFieldUpdateOperationsInput | number
   step?: Prisma.StringFieldUpdateOperationsInput | string
   stepParams?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
@@ -1920,6 +1969,7 @@ export type TaobaoPipelineUncheckedUpdateWithoutJobInput = {
   datasetId?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.EnumTaobaoPipelineStatusFieldUpdateOperationsInput | $Enums.TaobaoPipelineStatus
   phase?: Prisma.EnumTaobaoPipelinePhaseFieldUpdateOperationsInput | $Enums.TaobaoPipelinePhase
+  mode?: Prisma.StringFieldUpdateOperationsInput | string
   progress?: Prisma.IntFieldUpdateOperationsInput | number
   step?: Prisma.StringFieldUpdateOperationsInput | string
   stepParams?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
@@ -1948,6 +1998,7 @@ export type TaobaoPipelineUncheckedUpdateManyWithoutJobInput = {
   datasetId?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.EnumTaobaoPipelineStatusFieldUpdateOperationsInput | $Enums.TaobaoPipelineStatus
   phase?: Prisma.EnumTaobaoPipelinePhaseFieldUpdateOperationsInput | $Enums.TaobaoPipelinePhase
+  mode?: Prisma.StringFieldUpdateOperationsInput | string
   progress?: Prisma.IntFieldUpdateOperationsInput | number
   step?: Prisma.StringFieldUpdateOperationsInput | string
   stepParams?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
@@ -2006,6 +2057,7 @@ export type TaobaoPipelineSelect<ExtArgs extends runtime.Types.Extensions.Intern
   datasetId?: boolean
   status?: boolean
   phase?: boolean
+  mode?: boolean
   progress?: boolean
   step?: boolean
   stepParams?: boolean
@@ -2040,6 +2092,7 @@ export type TaobaoPipelineSelectCreateManyAndReturn<ExtArgs extends runtime.Type
   datasetId?: boolean
   status?: boolean
   phase?: boolean
+  mode?: boolean
   progress?: boolean
   step?: boolean
   stepParams?: boolean
@@ -2072,6 +2125,7 @@ export type TaobaoPipelineSelectUpdateManyAndReturn<ExtArgs extends runtime.Type
   datasetId?: boolean
   status?: boolean
   phase?: boolean
+  mode?: boolean
   progress?: boolean
   step?: boolean
   stepParams?: boolean
@@ -2104,6 +2158,7 @@ export type TaobaoPipelineSelectScalar = {
   datasetId?: boolean
   status?: boolean
   phase?: boolean
+  mode?: boolean
   progress?: boolean
   step?: boolean
   stepParams?: boolean
@@ -2126,7 +2181,7 @@ export type TaobaoPipelineSelectScalar = {
   updatedAt?: boolean
 }
 
-export type TaobaoPipelineOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "clientId" | "datasetId" | "status" | "phase" | "progress" | "step" | "stepParams" | "mapping" | "markupPct" | "maxRefineRounds" | "forceFullSearch" | "locale" | "analysisRunId" | "jobId" | "refineRounds" | "questionRound" | "recoveredRows" | "completedPhases" | "outcome" | "error" | "startedAt" | "finishedAt" | "createdAt" | "updatedAt", ExtArgs["result"]["taobaoPipeline"]>
+export type TaobaoPipelineOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "clientId" | "datasetId" | "status" | "phase" | "mode" | "progress" | "step" | "stepParams" | "mapping" | "markupPct" | "maxRefineRounds" | "forceFullSearch" | "locale" | "analysisRunId" | "jobId" | "refineRounds" | "questionRound" | "recoveredRows" | "completedPhases" | "outcome" | "error" | "startedAt" | "finishedAt" | "createdAt" | "updatedAt", ExtArgs["result"]["taobaoPipeline"]>
 export type TaobaoPipelineInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   client?: boolean | Prisma.ClientDefaultArgs<ExtArgs>
   dataset?: boolean | Prisma.TaobaoDatasetDefaultArgs<ExtArgs>
@@ -2163,6 +2218,18 @@ export type $TaobaoPipelinePayload<ExtArgs extends runtime.Types.Extensions.Inte
     datasetId: string
     status: $Enums.TaobaoPipelineStatus
     phase: $Enums.TaobaoPipelinePhase
+    /**
+     * Quale delle due pagine ha avviato la corsa: `v2` o `v3`.
+     * 
+     * La v3 non è un secondo backend: è la stessa pipeline con due regole
+     * diverse — i prodotti con un link nel foglio si risolvono aprendo il link
+     * invece di cercarli, e per gli altri si guardano più candidati scegliendo
+     * il più economico fra quelli che corrispondono davvero. Tenere il segno
+     * sulla corsa (e non su un interruttore globale) è ciò che permette alle
+     * due di convivere: una corsa v2 avviata ieri resta una corsa v2 anche se
+     * la si riapre domani.
+     */
+    mode: string
     /**
      * 0-100. Monotono: non torna indietro nemmeno fra un giro di ri-ricerca e l'altro.
      */
@@ -2644,6 +2711,7 @@ export interface TaobaoPipelineFieldRefs {
   readonly datasetId: Prisma.FieldRef<"TaobaoPipeline", 'String'>
   readonly status: Prisma.FieldRef<"TaobaoPipeline", 'TaobaoPipelineStatus'>
   readonly phase: Prisma.FieldRef<"TaobaoPipeline", 'TaobaoPipelinePhase'>
+  readonly mode: Prisma.FieldRef<"TaobaoPipeline", 'String'>
   readonly progress: Prisma.FieldRef<"TaobaoPipeline", 'Int'>
   readonly step: Prisma.FieldRef<"TaobaoPipeline", 'String'>
   readonly stepParams: Prisma.FieldRef<"TaobaoPipeline", 'Json'>

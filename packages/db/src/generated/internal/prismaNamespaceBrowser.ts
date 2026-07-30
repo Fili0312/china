@@ -799,6 +799,7 @@ export const TaobaoPipelineScalarFieldEnum = {
   datasetId: 'datasetId',
   status: 'status',
   phase: 'phase',
+  mode: 'mode',
   progress: 'progress',
   step: 'step',
   stepParams: 'stepParams',

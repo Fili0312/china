@@ -140,6 +140,65 @@ export class ElimApiClient {
    * risultato — piattaforma, lingua, ordinamento, pagina — altrimenti una
    * ricerca su 1688 servirebbe i risultati salvati per Taobao.
    */
+  /**
+   * Il dettaglio di un'inserzione: titolo, prezzo e **l'elenco delle varianti**.
+   *
+   * È l'unica fonte configurata che sappia dire quali SKU esistono su una
+   * pagina e quanto costa ciascuna — DataHub non ce l'ha proprio (`/item_sku`,
+   * `/item_desc`, `/item_detail_v2` rispondono «endpoint does not exist», e
+   * `item_detail` risponde 205 da sempre). Serve alla v3 per risolvere i link
+   * che il cliente mette nel foglio senza spendere una ricerca.
+   *
+   * La cache è quella condivisa e la stessa scadenza della ricerca: il prezzo
+   * di una variante non cambia da un'ora all'altra, e il piano di questa API
+   * è piccolo — 200 richieste al mese sul gratuito. Una chiamata per articolo,
+   * non per riga.
+   */
+  async detail(
+    itemId: string,
+    platform: TaobaoPlatform,
+    options: { ttlHours?: number } = {}
+  ): Promise<ElimResponse> {
+    const body = { id: itemId, platform: elimPlatform(platform) };
+    const cacheKey = createHash("sha256")
+      .update(`elim|${this.baseUrl}|detail|${JSON.stringify(body)}`)
+      .digest("hex")
+      .slice(0, 40);
+
+    const ttlHours = options.ttlHours ?? this.cacheTtlHours;
+    if (ttlHours > 0) {
+      const cached = await prisma.taobaoApiCache.findUnique({ where: { cacheKey } });
+      if (cached && Date.now() - cached.fetchedAt.getTime() < ttlHours * 3_600_000) {
+        this.cacheHits += 1;
+        return { payload: cached.payload, fromCache: true };
+      }
+    }
+
+    if (!this.isConfigured) {
+      throw new ElimApiError(
+        "ELI_API non configurata: il dettaglio prodotto non è disponibile.",
+        false,
+        "ELIM_NOT_CONFIGURED"
+      );
+    }
+
+    const payload = await this.post("/products/detail", body);
+    await prisma.taobaoApiCache
+      .upsert({
+        where: { cacheKey },
+        create: {
+          cacheKey,
+          endpoint: `elim-detail-${body.platform}`,
+          payload: payload as never,
+          credits: 1,
+        },
+        update: { payload: payload as never, fetchedAt: new Date(), credits: 1 },
+      })
+      .catch(() => undefined);
+    this.calls += 1;
+    return { payload, fromCache: false };
+  }
+
   async search(
     params: ElimSearchParams,
     options: { ttlHours?: number } = {}

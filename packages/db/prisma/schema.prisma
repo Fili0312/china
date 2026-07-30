@@ -1309,6 +1309,17 @@ model TaobaoPipeline {
   status TaobaoPipelineStatus @default(RUNNING)
   phase  TaobaoPipelinePhase  @default(QUEUED)
 
+  /// Quale delle due pagine ha avviato la corsa: `v2` o `v3`.
+  ///
+  /// La v3 non è un secondo backend: è la stessa pipeline con due regole
+  /// diverse — i prodotti con un link nel foglio si risolvono aprendo il link
+  /// invece di cercarli, e per gli altri si guardano più candidati scegliendo
+  /// il più economico fra quelli che corrispondono davvero. Tenere il segno
+  /// sulla corsa (e non su un interruttore globale) è ciò che permette alle
+  /// due di convivere: una corsa v2 avviata ieri resta una corsa v2 anche se
+  /// la si riapre domani.
+  mode String @default("v2")
+
   /// 0-100. Monotono: non torna indietro nemmeno fra un giro di ri-ricerca e l'altro.
   progress Int @default(0)
   /// Chiave del dizionario che descrive il passo in corso (mai una frase).

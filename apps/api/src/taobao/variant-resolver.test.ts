@@ -1,5 +1,10 @@
 import assert from "node:assert/strict";
 import test from "node:test";
+
+// La risoluzione è in pausa di default — costa tre chiamate a riga su un piano
+// da duecento al mese. I test la accendono, perché è il suo comportamento che
+// verificano, non l'interruttore.
+process.env.V3_VARIANT_RESOLUTION = "on";
 import { mapElimDetail } from "./providers/elim-detail";
 import { VariantResolverService } from "./variant-resolver.service";
 import type { ScoredProduct } from "./scoring";
@@ -117,6 +122,28 @@ test("senza nessun candidato risolto la classifica resta quella della ricerca", 
   assert.equal(esito.resolved, false);
   assert.equal(esito.ranked[0]!.product.itemId, "111");
   assert.equal(esito.ranked[0]!.product.price, 3);
+});
+
+test("da spenta non spende e non tocca niente", async () => {
+  const precedente = process.env.V3_VARIANT_RESOLUTION;
+  process.env.V3_VARIANT_RESOLUTION = "off";
+  const elim = {
+    isConfigured: true,
+    detail: async () => {
+      throw new Error("non deve essere chiamata");
+    },
+  };
+  const ranked = [prodotto("111", 3), prodotto("222", 4)];
+  const esito = await new VariantResolverService(elim as never).resolveAndPick({
+    ranked,
+    spec: "qualsiasi",
+    displayName: "riga",
+  });
+  process.env.V3_VARIANT_RESOLUTION = precedente;
+
+  assert.equal(esito.elimCalls, 0);
+  assert.equal(esito.resolved, false);
+  assert.equal(esito.ranked[0]!.product.itemId, "111");
 });
 
 test("senza Elim configurata non si spende e non si tocca niente", async () => {

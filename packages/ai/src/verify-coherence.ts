@@ -25,7 +25,7 @@ import { estimateCostUsd, estimateDeepSeekCostUsd } from "./usage";
  */
 
 /** Va cambiata a ogni modifica del prompt: è parte dell'identità del verdetto. */
-export const COHERENCE_PROMPT_VERSION = "2026-07-28.3";
+export const COHERENCE_PROMPT_VERSION = "2026-07-30.1";
 
 const SYSTEM = `Sei il controllo qualità di uno scouting di prodotti su Taobao/1688.
 
@@ -81,6 +81,7 @@ Regole:
 - Confronta ciò che è confrontabile: il materiale del corpo di un contenitore non contraddice la specifica del suo tappo o del suo ugello.
 - Un'inserzione che elenca più misure ("8/10/12 pollici") contiene la misura richiesta **solo se compare nell'elenco**: allora è una variante e non un conflitto. Se non compare, è un conflitto esplicito.
 - Un assortimento (un set, una confezione multipla) che comprende plausibilmente il pezzo richiesto è "unsure", non un rifiuto: la variante si sceglie in fase d'ordine.
+- **Un accessorio del prodotto non è il prodotto, ed è "incoherent".** Il nome del prodotto compare nel titolo di ciò che gli sta intorno: chi vende manici per calibri scrive «针规手柄», chi vende custodie per trapani scrive il nome del trapano. Sono cose che si usano *con* l'articolo richiesto, non l'articolo. La spia è nel titolo — manico, supporto, custodia, ricambio, adattatore, 手柄, 支架, 收纳盒, 配件 — e nel prezzo, che è una frazione di quello degli altri candidati.
 - Un prezzo fuori scala rispetto agli altri candidati della stessa richiesta va segnalato in "issues" (possibile unità di vendita diversa: pezzo singolo vs confezione), ma da solo non basta per "incoherent".
 - "confidence" da 0 a 1 sul tuo verdetto.
 

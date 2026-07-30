@@ -33,6 +33,22 @@ import type { ScoredProduct } from "./scoring";
 export const VARIANT_RESOLVE_TOP_N = 3;
 
 /**
+ * L'interruttore della risoluzione varianti, **spento** finché non lo si accende.
+ *
+ * Non è una preferenza, è il conto delle chiamate: ogni riga cercata ne consuma
+ * tre e il piano è a duecento al mese. Fino a che trovare il **prodotto** giusto
+ * non è affidabile, spendere per sapere quale sua variante comprare è spendere
+ * per raffinare una risposta sbagliata.
+ *
+ * Si riaccende con `V3_VARIANT_RESOLUTION=on`; le righe con il link restano
+ * risolte comunque, perché lì il prodotto non è in discussione — l'ha scelto il
+ * cliente — e la chiamata è una sola.
+ */
+export function variantResolutionEnabled(): boolean {
+  return /^(on|1|true|yes)$/i.test((process.env.V3_VARIANT_RESOLUTION ?? "").trim());
+}
+
+/**
  * Sotto questa confidenza la scelta del modello non vale: la riga torna a
  * essere una domanda per una persona. Una variante sbagliata scelta con
  * sicurezza è peggio di una casella vuota, perché nessuno la ricontrolla.
@@ -115,6 +131,7 @@ export class VariantResolverService {
       aiPicks: 0,
       resolved: false,
     };
+    if (!variantResolutionEnabled()) return esito;
     if (!this.elim.isConfigured || input.ranked.length === 0) return esito;
 
     const spec = input.spec?.trim() || null;

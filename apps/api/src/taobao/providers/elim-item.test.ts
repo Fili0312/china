@@ -390,9 +390,15 @@ test("una variante senza nome non presta il proprio identificativo", () => {
     "taobao"
   )!;
   const scelta = pickElimSku(unica, { spec: "MT-2502K" });
-  const prodotto = elimDetailToProduct(unica, scelta, null);
+  const prodotto = elimDetailToProduct(
+    unica,
+    scelta,
+    "https://detail.tmall.com/item.htm?id=664963804895"
+  );
   assert.equal(prodotto.price, 89);
   assert.equal(prodotto.sku, null);
+  // E nemmeno lo appiccica al link: «skuId=0» non seleziona niente.
+  assert.doesNotMatch(prodotto.url!, /skuId/);
 });
 
 test("la colonna specifiche sceglie la variante, anche scritta diversamente", () => {

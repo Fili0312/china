@@ -387,7 +387,11 @@ function prezzoEffettivo(sku: ElimSku): number | null {
  * link condivisi: i link del foglio del cliente ce l'hanno già.
  */
 function withSkuId(url: string | null, skuId: string | null): string | null {
-  if (!url || !skuId) return url;
+  // «0» non è l'identificativo di niente: è quello che le inserzioni a variante
+  // unica mettono al posto di un identificativo vero. Appenderlo aggiunge un
+  // parametro che non seleziona nulla a un link che non ha nulla da
+  // selezionare.
+  if (!url || !skuId || skuId === "0") return url;
   try {
     const indirizzo = new URL(url);
     indirizzo.searchParams.set("skuId", skuId);

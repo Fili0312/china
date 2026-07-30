@@ -232,6 +232,77 @@ test("a parità di fascia vince la più economica, non il cofanetto", () => {
   assert.equal(scelta.sku?.price, 7);
 });
 
+// Cifre vere dell'inserzione 979122015458, quella dei stecchini: il foglio
+// chiede il barattolo da 800 e la pagina lo vende a 10,01, non a 12,01.
+test("si quota il prezzo scontato della variante, non il suo listino", () => {
+  const stecchini = mapElimDetail(
+    {
+      success: true,
+      id: "979122015458",
+      title: "双头尖牙签",
+      price: 12.01,
+      promotion_price: 6.1,
+      skus: [
+        { id: "5857691449583", price: 8.01, promotion_price: 6.1,
+          options: [{ name: "规格", value: "1瓶装双头尖翻盖瓶-约400支" }] },
+        { id: "5857691449584", price: 12.01, promotion_price: 10.01,
+          options: [{ name: "规格", value: "2瓶装双头尖翻盖瓶-约800支" }] },
+      ],
+    },
+    "taobao"
+  )!;
+  const scelta = pickElimSku(stecchini, { spec: "2瓶装双头尖翻盖瓶-约800支" });
+  const prodotto = elimDetailToProduct(stecchini, scelta, null);
+  assert.equal(prodotto.price, 10.01);
+  // Il listino resta accanto, per chi confronta con la pagina aperta.
+  assert.equal(prodotto.variantPrice, 12.01);
+});
+
+// Il guaio di DataHub non deve poter rientrare da questa porta.
+test("uno sconto più caro del listino non è uno sconto", () => {
+  const rotto = mapElimDetail(
+    {
+      success: true,
+      id: "1",
+      title: "prodotto con dato rotto",
+      price: 3,
+      skus: [{ id: "a", price: 3, promotion_price: 7.5, options: [{ name: "规格", value: "unica" }] }],
+    },
+    "taobao"
+  )!;
+  const scelta = pickElimSku(rotto, { spec: "unica" });
+  assert.equal(elimDetailToProduct(rotto, scelta, null).price, 3);
+});
+
+// Il link deve aprirsi sulla variante scelta, non sulla predefinita.
+test("il link porta alla variante, non solo all'inserzione", () => {
+  const nastro = mapElimDetail(
+    {
+      success: true,
+      id: "610947131928",
+      title: "高温美纹纸胶带",
+      price: 35,
+      skus: [
+        { id: "4842141672086", price: 13.8, promotion_price: 8.04,
+          options: [{ name: "规格", value: "18MM宽*50米长" }] },
+        { id: "4842141672092", price: 35, promotion_price: 20.4,
+          options: [{ name: "规格", value: "50MM宽*50米长" }] },
+      ],
+    },
+    "taobao"
+  )!;
+  const scelta = pickElimSku(nastro, { spec: "50MM宽*50米长" });
+  const prodotto = elimDetailToProduct(
+    nastro,
+    scelta,
+    "https://item.taobao.com/item.htm?id=610947131928&skuId=4842141672086"
+  );
+  assert.equal(prodotto.price, 20.4);
+  // Lo skuId vecchio del foglio viene sostituito da quello scelto.
+  assert.match(prodotto.url!, /skuId=4842141672092/);
+  assert.doesNotMatch(prodotto.url!, /4842141672086/);
+});
+
 // Etichette vere dell'inserzione della carta abrasiva: la variante giusta c'è,
 // ma scritta al contrario rispetto al foglio. Prima finiva a decidere a mano.
 test("le stesse parole in ordine diverso restano la stessa variante", () => {

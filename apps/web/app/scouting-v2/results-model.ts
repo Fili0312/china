@@ -94,13 +94,27 @@ export interface V2ResultRow {
   confidence: number | null;
   price: number | null;
   /**
-   * La promozione **dichiarata dalla fonte**, quando è più bassa del listino.
+   * La cifra da mostrare accanto al prezzo, quando ce n'è una.
    *
-   * Non entra nei conti: è un'informazione da verificare sulla pagina. Su una
-   * riga di stecchini la fonte diceva 1,51 e la pagina Taobao 3,00, e in
-   * archivio ci sono inserzioni la cui «promozione» costa più del listino.
+   * Sono due cose diverse a seconda di come è stato ottenuto il prezzo, e
+   * `promoIsList` dice quale:
+   *
+   * - la **promozione dichiarata dalla fonte**, per i prodotti che arrivano
+   *   dalla ricerca. Non entra nei conti: è da verificare sulla pagina. Su una
+   *   riga di stecchini la fonte diceva 1,51 e la pagina Taobao 3,00, e in
+   *   archivio ci sono inserzioni la cui «promozione» costa più del listino.
+   * - il **listino**, per i prodotti risolti dal link sulla variante esatta:
+   *   lì si quota lo sconto, ed è il prezzo pieno a fare da riferimento.
    */
   promoPrice: number | null;
+  /**
+   * `true` quando la cifra accanto è il **listino** e non una promozione.
+   *
+   * Le due si mostrano nello stesso posto ma vogliono dire il contrario: una è
+   * un dato da verificare, l'altra è il prezzo pieno da cui lo sconto scende.
+   * Chiamarle allo stesso modo confonderebbe chi legge.
+   */
+  promoIsList: boolean;
   currency: string | null;
   /** Unità di vendita del marketplace, mai l'unità richiesta nel foglio. */
   salesUnit: string | null;
@@ -208,16 +222,25 @@ export function buildV2ResultRows(
         candidate,
         actions,
       });
-      // Si quota sul listino della variante predefinita: è la cifra che la
-      // pagina chiede davvero. La promozione dichiarata dalla fonte resta
-      // accanto come nota, perché smentisce la pagina troppo spesso.
+      // La cifra grande è quella che la pagina chiede davvero, e a seconda
+      // della fonte non è la stessa cosa. Dalla ricerca si quota il listino:
+      // la promozione dichiarata smentisce la pagina troppo spesso, e resta
+      // accanto come nota. Da un link risolto sulla variante si quota lo
+      // sconto, che lì è il prezzo vero — e allora è il **listino** a mettersi
+      // accanto, perché senza, 10,01 sembra un errore a chi ha davanti
+      // un'inserzione che dice 12,01.
       const price =
         candidate?.product.price ?? candidate?.product.promotionPrice ?? null;
       const declaredPromo = candidate?.product.promotionPrice ?? null;
+      const variantList = candidate?.product.variantPrice ?? null;
       const promoPrice =
-        price != null && declaredPromo != null && declaredPromo < price
-          ? declaredPromo
-          : null;
+        price == null
+          ? null
+          : declaredPromo != null && declaredPromo < price
+            ? declaredPromo
+            : variantList != null && variantList > price
+              ? variantList
+              : null;
       const salesUnit = salesUnitFromCandidate(candidate);
       const imageUrl = normalizeImageUrl(candidate?.product.imageUrl ?? null);
       const searchQuery = source?.searchQuery || gap?.searchQuery || null;
@@ -265,6 +288,8 @@ export function buildV2ResultRows(
         confidence: coherence?.confidence ?? null,
         price,
         promoPrice,
+        promoIsList:
+          promoPrice != null && price != null && promoPrice > price,
         currency: candidate?.product.currency ?? null,
         salesUnit,
         imageUrl,

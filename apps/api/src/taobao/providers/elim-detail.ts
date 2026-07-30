@@ -350,10 +350,53 @@ export function pickElimSku(
  */
 function prezzoConcorde(candidates: readonly ElimSku[]): number | null {
   if (candidates.length === 0) return null;
-  const prezzi = candidates.map((sku) => sku.price);
+  const prezzi = candidates.map((sku) => prezzoEffettivo(sku));
   if (prezzi.some((prezzo) => prezzo == null)) return null;
   const primo = prezzi[0]!;
   return prezzi.every((prezzo) => prezzo === primo) ? primo : null;
+}
+
+/**
+ * Quanto costa davvero questa variante: lo sconto quando c'è, il listino se no.
+ *
+ * Su DataHub la «promozione» andava buttata — su 61 prodotti era **più alta**
+ * del listino, e su un pacco di stecchini quotava 1,51 dove la pagina chiedeva
+ * 3,00. Qui è un'altra fonte e un altro dato: il prezzo scontato è per
+ * variante, e su 521 varianti lette non c'è **un solo** caso in cui superi il
+ * listino. Sono le cifre che si leggono aprendo la pagina: 10,01 sul barattolo
+ * da 800 stecchini che a listino sta 12,01, 20,40 sul nastro da 50mm che a
+ * listino sta 35.
+ *
+ * Il confronto resta comunque: uno sconto che costa più del listino non è uno
+ * sconto, è un dato rotto, e in quel caso si torna al listino.
+ */
+function prezzoEffettivo(sku: ElimSku): number | null {
+  const listino = sku.price;
+  const scontato = sku.promotionPrice;
+  if (scontato == null) return listino;
+  if (listino == null) return scontato;
+  return scontato <= listino ? scontato : listino;
+}
+
+/**
+ * L'indirizzo della variante scelta, non quello dell'inserzione.
+ *
+ * Aprire il link e trovarsi la variante predefinita — un altro formato, un
+ * altro prezzo — obbliga chi controlla a ricercare a mano la riga del foglio
+ * dentro l'elenco delle varianti. È il parametro che Taobao stesso mette nei
+ * link condivisi: i link del foglio del cliente ce l'hanno già.
+ */
+function withSkuId(url: string | null, skuId: string | null): string | null {
+  if (!url || !skuId) return url;
+  try {
+    const indirizzo = new URL(url);
+    indirizzo.searchParams.set("skuId", skuId);
+    return indirizzo.toString();
+  } catch {
+    // Un indirizzo che non si lascia leggere si lascia com'è: meglio un link
+    // senza variante che un link rotto.
+    return url;
+  }
 }
 
 export function elimDetailToProduct(
@@ -363,7 +406,7 @@ export function elimDetailToProduct(
 ): RawTaobaoProduct {
   const sku = choice.sku;
   const prezzo =
-    sku?.price ??
+    (sku ? prezzoEffettivo(sku) : null) ??
     (choice.match === "single" ? detail.price : null) ??
     prezzoConcorde(choice.candidates);
   return {
@@ -371,10 +414,13 @@ export function elimDetailToProduct(
     itemId: detail.itemId,
     title: detail.title,
     titleEn: detail.titleEn,
-    url: detail.url ?? fallbackUrl,
+    url: withSkuId(detail.url ?? fallbackUrl, sku?.id ?? null),
     imageUrl: sku?.imageUrl ?? detail.imageUrl,
     price: prezzo,
     currency: detail.currency,
+    // Il listino della variante, che non è più la cifra che quotiamo: serve a
+    // mostrare «10,01 · listino 12,01» invece di una sola cifra che sembra
+    // sbagliata a chi ha la pagina Taobao aperta di fianco.
     variantPrice: sku?.price ?? null,
     promotionPrice: sku?.promotionPrice ?? null,
     moq: detail.moq,

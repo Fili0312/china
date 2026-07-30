@@ -358,6 +358,7 @@ export class TaobaoRunnerService {
     // era una chiamata spesa per riprodurre una scelta già fatta.
     let resolvedFromLink = false;
     let variantUnresolved = 0;
+    let variantePrezzoConcorde = false;
     if (job.mode === "v3" && excelItemIds.size > 0 && this.elim.isConfigured) {
       const spec =
         job.specPosition != null
@@ -384,7 +385,14 @@ export class TaobaoRunnerService {
             // vuoto e la riga finisce in «da controllare» con il link da
             // aprire. È lo stesso meccanismo dei prodotti senza prezzo, e per
             // la stessa ragione: meglio una cella vuota che una cifra falsa.
+            //
+            // A meno che le rimaste non costino tutte uguale — quattro colori
+            // dello stesso modello a 1200 — nel qual caso il prezzo c'è e a
+            // restare aperta è solo la scelta: la riga lo dice diversamente,
+            // perché chi la legge non deve andare a cercare un prezzo che ha
+            // già sotto gli occhi.
             variantUnresolved = choice.candidates.length;
+            variantePrezzoConcorde = candidate.price != null;
             this.logger.log(
               `riga ${leader.rowNumber}: variante non risolta fra ${choice.candidates.length} possibili`
             );
@@ -479,7 +487,12 @@ export class TaobaoRunnerService {
       reuse = true;
       reuseReason =
         variantUnresolved > 0
-          ? t("reason.variantUnresolved", { count: variantUnresolved })
+          ? t(
+              variantePrezzoConcorde
+                ? "reason.variantSamePrice"
+                : "reason.variantUnresolved",
+              { count: variantUnresolved }
+            )
           : t("reason.resolvedFromLink");
     }
 

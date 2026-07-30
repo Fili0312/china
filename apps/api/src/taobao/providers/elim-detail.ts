@@ -181,6 +181,18 @@ function ranges(label: string): Array<{ from: number; to: number }> {
 }
 
 /**
+ * Tutti i numeri scritti in un testo, letti come numeri.
+ *
+ * «厚0.012mm*宽5mm*长10米» dà 0.012, 5, 10. Serve a confrontare due modi di
+ * scrivere la stessa variante quando le parole sono le stesse ma in ordine
+ * diverso: i numeri, quelli, non si spostano.
+ */
+function allNumbers(text: string): number[] {
+  const found = text.match(/\d+(?:\.\d+)?/g) ?? [];
+  return found.map(Number).filter((value) => Number.isFinite(value));
+}
+
+/**
  * Sceglie la variante da usare per la quotazione.
  *
  * **Comanda la colonna delle specifiche del foglio**, non lo `skuId` del link.
@@ -191,9 +203,10 @@ function ranges(label: string): Array<{ from: number; to: number }> {
  * avrebbe quotato la variante sbagliata con la sicurezza di un dato esatto.
  * Lo `skuId` resta come ripiego quando il testo non decide.
  *
- * Tre modi di far combaciare il testo, dal più stretto al più largo:
- * uguaglianza, contenimento, e **intervallo numerico** — che su questo foglio
- * serve di continuo, perché i calibri si vendono a fasce di diametro.
+ * Quattro modi di far combaciare il testo, dal più stretto al più largo:
+ * uguaglianza, contenimento, **stessi numeri** — le stesse parole in ordine
+ * diverso — e **intervallo numerico**, che su questo foglio serve di continuo
+ * perché i calibri si vendono a fasce di diametro.
  */
 export function pickElimSku(
   detail: ElimDetail,
@@ -218,6 +231,23 @@ export function pickElimSku(
     );
     if (contained.length === 1) {
       return { sku: contained[0]!, match: "from_spec", candidates: [] };
+    }
+
+    // Le stesse parole in ordine diverso: il foglio scrive «1500目带背胶»,
+    // l'inserzione «背胶砂纸1500目 10张». Nessuna delle due contiene l'altra,
+    // eppure sono la stessa carta abrasiva. I numeri lo dicono: se una sola
+    // variante porta tutti i numeri della specifica, è quella. Se ne portano
+    // più d'una — quattro colori dello stesso modello — resta una domanda,
+    // ed è giusto che resti: il colore il foglio non lo dice.
+    const richiesti = allNumbers(specGrezza);
+    if (richiesti.length > 0) {
+      const coiNumeri = detail.skus.filter((sku) => {
+        const presenti = allNumbers(sku.label);
+        return richiesti.every((numero) => presenti.includes(numero));
+      });
+      if (coiNumeri.length === 1) {
+        return { sku: coiNumeri[0]!, match: "from_spec", candidates: [] };
+      }
     }
 
     // La misura dentro la fascia: «2.48» sta in «2.00-5.99».
@@ -249,6 +279,23 @@ export function pickElimSku(
         const strette = dentro.filter((voce) => voce.ampiezza === minima);
         if (strette.length === 1) {
           return { sku: strette[0]!.sku, match: "from_spec", candidates: [] };
+        }
+
+        // Pari ampiezza: vince la più economica.
+        //
+        // Succede quando la misura cade sul confine fra due fasce, o quando la
+        // stessa fascia esiste sia come pezzo singolo sia dentro un cofanetto:
+        // «高精度钨钢1~2MM(单支)» a 7 contro «1.0-2.0钨钢套装101支» a 880.
+        // Chi scrive una misura sola nel foglio e ne ordina uno vuole quel
+        // pezzo, non centouno. Chi vuole il cofanetto lo scrive, e allora è il
+        // confronto testuale a prenderlo prima di arrivare qui.
+        const conPrezzo = strette.filter((voce) => voce.sku.price != null);
+        if (conPrezzo.length > 0) {
+          const minimo = Math.min(...conPrezzo.map((voce) => voce.sku.price!));
+          const economiche = conPrezzo.filter((voce) => voce.sku.price === minimo);
+          if (economiche.length === 1) {
+            return { sku: economiche[0]!.sku, match: "from_spec", candidates: [] };
+          }
         }
         return {
           sku: null,
@@ -285,16 +332,40 @@ export function pickElimSku(
  * cella vuota manda la riga in «da controllare» con il link da aprire; un
  * numero sbagliato arriva al cliente.
  *
- * Fa eccezione l'inserzione che di varianti non ne ha: lì il prezzo di testa
- * è il prezzo, e basta.
+ * Fanno eccezione due casi in cui il prezzo **non** è in dubbio:
+ *
+ * - l'inserzione che di varianti non ne ha: lì il prezzo di testa è il prezzo;
+ * - le varianti rimaste in ballo che costano tutte uguale. Il foglio chiede
+ *   «DBS-CO130» e l'inserzione lo vende in bianco, blu, verde e rosso a 1200
+ *   l'uno: il colore resta da scegliere — e la riga continuerà a chiederlo —
+ *   ma quotare 1200 non è un'ipotesi, è l'unico prezzo che quella riga può
+ *   avere comunque vada la scelta.
  */
+/**
+ * Il prezzo delle varianti ancora in ballo, se è uno solo.
+ *
+ * Quando la scelta non si chiude ma tutte le rimaste costano uguale, il prezzo
+ * si sa lo stesso: non lo decide la variante. `null` appena una costa diverso —
+ * lì scegliere vorrebbe dire indovinare.
+ */
+function prezzoConcorde(candidates: readonly ElimSku[]): number | null {
+  if (candidates.length === 0) return null;
+  const prezzi = candidates.map((sku) => sku.price);
+  if (prezzi.some((prezzo) => prezzo == null)) return null;
+  const primo = prezzi[0]!;
+  return prezzi.every((prezzo) => prezzo === primo) ? primo : null;
+}
+
 export function elimDetailToProduct(
   detail: ElimDetail,
   choice: ElimSkuChoice,
   fallbackUrl: string | null
 ): RawTaobaoProduct {
   const sku = choice.sku;
-  const prezzo = sku?.price ?? (choice.match === "single" ? detail.price : null);
+  const prezzo =
+    sku?.price ??
+    (choice.match === "single" ? detail.price : null) ??
+    prezzoConcorde(choice.candidates);
   return {
     platform: "taobao",
     itemId: detail.itemId,
@@ -307,7 +378,9 @@ export function elimDetailToProduct(
     variantPrice: sku?.price ?? null,
     promotionPrice: sku?.promotionPrice ?? null,
     moq: detail.moq,
-    sku: sku ? sku.label || sku.id : null,
+    // Un'inserzione con una variante sola spesso non le dà nemmeno un nome:
+    // mostrare il suo identificativo grezzo («0») non informa nessuno.
+    sku: sku?.label?.trim() ? sku.label : null,
     shopName: detail.shopName,
     shopUrl: null,
     sellerId: null,

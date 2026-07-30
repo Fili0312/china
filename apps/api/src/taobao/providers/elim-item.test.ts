@@ -208,6 +208,122 @@ test("fra le fasce che contengono la misura vince la più stretta", () => {
   assert.equal(scelta.sku?.price, 25);
 });
 
+// Etichette vere dell'inserzione 712693913211: la misura cade sul confine fra
+// due fasce, e la stessa fascia esiste come pezzo singolo e dentro due
+// cofanetti da 101 pezzi. Tre fasce larghe uguale: la regola dell'ampiezza non
+// basta, e chi ordina «1 pezzo» non vuole centouno.
+test("a parità di fascia vince la più economica, non il cofanetto", () => {
+  const calibri = mapElimDetail(
+    {
+      success: true,
+      id: "712693913211",
+      title: "精密钨钢针规pin规销式塞规通止规套装",
+      price: 7,
+      skus: [
+        { id: "a", price: 7, options: [{ name: "规格", value: "高精度钨钢1~2MM(单支)" }] },
+        { id: "b", price: 880, options: [{ name: "规格", value: "1.0-2.0钨钢套装101支" }] },
+        { id: "c", price: 880, options: [{ name: "规格", value: "2.0-3.0钨钢套装101支" }] },
+      ],
+    },
+    "taobao"
+  )!;
+  const scelta = pickElimSku(calibri, { spec: "高精度钨钢2.000" });
+  assert.equal(scelta.match, "from_spec");
+  assert.equal(scelta.sku?.price, 7);
+});
+
+// Etichette vere dell'inserzione della carta abrasiva: la variante giusta c'è,
+// ma scritta al contrario rispetto al foglio. Prima finiva a decidere a mano.
+test("le stesse parole in ordine diverso restano la stessa variante", () => {
+  const carta = mapElimDetail(
+    {
+      success: true,
+      id: "600455117838",
+      title: "鹰牌双面胶砂纸背胶砂纸打磨抛光研磨强力自粘背胶砂纸230*280mm",
+      price: 12,
+      skus: [
+        { id: "a", price: 12, options: [{ name: "规格", value: "背胶砂纸1200目 10张" }] },
+        { id: "b", price: 12, options: [{ name: "规格", value: "背胶砂纸1500目 10张" }] },
+        { id: "c", price: 12, options: [{ name: "规格", value: "背胶砂纸2000目 10张" }] },
+        { id: "d", price: 15, options: [{ name: "规格", value: "自由搭配（60目一2000目）共10张" }] },
+      ],
+    },
+    "taobao"
+  )!;
+  const scelta = pickElimSku(carta, { spec: "1500目带背胶" });
+  assert.equal(scelta.match, "from_spec");
+  assert.equal(scelta.sku?.id, "b");
+});
+
+// Il rovescio: quando il numero non basta a distinguere, la domanda resta.
+// Etichette vere dell'inserzione 897659696828: il foglio chiede «DBS-CO130» e
+// quel modello si vende in quattro colori allo stesso prezzo. Il colore non è
+// scritto da nessuna parte e sceglierlo noi sarebbe inventarlo — ma 1200 è il
+// prezzo comunque vada, e tenerlo nascosto manderebbe a mano una riga già
+// quotabile.
+test("quando il numero non distingue, la variante resta da chiedere", () => {
+  const luci = mapElimDetail(
+    {
+      success: true,
+      id: "657820103594",
+      title: "视觉同轴光源 机器视觉工业相机外观瑕疵表面划痕专用 多规格可选",
+      price: 260,
+      skus: ["白", "蓝", "绿", "红"].map((colore, indice) => ({
+        id: `c${indice}`,
+        price: 1300,
+        options: [{ name: "型号", value: `DBS-CO130 / 其它 / ${colore}` }],
+      })),
+    },
+    "taobao"
+  )!;
+  const scelta = pickElimSku(luci, { spec: "DBS-CO130" });
+  assert.equal(scelta.match, "ambiguous");
+  assert.equal(scelta.sku, null);
+  assert.equal(scelta.candidates.length, 4);
+  // Nessuna variante scelta, e però il prezzo si sa.
+  const prodotto = elimDetailToProduct(luci, scelta, null);
+  assert.equal(prodotto.price, 1300);
+  assert.equal(prodotto.sku, null);
+});
+
+// E il contrario: se le rimaste costano diverso, la cella resta vuota. Un
+// prezzo plausibile e falso arriva al cliente; una cella vuota no.
+test("varianti rimaste a prezzi diversi non danno nessun prezzo", () => {
+  const luci = mapElimDetail(
+    {
+      success: true,
+      id: "897659696828",
+      title: "视觉同轴光源",
+      price: 260,
+      skus: [
+        { id: "a", price: 1300, options: [{ name: "型号", value: "DBS-CO130 / 白" }] },
+        { id: "b", price: 1500, options: [{ name: "型号", value: "DBS-CO130 / 红" }] },
+      ],
+    },
+    "taobao"
+  )!;
+  const scelta = pickElimSku(luci, { spec: "DBS-CO130" });
+  assert.equal(scelta.match, "ambiguous");
+  assert.equal(elimDetailToProduct(luci, scelta, null).price, null);
+});
+
+test("una variante senza nome non presta il proprio identificativo", () => {
+  const unica = mapElimDetail(
+    {
+      success: true,
+      id: "664963804895",
+      title: "迈拓维矩MT-2502K VGA分配器",
+      price: 89,
+      skus: [{ id: "0", price: 89, options: [] }],
+    },
+    "taobao"
+  )!;
+  const scelta = pickElimSku(unica, { spec: "MT-2502K" });
+  const prodotto = elimDetailToProduct(unica, scelta, null);
+  assert.equal(prodotto.price, 89);
+  assert.equal(prodotto.sku, null);
+});
+
 test("la colonna specifiche sceglie la variante, anche scritta diversamente", () => {
   const detail = mapElimDetail(dettaglioStecchini, "taobao")!;
   // Parentesi tonde diverse e spazi in mezzo: per una persona è la stessa cosa.

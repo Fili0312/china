@@ -17,6 +17,7 @@ import { TaobaoDatasetService } from "./taobao-dataset.service";
 import { TaobaoJobService } from "./taobao-job.service";
 import { TaobaoMemoryService } from "./taobao-memory.service";
 import { TaobaoRunnerService } from "./taobao-runner.service";
+import { VariantResolverService } from "./variant-resolver.service";
 import { TaobaoSessionService } from "./taobao-session.service";
 import { V2ExportController } from "./v2-export.controller";
 
@@ -43,6 +44,7 @@ import { V2ExportController } from "./v2-export.controller";
     TaobaoSessionService,
     TaobaoJobService,
     TaobaoRunnerService,
+    VariantResolverService,
     TaobaoBrowserService,
     DataHubClient,
     DataHubProvider,

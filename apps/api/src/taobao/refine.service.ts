@@ -22,6 +22,7 @@ import { DataHubProvider } from "./providers/datahub.provider";
 import { HwhProvider } from "./providers/hwh.provider";
 import type { RawTaobaoProduct } from "./providers/taobao-item";
 import { rankCandidates, type ScoredProduct } from "./scoring";
+import { VariantResolverService } from "./variant-resolver.service";
 import { TaobaoMemoryService } from "./taobao-memory.service";
 import {
   buildV2RetryQueries,
@@ -68,8 +69,37 @@ export class RefineService {
     private readonly memory: TaobaoMemoryService,
     private readonly api: DataHubProvider,
     private readonly hwh: HwhProvider,
-    private readonly coherence: CoherenceService
+    private readonly coherence: CoherenceService,
+    private readonly variants: VariantResolverService
   ) {}
+
+  /**
+   * La posizione della colonna delle specifiche nelle celle di una riga.
+   *
+   * È la stessa che calcola la ricerca: la mappatura dice quale **indice di
+   * colonna** del foglio contiene le specifiche, le celle sono un elenco
+   * ordinato, e fra i due c'è la lista delle colonne del dataset a fare da
+   * ponte.
+   */
+  private async specPosition(
+    job: { mapping: unknown; datasetId: string } | null
+  ): Promise<number | null> {
+    if (!job) return null;
+    const entry = (
+      (job.mapping ?? []) as Array<{ columnIndex: number; field: string }>
+    ).find((voce) => voce.field === "spec");
+    if (!entry) return null;
+    const dataset = await prisma.taobaoDataset.findUnique({
+      where: { id: job.datasetId },
+      select: { columns: true },
+    });
+    const posizioni = new Map(
+      ((dataset?.columns ?? []) as Array<{ index: number }>).map(
+        (colonna, posizione) => [colonna.index, posizione]
+      )
+    );
+    return posizioni.get(entry.columnIndex) ?? null;
+  }
 
   async refineJob(
     clientId: string,
@@ -97,9 +127,12 @@ export class RefineService {
     // corsa v3 il refine aveva rimpiazzato proprio così una riga già risolta.
     const jobRecord = await prisma.taobaoJob.findUnique({
       where: { id: jobId },
-      select: { mode: true },
+      select: { mode: true, mapping: true, datasetId: true },
     });
     const skipLinkedRows = jobRecord?.mode === "v3";
+    // Dov'è la colonna delle specifiche: la stessa che usa la ricerca, perché
+    // è quella che dice quale variante il cliente vuole.
+    const specPosition = await this.specPosition(jobRecord);
 
     const rows = await prisma.taobaoJobRow.findMany({
       where: {
@@ -123,6 +156,7 @@ export class RefineService {
             analysis: { select: { submittedText: true } },
           },
         },
+        datasetRow: { select: { cells: true } },
         results: {
           where: { rank: { lte: input.topN } },
           orderBy: { rank: "asc" },
@@ -159,6 +193,10 @@ export class RefineService {
       requirementContext: V2RequirementContext;
       previousQuery: string;
       failureReasons: string[];
+      /** Il nome della riga, per il risolutore di varianti e per i log. */
+      displayName: string;
+      /** La colonna delle specifiche del foglio: dice quale variante serve. */
+      spec: string | null;
     }
     const targets: Target[] = [];
     let notVerified = 0;
@@ -219,6 +257,11 @@ export class RefineService {
           ),
         previousQuery: row.searchQuery,
         failureReasons: [...reasons].slice(0, 6),
+        displayName: row.displayName,
+        spec:
+          specPosition != null
+            ? ((row.datasetRow?.cells as string[] | null)?.[specPosition] ?? null)
+            : null,
       });
     }
 
@@ -264,6 +307,8 @@ export class RefineService {
     let rowsRefined = 0;
     let newProducts = 0;
     let apiCalls = 0;
+    let elimCalls = 0;
+    let aiVariantCostUsd = 0;
     const refinedRowIds: string[] = [];
 
     for (const target of targets) {
@@ -349,9 +394,27 @@ export class RefineService {
             isV2CandidateCompatible(product, target.requirementContext)
           )
         : merged;
-      const ranked = this.pinExcelFirst(
+      let ranked = this.pinExcelFirst(
         rankCandidates(target.analysis, compatibleMerged)
       ).slice(0, job.maxCandidates);
+
+      // La stessa scelta che fa la ricerca, e per la stessa ragione.
+      //
+      // Riordinare qui senza rifarla era il difetto: il prodotto a cui la
+      // ricerca aveva appena dato il suo prezzo vero — più alto di quello di
+      // testa, che è il minimo fra tutte le varianti — si ritrovava superato
+      // da un cofanetto rimasto al suo minimo finto, e per giunta senza
+      // variante, perché qui nessuno gliela risolveva.
+      if (v2Mode && jobRecord?.mode === "v3" && ranked.length > 0) {
+        const esito = await this.variants.resolveAndPick({
+          ranked,
+          spec: target.spec ?? null,
+          displayName: target.displayName,
+        });
+        ranked = esito.ranked;
+        elimCalls += esito.elimCalls;
+        aiVariantCostUsd += esito.aiCostUsd;
+      }
       if (ranked.length === 0) {
         if (v2Mode) {
           await prisma.taobaoJobRow.update({

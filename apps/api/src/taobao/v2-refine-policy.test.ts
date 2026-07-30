@@ -169,7 +169,9 @@ test("v2 refine retries zero-result rows with exact immutable queries and no AI 
     memory as never,
     {} as never,
     hwh as never,
-    coherence as never
+    coherence as never,
+    // Il risolutore di varianti: questo test non ci arriva.
+    {} as never
   );
 
   try {

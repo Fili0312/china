@@ -21,8 +21,8 @@ import {
   type ElimDetail,
   type ElimSku,
 } from "./providers/elim-detail";
-import { pickVariantWithAi } from "@china/ai";
 import { TaobaoMemoryService } from "./taobao-memory.service";
+import { VariantResolverService } from "./variant-resolver.service";
 import { t } from "../i18n/messages";
 
 /**
@@ -105,20 +105,6 @@ function searchFallbackEnabled(): boolean {
 }
 
 /** Contatori del job, aggiornati man mano. */
-/**
- * Sotto questa confidenza la scelta del modello non vale: la riga torna a
- * essere una domanda per una persona. Una variante sbagliata scelta con
- * sicurezza è peggio di una casella vuota, perché nessuno la ricontrolla.
- */
-const VARIANT_AI_MIN_CONFIDENCE = 0.7;
-
-/**
- * Oltre questo numero di varianti non si chiede: un'inserzione con settanta
- * SKU che il confronto testuale non ha saputo restringere non è una scelta
- * difficile, è una riga che non combacia.
- */
-const VARIANT_AI_MAX_CHOICES = 30;
-
 interface JobTotals {
   /** Quanto è costato far scegliere le varianti al modello. */
   variantAiCostUsd?: number;
@@ -155,54 +141,9 @@ export class TaobaoRunnerService {
     private readonly hwh: HwhProvider,
     private readonly elim: ElimApiProvider,
     private readonly browser: TaobaoBrowserService,
-    private readonly memory: TaobaoMemoryService
+    private readonly memory: TaobaoMemoryService,
+    private readonly variants: VariantResolverService
   ) {}
-
-  /**
-   * Chiede al modello quale variante comprare, quando il confronto non decide.
-   *
-   * Si arriva qui solo dopo che uguaglianza, contenimento, numeri e fasce hanno
-   * fallito: il modello non sostituisce quel lavoro, lo raccoglie quando si
-   * ferma. Serve perché certe differenze non sono scritte nei numeri —
-   * «110CM平板拖把 蓝色» combacia sia con il mocio completo sia con il solo
-   * panno di ricambio, e a separarli è il significato.
-   *
-   * Due limiti deliberati. Il modello sceglie **fra le varianti che esistono**,
-   * indicandole per numero, e non può inventarne una. E una scelta poco sicura
-   * non vale: sotto la soglia la riga torna a essere una domanda per una
-   * persona, che è quello che era prima di questa chiamata.
-   */
-  private async chiediVarianteAllIa(
-    detail: ElimDetail,
-    candidati: readonly ElimSku[],
-    spec: string | null,
-    displayName: string,
-    totals: JobTotals
-  ): Promise<ElimSku | null> {
-    if (!spec?.trim() || candidati.length < 2) return null;
-    if (candidati.length > VARIANT_AI_MAX_CHOICES) return null;
-
-    const result = await pickVariantWithAi({
-      productName: displayName,
-      spec,
-      listingTitle: detail.title,
-      variants: candidati.map((sku) => ({ label: sku.label, price: sku.price })),
-    });
-    totals.variantAiCostUsd = (totals.variantAiCostUsd ?? 0) + result.costUsd;
-
-    const choice = result.choice;
-    if (!choice || choice.index == null) return null;
-    if (choice.confidence < VARIANT_AI_MIN_CONFIDENCE) {
-      this.logger.log(
-        `variante proposta dal modello scartata: confidenza ${choice.confidence}`
-      );
-      return null;
-    }
-    const scelta = candidati[choice.index];
-    if (!scelta) return null;
-    totals.variantAiPicks = (totals.variantAiPicks ?? 0) + 1;
-    return scelta;
-  }
 
   /** Avvia il job in background: chi chiama non aspetta la fine. */
   start(jobId: string): void {
@@ -462,7 +403,7 @@ export class TaobaoRunnerService {
             // restare aperta è solo la scelta: la riga lo dice diversamente,
             // perché chi la legge non deve andare a cercare un prezzo che ha
             // già sotto gli occhi.
-            const scelta = await this.chiediVarianteAllIa(
+            const scelta = await this.variants.chooseAmbiguous(
               detail,
               choice.candidates,
               spec,
@@ -828,69 +769,27 @@ export class TaobaoRunnerService {
       }
     }
 
-    // 7-bis. La variante anche per le righe che il link non ce l'hanno.
+    // 7-bis. Che cosa si compra davvero, fra i candidati trovati.
     //
-    // Fin qui la scelta della variante era un privilegio delle righe con il
-    // link: per le altre si quotava il prezzo che la ricerca restituisce, che
-    // è il prezzo **di testa** dell'inserzione — su un'inserzione a fasce è il
-    // minimo fra tutte, e infatti un calibro da 1,999 mm usciva a 10 (la fascia
-    // 0.200-1.000) invece che a 15, e un mocio da 110 cm usciva a 16, che è il
-    // panno di ricambio da 40 cm.
-    //
-    // Costa una chiamata Elim per riga cercata, e la si spende solo sul
-    // vincitore: gli altri quattordici candidati restano con i dati della
-    // ricerca, che è giusto — non sono quelli che si compra.
-    if (
-      job.mode === "v3" &&
-      !reuse &&
-      this.elim.isConfigured &&
-      ranked.length > 0
-    ) {
+    // La classifica della ricerca è costruita su prezzi **di testa**: su
+    // un'inserzione a varianti è il minimo fra tutte, e premia chi ha la
+    // fascia più piccola invece di chi vende ciò che il foglio chiede. Il
+    // risolutore interroga i primi candidati, scopre che cosa vendono e a
+    // quanto, e rimette in testa quello giusto.
+    if (job.mode === "v3" && !reuse && ranked.length > 0) {
       const spec =
         job.specPosition != null
           ? ((leader.datasetRow?.cells as string[] | null)?.[job.specPosition] ?? null)
           : null;
-      const vincitore = ranked[0]!.product;
-      try {
-        const { detail, calls } = await this.elim.detail(
-          vincitore.itemId,
-          vincitore.platform
-        );
-        totals.elimCalls += calls;
-        if (detail && detail.skus.length > 1) {
-          let choice = pickElimSku(detail, { spec });
-          if (!choice.sku && choice.match === "ambiguous") {
-            const scelta = await this.chiediVarianteAllIa(
-              detail,
-              choice.candidates.length > 0 ? choice.candidates : detail.skus,
-              spec,
-              leader.displayName,
-              totals
-            );
-            if (scelta) {
-              choice = { sku: scelta, match: "from_spec", candidates: [] };
-              variantChosenByAi = true;
-            }
-          }
-          if (choice.sku) {
-            Object.assign(
-              vincitore,
-              elimDetailToProduct(detail, choice, vincitore.url)
-            );
-            this.logger.log(
-              `riga ${leader.rowNumber}: variante «${choice.sku.label}» sul prodotto trovato dalla ricerca`
-            );
-          }
-        }
-      } catch (error) {
-        // Una variante non risolta lascia la riga com'era: con il prodotto
-        // della ricerca e il suo prezzo di testa. È il comportamento di prima,
-        // non un peggioramento.
-        const message = error instanceof Error ? error.message : "errore";
-        this.logger.warn(
-          `riga ${leader.rowNumber}: variante del prodotto trovato non letta (${message})`
-        );
-      }
+      const esito = await this.variants.resolveAndPick({
+        ranked,
+        spec,
+        displayName: leader.displayName,
+      });
+      ranked = esito.ranked;
+      totals.elimCalls += esito.elimCalls;
+      totals.variantAiCostUsd = (totals.variantAiCostUsd ?? 0) + esito.aiCostUsd;
+      totals.variantAiPicks = (totals.variantAiPicks ?? 0) + esito.aiPicks;
     }
 
     // 8. Memoria e storico.

@@ -59,6 +59,8 @@ test("un candidato che rientra nella classifica conserva il verdetto già emesso
       {} as never,
       {} as never,
       {} as never,
+      {} as never,
+      // Il risolutore di varianti: questi test non ci arrivano.
       {} as never
     );
     await (

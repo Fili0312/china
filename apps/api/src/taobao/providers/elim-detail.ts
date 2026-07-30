@@ -275,10 +275,18 @@ export function pickElimSku(
 /**
  * Il prodotto come lo vede il resto della pipeline, con la variante scelta.
  *
- * Il prezzo è quello **della variante**: è tutto il punto dell'operazione. Se
- * la variante non è stata scelta resta il prezzo di testa dell'inserzione, che
- * con `by_sku` è il minimo — e la riga porterà scritto che la variante va
- * ancora decisa.
+ * Il prezzo è quello **della variante**: è tutto il punto dell'operazione.
+ *
+ * Se la variante non si è lasciata scegliere il prezzo resta **vuoto**, e non
+ * si ripiega su quello di testa: su un'inserzione `by_sku` quello è il minimo
+ * fra tutte le varianti — 3,50 su un calibro il cui pezzo giusto ne costa 25,
+ * 1,86 su un set di pesi che arriva a 8.999. Sarebbe la stessa cifra
+ * plausibile e falsa della «promozione» che ci ha già ingannati una volta. Una
+ * cella vuota manda la riga in «da controllare» con il link da aprire; un
+ * numero sbagliato arriva al cliente.
+ *
+ * Fa eccezione l'inserzione che di varianti non ne ha: lì il prezzo di testa
+ * è il prezzo, e basta.
  */
 export function elimDetailToProduct(
   detail: ElimDetail,
@@ -286,6 +294,7 @@ export function elimDetailToProduct(
   fallbackUrl: string | null
 ): RawTaobaoProduct {
   const sku = choice.sku;
+  const prezzo = sku?.price ?? (choice.match === "single" ? detail.price : null);
   return {
     platform: "taobao",
     itemId: detail.itemId,
@@ -293,7 +302,7 @@ export function elimDetailToProduct(
     titleEn: detail.titleEn,
     url: detail.url ?? fallbackUrl,
     imageUrl: sku?.imageUrl ?? detail.imageUrl,
-    price: sku?.price ?? detail.price,
+    price: prezzo,
     currency: detail.currency,
     variantPrice: sku?.price ?? null,
     promotionPrice: sku?.promotionPrice ?? null,

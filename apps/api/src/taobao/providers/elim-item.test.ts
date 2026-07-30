@@ -232,9 +232,13 @@ test("il prodotto porta il prezzo della variante, non quello di testa", () => {
   assert.equal(prodotto.price, 6);
   assert.equal(prodotto.variantPrice, 6);
   assert.equal(prodotto.sku, "牙签3包(升级款)");
-  // Senza variante scelta resta il prezzo di testa, che con `by_sku` è il
-  // minimo: la riga dovrà dire che la variante manca.
+  // Senza variante scelta il prezzo resta **vuoto**: quello di testa è il
+  // minimo fra tutte le varianti, e sarebbe una cifra plausibile e falsa.
   const senza = elimDetailToProduct(detail, { sku: null, match: "ambiguous", candidates: [] }, null);
-  assert.equal(senza.price, 3);
+  assert.equal(senza.price, null);
   assert.equal(senza.variantPrice, null);
+
+  // Un'inserzione senza varianti fa eccezione: lì il prezzo di testa è il prezzo.
+  const unica = elimDetailToProduct(detail, { sku: null, match: "single", candidates: [] }, null);
+  assert.equal(unica.price, 3);
 });

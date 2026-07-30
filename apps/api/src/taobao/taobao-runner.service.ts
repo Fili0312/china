@@ -357,6 +357,7 @@ export class TaobaoRunnerService {
     // non parte affatto: su un foglio reale sono 378 righe su 498, e ognuna
     // era una chiamata spesa per riprodurre una scelta già fatta.
     let resolvedFromLink = false;
+    let variantUnresolved = 0;
     if (job.mode === "v3" && excelItemIds.size > 0 && this.elim.isConfigured) {
       const spec =
         job.specPosition != null
@@ -378,9 +379,12 @@ export class TaobaoRunnerService {
             elimDetailToProduct(detail, choice, candidate.url ?? hyperlink)
           );
           resolvedFromLink = true;
-          if (!choice.sku) {
-            // La variante non si è lasciata scegliere: il prodotto è quello
-            // giusto ma il prezzo è quello di testa. Va detto, non nascosto.
+          if (!choice.sku && choice.match === "ambiguous") {
+            // Il prodotto è quello giusto, la variante no: il prezzo resta
+            // vuoto e la riga finisce in «da controllare» con il link da
+            // aprire. È lo stesso meccanismo dei prodotti senza prezzo, e per
+            // la stessa ragione: meglio una cella vuota che una cifra falsa.
+            variantUnresolved = choice.candidates.length;
             this.logger.log(
               `riga ${leader.rowNumber}: variante non risolta fra ${choice.candidates.length} possibili`
             );
@@ -473,7 +477,10 @@ export class TaobaoRunnerService {
       // fonte: cercarne altri costerebbe una chiamata per proporre alternative
       // a una decisione già presa.
       reuse = true;
-      reuseReason = t("reason.resolvedFromLink");
+      reuseReason =
+        variantUnresolved > 0
+          ? t("reason.variantUnresolved", { count: variantUnresolved })
+          : t("reason.resolvedFromLink");
     }
 
     if (!reuse) {

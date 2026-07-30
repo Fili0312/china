@@ -776,6 +776,62 @@ export class PipelineService {
   }
 
   /**
+   * Il job di ricerca di questa corsa, definito **una volta sola**.
+   *
+   * Nasce da un difetto vero: i due punti che creano un job — la ricerca
+   * normale e quella che parte in anticipo mentre una domanda aspetta —
+   * avevano ognuno la propria copia dei parametri. La copia in anticipo non
+   * era stata aggiornata con la modalità, e una corsa v3 che faceva una
+   * domanda finiva per creare un job v2: ventisei link nel foglio, nessuno
+   * risolto, e nessun segno di ciò che era andato storto.
+   *
+   * Finché i parametri stanno qui, le due strade non possono divergere.
+   */
+  private async createSearchJob(
+    pipeline: {
+      clientId: string;
+      datasetId: string;
+      mapping: unknown;
+      analysisRunId: string | null;
+      forceFullSearch: boolean;
+      mode: string;
+    },
+    options: { onlyRowNumbers?: ReadonlySet<number> } = {}
+  ) {
+    if (!pipeline.analysisRunId) {
+      throw new BadRequestException(t("err.jobNoAnalysis"));
+    }
+    const v3 = pipeline.mode === "v3";
+    return this.jobs.createJob(
+      pipeline.clientId,
+      pipeline.datasetId,
+      {
+        mapping: pipeline.mapping as DatasetMapping[],
+        analysisRunId: pipeline.analysisRunId,
+        forceFullSearch: pipeline.forceFullSearch,
+        // I provider secondari restano in standby come nella v1: accenderli
+        // qui cambierebbe i costi senza che nessuno lo abbia chiesto.
+        useBrowser: false,
+        useElim: false,
+        use1688: false,
+        // La v3 guarda più candidati per riga: le righe con un link non
+        // costano più una ricerca, e quel risparmio si spende in scelta —
+        // fra quindici proposte è più probabile che ce ne sia una giusta.
+        maxCandidates: v3 ? V3_MAX_CANDIDATES : 10,
+        detailTopN: DETAIL_TOP_N,
+        reviewTopN: 0,
+      },
+      {
+        // Solo la v2: i dubbi tecnici non bloccano le altre righe e restano
+        // visibili nel riepilogo invece di fingersi approvati da una persona.
+        allowReviewRows: true,
+        mode: v3 ? "v3" : "v2",
+        ...(options.onlyRowNumbers ? { onlyRowNumbers: options.onlyRowNumbers } : {}),
+      }
+    );
+  }
+
+  /**
    * Fa partire la ricerca sulle righe che nessuna risposta può cambiare.
    *
    * Quali siano non è un'opinione: sono esattamente quelle che la rianalisi
@@ -805,22 +861,7 @@ export class PipelineService {
     // Nessuna riga libera: non si crea un job vuoto solo per averlo.
     if (unaffected.size === 0) return;
 
-    const job = await this.jobs.createJob(
-      pipeline.clientId,
-      pipeline.datasetId,
-      {
-        mapping: pipeline.mapping as DatasetMapping[],
-        analysisRunId: pipeline.analysisRunId,
-        forceFullSearch: pipeline.forceFullSearch,
-        useBrowser: false,
-        useElim: false,
-        use1688: false,
-        maxCandidates: 10,
-        detailTopN: DETAIL_TOP_N,
-        reviewTopN: 0,
-      },
-      { allowReviewRows: true, onlyRowNumbers: unaffected }
-    );
+    const job = await this.createSearchJob(pipeline, { onlyRowNumbers: unaffected });
     await prisma.taobaoPipeline.update({
       where: { id: pipelineId },
       data: { jobId: job.jobId },
@@ -887,27 +928,7 @@ export class PipelineService {
     }
     if (!jobId) {
       await this.step(pipelineId, { phase: "SEARCH", step: "step.searchStarting", ratio: 0 });
-      const job = await this.jobs.createJob(pipeline.clientId, pipeline.datasetId, {
-        mapping: pipeline.mapping as DatasetMapping[],
-        analysisRunId: pipeline.analysisRunId,
-        forceFullSearch: pipeline.forceFullSearch,
-        // I provider secondari restano in standby come nella v1: accenderli
-        // qui cambierebbe i costi senza che nessuno lo abbia chiesto.
-        useBrowser: false,
-        useElim: false,
-        use1688: false,
-        // La v3 guarda più candidati per riga: le righe con un link non
-        // costano più una ricerca, e quel risparmio si spende in scelta —
-        // fra quindici proposte è più probabile che ce ne sia una giusta.
-        maxCandidates: pipeline.mode === "v3" ? V3_MAX_CANDIDATES : 10,
-        detailTopN: DETAIL_TOP_N,
-        reviewTopN: 0,
-      }, {
-        // Solo la v2: i dubbi tecnici non bloccano le altre righe e restano
-        // visibili nel riepilogo invece di fingersi approvati da una persona.
-        allowReviewRows: true,
-        mode: pipeline.mode === "v3" ? "v3" : "v2",
-      });
+      const job = await this.createSearchJob(pipeline);
       jobId = job.jobId;
       await prisma.taobaoPipeline.update({ where: { id: pipelineId }, data: { jobId } });
     }

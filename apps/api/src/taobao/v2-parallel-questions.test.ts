@@ -7,7 +7,7 @@ import {
   type AnalysisWarning,
   type ProductAnalysis,
 } from "@china/shared";
-import { isRowUnaffectedByAnswers } from "./pipeline.service";
+import { isRowUnaffectedByAnswers, PipelineService } from "./pipeline.service";
 import { TaobaoJobService } from "./taobao-job.service";
 
 /**
@@ -158,4 +158,63 @@ test("le righe rimaste indietro entrano nello stesso job, una volta sola", async
     (jobPatch as unknown as { analysisRunId: string }).analysisRunId,
     "run-nuovo"
   );
+});
+
+// Il job che parte in anticipo, mentre una domanda aspetta, deve nascere con
+// gli stessi parametri di quello normale. Non era così: la copia in anticipo
+// aveva la propria lista, senza la modalità, e una corsa v3 che faceva una
+// domanda creava un job v2 — ventisei link nel foglio, nessuno risolto.
+test("il job in anticipo e quello normale nascono con gli stessi parametri", async () => {
+  const creati: Array<{ maxCandidates: number; mode?: string; scoped: boolean }> = [];
+  const jobs = {
+    createJob: async (
+      _clientId: string,
+      _datasetId: string,
+      input: { maxCandidates: number },
+      options: { mode?: string; onlyRowNumbers?: ReadonlySet<number> }
+    ) => {
+      creati.push({
+        maxCandidates: input.maxCandidates,
+        mode: options.mode,
+        scoped: options.onlyRowNumbers != null,
+      });
+      return { jobId: "job-nuovo" } as never;
+    },
+  };
+  const service = new PipelineService(
+    {} as never,
+    {} as never,
+    {} as never,
+    jobs as never,
+    {} as never,
+    {} as never,
+    {} as never
+  );
+  const corsa = {
+    clientId: "c",
+    datasetId: "d",
+    mapping: [],
+    analysisRunId: "run",
+    forceFullSearch: false,
+    mode: "v3",
+  };
+  const crea = (
+    service as unknown as {
+      createSearchJob: (
+        pipeline: typeof corsa,
+        options?: { onlyRowNumbers?: ReadonlySet<number> }
+      ) => Promise<unknown>;
+    }
+  ).createSearchJob.bind(service);
+
+  await crea(corsa);
+  await crea(corsa, { onlyRowNumbers: new Set([1, 2]) });
+
+  assert.equal(creati.length, 2);
+  // Stessa modalità e stessi candidati: cambia solo l'ambito delle righe.
+  assert.deepEqual(
+    creati.map((job) => `${job.mode}/${job.maxCandidates}`),
+    ["v3/15", "v3/15"]
+  );
+  assert.deepEqual(creati.map((job) => job.scoped), [false, true]);
 });

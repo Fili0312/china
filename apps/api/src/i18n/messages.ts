@@ -164,6 +164,8 @@ const en = {
     "Product taken from the link, but the sheet does not identify which of the {count} variants: read the price on the page.",
   "reason.variantSamePrice":
     "Product taken from the link: the sheet does not say which of the {count} variants, but they all cost the same, so the price holds.",
+  "reason.variantChosenByAi":
+    "Product taken from the link; the variant was chosen by the model because the sheet's wording did not match any of them exactly.",
   "reason.notProcurable":
     "Not a marketplace item ({kind}): {why}. No search was spent on it.",
   "reason.refined": "Guided re-search: query rewritten from «{previous}».",
@@ -302,6 +304,7 @@ const zh: Record<MessageKey, string> = {
   "reason.resolvedFromLink": "按表格中的链接直接获取：客户已经选定。",
   "reason.variantUnresolved": "商品来自链接，但表格无法确定是 {count} 个规格中的哪一个：请到页面上读取价格。",
   "reason.variantSamePrice": "商品来自链接：表格未指明是 {count} 个规格中的哪一个，但它们价格相同，故价格有效。",
+  "reason.variantChosenByAi": "商品来自链接；表格的写法与任一规格都不完全一致，规格由模型判定。",
   "reason.notProcurable": "非市场在售商品（{kind}）：{why}。未为其花费任何搜索。",
   "reason.refined": "引导式重新搜索：搜索词由「{previous}」重写而来。",
   "reason.fullSearchRequested": "已明确要求执行完整搜索。",
@@ -449,6 +452,8 @@ const it: Record<MessageKey, string> = {
     "Prodotto preso dal link, ma il foglio non dice quale delle {count} varianti: leggi il prezzo sulla pagina.",
   "reason.variantSamePrice":
     "Prodotto preso dal link: il foglio non dice quale delle {count} varianti, ma costano tutte uguale, quindi il prezzo vale.",
+  "reason.variantChosenByAi":
+    "Prodotto preso dal link; la variante l'ha scelta il modello, perché il foglio non la scrive come nessuna di quelle in vendita.",
   "reason.notProcurable":
     "Non è un articolo da marketplace ({kind}): {why}. Nessuna ricerca spesa.",
   "reason.refined": "Ri-ricerca guidata: query riscritta da «{previous}».",

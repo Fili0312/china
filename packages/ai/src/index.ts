@@ -35,6 +35,12 @@ export {
   type CoherenceCallResult,
   type CoherenceInputRow,
 } from "./verify-coherence";
+export {
+  pickVariantWithAi,
+  type VariantChoice,
+  type VariantPickInput,
+  type VariantPickResult,
+} from "./pick-variant";
 export { parseRequest } from "./parse-request";
 export { generateQueries } from "./generate-queries";
 export {

@@ -339,6 +339,7 @@ export const it: Record<MessageKey, string> = {
   /* ====================================================================== */
 
   "v2.heading": "Quotazione da un foglio di richiesta",
+  "v3.heading": "Quotazione da un foglio di richieste (v3)",
   "v2.subtitle":
     "Trascina il foglio. Il resto — leggerlo, capire ogni riga, cercare su Taobao, controllare i risultati — succede da solo. Ti si chiede solo ciò che non si può dedurre.",
   "v2.openV1": "Versione passo per passo",

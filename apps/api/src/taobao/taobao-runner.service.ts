@@ -10,10 +10,12 @@ import { HwhProvider } from "./providers/hwh.provider";
 import { TaobaoBrowserService } from "./providers/browser-search.service";
 import {
   extractItemId,
+  extractSkuId,
   canonicalItemUrl,
   decodeLinkEntities,
   type RawTaobaoProduct,
 } from "./providers/taobao-item";
+import { elimDetailToProduct, pickElimSku } from "./providers/elim-detail";
 import { TaobaoMemoryService } from "./taobao-memory.service";
 import { t } from "../i18n/messages";
 
@@ -114,7 +116,7 @@ interface JobTotals {
 type JobRow = Prisma.TaobaoJobRowGetPayload<{
   include: {
     analysisRow: { select: { effectiveAnalysis: true; rowNumber: true } };
-    datasetRow: { select: { hyperlink: true } };
+    datasetRow: { select: { hyperlink: true; cells: true } };
   };
 }>;
 
@@ -175,9 +177,27 @@ export class TaobaoRunnerService {
       orderBy: { rowNumber: "asc" },
       include: {
         analysisRow: { select: { effectiveAnalysis: true, rowNumber: true } },
-        datasetRow: { select: { hyperlink: true } },
+        datasetRow: { select: { hyperlink: true, cells: true } },
       },
     });
+
+    // In v3 serve sapere quale cella è la specifica: è lei a scegliere la
+    // variante sulla pagina che il link apre. Si calcola una volta per job.
+    const dataset = await prisma.taobaoDataset.findUnique({
+      where: { id: job.datasetId },
+      select: { columns: true },
+    });
+    const columnPosition = new Map(
+      ((dataset?.columns ?? []) as Array<{ index: number }>).map(
+        (column, position) => [column.index, position]
+      )
+    );
+    const specEntry = (
+      (job.mapping ?? []) as Array<{ columnIndex: number; field: string }>
+    ).find((entry) => entry.field === "spec");
+    const specPosition = specEntry
+      ? (columnPosition.get(specEntry.columnIndex) ?? null)
+      : null;
 
     // Righe con la stessa variante: una ricerca sola, risultato condiviso.
     const groups = new Map<string, JobRow[]>();
@@ -214,7 +234,7 @@ export class TaobaoRunnerService {
       }
 
       try {
-        await this.processVariant(job, group, totals);
+        await this.processVariant({ ...job, specPosition }, group, totals);
       } catch (error) {
         const message = error instanceof Error ? error.message : "Errore imprevisto";
         totals.failedRows += group.length;
@@ -253,6 +273,10 @@ export class TaobaoRunnerService {
       maxCandidates: number;
       detailTopN: number;
       reviewTopN: number;
+      /** `v3` risolve i link del foglio invece di cercarli. */
+      mode?: string | null;
+      /** Posizione della cella «specifiche» dentro `originalCells`. */
+      specPosition?: number | null;
     },
     group: JobRow[],
     totals: JobTotals
@@ -324,11 +348,57 @@ export class TaobaoRunnerService {
     candidates.push(...known);
     totals.reusedProducts += known.length;
 
+    // 1b-v3. Il link del foglio si apre davvero.
+    //
+    // È la differenza della v3: invece di cercare un prodotto simile a quello
+    // che il cliente ha già scelto, si apre la sua pagina e se ne prende la
+    // variante indicata nella colonna delle specifiche — con il **suo**
+    // prezzo, non quello di testa dell'inserzione. Per queste righe la ricerca
+    // non parte affatto: su un foglio reale sono 378 righe su 498, e ognuna
+    // era una chiamata spesa per riprodurre una scelta già fatta.
+    let resolvedFromLink = false;
+    if (job.mode === "v3" && excelItemIds.size > 0 && this.elim.isConfigured) {
+      const spec =
+        job.specPosition != null
+          ? ((leader.datasetRow?.cells as string[] | null)?.[job.specPosition] ?? null)
+          : null;
+      for (const candidate of candidates) {
+        if (candidate.source !== "excel") continue;
+        const hyperlink = decodeLinkEntities(leader.datasetRow?.hyperlink ?? null);
+        try {
+          const { detail, calls } = await this.elim.detail(candidate.itemId);
+          totals.elimCalls += calls;
+          if (!detail) continue;
+          const choice = pickElimSku(detail, {
+            skuId: extractSkuId(hyperlink),
+            spec,
+          });
+          Object.assign(
+            candidate,
+            elimDetailToProduct(detail, choice, candidate.url ?? hyperlink)
+          );
+          resolvedFromLink = true;
+          if (!choice.sku) {
+            // La variante non si è lasciata scegliere: il prodotto è quello
+            // giusto ma il prezzo è quello di testa. Va detto, non nascosto.
+            this.logger.log(
+              `riga ${leader.rowNumber}: variante non risolta fra ${choice.candidates.length} possibili`
+            );
+          }
+        } catch (error) {
+          const message = error instanceof Error ? error.message : "errore";
+          this.logger.warn(
+            `riga ${leader.rowNumber}: dettaglio del link non letto (${message})`
+          );
+        }
+      }
+    }
+
     // 1b. Un link del foglio che la memoria non conosce ancora arriverebbe in
     //     classifica senza prezzo né foto — un candidato «primo» ma vuoto. Una
     //     chiamata di dettaglio lo riempie; se la memoria lo conosce già, i
     //     suoi dati arrivano al merge dal passo 2 senza spendere nulla.
-    if (excelItemIds.size > 0 && this.api.isConfigured) {
+    if (!resolvedFromLink && excelItemIds.size > 0 && this.api.isConfigured) {
       const knownIds = new Set(known.map((product) => product.itemId));
       for (const candidate of candidates) {
         if (candidate.source !== "excel" || knownIds.has(candidate.itemId)) continue;
@@ -397,6 +467,14 @@ export class TaobaoRunnerService {
     let browserStatus: string | null = null;
     let browserError: string | null = null;
     let browserCount = 0;
+
+    if (resolvedFromLink) {
+      // La riga ha già il suo prodotto, scelto dal cliente e letto alla
+      // fonte: cercarne altri costerebbe una chiamata per proporre alternative
+      // a una decisione già presa.
+      reuse = true;
+      reuseReason = t("reason.resolvedFromLink");
+    }
 
     if (!reuse) {
       // 3. Ricerca primaria: «Taobao API by H-W-H», quando è configurata e

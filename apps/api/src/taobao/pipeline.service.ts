@@ -296,6 +296,16 @@ export function isRowUnaffectedByAnswers(
   return analysis != null && !hasReviewableWarning(analysis);
 }
 
+/**
+ * Quanti candidati guarda la v3 per ogni riga senza link.
+ *
+ * Dieci nella v2. In v3 le righe che hanno un link nel foglio non spendono
+ * più una ricerca — su un foglio reale sono 378 su 498 — e quel risparmio si
+ * rimette dove serve: più proposte fra cui scegliere per le righe che una
+ * ricerca la richiedono davvero.
+ */
+const V3_MAX_CANDIDATES = 15;
+
 /** Solo una decisione USER_INPUT resta un'azione umana irrisolta. */
 export function hasPendingPipelineDecision(
   row: PipelineReviewSourceRow
@@ -555,6 +565,7 @@ export class PipelineService {
 
     const pipeline = await prisma.taobaoPipeline.create({
       data: {
+        mode: input.mode,
         clientId,
         datasetId,
         mapping: toJson(mapping),
@@ -885,13 +896,17 @@ export class PipelineService {
         useBrowser: false,
         useElim: false,
         use1688: false,
-        maxCandidates: 10,
+        // La v3 guarda più candidati per riga: le righe con un link non
+        // costano più una ricerca, e quel risparmio si spende in scelta —
+        // fra quindici proposte è più probabile che ce ne sia una giusta.
+        maxCandidates: pipeline.mode === "v3" ? V3_MAX_CANDIDATES : 10,
         detailTopN: DETAIL_TOP_N,
         reviewTopN: 0,
       }, {
         // Solo la v2: i dubbi tecnici non bloccano le altre righe e restano
         // visibili nel riepilogo invece di fingersi approvati da una persona.
         allowReviewRows: true,
+        mode: pipeline.mode === "v3" ? "v3" : "v2",
       });
       jobId = job.jobId;
       await prisma.taobaoPipeline.update({ where: { id: pipelineId }, data: { jobId } });
@@ -1710,6 +1725,7 @@ export class PipelineService {
     const rawOutcome = (pipeline.outcome as TaobaoPipelineOutcome | null) ?? null;
     const state: TaobaoPipelineState = {
       pipelineId: pipeline.id,
+      mode: pipeline.mode === "v3" ? "v3" : "v2",
       clientId: pipeline.clientId,
       clientName: pipeline.client.name,
       datasetId: pipeline.datasetId,

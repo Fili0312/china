@@ -59,6 +59,8 @@ export interface TaobaoJobBuildOptions {
    * job, con `appendMissingRows`.
    */
   onlyRowNumbers?: ReadonlySet<number>;
+  /** Modalità della corsa: la v3 risolve i link invece di cercarli. */
+  mode?: "v2" | "v3";
 }
 
 export function isTaobaoJobRowReady(
@@ -175,6 +177,7 @@ export class TaobaoJobService {
         analysisRunId: run.id,
         status: "QUEUED",
         mapping: toJson(input.mapping),
+        mode: options.mode ?? "v2",
         forceFullSearch: input.forceFullSearch,
         useBrowser: input.useBrowser,
         maxCandidates: input.maxCandidates,

@@ -343,6 +343,7 @@ export const en = {
   /* ====================================================================== */
 
   "v2.heading": "Quotation from a request sheet",
+  "v3.heading": "Quotation from a request sheet (v3)",
   "v2.subtitle":
     "Drop the sheet in. The rest — reading it, understanding every line, searching Taobao, checking the results — happens on its own. You are asked only what cannot be worked out.",
   "v2.openV1": "Step-by-step version",

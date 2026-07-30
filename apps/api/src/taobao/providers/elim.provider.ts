@@ -2,6 +2,7 @@ import { Injectable, Logger } from "@nestjs/common";
 import type { ElimApiStatus, TaobaoPlatform } from "@china/shared";
 import { ElimApiClient, ElimApiError, type ElimSort } from "./elim.client";
 import { mapElimSearch, readPlanStatus } from "./elim-item";
+import { mapElimDetail, type ElimDetail } from "./elim-detail";
 import { buildQueryLadder } from "./query-ladder";
 import type { RawTaobaoProduct } from "./taobao-item";
 
@@ -29,6 +30,26 @@ export class ElimApiProvider {
 
   status(): ElimApiStatus {
     return this.client.status();
+  }
+
+  /**
+   * Apre un'inserzione e ne legge le varianti.
+   *
+   * È ciò che la v3 usa al posto della ricerca quando il foglio porta il link:
+   * una chiamata per articolo, non per riga, e la cache condivisa fa il resto.
+   * `null` quando la fonte non restituisce nulla di utilizzabile — la riga lo
+   * dirà invece di fingere un prodotto.
+   */
+  async detail(
+    itemId: string,
+    platform: TaobaoPlatform = "taobao"
+  ): Promise<{ detail: ElimDetail | null; calls: number; fromCache: boolean }> {
+    const response = await this.client.detail(itemId, platform);
+    return {
+      detail: mapElimDetail(response.payload, platform),
+      calls: response.fromCache ? 0 : 1,
+      fromCache: response.fromCache,
+    };
   }
 
   /**

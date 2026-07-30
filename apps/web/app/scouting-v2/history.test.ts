@@ -88,6 +88,7 @@ function pipeline(
   patch: Partial<TaobaoPipelineState> = {}
 ): TaobaoPipelineState {
   return {
+    mode: "v2" as const,
     pipelineId: id,
     clientId,
     clientName: clientId,

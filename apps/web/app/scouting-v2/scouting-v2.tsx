@@ -11,6 +11,7 @@ import type {
   TaobaoPipelineEstimate,
   TaobaoPipelineGap,
   TaobaoPipelineReviewIssue,
+  TaobaoPipelineMode,
   TaobaoPipelineState,
 } from "@china/shared";
 import { API_URL, api } from "../../lib/api";
@@ -55,7 +56,16 @@ type OpenedResultsContext = {
   outcome: TaobaoPipelineState["outcome"] | null;
 };
 
-export function ScoutingV2() {
+/**
+ * La stessa pagina serve due modalità.
+ *
+ * `v3` cambia il motore, non l'interfaccia: i prodotti che nel foglio hanno un
+ * link vengono risolti aprendo il link — variante compresa — invece di essere
+ * cercati, e per gli altri la ricerca guarda più candidati. Duplicare mille
+ * righe di pagina per cambiare una stringa avrebbe creato due interfacce
+ * destinate a divergere alla prima correzione.
+ */
+export function ScoutingV2({ mode = "v2" }: { mode?: TaobaoPipelineMode } = {}) {
   const { t, locale } = useI18n();
 
   const [clients, setClients] = useState<ClientSummary[]>([]);
@@ -285,6 +295,7 @@ export function ScoutingV2() {
         {
           method: "POST",
           body: JSON.stringify({
+            mode,
             markupPct,
             maxRefineRounds,
             mapping: estimate.mapping,
@@ -309,6 +320,7 @@ export function ScoutingV2() {
     locale,
     markupPct,
     maxRefineRounds,
+    mode,
   ]);
 
   /* ------------------------------------------------------------------ */

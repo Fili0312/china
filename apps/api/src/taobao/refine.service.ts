@@ -91,11 +91,22 @@ export class RefineService {
       );
     }
 
+    // In v3 una riga risolta dal link del foglio non si ri-cerca: il prodotto
+    // l'ha scelto il cliente, e «migliorarlo» con una ricerca significa
+    // proporgli un'alternativa a una decisione che ha già preso. Nella prima
+    // corsa v3 il refine aveva rimpiazzato proprio così una riga già risolta.
+    const jobRecord = await prisma.taobaoJob.findUnique({
+      where: { id: jobId },
+      select: { mode: true },
+    });
+    const skipLinkedRows = jobRecord?.mode === "v3";
+
     const rows = await prisma.taobaoJobRow.findMany({
       where: {
         jobId,
         status: "DONE",
         requestId: { not: null },
+        ...(skipLinkedRows ? { datasetRow: { hyperlink: null } } : {}),
         // La riprova mirata sceglie le righe: senza questo filtro «rifai
         // queste tre» diventerebbe «rifai tutto il foglio».
         ...(coherenceContext.onlyRowNumbers

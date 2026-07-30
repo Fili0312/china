@@ -1041,6 +1041,14 @@ model TaobaoJob {
   analysisRunId String?
 
   status  TaobaoJobStatus @default(QUEUED)
+
+  /// Modalità della corsa che ha creato il job: `v2` o `v3`.
+  ///
+  /// Il runner deve saperlo senza risalire alla pipeline: in v3 le righe con
+  /// un link nel foglio si risolvono aprendo il link, e per quelle la ricerca
+  /// non parte affatto.
+  mode String @default("v2")
+
   mapping Json
 
   /// Ricerca completa anche per le varianti già conosciute.

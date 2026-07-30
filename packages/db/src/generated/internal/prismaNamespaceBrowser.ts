@@ -669,6 +669,7 @@ export const TaobaoJobScalarFieldEnum = {
   datasetId: 'datasetId',
   analysisRunId: 'analysisRunId',
   status: 'status',
+  mode: 'mode',
   mapping: 'mapping',
   forceFullSearch: 'forceFullSearch',
   useBrowser: 'useBrowser',

@@ -83,6 +83,18 @@ export interface RawTaobaoProduct {
  * «di quale prodotto stiamo parlando?». Due URL con parametri di tracciamento
  * diversi sono lo stesso prodotto, ed è questa funzione a saperlo.
  */
+/**
+ * La variante indicata dentro il link, quando c'è (`&skuId=6209242959904`).
+ *
+ * Vale come ripiego, non come verità: è la variante che il cliente aveva
+ * davanti quando ha copiato l'indirizzo, e su un foglio reale contraddiceva
+ * la colonna delle specifiche. A decidere è il foglio.
+ */
+export function extractSkuId(value: string | null | undefined): string | null {
+  const match = (value ?? "").match(/[?&]skuId=(\d{3,25})/u);
+  return match?.[1] ?? null;
+}
+
 export function extractItemId(value: string | null | undefined): string | null {
   const text = (value ?? "").trim();
   if (!text) return null;

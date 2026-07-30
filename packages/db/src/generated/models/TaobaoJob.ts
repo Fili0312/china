@@ -68,6 +68,7 @@ export type TaobaoJobMinAggregateOutputType = {
   datasetId: string | null
   analysisRunId: string | null
   status: $Enums.TaobaoJobStatus | null
+  mode: string | null
   forceFullSearch: boolean | null
   useBrowser: boolean | null
   maxCandidates: number | null
@@ -99,6 +100,7 @@ export type TaobaoJobMaxAggregateOutputType = {
   datasetId: string | null
   analysisRunId: string | null
   status: $Enums.TaobaoJobStatus | null
+  mode: string | null
   forceFullSearch: boolean | null
   useBrowser: boolean | null
   maxCandidates: number | null
@@ -130,6 +132,7 @@ export type TaobaoJobCountAggregateOutputType = {
   datasetId: number
   analysisRunId: number
   status: number
+  mode: number
   mapping: number
   forceFullSearch: number
   useBrowser: number
@@ -200,6 +203,7 @@ export type TaobaoJobMinAggregateInputType = {
   datasetId?: true
   analysisRunId?: true
   status?: true
+  mode?: true
   forceFullSearch?: true
   useBrowser?: true
   maxCandidates?: true
@@ -231,6 +235,7 @@ export type TaobaoJobMaxAggregateInputType = {
   datasetId?: true
   analysisRunId?: true
   status?: true
+  mode?: true
   forceFullSearch?: true
   useBrowser?: true
   maxCandidates?: true
@@ -262,6 +267,7 @@ export type TaobaoJobCountAggregateInputType = {
   datasetId?: true
   analysisRunId?: true
   status?: true
+  mode?: true
   mapping?: true
   forceFullSearch?: true
   useBrowser?: true
@@ -381,6 +387,7 @@ export type TaobaoJobGroupByOutputType = {
   datasetId: string
   analysisRunId: string | null
   status: $Enums.TaobaoJobStatus
+  mode: string
   mapping: runtime.JsonValue
   forceFullSearch: boolean
   useBrowser: boolean
@@ -436,6 +443,7 @@ export type TaobaoJobWhereInput = {
   datasetId?: Prisma.StringFilter<"TaobaoJob"> | string
   analysisRunId?: Prisma.StringNullableFilter<"TaobaoJob"> | string | null
   status?: Prisma.EnumTaobaoJobStatusFilter<"TaobaoJob"> | $Enums.TaobaoJobStatus
+  mode?: Prisma.StringFilter<"TaobaoJob"> | string
   mapping?: Prisma.JsonFilter<"TaobaoJob">
   forceFullSearch?: Prisma.BoolFilter<"TaobaoJob"> | boolean
   useBrowser?: Prisma.BoolFilter<"TaobaoJob"> | boolean
@@ -473,6 +481,7 @@ export type TaobaoJobOrderByWithRelationInput = {
   datasetId?: Prisma.SortOrder
   analysisRunId?: Prisma.SortOrderInput | Prisma.SortOrder
   status?: Prisma.SortOrder
+  mode?: Prisma.SortOrder
   mapping?: Prisma.SortOrder
   forceFullSearch?: Prisma.SortOrder
   useBrowser?: Prisma.SortOrder
@@ -513,6 +522,7 @@ export type TaobaoJobWhereUniqueInput = Prisma.AtLeast<{
   datasetId?: Prisma.StringFilter<"TaobaoJob"> | string
   analysisRunId?: Prisma.StringNullableFilter<"TaobaoJob"> | string | null
   status?: Prisma.EnumTaobaoJobStatusFilter<"TaobaoJob"> | $Enums.TaobaoJobStatus
+  mode?: Prisma.StringFilter<"TaobaoJob"> | string
   mapping?: Prisma.JsonFilter<"TaobaoJob">
   forceFullSearch?: Prisma.BoolFilter<"TaobaoJob"> | boolean
   useBrowser?: Prisma.BoolFilter<"TaobaoJob"> | boolean
@@ -550,6 +560,7 @@ export type TaobaoJobOrderByWithAggregationInput = {
   datasetId?: Prisma.SortOrder
   analysisRunId?: Prisma.SortOrderInput | Prisma.SortOrder
   status?: Prisma.SortOrder
+  mode?: Prisma.SortOrder
   mapping?: Prisma.SortOrder
   forceFullSearch?: Prisma.SortOrder
   useBrowser?: Prisma.SortOrder
@@ -590,6 +601,7 @@ export type TaobaoJobScalarWhereWithAggregatesInput = {
   datasetId?: Prisma.StringWithAggregatesFilter<"TaobaoJob"> | string
   analysisRunId?: Prisma.StringNullableWithAggregatesFilter<"TaobaoJob"> | string | null
   status?: Prisma.EnumTaobaoJobStatusWithAggregatesFilter<"TaobaoJob"> | $Enums.TaobaoJobStatus
+  mode?: Prisma.StringWithAggregatesFilter<"TaobaoJob"> | string
   mapping?: Prisma.JsonWithAggregatesFilter<"TaobaoJob">
   forceFullSearch?: Prisma.BoolWithAggregatesFilter<"TaobaoJob"> | boolean
   useBrowser?: Prisma.BoolWithAggregatesFilter<"TaobaoJob"> | boolean
@@ -619,6 +631,7 @@ export type TaobaoJobScalarWhereWithAggregatesInput = {
 export type TaobaoJobCreateInput = {
   id?: string
   status?: $Enums.TaobaoJobStatus
+  mode?: string
   mapping: Prisma.JsonNullValueInput | runtime.InputJsonValue
   forceFullSearch?: boolean
   useBrowser?: boolean
@@ -656,6 +669,7 @@ export type TaobaoJobUncheckedCreateInput = {
   datasetId: string
   analysisRunId?: string | null
   status?: $Enums.TaobaoJobStatus
+  mode?: string
   mapping: Prisma.JsonNullValueInput | runtime.InputJsonValue
   forceFullSearch?: boolean
   useBrowser?: boolean
@@ -687,6 +701,7 @@ export type TaobaoJobUncheckedCreateInput = {
 export type TaobaoJobUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.EnumTaobaoJobStatusFieldUpdateOperationsInput | $Enums.TaobaoJobStatus
+  mode?: Prisma.StringFieldUpdateOperationsInput | string
   mapping?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   forceFullSearch?: Prisma.BoolFieldUpdateOperationsInput | boolean
   useBrowser?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -724,6 +739,7 @@ export type TaobaoJobUncheckedUpdateInput = {
   datasetId?: Prisma.StringFieldUpdateOperationsInput | string
   analysisRunId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumTaobaoJobStatusFieldUpdateOperationsInput | $Enums.TaobaoJobStatus
+  mode?: Prisma.StringFieldUpdateOperationsInput | string
   mapping?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   forceFullSearch?: Prisma.BoolFieldUpdateOperationsInput | boolean
   useBrowser?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -758,6 +774,7 @@ export type TaobaoJobCreateManyInput = {
   datasetId: string
   analysisRunId?: string | null
   status?: $Enums.TaobaoJobStatus
+  mode?: string
   mapping: Prisma.JsonNullValueInput | runtime.InputJsonValue
   forceFullSearch?: boolean
   useBrowser?: boolean
@@ -787,6 +804,7 @@ export type TaobaoJobCreateManyInput = {
 export type TaobaoJobUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.EnumTaobaoJobStatusFieldUpdateOperationsInput | $Enums.TaobaoJobStatus
+  mode?: Prisma.StringFieldUpdateOperationsInput | string
   mapping?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   forceFullSearch?: Prisma.BoolFieldUpdateOperationsInput | boolean
   useBrowser?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -819,6 +837,7 @@ export type TaobaoJobUncheckedUpdateManyInput = {
   datasetId?: Prisma.StringFieldUpdateOperationsInput | string
   analysisRunId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumTaobaoJobStatusFieldUpdateOperationsInput | $Enums.TaobaoJobStatus
+  mode?: Prisma.StringFieldUpdateOperationsInput | string
   mapping?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   forceFullSearch?: Prisma.BoolFieldUpdateOperationsInput | boolean
   useBrowser?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -861,6 +880,7 @@ export type TaobaoJobCountOrderByAggregateInput = {
   datasetId?: Prisma.SortOrder
   analysisRunId?: Prisma.SortOrder
   status?: Prisma.SortOrder
+  mode?: Prisma.SortOrder
   mapping?: Prisma.SortOrder
   forceFullSearch?: Prisma.SortOrder
   useBrowser?: Prisma.SortOrder
@@ -911,6 +931,7 @@ export type TaobaoJobMaxOrderByAggregateInput = {
   datasetId?: Prisma.SortOrder
   analysisRunId?: Prisma.SortOrder
   status?: Prisma.SortOrder
+  mode?: Prisma.SortOrder
   forceFullSearch?: Prisma.SortOrder
   useBrowser?: Prisma.SortOrder
   maxCandidates?: Prisma.SortOrder
@@ -942,6 +963,7 @@ export type TaobaoJobMinOrderByAggregateInput = {
   datasetId?: Prisma.SortOrder
   analysisRunId?: Prisma.SortOrder
   status?: Prisma.SortOrder
+  mode?: Prisma.SortOrder
   forceFullSearch?: Prisma.SortOrder
   useBrowser?: Prisma.SortOrder
   maxCandidates?: Prisma.SortOrder
@@ -1158,6 +1180,7 @@ export type TaobaoJobUpdateOneWithoutPipelinesNestedInput = {
 export type TaobaoJobCreateWithoutClientInput = {
   id?: string
   status?: $Enums.TaobaoJobStatus
+  mode?: string
   mapping: Prisma.JsonNullValueInput | runtime.InputJsonValue
   forceFullSearch?: boolean
   useBrowser?: boolean
@@ -1193,6 +1216,7 @@ export type TaobaoJobUncheckedCreateWithoutClientInput = {
   datasetId: string
   analysisRunId?: string | null
   status?: $Enums.TaobaoJobStatus
+  mode?: string
   mapping: Prisma.JsonNullValueInput | runtime.InputJsonValue
   forceFullSearch?: boolean
   useBrowser?: boolean
@@ -1256,6 +1280,7 @@ export type TaobaoJobScalarWhereInput = {
   datasetId?: Prisma.StringFilter<"TaobaoJob"> | string
   analysisRunId?: Prisma.StringNullableFilter<"TaobaoJob"> | string | null
   status?: Prisma.EnumTaobaoJobStatusFilter<"TaobaoJob"> | $Enums.TaobaoJobStatus
+  mode?: Prisma.StringFilter<"TaobaoJob"> | string
   mapping?: Prisma.JsonFilter<"TaobaoJob">
   forceFullSearch?: Prisma.BoolFilter<"TaobaoJob"> | boolean
   useBrowser?: Prisma.BoolFilter<"TaobaoJob"> | boolean
@@ -1285,6 +1310,7 @@ export type TaobaoJobScalarWhereInput = {
 export type TaobaoJobCreateWithoutDatasetInput = {
   id?: string
   status?: $Enums.TaobaoJobStatus
+  mode?: string
   mapping: Prisma.JsonNullValueInput | runtime.InputJsonValue
   forceFullSearch?: boolean
   useBrowser?: boolean
@@ -1320,6 +1346,7 @@ export type TaobaoJobUncheckedCreateWithoutDatasetInput = {
   clientId: string
   analysisRunId?: string | null
   status?: $Enums.TaobaoJobStatus
+  mode?: string
   mapping: Prisma.JsonNullValueInput | runtime.InputJsonValue
   forceFullSearch?: boolean
   useBrowser?: boolean
@@ -1377,6 +1404,7 @@ export type TaobaoJobUpdateManyWithWhereWithoutDatasetInput = {
 export type TaobaoJobCreateWithoutAnalysisRunInput = {
   id?: string
   status?: $Enums.TaobaoJobStatus
+  mode?: string
   mapping: Prisma.JsonNullValueInput | runtime.InputJsonValue
   forceFullSearch?: boolean
   useBrowser?: boolean
@@ -1412,6 +1440,7 @@ export type TaobaoJobUncheckedCreateWithoutAnalysisRunInput = {
   clientId: string
   datasetId: string
   status?: $Enums.TaobaoJobStatus
+  mode?: string
   mapping: Prisma.JsonNullValueInput | runtime.InputJsonValue
   forceFullSearch?: boolean
   useBrowser?: boolean
@@ -1469,6 +1498,7 @@ export type TaobaoJobUpdateManyWithWhereWithoutAnalysisRunInput = {
 export type TaobaoJobCreateWithoutRowsInput = {
   id?: string
   status?: $Enums.TaobaoJobStatus
+  mode?: string
   mapping: Prisma.JsonNullValueInput | runtime.InputJsonValue
   forceFullSearch?: boolean
   useBrowser?: boolean
@@ -1505,6 +1535,7 @@ export type TaobaoJobUncheckedCreateWithoutRowsInput = {
   datasetId: string
   analysisRunId?: string | null
   status?: $Enums.TaobaoJobStatus
+  mode?: string
   mapping: Prisma.JsonNullValueInput | runtime.InputJsonValue
   forceFullSearch?: boolean
   useBrowser?: boolean
@@ -1551,6 +1582,7 @@ export type TaobaoJobUpdateToOneWithWhereWithoutRowsInput = {
 export type TaobaoJobUpdateWithoutRowsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.EnumTaobaoJobStatusFieldUpdateOperationsInput | $Enums.TaobaoJobStatus
+  mode?: Prisma.StringFieldUpdateOperationsInput | string
   mapping?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   forceFullSearch?: Prisma.BoolFieldUpdateOperationsInput | boolean
   useBrowser?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1587,6 +1619,7 @@ export type TaobaoJobUncheckedUpdateWithoutRowsInput = {
   datasetId?: Prisma.StringFieldUpdateOperationsInput | string
   analysisRunId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumTaobaoJobStatusFieldUpdateOperationsInput | $Enums.TaobaoJobStatus
+  mode?: Prisma.StringFieldUpdateOperationsInput | string
   mapping?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   forceFullSearch?: Prisma.BoolFieldUpdateOperationsInput | boolean
   useBrowser?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1617,6 +1650,7 @@ export type TaobaoJobUncheckedUpdateWithoutRowsInput = {
 export type TaobaoJobCreateWithoutPipelinesInput = {
   id?: string
   status?: $Enums.TaobaoJobStatus
+  mode?: string
   mapping: Prisma.JsonNullValueInput | runtime.InputJsonValue
   forceFullSearch?: boolean
   useBrowser?: boolean
@@ -1653,6 +1687,7 @@ export type TaobaoJobUncheckedCreateWithoutPipelinesInput = {
   datasetId: string
   analysisRunId?: string | null
   status?: $Enums.TaobaoJobStatus
+  mode?: string
   mapping: Prisma.JsonNullValueInput | runtime.InputJsonValue
   forceFullSearch?: boolean
   useBrowser?: boolean
@@ -1699,6 +1734,7 @@ export type TaobaoJobUpdateToOneWithWhereWithoutPipelinesInput = {
 export type TaobaoJobUpdateWithoutPipelinesInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.EnumTaobaoJobStatusFieldUpdateOperationsInput | $Enums.TaobaoJobStatus
+  mode?: Prisma.StringFieldUpdateOperationsInput | string
   mapping?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   forceFullSearch?: Prisma.BoolFieldUpdateOperationsInput | boolean
   useBrowser?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1735,6 +1771,7 @@ export type TaobaoJobUncheckedUpdateWithoutPipelinesInput = {
   datasetId?: Prisma.StringFieldUpdateOperationsInput | string
   analysisRunId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumTaobaoJobStatusFieldUpdateOperationsInput | $Enums.TaobaoJobStatus
+  mode?: Prisma.StringFieldUpdateOperationsInput | string
   mapping?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   forceFullSearch?: Prisma.BoolFieldUpdateOperationsInput | boolean
   useBrowser?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1767,6 +1804,7 @@ export type TaobaoJobCreateManyClientInput = {
   datasetId: string
   analysisRunId?: string | null
   status?: $Enums.TaobaoJobStatus
+  mode?: string
   mapping: Prisma.JsonNullValueInput | runtime.InputJsonValue
   forceFullSearch?: boolean
   useBrowser?: boolean
@@ -1796,6 +1834,7 @@ export type TaobaoJobCreateManyClientInput = {
 export type TaobaoJobUpdateWithoutClientInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.EnumTaobaoJobStatusFieldUpdateOperationsInput | $Enums.TaobaoJobStatus
+  mode?: Prisma.StringFieldUpdateOperationsInput | string
   mapping?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   forceFullSearch?: Prisma.BoolFieldUpdateOperationsInput | boolean
   useBrowser?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1831,6 +1870,7 @@ export type TaobaoJobUncheckedUpdateWithoutClientInput = {
   datasetId?: Prisma.StringFieldUpdateOperationsInput | string
   analysisRunId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumTaobaoJobStatusFieldUpdateOperationsInput | $Enums.TaobaoJobStatus
+  mode?: Prisma.StringFieldUpdateOperationsInput | string
   mapping?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   forceFullSearch?: Prisma.BoolFieldUpdateOperationsInput | boolean
   useBrowser?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1864,6 +1904,7 @@ export type TaobaoJobUncheckedUpdateManyWithoutClientInput = {
   datasetId?: Prisma.StringFieldUpdateOperationsInput | string
   analysisRunId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumTaobaoJobStatusFieldUpdateOperationsInput | $Enums.TaobaoJobStatus
+  mode?: Prisma.StringFieldUpdateOperationsInput | string
   mapping?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   forceFullSearch?: Prisma.BoolFieldUpdateOperationsInput | boolean
   useBrowser?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1895,6 +1936,7 @@ export type TaobaoJobCreateManyDatasetInput = {
   clientId: string
   analysisRunId?: string | null
   status?: $Enums.TaobaoJobStatus
+  mode?: string
   mapping: Prisma.JsonNullValueInput | runtime.InputJsonValue
   forceFullSearch?: boolean
   useBrowser?: boolean
@@ -1924,6 +1966,7 @@ export type TaobaoJobCreateManyDatasetInput = {
 export type TaobaoJobUpdateWithoutDatasetInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.EnumTaobaoJobStatusFieldUpdateOperationsInput | $Enums.TaobaoJobStatus
+  mode?: Prisma.StringFieldUpdateOperationsInput | string
   mapping?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   forceFullSearch?: Prisma.BoolFieldUpdateOperationsInput | boolean
   useBrowser?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1959,6 +2002,7 @@ export type TaobaoJobUncheckedUpdateWithoutDatasetInput = {
   clientId?: Prisma.StringFieldUpdateOperationsInput | string
   analysisRunId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumTaobaoJobStatusFieldUpdateOperationsInput | $Enums.TaobaoJobStatus
+  mode?: Prisma.StringFieldUpdateOperationsInput | string
   mapping?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   forceFullSearch?: Prisma.BoolFieldUpdateOperationsInput | boolean
   useBrowser?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1992,6 +2036,7 @@ export type TaobaoJobUncheckedUpdateManyWithoutDatasetInput = {
   clientId?: Prisma.StringFieldUpdateOperationsInput | string
   analysisRunId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumTaobaoJobStatusFieldUpdateOperationsInput | $Enums.TaobaoJobStatus
+  mode?: Prisma.StringFieldUpdateOperationsInput | string
   mapping?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   forceFullSearch?: Prisma.BoolFieldUpdateOperationsInput | boolean
   useBrowser?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -2023,6 +2068,7 @@ export type TaobaoJobCreateManyAnalysisRunInput = {
   clientId: string
   datasetId: string
   status?: $Enums.TaobaoJobStatus
+  mode?: string
   mapping: Prisma.JsonNullValueInput | runtime.InputJsonValue
   forceFullSearch?: boolean
   useBrowser?: boolean
@@ -2052,6 +2098,7 @@ export type TaobaoJobCreateManyAnalysisRunInput = {
 export type TaobaoJobUpdateWithoutAnalysisRunInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.EnumTaobaoJobStatusFieldUpdateOperationsInput | $Enums.TaobaoJobStatus
+  mode?: Prisma.StringFieldUpdateOperationsInput | string
   mapping?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   forceFullSearch?: Prisma.BoolFieldUpdateOperationsInput | boolean
   useBrowser?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -2087,6 +2134,7 @@ export type TaobaoJobUncheckedUpdateWithoutAnalysisRunInput = {
   clientId?: Prisma.StringFieldUpdateOperationsInput | string
   datasetId?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.EnumTaobaoJobStatusFieldUpdateOperationsInput | $Enums.TaobaoJobStatus
+  mode?: Prisma.StringFieldUpdateOperationsInput | string
   mapping?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   forceFullSearch?: Prisma.BoolFieldUpdateOperationsInput | boolean
   useBrowser?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -2120,6 +2168,7 @@ export type TaobaoJobUncheckedUpdateManyWithoutAnalysisRunInput = {
   clientId?: Prisma.StringFieldUpdateOperationsInput | string
   datasetId?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.EnumTaobaoJobStatusFieldUpdateOperationsInput | $Enums.TaobaoJobStatus
+  mode?: Prisma.StringFieldUpdateOperationsInput | string
   mapping?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   forceFullSearch?: Prisma.BoolFieldUpdateOperationsInput | boolean
   useBrowser?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -2192,6 +2241,7 @@ export type TaobaoJobSelect<ExtArgs extends runtime.Types.Extensions.InternalArg
   datasetId?: boolean
   analysisRunId?: boolean
   status?: boolean
+  mode?: boolean
   mapping?: boolean
   forceFullSearch?: boolean
   useBrowser?: boolean
@@ -2230,6 +2280,7 @@ export type TaobaoJobSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Ext
   datasetId?: boolean
   analysisRunId?: boolean
   status?: boolean
+  mode?: boolean
   mapping?: boolean
   forceFullSearch?: boolean
   useBrowser?: boolean
@@ -2265,6 +2316,7 @@ export type TaobaoJobSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Ext
   datasetId?: boolean
   analysisRunId?: boolean
   status?: boolean
+  mode?: boolean
   mapping?: boolean
   forceFullSearch?: boolean
   useBrowser?: boolean
@@ -2300,6 +2352,7 @@ export type TaobaoJobSelectScalar = {
   datasetId?: boolean
   analysisRunId?: boolean
   status?: boolean
+  mode?: boolean
   mapping?: boolean
   forceFullSearch?: boolean
   useBrowser?: boolean
@@ -2326,7 +2379,7 @@ export type TaobaoJobSelectScalar = {
   createdAt?: boolean
 }
 
-export type TaobaoJobOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "clientId" | "datasetId" | "analysisRunId" | "status" | "mapping" | "forceFullSearch" | "useBrowser" | "maxCandidates" | "detailTopN" | "useElim" | "use1688" | "reviewTopN" | "totalRows" | "processedRows" | "reusedRows" | "searchedRows" | "failedRows" | "apiCalls" | "apiCacheHits" | "hwhCalls" | "browserCalls" | "elimCalls" | "reusedProducts" | "newProducts" | "startedAt" | "finishedAt" | "error" | "createdAt", ExtArgs["result"]["taobaoJob"]>
+export type TaobaoJobOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "clientId" | "datasetId" | "analysisRunId" | "status" | "mode" | "mapping" | "forceFullSearch" | "useBrowser" | "maxCandidates" | "detailTopN" | "useElim" | "use1688" | "reviewTopN" | "totalRows" | "processedRows" | "reusedRows" | "searchedRows" | "failedRows" | "apiCalls" | "apiCacheHits" | "hwhCalls" | "browserCalls" | "elimCalls" | "reusedProducts" | "newProducts" | "startedAt" | "finishedAt" | "error" | "createdAt", ExtArgs["result"]["taobaoJob"]>
 export type TaobaoJobInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   client?: boolean | Prisma.ClientDefaultArgs<ExtArgs>
   dataset?: boolean | Prisma.TaobaoDatasetDefaultArgs<ExtArgs>
@@ -2361,6 +2414,14 @@ export type $TaobaoJobPayload<ExtArgs extends runtime.Types.Extensions.InternalA
     datasetId: string
     analysisRunId: string | null
     status: $Enums.TaobaoJobStatus
+    /**
+     * Modalità della corsa che ha creato il job: `v2` o `v3`.
+     * 
+     * Il runner deve saperlo senza risalire alla pipeline: in v3 le righe con
+     * un link nel foglio si risolvono aprendo il link, e per quelle la ricerca
+     * non parte affatto.
+     */
+    mode: string
     mapping: runtime.JsonValue
     /**
      * Ricerca completa anche per le varianti già conosciute.
@@ -2848,6 +2909,7 @@ export interface TaobaoJobFieldRefs {
   readonly datasetId: Prisma.FieldRef<"TaobaoJob", 'String'>
   readonly analysisRunId: Prisma.FieldRef<"TaobaoJob", 'String'>
   readonly status: Prisma.FieldRef<"TaobaoJob", 'TaobaoJobStatus'>
+  readonly mode: Prisma.FieldRef<"TaobaoJob", 'String'>
   readonly mapping: Prisma.FieldRef<"TaobaoJob", 'Json'>
   readonly forceFullSearch: Prisma.FieldRef<"TaobaoJob", 'Boolean'>
   readonly useBrowser: Prisma.FieldRef<"TaobaoJob", 'Boolean'>

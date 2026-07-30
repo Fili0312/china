@@ -176,6 +176,7 @@ test("starting an already-active dataset reattaches to its pipeline without crea
 
   try {
     const result = await service.start("client-a", "dataset-a", {
+      mode: "v2",
       mapping: [{ columnIndex: 0, field: "name" }],
       markupPct: 15,
       maxRefineRounds: 2,

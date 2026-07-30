@@ -143,7 +143,22 @@ export type TaobaoPipelineEstimate = z.infer<typeof TaobaoPipelineEstimateSchema
 /* Avvio                                                                       */
 /* -------------------------------------------------------------------------- */
 
+/**
+ * Le due modalità della stessa pipeline.
+ *
+ * `v3` cambia due regole: i prodotti che nel foglio hanno un link si risolvono
+ * aprendo il link — variante compresa — invece di cercarli, e per gli altri si
+ * guardano più candidati scegliendo il più economico fra quelli che
+ * corrispondono davvero. Tutto il resto è identico, ed è il motivo per cui non
+ * esiste un secondo backend.
+ */
+export const TAOBAO_PIPELINE_MODES = ["v2", "v3"] as const;
+export const TaobaoPipelineModeSchema = z.enum(TAOBAO_PIPELINE_MODES);
+export type TaobaoPipelineMode = z.infer<typeof TaobaoPipelineModeSchema>;
+
 export const StartTaobaoPipelineRequestSchema = z.object({
+  /** Quale delle due pagine sta avviando la corsa. */
+  mode: TaobaoPipelineModeSchema.default("v2"),
   /** Mappatura confermata; se manca si usa quella dedotta dal preventivo. */
   mapping: z.array(DatasetMappingSchema).optional(),
   /** Ricarico del report finale: modificabile anche dopo, al download. */
@@ -356,6 +371,8 @@ export type TaobaoPipelineOutcome = z.infer<typeof TaobaoPipelineOutcomeSchema>;
 
 export const TaobaoPipelineStateSchema = z.object({
   pipelineId: z.string(),
+  /** La modalità con cui è stata avviata: le corse vecchie sono `v2`. */
+  mode: TaobaoPipelineModeSchema.default("v2"),
   clientId: z.string(),
   clientName: z.string(),
   datasetId: z.string(),
